@@ -1,0 +1,26 @@
+{
+  "name": "coder-path",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Twiink/coder-path.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Twiink/coder-path/issues"
+  },
+  "homepage": "https://github.com/Twiink/coder-path#readme",
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.42"
+  }
+}
