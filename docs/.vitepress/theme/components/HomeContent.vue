@@ -93,7 +93,6 @@ const destinations = [
           <span class="card-icon" aria-hidden="true">
             <img :src="destination.icon" alt="" width="112" height="112" loading="lazy">
           </span>
-          <span class="card-divider" aria-hidden="true"></span>
           <h2>{{ destination.title }}</h2>
           <p>{{ destination.description }}</p>
           <span class="card-arrow" aria-hidden="true">→</span>
@@ -148,6 +147,7 @@ const destinations = [
     radial-gradient(circle at 91% 32%, rgb(107 124 201 / 8%), transparent 22rem),
     var(--paper);
   font-family: 'Avenir Next', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  image-rendering: optimizeSpeed;
 }
 
 .coderpath-home *,
@@ -212,10 +212,11 @@ const destinations = [
   width: 5.7rem;
   height: .55rem;
   margin-left: .42rem;
-  border-radius: 1px;
+  border-radius: 2px;
   background: #f1c653;
   content: '';
   transform: translateY(-.18em) rotate(-2deg);
+  box-shadow: 2px 2px 0 rgb(241 198 83 / 35%);
 }
 
 .hero-description {
@@ -227,14 +228,16 @@ const destinations = [
 }
 
 .terminal-card {
+  position: relative;
   max-width: 410px;
   overflow: hidden;
   border: 2px solid var(--ink);
-  border-radius: 6px;
+  border-radius: 4px;
   background: #17243b;
-  box-shadow: 6px 6px 0 rgb(21 35 61 / 9%);
+  box-shadow: 6px 6px 0 rgb(21 35 61 / 12%);
   color: #f6f5ef;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  image-rendering: crisp-edges;
 }
 
 .terminal-bar {
@@ -250,7 +253,8 @@ const destinations = [
 .terminal-dot {
   width: 8px;
   height: 8px;
-  border-radius: 2px;
+  border-radius: 1px;
+  image-rendering: pixelated;
 }
 
 .terminal-dot.coral { background: var(--coral); }
@@ -284,6 +288,7 @@ const destinations = [
   background: #51d7ab;
   vertical-align: -.17em;
   animation: cursor-blink 1.1s steps(2, start) infinite;
+  image-rendering: pixelated;
 }
 
 .hero-actions {
@@ -301,11 +306,12 @@ const destinations = [
   min-height: 48px;
   padding: 0 20px;
   border: 2px solid var(--ink);
-  border-radius: 5px;
+  border-radius: 4px;
   color: var(--ink);
   font-weight: 800;
   text-decoration: none;
   transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+  cursor: pointer;
 }
 
 .button:hover {
@@ -323,9 +329,25 @@ const destinations = [
   color: var(--paper);
 }
 
+.button.primary:hover {
+  box-shadow: 6px 6px 0 var(--mint);
+}
+
+.button.primary:active {
+  box-shadow: 2px 2px 0 var(--mint);
+}
+
 .button.secondary {
   background: rgb(255 255 255 / 72%);
   box-shadow: 4px 4px 0 #dce2ee;
+}
+
+.button.secondary:hover {
+  box-shadow: 6px 6px 0 #dce2ee;
+}
+
+.button.secondary:active {
+  box-shadow: 2px 2px 0 #dce2ee;
 }
 
 .hero-art {
@@ -350,7 +372,7 @@ const destinations = [
   height: auto;
   margin: 0 auto;
   filter: drop-shadow(0 17px 20px rgb(21 35 61 / 12%));
-  image-rendering: auto;
+  image-rendering: pixelated;
 }
 
 .pixel-spark {
@@ -360,11 +382,18 @@ const destinations = [
   height: 11px;
   background: var(--mint);
   box-shadow: 11px 0 0 #dce1ff, 0 11px 0 #f0bd45;
+  image-rendering: pixelated;
+  animation: pixel-float 3s ease-in-out infinite;
 }
 
-.spark-one { top: 11%; right: 14%; }
-.spark-two { right: 2%; bottom: 20%; transform: scale(.7); }
-.spark-three { top: 54%; left: 0; transform: scale(.5); }
+@keyframes pixel-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.spark-one { top: 11%; right: 14%; animation-delay: 0s; }
+.spark-two { right: 2%; bottom: 20%; transform: scale(.7); animation-delay: 1s; }
+.spark-three { top: 54%; left: 0; transform: scale(.5); animation-delay: 2s; }
 
 .destinations-section {
   padding: 40px 0 26px;
@@ -383,41 +412,48 @@ const destinations = [
   flex-direction: column;
   padding: 18px 20px 18px;
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
   background: rgb(255 255 255 / 74%);
   box-shadow: 0 10px 22px rgb(21 35 61 / 4%);
   color: inherit;
   text-decoration: none;
   transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  cursor: pointer;
 }
 
 .destination-card::before,
 .destination-card::after {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border: solid var(--mint);
   content: '';
-  opacity: .8;
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.destination-card:hover::before,
+.destination-card:hover::after {
+  opacity: .85;
 }
 
 .destination-card::before {
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   border-width: 2px 2px 0 0;
 }
 
 .destination-card::after {
-  bottom: 12px;
-  left: 12px;
+  bottom: 10px;
+  left: 10px;
   border-width: 0 0 2px 2px;
 }
 
 .destination-card:hover {
   transform: translateY(-5px);
   border-color: var(--mint);
-  box-shadow: 0 17px 26px rgb(21 35 61 / 10%);
+  box-shadow: 0 17px 26px rgb(21 35 61 / 10%), 4px 4px 0 rgb(44 169 133 / 18%);
 }
 
 .card-icon {
@@ -425,6 +461,7 @@ const destinations = [
   min-height: 106px;
   align-items: center;
   justify-content: flex-start;
+  margin-bottom: 16px;
 }
 
 .card-icon img {
@@ -432,14 +469,12 @@ const destinations = [
   width: 112px;
   height: 102px;
   object-fit: contain;
-  image-rendering: auto;
+  image-rendering: pixelated;
+  transition: transform .2s ease;
 }
 
-.card-divider {
-  display: block;
-  height: 1px;
-  margin: 0 0 15px;
-  background: var(--border);
+.destination-card:hover .card-icon img {
+  transform: scale(1.08);
 }
 
 .destination-card h2 {
@@ -471,9 +506,10 @@ const destinations = [
   margin-bottom: 42px;
   padding: clamp(24px, 4vw, 52px);
   overflow: hidden;
-  border: 1px solid #d8dff4;
-  border-radius: 17px;
+  border: 2px solid #d8dff4;
+  border-radius: 12px;
   background: var(--lavender);
+  box-shadow: 0 8px 16px rgb(21 35 61 / 5%);
 }
 
 .roadmap-copy {
@@ -503,12 +539,25 @@ const destinations = [
   line-height: 1.75;
 }
 
-.roadmap-action { min-height: 44px; padding: 0 16px; font-size: .9rem; }
+.roadmap-action {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: .9rem;
+}
+
+.roadmap-action:hover {
+  box-shadow: 5px 5px 0 var(--mint);
+}
+
+.roadmap-action:active {
+  box-shadow: 2px 2px 0 var(--mint);
+}
 
 .roadmap-art img {
   display: block;
   width: 100%;
   height: auto;
+  image-rendering: pixelated;
 }
 
 .home-footer {
@@ -542,6 +591,25 @@ const destinations = [
 
 @keyframes cursor-blink {
   50% { opacity: 0; }
+}
+
+.hero-art::after {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgb(21 35 61 / 1.5%) 2px, rgb(21 35 61 / 1.5%) 4px);
+  content: '';
+  pointer-events: none;
+}
+
+.terminal-card::after {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 1px, rgb(255 255 255 / 2%) 1px, rgb(255 255 255 / 2%) 2px);
+  content: '';
+  pointer-events: none;
 }
 
 @media (max-width: 960px) {

@@ -431,8 +431,8 @@ export default defineConfig({
 
   // 头部配置
   head: [
-    ['link', { rel: 'icon', href: '/coder-path/favicon.ico' }],
-    ['meta', { name: 'theme-color', content: '#3eaf7c' }],
+    ['link', { rel: 'icon', href: '/images/coderpath-rocket-pixel.png' }],
+    ['meta', { name: 'theme-color', content: '#2ca985' }],
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
     ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }]
   ]
