@@ -14,6 +14,8 @@ Redis，内存数据库的王者。它不仅是缓存，更是数据结构服务
 
 ### 第一阶段：基础数据结构
 
+> 📖 阶段笔记：[Redis 入门与安装配置](/study-notes/database/redis/intro-installation) · [数据类型与命令](/study-notes/database/redis/data-types-commands)
+
 **String（字符串）**
 - SET / GET 基础操作
 - INCR / DECR 计数器
@@ -87,6 +89,7 @@ Redis，内存数据库的王者。它不仅是缓存，更是数据结构服务
 - RDB vs AOF 对比
 - 混合持久化（RDB + AOF）
 - 持久化配置调优
+- 📖 笔记：[Redis 持久化](/study-notes/database/redis/persistence)
 
 **主从复制**
 - REPLICAOF 配置主从
@@ -117,6 +120,7 @@ Redis，内存数据库的王者。它不仅是缓存，更是数据结构服务
 - 缓存雪崩（过期时间随机化）
 - 缓存预热
 - 缓存更新策略
+- 📖 笔记：[缓存设计与常见问题](/study-notes/database/redis/cache-design-common-pitfalls)
 
 **分布式锁**
 - SETNX 实现简单锁
@@ -124,6 +128,7 @@ Redis，内存数据库的王者。它不仅是缓存，更是数据结构服务
 - Redlock 算法
 - 锁超时问题
 - Redisson 客户端
+- 📖 笔记：[分布式锁与事务](/study-notes/database/redis/distributed-locks-transactions)
 
 **限流方案**
 - 计数器限流

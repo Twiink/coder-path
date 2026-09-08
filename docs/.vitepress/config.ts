@@ -273,55 +273,65 @@ export default defineConfig({
           items: [
             { text: '概述', link: '/study-notes/' },
             {
-              text: 'JavaScript',
+              text: '前端',
               collapsed: false,
               items: [
-                { text: '基础知识', link: '/study-notes/javascript/' }
+                { text: 'React', link: '/study-notes/react/' }
               ]
             },
             {
-              text: 'TypeScript',
+              text: '后端',
               collapsed: false,
               items: [
-                { text: '基础知识', link: '/study-notes/typescript/' }
-              ]
-            },
-            {
-              text: 'Vue',
-              collapsed: false,
-              items: [
-                { text: '基础知识', link: '/study-notes/vue/' }
-              ]
-            },
-            {
-              text: 'React',
-              collapsed: false,
-              items: [
-                { text: '基础知识', link: '/study-notes/react/' }
-              ]
-            },
-            {
-              text: 'Django',
-              collapsed: false,
-              items: [
-                { text: '基础知识', link: '/study-notes/django/' }
-              ]
-            },
-            {
-              text: 'Node.js',
-              collapsed: false,
-              items: [
-                { text: '基础知识', link: '/study-notes/nodejs/' }
+                { text: 'Java', link: '/study-notes/java/' },
+                { text: 'Java Web', link: '/study-notes/java-web/' },
+                { text: 'JVM', link: '/study-notes/jvm/' },
+                { text: 'Spring', link: '/study-notes/spring/' },
+                { text: 'Spring Boot', link: '/study-notes/spring-boot/' },
+                { text: 'MyBatis', link: '/study-notes/mybatis/' },
+                { text: 'Go 与 Gin', link: '/study-notes/golang/' },
+                { text: 'Python', link: '/study-notes/python/' },
+                { text: 'Django', link: '/study-notes/django/' },
+                { text: 'FastAPI', link: '/study-notes/fastapi/' }
               ]
             },
             {
               text: '数据库',
               collapsed: false,
               items: [
-                { text: 'MySQL', link: '/study-notes/database/mysql' },
-                { text: 'PostgreSQL', link: '/study-notes/database/postgresql' },
-                { text: 'MongoDB', link: '/study-notes/database/mongodb' },
-                { text: 'Redis', link: '/study-notes/database/redis' }
+                { text: 'MySQL', link: '/study-notes/database/mysql/' },
+                { text: 'PostgreSQL', link: '/study-notes/database/postgresql/' },
+                { text: 'MongoDB', link: '/study-notes/database/mongodb/' },
+                { text: 'Redis', link: '/study-notes/database/redis/' },
+                { text: 'SQLite', link: '/study-notes/database/sqlite/' },
+                { text: 'Oracle 与 SQL Server', link: '/study-notes/database/oracle-sqlserver/' }
+              ]
+            },
+            {
+              text: '中间件与消息队列',
+              collapsed: false,
+              items: [
+                { text: '中间件（杂项）', link: '/study-notes/middleware/' },
+                { text: 'Elasticsearch', link: '/study-notes/middleware/elasticsearch/' },
+                { text: 'RabbitMQ', link: '/study-notes/middleware/rabbitmq/' },
+                { text: 'Kafka', link: '/study-notes/middleware/kafka/' },
+                { text: 'RocketMQ', link: '/study-notes/middleware/rocketmq/' },
+                { text: 'ZooKeeper', link: '/study-notes/middleware/zookeeper/' },
+                { text: 'etcd', link: '/study-notes/middleware/etcd/' }
+              ]
+            },
+            {
+              text: '微服务',
+              collapsed: false,
+              items: [
+                { text: 'Spring Cloud', link: '/study-notes/microservices/spring-cloud/' }
+              ]
+            },
+            {
+              text: 'AI 与 Agent',
+              collapsed: false,
+              items: [
+                { text: 'AI 与 Agent', link: '/study-notes/ai/' }
               ]
             }
           ]

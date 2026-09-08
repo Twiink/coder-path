@@ -4,6 +4,8 @@
 
 ## 基础篇
 
+> 📖 篇笔记：[向量数据库选型与实战](/study-notes/ai/vector-database-selection-practice)
+
 先理解向量数据库的本质：
 
 - **什么是向量（Embedding）**：文本的"语义指纹"

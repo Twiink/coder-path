@@ -4,6 +4,8 @@ ZooKeeper 是分布式协调服务的"老大哥"，从 Hadoop 生态到 Kafka、
 
 ## 基础篇：架构与核心概念
 
+> 📖 笔记：[ZooKeeper 与分布式协调](/study-notes/middleware/zookeeper/zookeeper-coordination)
+
 ### ZooKeeper 的定位
 - 不是数据库：存储少量元数据（< 1MB/节点）
 - 不是消息队列：不适合高吞吐消息传递

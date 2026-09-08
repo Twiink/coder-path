@@ -124,6 +124,7 @@ Maven 是 Java 生态的项目管理和构建工具，以"约定优于配置"著
 ### 依赖管理
 - 父 POM：dependencyManagement 统一版本
 - 子模块：只声明 groupId 和 artifactId
+- 📖 笔记：[Maven 依赖管理与多模块](/study-notes/java/maven-multi-module)
 - 模块间依赖：子模块互相依赖
 - 版本一致性：避免版本冲突
 

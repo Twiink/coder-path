@@ -11,6 +11,7 @@ Gradle 是新一代的项目自动化构建工具，以灵活性和性能著称�
 - 多语言支持：Java、Kotlin、Groovy、Scala、C++、Android
 - 依赖管理：兼容 Maven/Ivy 仓库
 - 插件生态：丰富的官方和社区插件
+- 📖 笔记：[Gradle 与构建工具对比](/study-notes/java/gradle-vs-build-tools)
 
 ### 安装配置
 - 下载：Gradle 官网或 SDKMAN

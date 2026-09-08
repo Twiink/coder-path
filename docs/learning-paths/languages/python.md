@@ -10,6 +10,7 @@ Python，这门"人生苦短，我用 Python"的语言，以其简洁优雅的�
 - **数据类型**：数字（int、float、complex）、布尔值、None
 - **运算符**：算术、比较、逻辑、位运算、成员运算、身份运算
 - **控制流**：if/elif/else、for/while 循环、break/continue、pass
+- 📖 笔记：[Python 基础语法](/study-notes/python/syntax-basics)
 
 ```python
 # Python 的哲学：简洁就是美
@@ -24,6 +25,7 @@ print("Hello, Python!")
 - **字典（Dict）**：键值对、字典推导式、常用方法
 - **集合（Set）**：去重、交并差集、集合推导式
 - **字符串（String）**：格式化（f-string、format）、常用方法、编码解码
+- 📖 笔记：[Python 数据结构](/study-notes/python/data-structures)
 
 **下一步学习**：数据结构是容器，函数是逻辑的封装。
 
@@ -35,6 +37,7 @@ print("Hello, Python!")
 - **内置函数**：map、filter、reduce、zip、enumerate
 - **模块导入**：import、from...import、as 别名、__name__ == '__main__'
 - **包管理**：创建包、__init__.py、相对导入与绝对导入
+- 📖 笔记：[函数与函数式编程](/study-notes/python/functions-functional-programming)
 
 **下一步学习**：函数让代码复用，面向对象让代码更有结构。
 
@@ -45,6 +48,7 @@ print("Hello, Python!")
 - **继承**：单继承、多继承、super() 函数、MRO（方法解析顺序）
 - **多态**：鸭子类型、抽象基类（ABC）
 - **特殊方法**：__str__、__repr__、__len__、__getitem__、__call__
+- 📖 笔记：[Python 面向对象编程](/study-notes/python/oop)
 
 **下一步学习**：OOP 是组织代码的方式，文件操作是与外界交互的开始。
 
@@ -57,6 +61,8 @@ print("Hello, Python!")
 **下一步学习**：文件操作是基础，标准库是 Python 的宝库。
 
 ## 进阶篇
+
+> 📖 篇笔记：[Python 进阶特性](/study-notes/python/advanced-features)
 
 ### 标准库精要
 - **日期时间**：datetime、time、calendar

@@ -4,6 +4,8 @@
 
 ## 什么是 AI Agent
 
+> 📖 篇笔记：[Agent 核心循环](/study-notes/ai/01-agent-core-loop) · [推理与思考](/study-notes/ai/02-reasoning-and-thinking) · [记忆与知识](/study-notes/ai/04-memory-and-knowledge)
+
 AI Agent 是能够感知环境、做出决策、执行行动的智能系统。不同于传统的"调用一次 API 返回一个结果"，Agent 可以：
 - 分解复杂任务
 - 使用工具（搜索、计算器、数据库等）

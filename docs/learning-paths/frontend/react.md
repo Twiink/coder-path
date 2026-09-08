@@ -4,6 +4,8 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 
 ## 基础篇：核心概念
 
+> 📖 篇笔记：[React 综合](/study-notes/react/react) · [React 基础知识](/study-notes/react/appendix-01-react-basics) · [React 扩展阅读](/study-notes/react/appendix-02-react-extra)
+
 ### JSX 语法
 - JSX 是什么：JavaScript 的语法扩展
 - 嵌入表达式：{ } 插值
@@ -20,6 +22,7 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 - 组件组合：children prop
 - 条件渲染：if、三元、&&
 - 列表渲染：map、key 的重要性
+- 📖 笔记：[React 与 Vue 生命周期对比](/study-notes/react/react-vue-lifecycle)
 
 ### State 状态管理
 - useState Hook：声明状态、更新状态
@@ -50,6 +53,19 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 - useLayoutEffect：同步副作用
 - useImperativeHandle：暴露实例方法给父组件
 - useDebugValue：自定义 Hook 调试
+- 📖 笔记：[React Hook 简介](/study-notes/react/01-hooks-intro)
+- 📖 笔记：[useState 基础用法](/study-notes/react/02-use-state-basics)
+- 📖 笔记：[useState 高级用法](/study-notes/react/03-use-state-advanced)
+- 📖 笔记：[useReducer 基础用法](/study-notes/react/08-use-reducer-basics)
+- 📖 笔记：[useReducer 高级用法](/study-notes/react/09-use-reducer-advanced)
+- 📖 笔记：[useCallback 基础用法](/study-notes/react/10-use-callback-basics)
+- 📖 笔记：[useMemo 基础用法](/study-notes/react/11-use-memo-basics)
+- 📖 笔记：[useRef 基础用法](/study-notes/react/12-use-ref-basics)
+- 📖 笔记：[useImperativeHandle 基础用法](/study-notes/react/13-use-imperative-handle-basics)
+- 📖 笔记：[useLayoutEffect 基础用法](/study-notes/react/14-use-layout-effect-basics)
+- 📖 笔记：[useDebugValue 基础用法](/study-notes/react/15-use-debug-value-basics)
+- 📖 笔记：[React Hook 总结](/study-notes/react/17-hooks-summary)
+- 📖 笔记：[React 使用 ECharts 的 Hooks 示例](/study-notes/react/18-echarts-hooks-example)
 
 ### Hooks 实现原理
 - Fiber 节点与 Hook 链表
@@ -68,6 +84,8 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 - 执行时机：渲染后异步执行
 - 无限循环陷阱：依赖数组不当
 - 多个 useEffect：关注点分离
+- 📖 笔记：[useEffect 基础用法](/study-notes/react/04-use-effect-basics)
+- 📖 笔记：[useEffect 高级用法](/study-notes/react/05-use-effect-advanced)
 
 ### 自定义 Hooks
 - 命名规范：use 开头
@@ -75,6 +93,7 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 - 状态共享：每次调用独立
 - 常见自定义 Hook：useLocalStorage、useFetch、useDebounce、useWindowSize
 - Hooks 组合：复用其他 Hooks
+- 📖 笔记：[自定义 Hook](/study-notes/react/16-custom-hooks)
 
 ### Hooks 规则
 - 只在顶层调用：不在循环、条件、嵌套函数中
@@ -89,6 +108,8 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 - useContext：消费值
 - 避免不必要的重渲染：拆分 Context、useMemo
 - Context 的局限：跨层级传递，非全局状态管理
+- 📖 笔记：[useContext 基础用法](/study-notes/react/06-use-context-basics)
+- 📖 笔记：[useContext 高级用法](/study-notes/react/07-use-context-advanced)
 
 ### Context 深入原理
 - Context 值变化触发重渲染
@@ -178,6 +199,7 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 - useTransition：过渡状态
 - useDeferredValue：延迟更新值
 - 并发渲染的中断与恢复
+- 📖 笔记：[useTransition 基础用法](/study-notes/react/19-use-transition-basics)
 
 ### Suspense 增强
 - Suspense 边界：加载状态管理
@@ -220,6 +242,7 @@ Facebook 出品的前端库（不是框架，虽然大家都这么叫），专�
 - useMutation：数据变更
 - 缓存策略：staleTime、cacheTime
 - 自动重试、轮询、分页
+- 📖 笔记：[React Query vs API Cancel](/study-notes/react/react-query-api-cancellation)
 
 ### SWR
 - useSWR：stale-while-revalidate 策略

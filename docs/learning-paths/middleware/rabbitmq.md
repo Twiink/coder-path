@@ -4,6 +4,8 @@ RabbitMQ 是消息队列界的"瑞士军刀"，以 AMQP 协议为基础，凭借
 
 ## 基础篇：核心概念与 AMQP 协议
 
+> 📖 篇笔记：[RabbitMQ 概述](/study-notes/middleware/rabbitmq/overview) · [RabbitMQ 核心与 Java 整合](/study-notes/middleware/rabbitmq/java-integration) · [Go 操作 RabbitMQ](/study-notes/middleware/rabbitmq/rabbitmq-with-go) · [RabbitMQ 封装实践](/study-notes/middleware/rabbitmq/wrapper-practice)
+
 ### RabbitMQ 的角色与组件
 - Producer：生产者，发送消息到交换机
 - Exchange：交换机，接收消息并路由到队列

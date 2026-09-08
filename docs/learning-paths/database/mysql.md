@@ -17,6 +17,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - 在 macOS/Linux/Windows 上安装 MySQL
 - 使用 mysql 命令行客户端连接数据库
 - 基础命令：SHOW DATABASES、USE、SHOW TABLES
+- 📖 笔记：[MySQL 安装与连接入门](/study-notes/database/mysql/intro-installation)
 
 **数据库与表操作**
 - CREATE DATABASE 创建数据库
@@ -24,6 +25,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - CREATE TABLE 定义表结构
 - 数据类型选择（INT、VARCHAR、TEXT、TIMESTAMP 等）
 - 主键、外键、索引的概念
+- 📖 笔记：[数据类型与表设计](/study-notes/database/mysql/data-types-schema-design)
 
 **基础 CRUD**
 - INSERT：单行插入、批量插入
@@ -31,6 +33,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - UPDATE：更新数据
 - DELETE：删除数据
 - LIMIT 和 OFFSET 实现分页
+- 📖 笔记：[SQL 基础（CRUD 语法）](/study-notes/database/mysql/sql-basics)
 
 ### 第二阶段：进阶查询
 
@@ -41,6 +44,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - HAVING 过滤分组结果
 - DISTINCT 去重
 - UNION 联合查询
+- 📖 笔记：[高级查询与函数](/study-notes/database/mysql/advanced-queries-functions)
 
 **聚合函数与统计**
 - COUNT、SUM、AVG、MAX、MIN
@@ -54,6 +58,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - 全文索引（FULLTEXT）
 - 最左前缀原则
 - EXPLAIN 分析查询计划
+- 📖 笔记：[索引与执行计划](/study-notes/database/mysql/indexes-execution-plans)
 
 **索引原理深入**
 - B+ 树结构：叶子节点存储数据
@@ -73,6 +78,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - 四种隔离级别
 - 死锁检测与处理
 - 事务日志（redo log、undo log）
+- 📖 笔记：[事务与锁机制](/study-notes/database/mysql/transactions-and-locking)
 
 **InnoDB 存储引擎**
 - InnoDB vs MyISAM 区别
@@ -123,6 +129,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - 索引失效场景
 - 避免全表扫描
 - 查询重写技巧
+- 📖 笔记：[慢查询与性能优化](/study-notes/database/mysql/slow-query-optimization)
 
 **查询优化深入**
 - 查询执行流程：连接器、分析器、优化器、执行器
@@ -166,6 +173,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - 分布式事务：两阶段提交、Seata
 - 中间件：ShardingSphere、MyCat
 - 数据迁移与扩容
+- 📖 笔记：[分库分表与高可用](/study-notes/database/mysql/sharding-high-availability)
 
 ### 第五阶段：运维实战
 
@@ -174,6 +182,7 @@ MySQL，世界上最流行的开源关系数据库。从小博客到大公司，
 - 物理备份（Percona XtraBackup）
 - 增量备份策略
 - 灾难恢复演练
+- 📖 笔记：[日志与备份恢复](/study-notes/database/mysql/logging-backup-recovery)
 
 **监控告警**
 - 慢查询监控

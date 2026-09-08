@@ -4,6 +4,8 @@ Kafka 不仅仅是个消息队列，它是分布式流处理的王者，是数�
 
 ## 基础篇：核心概念与架构
 
+> 📖 笔记：[Kafka](/study-notes/middleware/kafka/kafka)
+
 ### Kafka 的核心角色
 - Producer：生产者，负责向 Kafka 发送消息
 - Consumer：消费者，从 Kafka 拉取消息进行处理

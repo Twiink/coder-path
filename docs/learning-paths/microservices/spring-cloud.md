@@ -15,6 +15,9 @@ Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提
 - Spring Cloud OpenFeign：声明式 HTTP 客户端
 - Spring Cloud LoadBalancer：客户端负载均衡（Ribbon 替代品）
 - Spring Cloud Circuit Breaker：断路器抽象层
+- 📖 笔记：[SpringCloud 技术体系与版本选型](/study-notes/microservices/spring-cloud/spring-cloud-ecosystem)
+- 📖 笔记：[微服务架构演进与 CAP 理论](/study-notes/microservices/spring-cloud/microservices-architecture-cap)
+- 📖 笔记：[微服务实战与常见问题](/study-notes/microservices/spring-cloud/microservices-practice-faq)
 
 ### 版本管理
 - 发布列车（Release Train）命名：Hoxton、2020.0、2021.0、2022.0
@@ -87,6 +90,7 @@ Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提
 - 请求映射：@GetMapping、@PostMapping
 - 请求参数：@RequestParam、@PathVariable、@RequestBody
 - 请求头：@RequestHeader
+- 📖 笔记：[OpenFeign 服务调用](/study-notes/microservices/spring-cloud/openfeign)
 
 ### Feign 配置
 - 超时配置：连接超时、读超时
@@ -175,6 +179,7 @@ Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提
 - 限流：RequestRateLimiter（Redis）
 - 熔断：Spring Cloud Circuit Breaker 集成
 - 跨域配置：CORS
+- 📖 笔记：[Gateway 网关](/study-notes/microservices/spring-cloud/gateway)
 
 ### 网关功能
 - 统一入口：所有请求经过网关
@@ -193,6 +198,7 @@ Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提
 - Span ID：操作单元唯一 ID
 - Parent ID：父 Span ID
 - 采样率：控制追踪数据量
+- 📖 笔记：[分布式 ID 与链路追踪](/study-notes/microservices/spring-cloud/distributed-id-tracing)
 
 ### 日志集成
 - MDC（Mapped Diagnostic Context）：日志中自动添加 Trace ID
@@ -265,6 +271,7 @@ Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提
 - 服务元数据：自定义元信息
 - 权重配置：负载均衡权重
 - 保护阈值：健康实例比例
+- 📖 笔记：[Nacos 注册中心与配置中心](/study-notes/microservices/spring-cloud/nacos-registry-config)
 
 ### Sentinel
 - 流量控制：QPS、并发线程数
@@ -275,6 +282,7 @@ Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提
 - 规则持久化：Nacos、Apollo
 - 实时监控：Sentinel Dashboard
 - 集群流控：Token Server
+- 📖 笔记：[Sentinel 限流熔断](/study-notes/microservices/spring-cloud/sentinel-rate-limiting-circuit-breaking)
 
 ### Seata
 - 分布式事务解决方案
@@ -284,6 +292,7 @@ Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提
 - XA 模式：强一致性
 - 全局事务：@GlobalTransactional
 - 事务分组：资源隔离
+- 📖 笔记：[Seata 分布式事务](/study-notes/microservices/spring-cloud/seata-distributed-transactions)
 
 ### RocketMQ
 - 消息队列：高性能、高可靠

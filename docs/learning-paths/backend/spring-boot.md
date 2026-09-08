@@ -17,6 +17,7 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - Maven/Gradle 依赖管理
   - 项目结构和启动类
   - 配置文件（application.properties/yml）
+  - 📖 笔记：[SpringBoot 入门与项目搭建](/study-notes/spring-boot/intro-project-setup)
 
 - **自动配置原理**
   - @SpringBootApplication 注解解析
@@ -26,6 +27,7 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - 自动配置的加载顺序
   - 自定义自动配置类
   - @ConfigurationProperties 配置绑定
+  - 📖 笔记：[自动配置原理](/study-notes/spring-boot/auto-configuration)
 
 - **Starter 机制**
   - Starter 的设计理念
@@ -34,6 +36,7 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - Starter 命名规范
   - META-INF/spring.factories 配置
   - 常用 Starter 分析：web、data-jpa、redis
+  - 📖 笔记：[配置文件与自定义 Starter](/study-notes/spring-boot/configuration-custom-starter)
 
 - **依赖注入与 IoC**
   - @Component、@Service、@Repository
@@ -41,6 +44,8 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - 构造函数注入 vs 字段注入
   - @Qualifier 和 @Primary
   - Bean 作用域和生命周期
+  - 📖 笔记：[Spring 概述与 IoC 容器](/study-notes/spring/spring-overview-ioc)
+  - 📖 笔记：[Spring 注解大全与配置类](/study-notes/spring/annotations-configuration-classes)
 
 - **Spring IoC 容器深入**
   - BeanFactory vs ApplicationContext
@@ -50,6 +55,8 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - BeanPostProcessor 后置处理器
   - BeanFactoryPostProcessor 工厂后置处理器
   - 循环依赖的处理：三级缓存机制
+  - 📖 笔记：[Bean 生命周期与作用域](/study-notes/spring/bean-lifecycle-scope)
+  - 📖 笔记：[循环依赖与三级缓存](/study-notes/spring/circular-deps-three-level-cache)
 
 - **RESTful API**
   - @RestController 和 @Controller
@@ -57,6 +64,9 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - @PathVariable、@RequestParam、@RequestBody
   - ResponseEntity 响应处理
   - HTTP 状态码控制
+  - 📖 笔记：[SpringBoot 整合 Web 开发](/study-notes/spring-boot/web-development)
+  - 📖 笔记：[SpringMVC 入门与执行流程](/study-notes/spring/spring-mvc-intro-flow)
+  - 📖 笔记：[SpringMVC 参数绑定与异常处理](/study-notes/spring/spring-mvc-params-exceptions)
 
 - **数据传输对象**
   - DTO 设计模式
@@ -88,6 +98,12 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - QueryDSL 查询
   - 原生 SQL 查询
   - 事务管理（@Transactional）
+  - 📖 笔记：[SpringBoot 整合数据访问层](/study-notes/spring-boot/data-access-layer)
+  - 📖 笔记：[SSM 整合实战](/study-notes/spring/ssm-integration)
+  - 📖 笔记：[MyBatis 入门与核心配置](/study-notes/mybatis/intro-core-configuration)
+  - 📖 笔记：[MyBatis 动态 SQL 与结果映射](/study-notes/mybatis/dynamic-sql-result-mapping)
+  - 📖 笔记：[MyBatis 缓存机制与插件](/study-notes/mybatis/caching-plugins)
+  - 📖 笔记：[MyBatis-Plus](/study-notes/mybatis/mybatis-plus)
 
 - **Spring AOP 面向切面编程**
   - AOP 核心概念：切面、切点、通知
@@ -97,6 +113,8 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - JoinPoint 和 ProceedingJoinPoint
   - AOP 的应用场景：日志、权限、事务
   - AOP 实现原理：JDK 动态代理 vs CGLIB
+  - 📖 笔记：[AOP 面向切面编程](/study-notes/spring/aop)
+  - 📖 笔记：[动态代理 JDK 与 CGLIB](/study-notes/spring/dynamic-proxy-jdk-cglib)
 
 - **事务管理深入**
   - @Transactional 注解详解
@@ -106,6 +124,7 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - 编程式事务：TransactionTemplate
   - 分布式事务：Seata、两阶段提交
   - 事务失效场景与解决方案
+  - 📖 笔记：[事务管理与失效场景](/study-notes/spring/transactions-pitfalls)
 
 - **异常处理**
   - @ControllerAdvice 全局异常处理
@@ -144,6 +163,7 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - 缓存管理器配置
   - 缓存失效策略
   - 分布式缓存
+  - 📖 笔记：[Redis 在 Java 项目中的整合](/study-notes/database/redis/java-integration)
 
 - **异步处理**
   - @Async 异步方法
@@ -172,6 +192,7 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - 日志文件轮转
   - 异步日志
   - MDC 追踪
+  - 📖 笔记：[日志、Actuator 与打包部署](/study-notes/spring-boot/logging-actuator-packaging)
 
 - **监控与管理**
   - Spring Boot Actuator
@@ -211,6 +232,7 @@ Java 生态最成熟，Spring Boot 是这个生态的集大成者。金融、电
   - MockMvc 模拟请求
   - Mockito Mock 对象
   - 测试覆盖率
+  - 📖 笔记：[SpringBoot 测试与常用整合实战](/study-notes/spring-boot/testing-integration-practice)
 
 - **部署**
   - JAR 打包和运行

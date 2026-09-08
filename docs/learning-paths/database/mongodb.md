@@ -19,6 +19,7 @@ MongoDB，文档数据库的代表作。抛开传统关系数据库的表和行�
 - mongosh 命令行工具
 - 基础命令：show dbs、use、show collections
 - MongoDB Compass GUI 工具
+- 📖 笔记：[MongoDB 入门与安装配置](/study-notes/database/mongodb/intro-installation)
 
 **文档操作**
 - insertOne / insertMany 插入文档
@@ -26,6 +27,7 @@ MongoDB，文档数据库的代表作。抛开传统关系数据库的表和行�
 - updateOne / updateMany 更新文档
 - deleteOne / deleteMany 删除文档
 - replaceOne 替换整个文档
+- 📖 笔记：[数据模型与 CRUD](/study-notes/database/mongodb/data-model-crud)
 
 **查询基础**
 - 相等查询：`{ field: value }`
@@ -33,6 +35,7 @@ MongoDB，文档数据库的代表作。抛开传统关系数据库的表和行�
 - 逻辑操作符：$and、$or、$not、$nor
 - 数组查询：$in、$nin、$all、$size
 - 正则表达式查询
+- 📖 笔记：[查询与聚合](/study-notes/database/mongodb/querying-and-aggregation)
 
 ### 第二阶段：进阶查询
 
@@ -67,6 +70,7 @@ MongoDB，文档数据库的代表作。抛开传统关系数据库的表和行�
 - 文本索引（全文搜索）
 - 地理空间索引（2dsphere）
 - explain() 分析查询性能
+- 📖 笔记：[索引与性能优化](/study-notes/database/mongodb/indexing-performance-optimization)
 
 **数据建模**
 - 嵌入式文档 vs 引用
@@ -91,6 +95,7 @@ MongoDB，文档数据库的代表作。抛开传统关系数据库的表和行�
 - 自动故障转移
 - 读写分离策略
 - oplog 与同步延迟
+- 📖 笔记：[副本集与高可用](/study-notes/database/mongodb/replica-sets-high-availability)
 
 **分片集群**
 - 分片键选择
@@ -98,6 +103,7 @@ MongoDB，文档数据库的代表作。抛开传统关系数据库的表和行�
 - 配置服务器（Config Server）
 - mongos 路由器
 - 数据均衡与迁移
+- 📖 笔记：[分片与扩展](/study-notes/database/mongodb/sharding-and-scaling)
 
 **性能优化**
 - 慢查询分析

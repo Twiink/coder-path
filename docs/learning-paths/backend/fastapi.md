@@ -17,6 +17,7 @@ Flask 简单但不够快，Django 全能但太重，FastAPI 找到了甜蜜点�
   - 第一个 FastAPI 应用
   - 自动文档（Swagger UI、ReDoc）
   - 异步和同步端点
+  - 📖 笔记：[初识 FastAPI](/study-notes/fastapi/fastapi-intro)
 
 - **路径操作**
   - 路径参数和类型验证
@@ -32,6 +33,7 @@ Flask 简单但不够快，Django 全能但太重，FastAPI 找到了甜蜜点�
   - 表单数据（Form）
   - 文件上传（File、UploadFile）
   - Headers 和 Cookies
+  - 📖 笔记：[请求参数与校验](/study-notes/fastapi/request-params-validation)
 
 - **响应模型**
   - response_model 定义
@@ -56,6 +58,7 @@ Flask 简单但不够快，Django 全能但太重，FastAPI 找到了甜蜜点�
   - 子依赖
   - 全局依赖
   - 依赖缓存
+  - 📖 笔记：[路由与依赖注入](/study-notes/fastapi/routing-dependency-injection)
 
 - **数据库集成**
   - SQLAlchemy ORM 集成
@@ -64,6 +67,7 @@ Flask 简单但不够快，Django 全能但太重，FastAPI 找到了甜蜜点�
   - CRUD 操作
   - 数据库会话管理
   - 迁移（Alembic）
+  - 📖 笔记：[数据库与 ORM](/study-notes/fastapi/database-orm)
 
 - **认证与授权**
   - OAuth2 密码流
@@ -72,6 +76,7 @@ Flask 简单但不够快，Django 全能但太重，FastAPI 找到了甜蜜点�
   - 依赖注入认证
   - 作用域和权限
   - API Key 认证
+  - 📖 笔记：[安全与认证](/study-notes/fastapi/security-auth)
 
 - **中间件**
   - CORS 中间件
@@ -85,6 +90,7 @@ Flask 简单但不够快，Django 全能但太重，FastAPI 找到了甜蜜点�
   - 异步任务执行
   - Celery 集成
   - 任务队列
+  - 📖 笔记：[异步编程](/study-notes/fastapi/async-programming)
 
 ### 实战篇：高级特性与部署
 
@@ -136,6 +142,7 @@ Flask 简单但不够快，Django 全能但太重，FastAPI 找到了甜蜜点�
   - 数据库测试
   - Mock 依赖
   - 测试覆盖率
+  - 📖 笔记：[测试与部署](/study-notes/fastapi/testing-deployment)
 
 - **性能优化**
   - 异步数据库查询

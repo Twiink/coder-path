@@ -4,6 +4,7 @@ TypeScript 是 JavaScript 的超集，给 JavaScript 加上了类型系统。如
 
 ## 基础篇：类型系统入门
 
+
 ### 基本类型
 - 原始类型：number、string、boolean、null、undefined、symbol、bigint
 - 数组类型：number[]、Array\<string\>

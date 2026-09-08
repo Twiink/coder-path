@@ -19,6 +19,7 @@ PostgreSQL，世界上最先进的开源关系数据库。如果说 MySQL 是数
 - psql 命令行工具使用
 - 基础命令：\l、\c、\dt、\d
 - postgresql.conf 配置文件
+- 📖 笔记：[PostgreSQL 入门与安装配置](/study-notes/database/postgresql/intro-installation)
 
 **数据库与表操作**
 - CREATE DATABASE 和字符编码
@@ -26,6 +27,7 @@ PostgreSQL，世界上最先进的开源关系数据库。如果说 MySQL 是数
 - SERIAL 与 GENERATED ALWAYS AS IDENTITY
 - 约束：主键、外键、唯一、检查
 - 默认值与自动更新时间戳
+- 📖 笔记：[数据类型与表设计](/study-notes/database/postgresql/data-types-schema-design)
 
 **基础 CRUD**
 - INSERT 插入数据
@@ -33,6 +35,7 @@ PostgreSQL，世界上最先进的开源关系数据库。如果说 MySQL 是数
 - UPDATE 更新数据
 - DELETE 删除数据
 - RETURNING 子句（PostgreSQL 特色）
+- 📖 笔记：[SQL 基础与查询](/study-notes/database/postgresql/sql-basics-queries)
 
 ### 第二阶段：进阶查询
 
@@ -42,6 +45,7 @@ PostgreSQL，世界上最先进的开源关系数据库。如果说 MySQL 是数
 - LATERAL JOIN（横向连接）
 - GROUPING SETS、ROLLUP、CUBE
 - FILTER 子句
+- 📖 笔记：[PostgreSQL 高级特性](/study-notes/database/postgresql/advanced-features)
 
 **JSON 支持**
 - JSON vs JSONB 区别
@@ -98,6 +102,7 @@ PostgreSQL，世界上最先进的开源关系数据库。如果说 MySQL 是数
 - Join 策略（Nested Loop、Hash Join、Merge Join）
 - 统计信息（ANALYZE）
 - 查询规划器参数调整
+- 📖 笔记：[索引与性能优化](/study-notes/database/postgresql/indexes-performance-optimization)
 
 **MVCC 并发控制**
 - 多版本并发控制原理
@@ -108,6 +113,7 @@ PostgreSQL，世界上最先进的开源关系数据库。如果说 MySQL 是数
 - VACUUM 机制：标准 VACUUM、VACUUM FULL
 - Autovacuum 自动清理
 - HOT 更新：Heap-Only Tuple
+- 📖 笔记：[事务与并发控制](/study-notes/database/postgresql/transactions-concurrency)
 
 **WAL 日志系统**
 - WAL（Write-Ahead Logging）原理

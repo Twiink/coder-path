@@ -4,6 +4,8 @@ Elasticsearch 是分布式搜索和分析引擎的王者，从全文搜索到日
 
 ## 基础篇：核心概念与架构
 
+> 📖 篇笔记：[Elasticsearch 入门与整合](/study-notes/middleware/elasticsearch/intro-and-integration)
+
 ### Elasticsearch 的核心概念
 - Index（索引）：类似数据库的"数据库"（但不完全等同）
 - Type（类型）：7.x 废弃，8.x 彻底移除
@@ -12,6 +14,7 @@ Elasticsearch 是分布式搜索和分析引擎的王者，从全文搜索到日
 - Mapping（映射）：定义文档结构和字段类型（类似 schema）
 - Shard（分片）：索引的水平切分，提高并行度
 - Replica（副本）：分片的备份，提高可用性和查询吞吐
+- 📖 笔记：[入门与核心概念](/study-notes/middleware/elasticsearch/intro-core-concepts)
 
 ### 倒排索引（Inverted Index）
 - 正向索引：文档 → 词条（传统数据库）
@@ -131,8 +134,11 @@ Elasticsearch 是分布式搜索和分析引擎的王者，从全文搜索到日
 - 多字段：text + keyword 双字段满足不同需求
 - 禁用不需要的功能：不搜索的字段 index=false
 - 避免字段爆炸：字段数量不要过多（建议 < 1000）
+- 📖 笔记：[索引设计与 Mapping](/study-notes/middleware/elasticsearch/index-design-mapping)
 
 ## 查询 DSL 篇
+
+> 📖 篇笔记：[查询 DSL 详解](/study-notes/middleware/elasticsearch/query-dsl)
 
 ### Full Text Queries（全文查询）
 - match：标准全文查询，会分词
@@ -183,6 +189,8 @@ Elasticsearch 是分布式搜索和分析引擎的王者，从全文搜索到日
 
 ## 聚合篇（Aggregation）
 
+> 📖 篇笔记：[聚合分析](/study-notes/middleware/elasticsearch/aggregations)
+
 ### Bucket Aggregation（桶聚合）
 - terms：按字段值分组（类似 SQL 的 GROUP BY）
 - range：范围分桶
@@ -224,6 +232,8 @@ Elasticsearch 是分布式搜索和分析引擎的王者，从全文搜索到日
 - 数据透视：多层嵌套聚合
 
 ## 集群管理篇
+
+> 📖 篇笔记：[分布式架构与集群管理](/study-notes/middleware/elasticsearch/distributed-architecture-cluster)
 
 ### 节点角色
 - Master Eligible：候选主节点，参与主节点选举
@@ -270,6 +280,8 @@ Elasticsearch 是分布式搜索和分析引擎的王者，从全文搜索到日
 - 跨集群复制：CCR（商业版）
 
 ## 性能优化篇
+
+> 📖 篇笔记：[Elasticsearch 性能优化](/study-notes/middleware/elasticsearch/performance-optimization)
 
 ### 索引性能优化
 - Bulk API：批量索引（建议 1000-5000 条/批）

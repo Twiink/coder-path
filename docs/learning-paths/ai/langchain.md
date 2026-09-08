@@ -4,6 +4,8 @@
 
 ## 基础篇
 
+> 📖 篇笔记：[LangChain 快速入门](/study-notes/ai/langchain-quickstart)
+
 先把这些积木认识一遍：
 
 - **LLM 和 ChatModel**：统一的模型调用接口，换模型不用改代码

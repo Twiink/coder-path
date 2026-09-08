@@ -4,6 +4,7 @@ JavaScript 是前端的灵魂，也是唯一能在浏览器中原生运行的编
 
 ## 基础篇：语法与核心概念
 
+
 ### 变量与数据类型
 - 变量声明：var、let、const（优先用 const）
 - 基本类型：Number、String、Boolean、Undefined、Null、Symbol、BigInt

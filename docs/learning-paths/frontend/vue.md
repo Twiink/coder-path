@@ -4,6 +4,7 @@
 
 ## 基础篇：核心概念
 
+
 ### Vue 3 vs Vue 2
 - Vue 3 是现在的主流：Composition API、更好的 TypeScript 支持
 - Vue 2 已进入维护模式：不推荐新项目使用
@@ -253,6 +254,7 @@
 - E2E 测试：完整流程
 
 ## 源码篇：Vue 3 源码分析
+
 
 ### 源码结构
 - packages 目录结构

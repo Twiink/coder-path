@@ -172,6 +172,7 @@ Redis 不仅仅是个缓存，它是内存数据库、消息队列、分布式�
 - 多主多从：多个主节点分担写入，每个主节点有从节点备份
 - 客户端路由：客户端直接访问对应节点（MOVED 重定向）
 - Gossip 协议：节点间交换信息，维护集群状态
+- 📖 笔记：[Redis 集群与高可用](/study-notes/database/redis/clustering-high-availability)
 
 ### 数据分片
 - 槽位计算：CRC16(key) % 16384
@@ -336,6 +337,7 @@ Redis 不仅仅是个缓存，它是内存数据库、消息队列、分布式�
 - 命令执行仍单线程：保证原子性
 - 性能提升：高并发场景明显
 - 配置：io-threads、io-threads-do-reads
+- 📖 笔记：[Redis 线程模型与高性能原理](/study-notes/database/redis/threading-model-performance)
 
 ## 运维监控篇
 

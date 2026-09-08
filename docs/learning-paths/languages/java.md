@@ -8,6 +8,10 @@ Java，这门"一次编写，到处调试"的语言，凭借其严谨的类型�
 - **环境搭建**：JDK 安装、IDE 选择（IntelliJ IDEA 或 Eclipse）、第一个 Hello World
 - **基本语法**：变量、数据类型、运算符、控制流（if/else、switch、循环）
 - **数组**：一维数组、多维数组、数组遍历
+- 📖 笔记：[Java 语言概述与开发环境](/study-notes/java/language-overview-env-setup)
+- 📖 笔记：[基础语法与数据类型](/study-notes/java/syntax-data-types)
+- 📖 笔记：[运算符与流程控制](/study-notes/java/operators-control-flow)
+- 📖 笔记：[数组与方法](/study-notes/java/arrays-methods)
 
 ```java
 public class HelloWorld {
@@ -24,6 +28,8 @@ public class HelloWorld {
 - **封装**：访问修饰符（private、protected、public）、getter/setter
 - **继承**：extends 关键字、方法重写、super 关键字、Object 类
 - **多态**：向上转型、方法重载与重写、动态绑定
+- 📖 笔记：[面向对象基础](/study-notes/java/oop-basics)
+- 📖 笔记：[面向对象进阶](/study-notes/java/oop-advanced)
 
 **下一步学习**：理解 OOP 三大特性后，探索 Java 的核心类库。
 
@@ -33,6 +39,8 @@ public class HelloWorld {
 - **Math 类**：常用数学运算
 - **日期时间**：Date、Calendar、Java 8 的 LocalDateTime
 - **异常处理**：try-catch-finally、throw/throws、自定义异常、异常链
+- 📖 笔记：[常用类与 API](/study-notes/java/common-classes-api)
+- 📖 笔记：[异常处理](/study-notes/java/exceptions)
 
 **下一步学习**：核心类库熟练后，掌握集合框架这一 Java 开发的利器。
 
@@ -44,6 +52,8 @@ public class HelloWorld {
 - **Map**：HashMap、TreeMap、LinkedHashMap、Hashtable
 - **Queue**：LinkedList、PriorityQueue、Deque
 - **Collections 工具类**：排序、查找、同步包装
+- 📖 笔记：[集合框架 List 与 Set](/study-notes/java/collections-list-set)
+- 📖 笔记：[集合框架 Map 与源码剖析](/study-notes/java/collections-map-source-analysis)
 
 **下一步学习**：集合是数据的容器，而泛型让容器类型安全。
 
@@ -52,6 +62,7 @@ public class HelloWorld {
 - **泛型方法**：方法级别的类型参数
 - **通配符**：`? extends T`（上界）、`? super T`（下界）
 - **类型擦除**：运行时的类型信息丢失、桥接方法
+- 📖 笔记：[泛型、枚举与注解](/study-notes/java/generics-enums-annotations)
 
 **下一步学习**：泛型让代码更安全，注解让代码更智能。
 
@@ -61,6 +72,7 @@ public class HelloWorld {
 - **自定义注解**：定义注解、注解处理器
 - **反射机制**：Class 对象、获取构造器/方法/字段、动态调用
 - **反射应用**：框架开发、动态代理
+- 📖 笔记：[反射与动态代理](/study-notes/java/reflection-dynamic-proxy)
 
 **下一步学习**：反射是框架的基石，I/O 是程序与外界的桥梁。
 
@@ -70,6 +82,7 @@ public class HelloWorld {
 - **缓冲流**：BufferedReader、BufferedWriter、性能优化
 - **对象流**：序列化与反序列化
 - **NIO**：Buffer、Channel、Selector、非阻塞 I/O、内存映射文件
+- 📖 笔记：[IO 流与文件操作](/study-notes/java/io-streams-file-operations)
 
 **下一步学习**：I/O 让程序读写数据，多线程让程序并发执行。
 
@@ -82,6 +95,13 @@ public class HelloWorld {
 - **并发集合**：ConcurrentHashMap、CopyOnWriteArrayList、BlockingQueue
 - **原子类**：AtomicInteger、AtomicReference、CAS 操作
 - **volatile 关键字**：可见性、禁止指令重排序
+- 📖 笔记：[线程基础与生命周期](/study-notes/java/thread-basics-lifecycle)
+- 📖 笔记：[线程安全与 synchronized](/study-notes/java/thread-safety-synchronized)
+- 📖 笔记：[volatile 与 CAS 原子类](/study-notes/java/volatile-cas)
+- 📖 笔记：[Lock 与 AQS 原理](/study-notes/java/lock-and-aqs)
+- 📖 笔记：[线程池原理与实战](/study-notes/java/thread-pool-practice)
+- 📖 笔记：[JUC 工具类与 ThreadLocal](/study-notes/java/juc-tools-threadlocal)
+- 📖 笔记：[异步编程 CompletableFuture](/study-notes/java/completable-future-async)
 
 **下一步学习**：并发是性能的关键，JVM 是理解 Java 的核心。
 
@@ -94,6 +114,10 @@ public class HelloWorld {
 - **垃圾收集器**：Serial、Parallel、CMS、G1、ZGC
 - **类加载机制**：加载、验证、准备、解析、初始化、双亲委派模型
 - **JVM 调优**：JVM 参数、性能监控工具（jps、jstat、jmap、jstack）
+- 📖 笔记：[JVM 概述与运行时数据区](/study-notes/jvm/overview-runtime-data-areas)
+- 📖 笔记：[垃圾回收机制与收集器](/study-notes/jvm/gc-mechanisms-collectors)
+- 📖 笔记：[类加载机制与字节码](/study-notes/jvm/class-loading-bytecode)
+- 📖 笔记：[JVM 调优与线上排查](/study-notes/jvm/tuning-troubleshooting)
 
 **下一步学习**：理解 JVM 后，你将掌握 Java 的底层运行机制。
 
@@ -102,6 +126,7 @@ public class HelloWorld {
 - **HTTP 协议**：HttpURLConnection、第三方库（HttpClient、OkHttp）
 - **NIO 网络编程**：Selector、SocketChannel、ServerSocketChannel
 - **Netty 框架**：事件驱动、异步非阻塞、编解码器
+- 📖 笔记：[Java 网络编程](/study-notes/java/network-programming)
 
 **下一步学习**：网络编程让应用连接世界，新特性让 Java 保持活力。
 
@@ -115,6 +140,7 @@ public class HelloWorld {
 - **Java 11+**：局部变量类型推断（var）、HTTP Client API
 - **Java 14+**：记录类型（Record）、模式匹配（instanceof）
 - **Java 17+**：密封类（Sealed Classes）、文本块
+- 📖 笔记：[Java 8 新特性 Lambda 与 Stream](/study-notes/java/java8-lambda-stream)
 
 **下一步学习**：新特性让代码更简洁，设计模式让架构更优雅。
 

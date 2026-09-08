@@ -17,6 +17,8 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 项目结构解析
   - 开发服务器和调试
   - 虚拟环境管理
+  - 📖 笔记：[Django 入门与项目搭建](/study-notes/django/intro-project-setup)
+  - 📖 笔记：[员工信息管理项目实战](/study-notes/django/employee-management-demo)
 
 - **URL 路由**
   - URLconf 配置
@@ -33,6 +35,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 请求和响应对象
   - HTTP 方法处理
   - 重定向和错误处理
+  - 📖 笔记：[URL 路由与视图](/study-notes/django/urls-and-views)
 
 - **模型与 ORM**
   - 模型定义和字段类型
@@ -40,6 +43,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 主键和自增字段
   - 模型元数据（Meta 类）
   - 字符串表示（__str__）
+  - 📖 笔记：[模型层与 ORM](/study-notes/django/models-and-orm)
 
 - **数据库操作**
   - 数据库迁移（makemigrations、migrate）
@@ -57,6 +61,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 关系查询和反向查询
   - related_name 使用
   - 预加载（select_related、prefetch_related）
+  - 📖 笔记：[关系映射与关联查询](/study-notes/django/relationships-queries)
 
 ### 进阶篇：模板与表单
 
@@ -67,6 +72,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 静态文件处理
   - 上下文处理器
   - 自定义模板标签和过滤器
+  - 📖 笔记：[模板与静态文件](/study-notes/django/templates-static-files)
 
 - **表单处理**
   - Form 类定义
@@ -76,6 +82,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 表单渲染（as_p、as_table、as_ul）
   - 表单集（Formset）
   - 文件上传表单
+  - 📖 笔记：[表单与用户认证](/study-notes/django/forms-user-auth)
 
 - **用户认证**
   - User 模型
@@ -94,6 +101,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 内联编辑
   - 自定义 Action
   - 权限控制
+  - 📖 笔记：[Admin 后台管理](/study-notes/django/admin-site)
 
 ### 实战篇：API 与高级特性
 
@@ -104,6 +112,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 认证和权限
   - 分页和过滤
   - 节流和限流
+  - 📖 笔记：[Django REST Framework](/study-notes/django/django-rest-framework)
 
 - **中间件**
   - 中间件执行流程
@@ -111,6 +120,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 自定义中间件
   - 请求/响应处理
   - 异常处理
+  - 📖 笔记：[中间件、信号与邮件](/study-notes/django/middleware-signals-email)
 
 - **信号（Signals）**
   - 信号机制
@@ -130,6 +140,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 会话数据读写
   - 会话存储后端
   - Cookie vs Session
+  - 📖 笔记：[Cookie、Session 与缓存](/study-notes/django/cookies-sessions-cache)
 
 - **文件与媒体**
   - 文件上传处理
@@ -163,6 +174,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 异步视图
   - 异步 ORM 操作
   - Channels WebSocket
+  - 📖 笔记：[Celery 异步与定时任务](/study-notes/django/celery-tasks-scheduling)
 
 - **测试**
   - 单元测试
@@ -170,6 +182,7 @@ Flask 是个灵活的微框架，你得自己搭积木。Django 反其道而行�
   - 数据库测试
   - 测试覆盖率
   - Mock 和 Fixture
+  - 📖 笔记：[测试与部署](/study-notes/django/testing-deployment)
 
 - **部署**
   - 生产环境配置

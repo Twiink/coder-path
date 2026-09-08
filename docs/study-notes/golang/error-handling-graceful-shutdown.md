@@ -1,0 +1,282 @@
+---
+title: "错误处理与优雅关闭"
+tags:
+  - "后端"
+  - "go"
+  - "gin"
+  - "笔记"
+category: "后端"
+folder: "Gin"
+parent: "[[后端/Gin/JWT认证]]"
+related:
+  - "[[后端/Gin/中间件]]"
+  - "[[后端/Go/错误处理]]"
+  - "[[目录]]"
+created: 2026-09-06
+updated: 2026-09-06
+---
+
+# 错误处理与优雅关闭
+
+## 统一错误响应
+
+生产环境应统一错误响应格式，便于前端处理。定义统一的响应结构：
+
+~~~go
+package response
+
+import "github.com/gin-gonic/gin"
+
+// Response 统一响应结构
+type Response struct {
+	Code    int         `json:"code"`    // 业务状态码：0 成功，非 0 失败
+	Message string      `json:"message"` // 提示信息
+	Data    interface{} `json:"data"`    // 数据
+}
+
+func Success(c *gin.Context, data interface{}) {
+	c.JSON(200, Response{Code: 0, Message: "success", Data: data})
+}
+
+func Fail(c *gin.Context, code int, msg string) {
+	c.JSON(200, Response{Code: code, Message: msg, Data: nil})
+}
+
+func FailWithData(c *gin.Context, code int, msg string, data interface{}) {
+	c.JSON(200, Response{Code: code, Message: msg, Data: data})
+}
+~~~
+
+使用：
+~~~go
+r.GET("/user/:id", func(c *gin.Context) {
+	var u User
+	if err := db.First(&u, c.Param("id")).Error; err != nil {
+		response.Fail(c, 1001, "用户不存在")
+		return
+	}
+	response.Success(c, u)
+})
+~~~
+
+## 自定义业务错误码
+
+用结构化的错误类型携带业务码，便于统一处理：
+
+~~~go
+package apperr
+
+import "fmt"
+
+// BizError 业务错误
+type BizError struct {
+	Code int    // 业务码
+	Msg  string // 错误信息
+}
+
+func (e *BizError) Error() string {
+	return fmt.Sprintf("[%d] %s", e.Code, e.Msg)
+}
+
+func New(code int, msg string) *BizError {
+	return &BizError{Code: code, Msg: msg}
+}
+
+// 预定义错误
+var (
+	ErrUserNotFound = New(1001, "用户不存在")
+	ErrUnauthorized = New(1002, "未授权")
+	ErrParam        = New(1003, "参数错误")
+)
+~~~
+
+## 全局错误处理中间件
+
+通过 `Recovery` 中间件捕获 panic，并返回统一格式。可自定义 Recovery：
+
+~~~go
+func Recovery() gin.HandlerFunc {
+	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
+		// 记录错误日志
+		log.Printf("panic recovered: %v\n%s", recovered, debug.Stack())
+		c.AbortWithStatusJSON(500, response.Response{
+			Code:    5000,
+			Message: "服务器内部错误",
+			Data:    nil,
+		})
+	})
+}
+
+func main() {
+	r := gin.New()
+	r.Use(gin.Logger(), Recovery())
+	// ...
+}
+~~~
+
+## 统一捕获绑定错误
+
+封装一个绑定函数，统一处理参数校验错误：
+
+~~~go
+func BindAndValidate(c *gin.Context, obj interface{}) error {
+	if err := c.ShouldBind(obj); err != nil {
+		var valErrs validator.ValidationErrors
+		if errors.As(err, &valErrs) {
+			// 转换校验错误为友好提示
+			msgs := translateErrs(valErrs)
+			return apperr.New(1003, strings.Join(msgs, "; "))
+		}
+		return apperr.New(1003, "参数格式错误: "+err.Error())
+	}
+	return nil
+}
+
+// 使用
+r.POST("/user", func(c *gin.Context) {
+	var req CreateUserReq
+	if err := BindAndValidate(c, &req); err != nil {
+		if be, ok := err.(*apperr.BizError); ok {
+			response.Fail(c, be.Code, be.Msg)
+		}
+		return
+	}
+	// ...
+})
+~~~
+
+## 日志记录
+
+### 使用 gin 内置日志
+
+`gin.Logger()` 会输出请求日志到标准输出。生产环境建议输出到文件：
+
+~~~go
+f, _ := os.Create("gin.log")
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+~~~
+
+### 集成结构化日志（zap）
+
+~~~go
+import "go.uber.org/zap"
+
+func LoggerMiddleware(logger *zap.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		logger.Info("request",
+			zap.String("method", c.Request.Method),
+			zap.String("path", c.Request.URL.Path),
+			zap.Int("status", c.Writer.Status()),
+			zap.Duration("latency", time.Since(start)),
+			zap.String("ip", c.ClientIP()),
+		)
+	}
+}
+~~~
+
+### 带请求 ID 的日志链路追踪
+
+~~~go
+func RequestID() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		rid := c.GetHeader("X-Request-Id")
+		if rid == "" {
+			rid = uuid.New().String()
+		}
+		c.Set("request_id", rid)
+		c.Header("X-Request-Id", rid)
+		c.Next()
+	}
+}
+
+// 日志中间件中带上 request_id
+rid, _ := c.Get("request_id")
+logger.Info("request", zap.Any("request_id", rid), ...)
+~~~
+
+## 优雅关闭（Graceful Shutdown）
+
+服务重启/关闭时应等待正在处理的请求完成，避免中断。Go 1.16+ 推荐使用 `http.Server` 配合信号监听：
+
+~~~go
+package main
+
+import (
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
+
+func main() {
+	r := gin.Default()
+	r.GET("/", func(c *gin.Context) { c.String(200, "ok") })
+
+	// 用 http.Server 包装，方便控制
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: r,
+	}
+
+	// 启动服务（非阻塞）
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("启动失败: %v", err)
+		}
+	}()
+	log.Println("服务启动，监听 :8080")
+
+	// 监听中断信号
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("正在关闭服务...")
+
+	// 给在处理的请求最多 5 秒完成
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Printf("强制关闭: %v", err)
+	}
+
+	// 关闭数据库等资源
+	// sqlDB, _ := db.DB()
+	// sqlDB.Close()
+
+	log.Println("服务已优雅退出")
+}
+~~~
+
+::: tip
+优雅关闭的关键点：
+1. `http.Server` 启动在 goroutine 中，主协程监听信号。
+2. 收到 `SIGINT`（Ctrl+C）或 `SIGTERM`（kill）后调用 `srv.Shutdown`。
+3. `Shutdown` 会等待活跃请求结束再退出，超时则强制关闭。
+4. 关闭前释放数据库连接、消息队列等外部资源。
+:::
+
+## 健康检查接口
+
+配合容器编排（K8s）做存活与就绪探针：
+
+~~~go
+r.GET("/health", func(c *gin.Context) {
+	c.JSON(200, gin.H{"status": "ok"})
+})
+
+r.GET("/ready", func(c *gin.Context) {
+	// 检查依赖（数据库等）是否就绪
+	if err := db.Ping(); err != nil {
+		c.JSON(503, gin.H{"status": "not ready"})
+		return
+	}
+	c.JSON(200, gin.H{"status": "ready"})
+})
+~~~

@@ -4,6 +4,8 @@ RocketMQ 是阿里巴巴开源的分布式消息中间件，诞生于双十一�
 
 ## 基础篇：架构与核心概念
 
+> 📖 笔记：[RocketMQ](/study-notes/middleware/rocketmq/rocketmq)
+
 ### RocketMQ 的架构组件
 - NameServer：轻量级注册中心，管理 Broker 路由信息
 - Broker：消息存储和转发核心，分为 Master 和 Slave

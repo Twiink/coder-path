@@ -4,6 +4,8 @@ RAG (Retrieval-Augmented Generation) 让 LLM 能访问你的知识库。先检�
 
 ## 基础篇
 
+> 📖 篇笔记：[RAG 基础原理](/study-notes/ai/rag-basics)
+
 从最简单的 RAG 开始：
 
 - **RAG 解决什么问题**：知识过时、会幻觉、无法定制

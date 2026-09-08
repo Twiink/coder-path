@@ -4,6 +4,8 @@ etcd 是云原生时代的分布式协调服务，Kubernetes 的"大脑"，CoreO
 
 ## 基础篇：架构与核心概念
 
+> 📖 笔记：[Etcd](/study-notes/middleware/etcd/etcd)
+
 ### etcd 的定位
 - 分布式 KV 存储：强一致性键值数据库
 - 配置中心：统一配置管理，动态更新

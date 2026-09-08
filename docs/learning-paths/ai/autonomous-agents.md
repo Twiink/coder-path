@@ -4,6 +4,8 @@
 
 ## 基础篇
 
+> 📖 篇笔记：[自主、反思与多智能体协作](/study-notes/ai/03-autonomy-reflection-multi-agent) · [AutoGen 框架](/study-notes/ai/autogen-framework)
+
 理解自主 Agent 的核心机制：
 
 - **什么是自主 Agent**：目标驱动、自主规划、持续执行、自我反思

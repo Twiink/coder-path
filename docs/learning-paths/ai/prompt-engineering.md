@@ -4,6 +4,8 @@
 
 ## 基础篇
 
+> 📖 篇笔记：[Prompt 工程完全指南](/study-notes/ai/prompt-engineering-guide)
+
 掌握这些，你的 prompt 质量能提升 80%：
 
 - **清晰具体的原则**：别让 AI 猜你想要什么

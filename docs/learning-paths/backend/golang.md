@@ -19,6 +19,14 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 指针和引用
   - 切片和映射
   - 错误处理
+  - 📖 笔记：[Go 语言概述](/study-notes/golang/go-overview)
+  - 📖 笔记：[基础类型与常量指针](/study-notes/golang/basic-types-pointers)
+  - 📖 笔记：[流程控制与函数](/study-notes/golang/control-flow-functions)
+  - 📖 笔记：[结构体与 Map](/study-notes/golang/structs-maps)
+  - 📖 笔记：[接口](/study-notes/golang/interfaces)
+  - 📖 笔记：[泛型](/study-notes/golang/generics)
+  - 📖 笔记：[反射](/study-notes/golang/reflection)
+  - 📖 笔记：[环境配置与 fmt](/study-notes/golang/setup-and-fmt)
 
 - **并发编程**
   - Goroutine 协程
@@ -26,6 +34,8 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - select 语句
   - sync 包（WaitGroup、Mutex、RWMutex）
   - Context 上下文管理
+  - 📖 笔记：[并发编程](/study-notes/golang/concurrency)
+  - 📖 笔记：[网络编程与并发模型](/study-notes/golang/network-concurrency-model)
 
 - **Gin 快速开始**
   - 安装和项目初始化
@@ -33,6 +43,7 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 处理函数和上下文
   - 参数绑定（Query、Path、JSON）
   - 响应格式（JSON、XML、HTML）
+  - 📖 笔记：[Gin 框架入门](/study-notes/golang/gin-intro)
 
 - **路由与参数**
   - 路径参数和通配符
@@ -40,6 +51,8 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 表单数据处理
   - JSON 请求体绑定
   - 自定义验证
+  - 📖 笔记：[请求参数与数据绑定](/study-notes/golang/request-params-binding)
+  - 📖 笔记：[响应与模板渲染](/study-notes/golang/responses-template-rendering)
 
 - **中间件**
   - 中间件概念和执行流程
@@ -47,6 +60,7 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 内置中间件（Logger、Recovery）
   - 自定义中间件开发
   - 中间件链管理
+  - 📖 笔记：[Gin 中间件](/study-notes/golang/middleware)
 
 ### 进阶篇：数据库与认证
 
@@ -55,6 +69,7 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 分层架构（Handler、Service、Repository）
   - 模块化设计
   - 依赖管理（go mod）
+  - 📖 笔记：[项目结构与最佳实践](/study-notes/golang/project-structure-best-practices)
 
 - **数据库集成**
   - GORM ORM 框架
@@ -63,6 +78,7 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - CRUD 操作
   - 关系映射和预加载
   - 事务处理
+  - 📖 笔记：[Gin 结合 GORM 操作数据库](/study-notes/golang/gin-gorm-database)
 
 - **请求验证**
   - 结构体标签验证
@@ -70,6 +86,7 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 自定义验证规则
   - 错误信息定制
   - 验证器注册
+  - 📖 笔记：[数据校验](/study-notes/golang/validation)
 
 - **JWT 认证**
   - JWT 令牌生成
@@ -77,6 +94,7 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 认证中间件
   - 刷新令牌机制
   - 权限控制
+  - 📖 笔记：[JWT 认证](/study-notes/golang/jwt-auth)
 
 - **错误处理**
   - 统一错误响应
@@ -84,6 +102,8 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 错误中间件
   - Panic 恢复
   - 错误日志记录
+  - 📖 笔记：[Go 错误处理](/study-notes/golang/errors)
+  - 📖 笔记：[错误处理与优雅关闭](/study-notes/golang/error-handling-graceful-shutdown)
 
 ### 实战篇：高级特性与部署
 
@@ -93,6 +113,8 @@ Go 天生为并发而生，goroutine 轻量高效，不像 Node.js 那样单线�
   - 文件验证和过滤
   - 文件存储策略
   - 流式上传
+  - 📖 笔记：[文件操作](/study-notes/golang/file-operations)
+  - 📖 笔记：[文件上传与静态资源](/study-notes/golang/file-upload-static)
 
 - **CORS 配置**
   - 跨域中间件
