@@ -1,256 +1,249 @@
 # JavaScript 学习路线
 
-一个系统化的 JavaScript 学习路径，从零基础到高级应用。
+JavaScript 是前端的灵魂，也是唯一能在浏览器中原生运行的编程语言。从简单的表单验证到复杂的单页应用，从前端到后端（Node.js），JavaScript 无处不在。这条路线会带你从基础语法到高级特性，从理解原理到工程实践。
 
-## 🎯 学习目标
+## 基础篇：语法与核心概念
 
-- 掌握 JavaScript 核心语法和概念
-- 理解异步编程和事件循环
-- 熟练使用 ES6+ 新特性
-- 具备独立开发能力
+### 变量与数据类型
+- 变量声明：var、let、const（优先用 const）
+- 基本类型：Number、String、Boolean、Undefined、Null、Symbol、BigInt
+- 引用类型：Object、Array、Function
+- 类型检测：typeof、instanceof、Object.prototype.toString
+- 类型转换：隐式转换、显式转换、== vs ===
 
-## 📚 学习路线图
+### 运算符与表达式
+- 算术运算符：+、-、*、/、%、**
+- 比较运算符：==、===、!=、!==、>、<、>=、<=
+- 逻辑运算符：&&、||、!、??（空值合并）
+- 位运算符：&、|、^、~、<<、>>、>>>
+- 赋值运算符：=、+=、-=、*=、/=
+- 三元运算符：条件 ? 值1 : 值2
+- 可选链：?.、?.[]、?.()
 
-### 第一阶段：基础入门 ⭐
+### 流程控制
+- 条件语句：if-else、switch-case
+- 循环语句：for、while、do-while、for...in、for...of
+- 跳转语句：break、continue、return
+- 异常处理：try-catch-finally、throw
 
-**学习时间：** 2-3 周
+### 函数基础
+- 函数声明 vs 函数表达式
+- 箭头函数：语法与 this 绑定
+- 参数：默认参数、剩余参数、解构参数
+- 返回值：显式返回、隐式返回
+- 立即执行函数（IIFE）
+- 高阶函数：函数作为参数和返回值
 
-#### 1. 基础语法
-- [ ] 变量和数据类型（var、let、const）
-- [ ] 运算符和表达式
-- [ ] 条件语句（if、switch）
-- [ ] 循环语句（for、while）
-- [ ] 函数基础
+### 数组操作
+- 创建：字面量、Array()、Array.of()、Array.from()
+- 访问与修改：索引、length
+- 增删改：push、pop、shift、unshift、splice
+- 遍历：forEach、map、filter、reduce、some、every、find、findIndex
+- 转换：join、concat、slice、flat、flatMap
+- 排序：sort、reverse
+- 查找：indexOf、includes、find
 
-**学习资源：**
-- [MDN JavaScript 指南](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide)
-- [JavaScript 教程 - 阮一峰](https://javascript.ruanyifeng.com/)
+### 对象操作
+- 创建：字面量、new Object()、Object.create()
+- 属性访问：点记法、括号记法
+- 属性操作：增删改查、属性描述符
+- 对象方法：Object.keys()、Object.values()、Object.entries()
+- 解构赋值：对象解构、数组解构、嵌套解构
+- 展开运算符：...、对象合并、数组合并
+- 简写语法：属性简写、方法简写
 
-**实战练习：**
-- 制作简单的计算器
-- 实现数组排序算法
-- 开发猜数字游戏
+## 进阶篇：核心机制深入
 
-#### 2. 数据结构
-- [ ] 数组（Array）
-- [ ] 对象（Object）
-- [ ] 字符串（String）
-- [ ] Map 和 Set
-- [ ] 类型转换
+### 作用域与闭包
+- 全局作用域、函数作用域、块级作用域
+- 作用域链：变量查找机制
+- 闭包：定义、原理、应用场景
+- 闭包陷阱：循环中的闭包、内存泄漏
 
-**实战练习：**
-- 实现 TodoList
-- 开发通讯录管理系统
-- 数据统计和分析工具
+### this 绑定
+- 默认绑定：独立函数调用
+- 隐式绑定：对象方法调用
+- 显式绑定：call、apply、bind
+- new 绑定：构造函数调用
+- 箭头函数的 this：词法绑定
+- 绑定优先级
 
-### 第二阶段：进阶提升 ⭐⭐
+### 原型与继承
+- 原型链：__proto__、prototype、constructor
+- 原型继承：原型链继承、构造函数继承、组合继承
+- ES6 class：语法糖、constructor、static、extends、super
+- 原型方法 vs 实例方法
+- instanceof 原理
 
-**学习时间：** 3-4 周
+### 异步编程
+- 同步 vs 异步
+- 回调函数：Callback Hell（回调地狱）
+- Promise：状态、then、catch、finally、链式调用
+- Promise API：Promise.all、Promise.race、Promise.allSettled、Promise.any
+- async/await：语法糖、错误处理、并发控制
+- 事件循环：宏任务、微任务、执行顺序
 
-#### 3. 函数进阶
-- [ ] 函数作用域和闭包
-- [ ] 高阶函数
-- [ ] this 指向
-- [ ] call、apply、bind
-- [ ] 箭头函数
+### 模块化
+- CommonJS：require、module.exports（Node.js）
+- ES6 Module：import、export、default export
+- 动态导入：import()
+- 模块加载机制
 
-**重点理解：**
-```javascript
-// 闭包示例
-function createCounter() {
-  let count = 0;
-  return {
-    increment: () => ++count,
-    decrement: () => --count,
-    getCount: () => count
-  };
-}
+## 进阶篇：ES6+ 新特性
 
-const counter = createCounter();
-console.log(counter.increment()); // 1
-console.log(counter.getCount());  // 1
-```
+### 解构与展开
+- 对象解构：默认值、重命名、嵌套
+- 数组解构：跳过元素、剩余元素
+- 展开运算符：数组展开、对象展开
+- 剩余参数：函数参数收集
 
-#### 4. 面向对象
-- [ ] 构造函数和原型
-- [ ] 原型链
-- [ ] 继承
-- [ ] ES6 Class 语法
-- [ ] 封装、继承、多态
+### 字符串增强
+- 模板字符串：反引号、插值、多行
+- 标签模板：自定义字符串处理
+- 新方法：startsWith、endsWith、includes、repeat、padStart、padEnd
 
-**实战练习：**
-- 实现一个简单的 MVC 框架
-- 开发组件化的 UI 库
-- 实现设计模式（单例、工厂等）
+### 数组与对象增强
+- Array 新方法：find、findIndex、fill、copyWithin、entries、keys、values
+- Object 新方法：Object.assign、Object.is、Object.setPrototypeOf
+- Map 与 Set：数据结构、API、应用场景
+- WeakMap 与 WeakSet：弱引用、垃圾回收
 
-#### 5. 异步编程
-- [ ] 回调函数
-- [ ] Promise
-- [ ] async/await
-- [ ] 事件循环机制
-- [ ] 宏任务和微任务
+### 迭代器与生成器
+- Iterator 协议：next()、done、value
+- 可迭代对象：Symbol.iterator
+- Generator 函数：function*、yield、yield*
+- 异步迭代器：for await...of
 
-**重点理解：**
-```javascript
-// async/await 示例
-async function fetchUserData(userId) {
-  try {
-    const response = await fetch(`/api/users/${userId}`);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('获取用户数据失败:', error);
-    throw error;
-  }
-}
-```
+### Symbol 与代理
+- Symbol：唯一值、内置 Symbol
+- Proxy：拦截对象操作、handler、traps
+- Reflect：标准化对象操作
+- 应用：数据验证、响应式系统
 
-### 第三阶段：高级应用 ⭐⭐⭐
+### 类与继承增强
+- class 语法：constructor、方法、getter/setter
+- static 静态成员
+- 私有字段：#privateField
+- extends 继承、super 调用
 
-**学习时间：** 4-6 周
+## 实战篇：浏览器与 DOM
 
-#### 6. ES6+ 新特性
-- [ ] 解构赋值
-- [ ] 扩展运算符
-- [ ] 模板字符串
-- [ ] Symbol 和迭代器
-- [ ] Generator 函数
-- [ ] Proxy 和 Reflect
-- [ ] 模块化（import/export）
+### BOM（浏览器对象模型）
+- window 对象：全局作用域、浏览器窗口
+- location：URL 操作、页面跳转
+- navigator：浏览器信息、用户代理
+- history：历史记录导航
+- screen：屏幕信息
+- 定时器：setTimeout、setInterval、requestAnimationFrame
 
-**代码示例：**
-```javascript
-// 解构和扩展运算符
-const user = { name: 'Alice', age: 25, city: 'Beijing' };
-const { name, ...rest } = user;
-console.log(name); // 'Alice'
-console.log(rest); // { age: 25, city: 'Beijing' }
+### DOM 操作
+- 节点选择：getElementById、querySelector、querySelectorAll
+- 节点创建：createElement、createTextNode、cloneNode
+- 节点操作：appendChild、removeChild、replaceChild、insertBefore
+- 属性操作：getAttribute、setAttribute、removeAttribute、dataset
+- 样式操作：style、classList（add、remove、toggle、contains）
+- 内容操作：innerHTML、textContent、innerText
 
-// 模块化
-// utils.js
-export const add = (a, b) => a + b;
-export default class Calculator { /* ... */ }
+### 事件系统
+- 事件监听：addEventListener、removeEventListener
+- 事件对象：type、target、currentTarget、preventDefault、stopPropagation
+- 事件冒泡与捕获
+- 事件委托：利用冒泡优化性能
+- 常用事件：click、input、change、submit、scroll、load、DOMContentLoaded
 
-// main.js
-import Calculator, { add } from './utils.js';
-```
+### 表单操作
+- 表单获取：FormData API
+- 表单验证：Constraint Validation API
+- 输入事件：input、change、focus、blur
+- 文件上传：FileReader API
 
-#### 7. 性能优化
-- [ ] 防抖和节流
-- [ ] 懒加载
-- [ ] 内存管理
-- [ ] 代码分割
-- [ ] Web Worker
+## 实战篇：进阶技术
 
-**实战技巧：**
-```javascript
-// 防抖函数
-function debounce(fn, delay) {
-  let timer = null;
-  return function(...args) {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), delay);
-  };
-}
+### 网络请求
+- XMLHttpRequest：传统方式
+- Fetch API：现代方式、Promise 风格
+- 请求方法：GET、POST、PUT、DELETE
+- 请求头：Content-Type、Authorization
+- 响应处理：json()、text()、blob()
+- 错误处理：网络错误、HTTP 错误
+- CORS：跨域资源共享
 
-// 节流函数
-function throttle(fn, delay) {
-  let lastTime = 0;
-  return function(...args) {
-    const now = Date.now();
-    if (now - lastTime >= delay) {
-      lastTime = now;
-      fn.apply(this, args);
-    }
-  };
-}
-```
+### 本地存储
+- Cookie：读写、过期时间、路径、域
+- localStorage：持久化存储
+- sessionStorage：会话存储
+- IndexedDB：客户端数据库
 
-#### 8. 设计模式
-- [ ] 单例模式
-- [ ] 工厂模式
-- [ ] 观察者模式
-- [ ] 发布订阅模式
-- [ ] 装饰器模式
+### Web API
+- Geolocation：地理定位
+- Notification：桌面通知
+- Clipboard API：剪贴板操作
+- IntersectionObserver：元素可见性监听
+- MutationObserver：DOM 变化监听
+- ResizeObserver：元素尺寸监听
+- Web Workers：多线程
+- Service Worker：离线应用、PWA
 
-#### 9. 工程化实践
-- [ ] NPM 包管理
-- [ ] Webpack/Vite 构建工具
-- [ ] Babel 转译
-- [ ] ESLint 代码检查
-- [ ] Jest 单元测试
+### 性能优化
+- 防抖（debounce）与节流（throttle）
+- 懒加载：图片、组件
+- 代码分割：动态导入
+- 虚拟列表：长列表优化
+- requestAnimationFrame：流畅动画
+- 内存管理：避免内存泄漏
 
-## 🎓 学习建议
+### 设计模式
+- 单例模式：全局唯一实例
+- 工厂模式：对象创建
+- 观察者模式：发布-订阅
+- 策略模式：算法替换
+- 装饰器模式：功能增强
+- 代理模式：访问控制
+- 适配器模式：接口转换
 
-### 学习方法
-1. **理论与实践结合**：每学一个知识点，立即编写代码实践
-2. **多看优秀代码**：阅读开源项目，学习最佳实践
-3. **做项目巩固**：通过实际项目加深理解
-4. **写技术博客**：输出是最好的学习方式
+### 函数式编程
+- 纯函数：无副作用、可预测
+- 不可变性：immutable
+- 高阶函数：map、filter、reduce
+- 函数组合：compose、pipe
+- 柯里化：curry
+- 偏函数应用
 
-### 学习资源
+## 实战篇：工程化实践
 
-**书籍推荐：**
-- 《JavaScript 高级程序设计（第 4 版）》- 系统全面
-- 《你不知道的 JavaScript》- 深入理解
-- 《JavaScript 设计模式与开发实践》- 设计模式
+### 调试技巧
+- console 方法：log、warn、error、table、time、trace
+- debugger 断点
+- Chrome DevTools：Sources、Network、Performance、Memory
+- 性能分析：Lighthouse
 
-**在线资源：**
-- [MDN Web Docs](https://developer.mozilla.org/) - 权威参考
-- [JavaScript.info](https://javascript.info/) - 现代教程
-- [LeetCode](https://leetcode.cn/) - 算法练习
+### 代码规范
+- ESLint：代码检查
+- Prettier：代码格式化
+- 命名规范：驼峰、蛇形、常量大写
+- 注释规范：JSDoc
 
-**视频课程：**
-- freeCodeCamp JavaScript 课程
-- Udemy JavaScript 完整课程
-- B站前端大神课程
+### 测试
+- 单元测试：Jest、Mocha
+- 断言库：Chai、assert
+- 测试覆盖率：istanbul
+- E2E 测试：Playwright、Cypress
 
-### 实战项目推荐
+### 构建工具
+- npm/yarn/pnpm：包管理器
+- Webpack：模块打包
+- Vite：现代构建工具
+- Babel：代码转译
 
-**初级项目：**
-- 计算器应用
-- Todo List
-- 天气查询应用
+## 下一步学习
 
-**中级项目：**
-- 个人博客系统
-- 在线笔记应用
-- 简易电商网站
+掌握 JavaScript 后，可以向多个方向发展：
 
-**高级项目：**
-- 仿制热门应用（知乎、掘金）
-- 开发自己的工具库
-- 参与开源项目
+- **TypeScript** - 类型安全的 JavaScript
+- **前端框架** - React、Vue、Angular、Svelte
+- **Node.js** - 后端开发、全栈能力
+- **构建工具** - Webpack、Vite、Rollup
+- **移动端** - React Native、Flutter
+- **桌面端** - Electron、Tauri
 
-## 📝 学习检查清单
-
-### 基础知识
-- [ ] 理解变量提升和作用域
-- [ ] 掌握数据类型和类型转换
-- [ ] 熟练使用数组和对象方法
-- [ ] 理解 this 指向规则
-
-### 进阶知识
-- [ ] 掌握闭包原理和应用
-- [ ] 理解原型链和继承
-- [ ] 熟练使用 Promise 和 async/await
-- [ ] 了解事件循环机制
-
-### 高级知识
-- [ ] 掌握 ES6+ 所有新特性
-- [ ] 理解常用设计模式
-- [ ] 具备性能优化能力
-- [ ] 熟悉前端工程化工具
-
-## 🚀 下一步学习
-
-完成 JavaScript 基础后，可以选择以下方向：
-
-- [TypeScript 学习路线](/learning-paths/frontend/typescript) - 类型安全的 JavaScript
-- [Vue 学习路线](/learning-paths/frontend/vue) - 前端框架学习
-- [React 学习路线](/learning-paths/frontend/react) - 另一个流行框架
-- [Node.js 学习路线](/learning-paths/backend/nodejs) - 服务端 JavaScript
-
----
-
-> **提示**：学习编程没有捷径，唯有多写代码、多思考、多总结。保持耐心和热情，你一定能掌握 JavaScript！
+JavaScript 看似简单，实则深不可测。基础语法容易上手，但要真正精通需要理解原型、闭包、异步、事件循环等核心概念。多写代码，多思考，你会发现 JavaScript 的魅力。

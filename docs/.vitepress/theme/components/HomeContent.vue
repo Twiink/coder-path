@@ -1,29 +1,29 @@
 <script setup lang="ts">
 const destinations = [
   {
-    title: '开发路线图',
+    title: '升级路线图',
     description: '从入门到进阶，找到下一步该学什么。',
     href: '/learning-paths/',
     icon: '/images/card-icons/roadmap.png',
     tone: 'route'
   },
   {
-    title: '技术栈笔记',
+    title: '技能书',
     description: '前端、后端、数据库与工具链的知识整理。',
     href: '/study-notes/',
     icon: '/images/card-icons/stack.png',
     tone: 'notes'
   },
   {
-    title: '功能开发文档',
+    title: '氪金功能屋',
     description: '从需求分析到代码实现，记录完整过程。',
     href: '/features/',
     icon: '/images/card-icons/code-bug.png',
     tone: 'features'
   },
   {
-    title: '实用小技巧',
-    description: '把实际开发中好用的经验收进工具箱。',
+    title: '装备背包',
+    description: '把实际开发中好用的经验收进装备背包。',
     href: '/toolbox/',
     icon: '/images/card-icons/lightbulb-api.png',
     tone: 'toolbox'
@@ -39,7 +39,7 @@ const destinations = [
         <h1 id="home-title" class="wordmark">CoderPath<span>_</span></h1>
         <p class="hero-title">一条通往更强的开发者之路</p>
         <p class="hero-description">
-          记录学习路线、技术栈笔记、开发规范与真实项目实践。
+          记录升级路线图、技能书、村规民约与真实项目实践。
         </p>
 
         <div class="terminal-card" aria-label="CoderPath 终端示例">
