@@ -4,3 +4,7 @@ dist
 .vitepress/cache
 .vitepress/dist
 *.log
+.claude
+.codex
+.omc
+.omx
