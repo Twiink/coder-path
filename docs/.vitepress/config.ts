@@ -12,21 +12,23 @@ export default defineConfig({
   lang: 'zh-CN',
 
   themeConfig: {
-    logo: '/images/coderpath-rocket-pixel.png',
+    logo: '/images/coderpath-c-icon.png',
     siteTitle: 'CoderPath',
 
     // 顶部导航栏
     nav: [
-      { text: '新手村', link: '/' },
-      { text: '升级路线图', link: '/learning-paths/' },
-      { text: '技能书', link: '/study-notes/' },
-      { text: '实战副本', link: '/projects/' },
-      { text: '氪金功能屋', link: '/features/' },
-      { text: '捉虫小队', link: '/troubleshooting/' },
-      { text: '面试 BOSS 攻略', link: '/interview/' },
+      { text: '首页', link: '/' },
+      { text: '学习路线', link: '/learning-paths/' },
+      { text: '技术栈', link: '/study-notes/' },
+      { text: '开发笔记', link: '/guide/' },
+      { text: '项目实战', link: '/projects/' },
+      { text: '关于', link: '/guide/' },
       {
         text: '更多',
         items: [
+          { text: '功能开发文档', link: '/features/' },
+          { text: '捉虫小队', link: '/troubleshooting/' },
+          { text: '面试 BOSS 攻略', link: '/interview/' },
           { text: '村口公告栏', link: '/guide/' },
           { text: '装备背包', link: '/toolbox/' },
           { text: '图纸工坊', link: '/templates/' },

@@ -32,14 +32,15 @@ const destinations = [
 </script>
 
 <template>
-  <main class="coderpath-home">
+  <div class="coderpath-page">
+    <main class="coderpath-home">
     <section class="home-section hero-section" aria-labelledby="home-title">
       <div class="hero-copy">
         <p class="eyebrow"><span>//</span> 记录 · 学习 · 构建 · 成长</p>
         <h1 id="home-title" class="wordmark">CoderPath<span>_</span></h1>
         <p class="hero-title">一条通往更强的开发者之路</p>
         <p class="hero-description">
-          记录升级路线图、技能书、村规民约与真实项目实践。
+          从基础到实战，系统化学习计算机科学与软件开发，用项目构建真正的能力，成为你想成为的开发者。
         </p>
 
         <div class="terminal-card" aria-label="CoderPath 终端示例">
@@ -100,59 +101,74 @@ const destinations = [
       </div>
     </section>
 
-    <section class="home-section roadmap-section" aria-labelledby="roadmap-title">
-      <div class="roadmap-copy">
-        <p class="section-kicker">ROADMAP</p>
-        <h2 id="roadmap-title">别急，<br>一步一步来。</h2>
-        <p>从 0 到 1，从会用到精通。每一段路，都算数。</p>
-        <a class="button primary roadmap-action" href="/learning-paths/">
-          <span aria-hidden="true">⌁</span> 查看完整路线图
-        </a>
-      </div>
-      <div class="roadmap-art">
-          <img
-          src="/images/coderpath-roadmap-pixel-transparent.png"
+    <section class="home-section roadmap-section" aria-label="学习路线">
+      <a class="roadmap-image-link" href="/learning-paths/" aria-label="查看完整学习路线图">
+        <img
+          src="/images/coderpath-roadmap-reference.png"
           alt="从起点、基础、进阶到实战和成长的学习路线图"
-          width="1774"
-          height="887"
+          width="960"
+          height="372"
           loading="lazy"
         >
-      </div>
+      </a>
     </section>
 
-    <footer class="home-footer">
-      <img src="/images/coderpath-rocket-pixel.png" alt="" width="32" height="32">
-      <strong>CoderPath</strong>
-      <span>记录 · 学习 · 构建 · 成长</span>
+    <section class="home-section cta-strip" aria-label="开始学习">
+      <img
+        src="/images/coderpath-cta-reference.png"
+        alt="更好的开发者，从这里出发。立即开始学习。"
+        width="966"
+        height="83"
+        loading="lazy"
+      >
+      <a class="cta-hotspot" href="/learning-paths/" aria-label="立即开始学习"></a>
+    </section>
+    </main>
+
+    <footer id="site-footer" class="home-footer" aria-label="网站页脚">
+      <img class="footer-ornament footer-ornament-left" src="/images/coderpath-footer-left.png" alt="" aria-hidden="true" width="2172" height="724">
+      <img class="footer-ornament footer-ornament-right" src="/images/coderpath-footer-right.png" alt="" aria-hidden="true" width="1774" height="887">
+
+      <div class="footer-brand">
+        <div class="footer-wordmark">
+          <img src="/images/coderpath-c-icon.png" alt="" width="32" height="32">
+          <strong>CoderPath</strong>
+        </div>
+        <p>记录 · 学习 · 构建 · 成长</p>
+      </div>
+
     </footer>
-  </main>
+  </div>
 </template>
 
 <style scoped>
-.coderpath-home {
-  --paper: #fffdf8;
+.coderpath-page {
+  --paper: #faf6ec;
   --ink: #15233d;
   --muted: #66718a;
   --mint: #2ca985;
   --mint-deep: #187a61;
-  --lavender: #eef1ff;
   --border: #dfe4ef;
   --coral: #ec745d;
   --gold: #efb33a;
   box-sizing: border-box;
-  overflow: hidden;
   color: var(--ink);
   background:
-    radial-gradient(circle at 12% 14%, rgb(44 169 133 / 7%), transparent 19rem),
-    radial-gradient(circle at 91% 32%, rgb(107 124 201 / 8%), transparent 22rem),
+    radial-gradient(circle at 12% 14%, rgb(44 169 133 / 6%), transparent 19rem),
+    radial-gradient(circle at 91% 32%, rgb(107 124 201 / 6%), transparent 22rem),
     var(--paper);
   font-family: 'Avenir Next', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   image-rendering: optimizeSpeed;
 }
 
-.coderpath-home *,
-.coderpath-home *::before,
-.coderpath-home *::after {
+.coderpath-home {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.coderpath-page *,
+.coderpath-page *::before,
+.coderpath-page *::after {
   box-sizing: border-box;
 }
 
@@ -170,8 +186,7 @@ const destinations = [
   padding: 58px 0 42px;
 }
 
-.eyebrow,
-.section-kicker {
+.eyebrow {
   margin: 0 0 20px;
   color: var(--mint);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -289,6 +304,19 @@ const destinations = [
   vertical-align: -.17em;
   animation: cursor-blink 1.1s steps(2, start) infinite;
   image-rendering: pixelated;
+}
+
+.terminal-card::after {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 1px, rgb(255 255 255 / 2%) 1px, rgb(255 255 255 / 2%) 2px);
+  content: '';
+  pointer-events: none;
+}
+
+@keyframes cursor-blink {
+  50% { opacity: 0; }
 }
 
 .hero-actions {
@@ -499,98 +527,127 @@ const destinations = [
 }
 
 .roadmap-section {
-  display: grid;
-  grid-template-columns: minmax(230px, .39fr) minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
   margin-bottom: 42px;
-  padding: clamp(24px, 4vw, 52px);
-  overflow: hidden;
-  border: 2px solid #d8dff4;
-  border-radius: 12px;
-  background: var(--lavender);
-  box-shadow: 0 8px 16px rgb(21 35 61 / 5%);
 }
 
-.roadmap-copy {
-  align-self: stretch;
-  padding: 8px 0 10px;
+.roadmap-image-link {
+  display: block;
+  line-height: 0;
+  transition: transform .18s ease, filter .18s ease;
 }
 
-.section-kicker {
-  color: #6c7397;
-  font-size: .72rem;
-  letter-spacing: .08em;
+.roadmap-image-link:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 10px 12px rgb(21 35 61 / 8%));
 }
 
-.roadmap-copy h2 {
-  margin: 0;
-  font-size: clamp(2rem, 3vw, 3.15rem);
-  font-weight: 900;
-  letter-spacing: -.07em;
-  line-height: 1.1;
-}
-
-.roadmap-copy p:not(.section-kicker) {
-  max-width: 19rem;
-  margin: 19px 0 25px;
-  color: var(--muted);
-  font-size: .95rem;
-  line-height: 1.75;
-}
-
-.roadmap-action {
-  min-height: 44px;
-  padding: 0 16px;
-  font-size: .9rem;
-}
-
-.roadmap-action:hover {
-  box-shadow: 5px 5px 0 var(--mint);
-}
-
-.roadmap-action:active {
-  box-shadow: 2px 2px 0 var(--mint);
-}
-
-.roadmap-art img {
+.roadmap-image-link img {
   display: block;
   width: 100%;
   height: auto;
   image-rendering: pixelated;
 }
 
+.cta-strip {
+  position: relative;
+  margin-bottom: 12px;
+  line-height: 0;
+}
+
+.cta-strip img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.cta-hotspot {
+  position: absolute;
+  top: 15%;
+  right: 5.5%;
+  bottom: 15%;
+  width: 17%;
+}
+
+.cta-hotspot:focus-visible {
+  outline: 3px solid var(--mint);
+  outline-offset: 3px;
+}
+
 .home-footer {
+  position: relative;
+  display: block;
+  width: 100vw;
+  min-height: 133px;
+  margin: 0 0 0 calc(50% - 50vw);
+  padding: 24px 90px 27px 42%;
+  overflow: hidden;
+  color: var(--muted);
+  background: var(--paper);
+  font-size: .72rem;
+}
+
+.footer-ornament {
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  pointer-events: none;
+  user-select: none;
+  image-rendering: pixelated;
+}
+
+.footer-ornament-left {
+  left: 0;
+  width: 330px;
+  height: auto;
+}
+
+.footer-ornament-right {
+  right: 0;
+  width: 270px;
+  height: auto;
+}
+
+.footer-brand {
+  position: relative;
+  z-index: 1;
+}
+
+.footer-brand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: max-content;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.footer-wordmark {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  min-height: 106px;
-  color: var(--muted);
-  font-size: .82rem;
+  gap: 10px;
 }
 
-.home-footer img {
-  width: 25px;
-  height: 25px;
+.footer-wordmark img {
+  width: 34px;
+  height: 34px;
   object-fit: contain;
   image-rendering: pixelated;
 }
 
-.home-footer strong {
+.footer-wordmark strong {
   color: var(--ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 1rem;
+  font-size: 1.12rem;
+  letter-spacing: -.045em;
 }
 
-.home-footer span::before {
-  margin: 0 9px;
-  color: var(--mint);
-  content: '·';
-}
-
-@keyframes cursor-blink {
-  50% { opacity: 0; }
+.footer-brand p {
+  margin: 8px 0 0;
+  color: #59677e;
+  font-size: .72rem;
+  letter-spacing: .12em;
 }
 
 .hero-art::after {
@@ -599,15 +656,6 @@ const destinations = [
   inset: 0;
   background-image:
     repeating-linear-gradient(0deg, transparent, transparent 2px, rgb(21 35 61 / 1.5%) 2px, rgb(21 35 61 / 1.5%) 4px);
-  content: '';
-  pointer-events: none;
-}
-
-.terminal-card::after {
-  position: absolute;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 1px, rgb(255 255 255 / 2%) 1px, rgb(255 255 255 / 2%) 2px);
   content: '';
   pointer-events: none;
 }
@@ -624,13 +672,8 @@ const destinations = [
 
   .destination-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-  .roadmap-section {
-    grid-template-columns: 1fr;
-    gap: 27px;
-  }
-
-  .roadmap-copy { padding: 0; }
-  .roadmap-copy p:not(.section-kicker) { max-width: 33rem; }
+  .roadmap-section,
+  .cta-strip { width: min(100% - 48px, 1180px); }
 }
 
 @media (max-width: 640px) {
@@ -657,25 +700,66 @@ const destinations = [
   .card-icon { min-height: 88px; }
   .card-icon img { width: 98px; height: 86px; }
 
-  .roadmap-section {
+  .roadmap-section,
+  .cta-strip {
     width: calc(100% - 32px);
     margin-bottom: 16px;
-    padding: 24px 18px 19px;
-    border-radius: 13px;
   }
 
-  .roadmap-art { margin: 0 -8px; overflow-x: auto; }
-  .roadmap-art img { min-width: 630px; }
+  .roadmap-image-link { overflow-x: auto; }
+  .roadmap-image-link img { min-width: 700px; }
+  .cta-hotspot { right: 4%; width: 22%; }
 
   .home-footer {
-    min-height: 94px;
-    flex-wrap: wrap;
-    gap: 5px;
-    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-height: 190px;
+    padding: 26px 20px 40px;
     text-align: center;
   }
 
-  .home-footer span { flex-basis: 100%; }
-  .home-footer span::before { content: ''; margin: 0; }
+  .footer-brand {
+    position: relative;
+    justify-self: auto;
+    top: auto;
+    left: auto;
+    padding: 0;
+    text-align: center;
+    transform: none;
+  }
+
+  .footer-wordmark {
+    justify-content: center;
+  }
+  .footer-ornament-left { width: 230px; }
+  .footer-ornament-right { width: 190px; }
+}
+
+@media (min-width: 641px) and (max-width: 760px) {
+  .home-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-height: 190px;
+    padding: 26px 20px 40px;
+    text-align: center;
+  }
+
+  .footer-brand {
+    position: relative;
+    justify-self: auto;
+    top: auto;
+    left: auto;
+    padding: 0;
+    text-align: center;
+    transform: none;
+  }
+
+  .footer-wordmark {
+    justify-content: center;
+  }
+  .footer-ornament-left { width: 230px; }
+  .footer-ornament-right { width: 190px; }
 }
 </style>

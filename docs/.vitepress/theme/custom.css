@@ -3,9 +3,9 @@
   --vp-c-brand-2: #2ca985;
   --vp-c-brand-3: #187a61;
   --vp-c-brand-soft: rgb(44 169 133 / 14%);
-  --vp-c-bg: #fffdf8;
-  --vp-c-bg-alt: #f7f5ef;
-  --vp-c-bg-soft: #f1f5f3;
+  --vp-c-bg: #faf6ec;
+  --vp-c-bg-alt: #f4efe3;
+  --vp-c-bg-soft: #eef3ed;
   --vp-c-text-1: #15233d;
   --vp-c-text-2: #5f6b83;
   --vp-c-text-3: #7e879a;
@@ -16,12 +16,12 @@
 }
 
 body {
-  background: #fffdf8;
+  background: #faf6ec;
 }
 
 .VPNavBar {
   border-bottom: 1px solid rgb(21 35 61 / 8%);
-  background: rgb(255 253 248 / 88%);
+  background: rgb(250 246 236 / 92%);
   backdrop-filter: blur(12px);
 }
 
@@ -39,8 +39,8 @@ body {
 }
 
 .VPNavBarTitle .logo {
-  width: 29px;
-  height: 29px;
+  width: 35px;
+  height: 35px;
   object-fit: contain;
   image-rendering: pixelated;
 }
@@ -86,6 +86,8 @@ body {
 
 .coderpath-home-page .VPHome {
   padding: 0;
+  min-height: auto;
+  margin-bottom: 0;
 }
 
 .coderpath-home-page .VPHome .container {
