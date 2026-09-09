@@ -32,8 +32,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create temp directory
+        run: mkdir -p docs/.vitepress/.temp
+
       - name: Build VitePress site
         run: npm run docs:build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Set up SSH key
         env:
