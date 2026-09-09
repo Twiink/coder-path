@@ -609,11 +609,11 @@ public class PermissionInterceptor implements HandlerInterceptor {
 | `ModelAndView` | `ModelAndViewMethodReturnValueHandler` | 直接使用 |
 | `Model` / `ModelMap` | `ModelMethodProcessor` | 只加数据，视图名由 URL 推断 |
 | `View` | `ViewMethodReturnValueHandler` | 直接使用 View |
-| `HttpEntity<T>` / `ResponseEntity<T>` | `HttpEntityMethodProcessor` | ★ 设置状态码、头、体 |
-| `Callable<T>` | `CallableMethodReturnValueHandler` | ★ 异步（容器线程立即释放） |
-| `DeferredResult<T>` | `DeferredResultMethodReturnValueHandler` | ★ 异步 |
-| `CompletableFuture<T>` | 同上（包装） | ★ 异步 |
-| `WebAsyncTask<T>` | `WebAsyncTaskMethodReturnValueHandler` | 异步 + 超时配置 |
+| `HttpEntity&lt;T&gt;` / `ResponseEntity&lt;T&gt;` | `HttpEntityMethodProcessor` | ★ 设置状态码、头、体 |
+| `Callable&lt;T&gt;` | `CallableMethodReturnValueHandler` | ★ 异步（容器线程立即释放） |
+| `DeferredResult&lt;T&gt;` | `DeferredResultMethodReturnValueHandler` | ★ 异步 |
+| `CompletableFuture&lt;T&gt;` | 同上（包装） | ★ 异步 |
+| `WebAsyncTask&lt;T&gt;` | `WebAsyncTaskMethodReturnValueHandler` | 异步 + 超时配置 |
 | `SseEmitter` | `SseEmitterReturnValueHandler` | ★ SSE 推送 |
 | `StreamingResponseBody` | `StreamingResponseBodyReturnValueHandler` | 流式响应（大文件） |
 | `@ModelAttribute` 方法 | `ModelAttributeMethodProcessor` | 加到 Model，视图名由 URL 推断 |
@@ -1096,7 +1096,7 @@ public Result<UserVO> profile(@CurrentUser LoginUser user) {
 | 4 | 拦截器 `preHandle` 返回 false 未写响应 | 前端收到空响应 | 手动写响应体或抛异常 |
 | 5 | HandlerMapping 顺序误解 | 静态资源被 Controller 拦截 | `/` 映射的 DispatcherServlet 优先级低于精确匹配 |
 | 6 | `/` 与 `/*` 混淆 | JSP 404 或报错 | DispatcherServlet 用 `/` |
-| 7 | URL 映射歧义 | `Ambiguous handler methods` | 避免等价模式（`/{id}` 与 `/{name}`） |
+| 7 | URL 映射歧义 | `Ambiguous handler methods` | 避免等价模式（`/&#123;id&#125;` 与 `/&#123;name&#125;`） |
 | 8 | Long 类型 ID 前端精度丢失 | ID 末几位变 0 | ★ Jackson 的 Long → String 序列化 |
 | 9 | LocalDateTime 序列化为数组 | 前端拿到 `[2026,9,7,10,30]` | 注册 `JavaTimeModule` + 禁用 WRITE_DATES_AS_TIMESTAMPS |
 | 10 | `spring.jackson.date-format` 对 LocalDateTime 无效 | 格式没变 | 该配置只作用于 `java.util.Date`，LocalDateTime 要用自定义 Serializer |

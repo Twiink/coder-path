@@ -31,7 +31,7 @@ updated: 2026-09-07
 | --- | --- | --- | --- |
 | 定位 | 原生 API | ★ **半自动 ORM** | **全自动 ORM** |
 | SQL 编写 | 手写 + 手动拼接 | ★ **手写**（灵活可控） | **自动生成**（HQL/Criteria） |
-| 参数设置 | 手动 `setXxx` | ★ 自动（`#{}`） | 自动 |
+| 参数设置 | 手动 `setXxx` | ★ 自动（`#&#123;&#125;`） | 自动 |
 | 结果映射 | 手动 `resultSet.getXxx` | ★ **自动**（resultMap） | 自动 |
 | 连接管理 | 手动 | 连接池托管 | 连接池托管 |
 | 学习成本 | 低但繁琐 | ★ **低** | 高 |
@@ -89,9 +89,9 @@ User u = userMapper.selectById(1L);            // ★ 注入的代理对象直�
 | 能力 | 说明 |
 | --- | --- |
 | **SQL 与代码分离** | SQL 写在 XML 中（或注解），改 SQL 不用改 Java 代码 |
-| **自动参数映射** | `#{}` 预编译占位符，防 SQL 注入 |
+| **自动参数映射** | `#&#123;&#125;` 预编译占位符，防 SQL 注入 |
 | **自动结果映射** | `resultMap` 支持复杂映射（一对一、一对多、多对多） |
-| **动态 SQL** | `<if>`/`<foreach>`/`<choose>` 等 9 大标签，按条件拼 SQL |
+| **动态 SQL** | `&lt;if&gt;`/`&lt;foreach&gt;`/`&lt;choose&gt;` 等 9 大标签，按条件拼 SQL |
 | **一级/二级缓存** | 减少数据库查询 |
 | **插件机制** | 拦截四大对象，可实现分页、性能监控、多租户 |
 | **延迟加载** | 关联对象按需加载 |
@@ -837,11 +837,11 @@ Executor.query(MappedStatement, parameter, rowBounds, resultHandler)
 >
 > **答**：MyBatis 用 **JDK 动态代理**为 Mapper 接口生成代理对象。调用方法时，代理拦截调用，根据「**接口全限定名 + 方法名**」定位到对应的 SQL（XML 中的 `<select id="方法名">` 或接口上的 `@Select` 注解），然后交给 `SqlSession` 执行，最后把结果集映射为方法返回类型。所以 Mapper 接口是「SQL 的声明」，代理是「SQL 的执行者」。
 
-## 5. #{} 与 ${} ★★★★★（安全必考）
+## 5. #&#123;&#125; 与 $&#123;&#125; ★★★★★（安全必考）
 
 ### 5.1 核心区别
 
-| 对比 | **`#{}`** | **`${}`** |
+| 对比 | **`#&#123;&#125;`** | **`$&#123;&#125;`** |
 | --- | --- | --- |
 | 本质 | ★ **预编译占位符**（替换为 `?`） | ★ **字符串直接拼接** |
 | 实现 | `PreparedStatement.setXxx()` | SQL 文本替换后再编译 |
@@ -849,7 +849,7 @@ Executor.query(MappedStatement, parameter, rowBounds, resultHandler)
 | 能替换的位置 | ★ **只能是「值」** | 值、**表名、列名、ORDER BY** 等标识符 |
 | 类型处理 | 自动做类型转换和转义 | 原样拼接（需自己处理引号） |
 | 性能 | ★ 可复用执行计划（预编译缓存） | 每次都是新 SQL（无法缓存） |
-| 使用建议 | ★★ **默认一律用 `#{}`** | 仅在必须时用，且**白名单校验** |
+| 使用建议 | ★★ **默认一律用 `#&#123;&#125;`** | 仅在必须时用，且**白名单校验** |
 
 ```xml
 <!-- ─── #{} 的实际效果 ─── -->
@@ -954,8 +954,8 @@ public List<User> querySorted(UserQuery query) {
 </select>
 ```
 
-> 【为什么 ORDER BY 不能用 `#{}`？】
-> `#{}` 会被替换成 `?` 并通过 `setString()` 设值，而 **SQL 的 ORDER BY 后面跟的是「列名标识符」，不是「值」**。预编译占位符只能出现在「值」的位置，所以 `ORDER BY ?` 是非法的（会被当成排序依据一个常量，即不排序）。
+> 【为什么 ORDER BY 不能用 `#&#123;&#125;`？】
+> `#&#123;&#125;` 会被替换成 `?` 并通过 `setString()` 设值，而 **SQL 的 ORDER BY 后面跟的是「列名标识符」，不是「值」**。预编译占位符只能出现在「值」的位置，所以 `ORDER BY ?` 是非法的（会被当成排序依据一个常量，即不排序）。
 >
 > ```sql
 > -- 错误：SELECT * FROM t ORDER BY ?   → setString(1, "age")
@@ -966,8 +966,8 @@ public List<User> querySorted(UserQuery query) {
 
 | # | 措施 | 说明 |
 | --- | --- | --- |
-| 1 | ★ **一律用 `#{}`** | 默认选择，从根源杜绝 |
-| 2 | ★ `${}` 必须白名单校验 | 表名、列名、排序字段都要枚举白名单 |
+| 1 | ★ **一律用 `#&#123;&#125;`** | 默认选择，从根源杜绝 |
+| 2 | ★ `$&#123;&#125;` 必须白名单校验 | 表名、列名、排序字段都要枚举白名单 |
 | 3 | 数据库账号最小权限 | 只给 DML（SELECT/INSERT/UPDATE/DELETE），**不给 DDL 和 GRANT** |
 | 4 | 输入校验 | 类型、长度、格式、范围 |
 | 5 | 输出转义 | 防止查询结果中的恶意数据造成二次注入/XSS |
@@ -1333,12 +1333,12 @@ class UserMapperFastTest { ... }
 
 | # | 坑 | 现象 | 解决 |
 | --- | --- | --- | --- |
-| 1 | ★ 用 `${}` 拼接用户输入 | **SQL 注入** | 一律 `#{}`；`${}` 必须白名单校验 |
-| 2 | ORDER BY 用 `#{}` | 排序不生效 | ORDER BY 只能用 `${}` + 白名单 |
+| 1 | ★ 用 `$&#123;&#125;` 拼接用户输入 | **SQL 注入** | 一律 `#&#123;&#125;`；`$&#123;&#125;` 必须白名单校验 |
+| 2 | ORDER BY 用 `#&#123;&#125;` | 排序不生效 | ORDER BY 只能用 `$&#123;&#125;` + 白名单 |
 | 3 | 未开 `mapUnderscoreToCamelCase` | 字段映射为 null | 开启该配置 |
 | 4 | XML 的 namespace 与接口不一致 | `Invalid bound statement (not found)` | namespace 必须是接口全限定名 |
 | 5 | XML 的 id 与方法名不一致 | 同上 | id 必须与方法名完全一致 |
-| 6 | XML 未被打包（放在 src/main/java 下） | 同上 | 配 `<resources>` 包含 `**/*.xml`，或放到 resources |
+| 6 | XML 未被打包（放在 src/main/java 下） | 同上 | 配 `&lt;resources&gt;` 包含 `**/*.xml`，或放到 resources |
 | 7 | `mapper-locations` 路径写错 | 同上 | 用 `classpath*:mapper/**/*.xml` |
 | 8 | 忘记 `@MapperScan` 或 `@Mapper` | `NoSuchBeanDefinitionException` | 二者至少有一个 |
 | 9 | SqlSession 未关闭 | 连接泄漏，池耗尽 | try-with-resources；整合 Spring 后自动管理 |
@@ -1346,7 +1346,7 @@ class UserMapperFastTest { ... }
 | 11 | SqlSessionFactory 重复创建 | 性能差、连接池浪费 | 全局单例 |
 | 12 | SqlSession 跨线程共享 | 线程不安全，数据错乱 | 每线程一个；Spring 中用 SqlSessionTemplate |
 | 13 | `configLocation` 与 `configuration` 同时配 | 启动报错 | 二选一 |
-| 14 | mybatis-config.xml 中保留 `<environments>` | Spring 整合后事务失效 | 整合后去掉 environments 和 mappers |
+| 14 | mybatis-config.xml 中保留 `&lt;environments&gt;` | Spring 整合后事务失效 | 整合后去掉 environments 和 mappers |
 | 15 | XML 中 `<` `>` `&` 未转义 | XML 解析错误 | 用 `&lt;` `&gt;` `&amp;` 或 `<![CDATA[ ]]>` |
 | 16 | `selectOne` 查到多条 | `TooManyResultsException` | 用 `selectList` 或加 LIMIT 1 |
 | 17 | 查询返回 null 赋给基本类型 | `BindingException` | 返回类型用包装类，或 SQL 用 IFNULL |

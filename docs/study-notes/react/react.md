@@ -78,76 +78,76 @@ updated: 2026-04-04
 - 父传子
 	父组件传递子组件：所有的参数都通过 `props` 传递，这里要注意一点，组件包裹的内容都在 `children` 中，如：
 	~~~tsx
-	import { useState } from "react";
-    import { Button } from "antd";
+	import &#123; useState &#125; from "react";
+    import &#123; Button &#125; from "antd";
 
-    const Index: React.FC<any> = () => {
-      const [flag, setFlag] = useState<boolean>(true);
+    const Index: React.FC&lt;any&gt; = () => &#123;
+      const [flag, setFlag] = useState&lt;boolean&gt;(true);
 
       return (
         <>
-          <div>我是父组件</div>
-          <Button type="primary" onClick={() => setFlag((v) => !v)}>
+          &lt;div&gt;我是父组件</div>
+          <Button type="primary" onClick=&#123;() => setFlag((v) => !v)&#125;>
             切换状态
           </Button>
-          <Child flag={flag}>大家好，我是小杜杜，一起玩转Hooks吧！</Child>
+          <Child flag=&#123;flag&#125;>大家好，我是小杜杜，一起玩转Hooks吧！</Child>
         </>
       );
-    };
+    &#125;;
 
-    const Child: React.FC<any> = (props) => {
-      const { flag, children } = props;
+    const Child: React.FC&lt;any&gt; = (props) => &#123;
+      const &#123; flag, children &#125; = props;
       return (
-        <div style={{ border: "1px solid #000", padding: 20 }}>
-          <div>我是子组件</div>
-          <div>父组件传递的flag：{JSON.stringify(flag)}</div>
-          <div>父组件传递的children：{children}</div>
+        <div style=&#123;&#123; border: "1px solid #000", padding: 20 &#125;&#125;>
+          &lt;div&gt;我是子组件</div>
+          &lt;div&gt;父组件传递的flag：&#123;JSON.stringify(flag)&#125;</div>
+          &lt;div&gt;父组件传递的children：&#123;children&#125;</div>
         </div>
       );
-    };
+    &#125;;
 
     export default Index;
 	~~~
 - 子传父
 	子组件传父组件：子传父，也称状态提升，通过父组件传递的 callback 函数，通知父组件。如：
 	~~~tsx
-    import { useState } from "react";
-    import { Button } from "antd";
+    import &#123; useState &#125; from "react";
+    import &#123; Button &#125; from "antd";
 
-    const Index: React.FC<any> = () => {
-      	const [number, setNumber] = useState<number>(0);
+    const Index: React.FC&lt;any&gt; = () => &#123;
+      	const [number, setNumber] = useState&lt;number&gt;(0);
 
       return (
         <>
-          	<div>我是父组件</div>
-          	<div>子组件的number：{number}</div>
+          	&lt;div&gt;我是父组件</div>
+          	&lt;div&gt;子组件的number：&#123;number&#125;</div>
 
-          	<Child getNumber={(v: number) => { setNumber(v) }} >
+          	<Child getNumber=&#123;(v: number) => &#123; setNumber(v) &#125;&#125; >
             	大家好，我是小杜杜，一起玩转Hooks吧！
           	</Child>
         </>
       	)
-    }
+    &#125;
 
-    const Child: React.FC<any> = ({ getNumber }) => {
-      const [number, setNumber] = useState<number>(0);
+    const Child: React.FC&lt;any&gt; = (&#123; getNumber &#125;) => &#123;
+      const [number, setNumber] = useState&lt;number&gt;(0);
 
       return (
-        <div style={{ border: "1px solid #000", padding: 20 }}>
-          <div>我是子组件</div>
+        <div style=&#123;&#123; border: "1px solid #000", padding: 20 &#125;&#125;>
+          &lt;div&gt;我是子组件</div>
           <Button
             type="primary"
-            onClick={() => {
+            onClick=&#123;() => &#123;
               const res = number + 1;
               setNumber(res);
               getNumber(res);
-            }}
+            &#125;&#125;
           >
-            点击加一{number}
+            点击加一&#123;number&#125;
           </Button>
         </div>
       );
-    };
+    &#125;;
 
     export default Index;
 	~~~
@@ -162,97 +162,97 @@ Context 的模式:
 
 举例：主题切换是 `Context` 最经典的应用之一，这里我们利用它来实现一个简单版的主题切换，帮助大家更好地理解 `Context`。
 ~~~tsx
-import React, { useState, Component } from "react";
-import { Checkbox, Button, Input } from "antd";
+import React, &#123; useState, Component &#125; from "react";
+import &#123; Checkbox, Button, Input &#125; from "antd";
 
 const ThemeContext: any = React.createContext(null); 
 
 //主题颜色
-const theme = {
-	dark: {
+const theme = &#123;
+	dark: &#123;
 	color: "#5B8FF9",
 	background: "#5B8FF9",
 	border: "1px solid #5B8FF9",
 	type: "dark",
 	buttomType: "primary",
-	},
-	light: {
+	&#125;,
+	light: &#123;
 	color: "#E86452",
 	background: "#E86452",
 	border: "1px solid #E86452",
 	type: "light",
 	buttomType: "default",
-	},
-};
+	&#125;,
+&#125;;
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
 	const [themeContextValue, setThemeContext] = useState(theme.dark);
 
 	return (
 	<ThemeContext.Provider
-		value={{ ...themeContextValue, setTheme: setThemeContext }}
+		value=&#123;&#123; ...themeContextValue, setTheme: setThemeContext &#125;&#125;
 	>
 		<Child />
 	</ThemeContext.Provider>
 	);
-};
+&#125;;
 
-class Child extends Component<any, any> {
+class Child extends Component<any, any> &#123;
 	static contextType = ThemeContext;
-	render() {
-	const { border, setTheme, color, background, buttomType }: any =
+	render() &#123;
+	const &#123; border, setTheme, color, background, buttomType &#125;: any =
 		this.context;
 	return (
-		<div style={{ border, color, padding: 20 }}>
-		<div>
-			<span> 选择主题： </span>
+		<div style=&#123;&#123; border, color, padding: 20 &#125;&#125;>
+		&lt;div&gt;
+			&lt;span&gt; 选择主题： </span>
 			<CheckboxView
 			label="主题1"
 			name="dark"
-			onChange={() => setTheme(theme.dark)}
+			onChange=&#123;() => setTheme(theme.dark)&#125;
 			/>
 			<CheckboxView
 			label="主题2"
 			name="light"
-			onChange={() => setTheme(theme.light)}
+			onChange=&#123;() => setTheme(theme.light)&#125;
 			/>
 		</div>
-		<div style={{ color, marginTop: 8 }}>
+		<div style=&#123;&#123; color, marginTop: 8 &#125;&#125;>
 			大家好，我是小杜杜，一起玩转Hooks吧！
 		</div>
-		<div style={{ marginTop: 8 }}>
+		<div style=&#123;&#123; marginTop: 8 &#125;&#125;>
 			<Input
 			placeholder="请输入你的名字"
-			style={{ color, border, marginBottom: 10 }}
+			style=&#123;&#123; color, border, marginBottom: 10 &#125;&#125;
 			/>
-			<Button type={buttomType}>提交</Button>
+			<Button type=&#123;buttomType&#125;>提交</Button>
 		</div>
 		</div>
 	);
-	}
-}
+	&#125;
+&#125;
 
-class CheckboxView extends Component<any, any> {
+class CheckboxView extends Component<any, any> &#123;
 	static contextType = ThemeContext;
 
-	render() {
-	const { label, name, onChange } = this.props;
-	const { color, type }: any = this.context;
+	render() &#123;
+	const &#123; label, name, onChange &#125; = this.props;
+	const &#123; color, type &#125;: any = this.context;
 
 	return (
 		<div
-		style={{
+		style=&#123;&#123;
 			display: "inline-block",
 			marginLeft: 10,
-		}}
+		&#125;&#125;
 		>
-		<Checkbox checked={type === name} style={{ color }} onChange={onChange}>
-			{label}
+		<Checkbox checked=&#123;type === name&#125; style=&#123;&#123; color &#125;&#125; onChange=&#123;onChange&#125;>
+			&#123;label&#125;
 		</Checkbox>
 		</div>
 	);
-	}
-}
+	&#125;
+&#125;
 
 export default Index;
 ~~~
@@ -281,37 +281,37 @@ export default Index;
 `extends` 继承模式就是通过继承，一步一步地将组件强化，`React` 中的类本身也是继承， 如 `React.Component` 、 `React.PureComponent` 都是继承，但这种模式需要对组件进行足够的掌握，否则可能会发生一些奇怪的情况。
 ~~~tsx
 import React from "react";
-import { Button } from "antd";
+import &#123; Button &#125; from "antd";
 
-class Child extends React.Component<any, any> {
-	constructor(props: any) {
+class Child extends React.Component<any, any> &#123;
+	constructor(props: any) &#123;
 	super(props);
-	this.state = {
+	this.state = &#123;
 		msg: "大家好，我是小杜杜，一起玩转Hooks吧！",
-	};
-	}
+	&#125;;
+	&#125;
 
-	speak() {
+	speak() &#123;
 	console.log("Child中的speak");
-	}
+	&#125;
 
-	render() {
+	render() &#123;
 	return (
 		<>
-		<div>{this.state.msg}</div>
-		<Button type="primary" onClick={() => this.speak()}>
+		&lt;div&gt;&#123;this.state.msg&#125;</div>
+		<Button type="primary" onClick=&#123;() => this.speak()&#125;>
 			查看控制台
 		</Button>
 		</>
 	);
-	}
-}
+	&#125;
+&#125;
 
-class Index extends Child {
-	speak() {
+class Index extends Child &#123;
+	speak() &#123;
 	console.log("extends 模式，强化后会替代Child的speak方法");
-	}
-}
+	&#125;
+&#125;
 
 export default Index;
 ~~~
@@ -329,43 +329,43 @@ export default Index;
 :::
 `Hoc` 模式与 `extends` 模式类似，都是逐渐强化组件，使组件越来越强大、健壮，但 `extends` 继承模式需要考虑的因素很多，HOC 模式适应性更强。举个例子：
 ~~~tsx
-import React, { useState } from "react";
-import { Button } from "antd";
+import React, &#123; useState &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const HOC = (Component: any) => (props: any) => {
+const HOC = (Component: any) => (props: any) => &#123;
 	return (
 	<Component
-		name={"大家好，我是小杜杜，一起玩转Hooks吧！"}
-		{...props}
+		name=&#123;"大家好，我是小杜杜，一起玩转Hooks吧！"&#125;
+		&#123;...props&#125;
 	></Component>
 	);
-};
+&#125;;
 
-const Index: React.FC<any> = (props) => {
-	const [flag, setFlag] = useState<boolean>(false);
+const Index: React.FC&lt;any&gt; = (props) => &#123;
+	const [flag, setFlag] = useState&lt;boolean&gt;(false);
 
 	return (
-	<div>
-		<Button type="primary" onClick={() => setFlag(true)}>
+	&lt;div&gt;
+		<Button type="primary" onClick=&#123;() => setFlag(true)&#125;>
 		获取props
 		</Button>
-		{flag && <div>{JSON.stringify(props)}</div>}
+		&#123;flag && &lt;div&gt;&#123;JSON.stringify(props)&#125;</div>&#125;
 	</div>
 	);
-};
+&#125;;
 
 export default HOC(Index);
 ~~~
 ::: tip
-- 问：在上面的例子中， HOC = (Component: any) => (props: any) => {} 这种写法是什么意思？
+- 问：在上面的例子中， HOC = (Component: any) => (props: any) => &#123;&#125; 这种写法是什么意思？
 
 - 答：这种写法实际是一种简写方式，如果不好理解，可以看看这种方式转化为 ES5 是什么样子：
   	~~~ts
-   	var HOC = function (Component) { 
-      	return function (props) {
-          	return React.createElement(Component, __assign({ name: "大家好，我是小杜杜，一起玩转Hooks吧！" }, props));
-      	}; 
-    };
+   	var HOC = function (Component) &#123; 
+      	return function (props) &#123;
+          	return React.createElement(Component, __assign(&#123; name: "大家好，我是小杜杜，一起玩转Hooks吧！" &#125;, props));
+      	&#125;; 
+    &#125;;
   	~~~
 :::
 ::: tip
@@ -389,14 +389,14 @@ export default HOC(Index);
 	
 	在讲解 `extends` 继承模式的时候有这样一段代码：
 	~~~ts
-	class Child extends React.Component<any, any> {
-		constructor(props: any) {
+	class Child extends React.Component<any, any> &#123;
+		constructor(props: any) &#123;
 			super(props);
-			this.state = {
+			this.state = &#123;
 				msg: "大家好，我是小杜杜，一起玩转Hooks吧！",
-			};
-		}
-	}
+			&#125;;
+		&#125;
+	&#125;
 	~~~
 	实际上 `super` 的作用等于执行 `Component` 函数，如果不使用 `super()` 就会导致 `Component` 函数内的 `props` 找不到，也就是在代码中使用 `this.props` 打印出 `undefined`，所以这段代码是必要的。
 
@@ -450,28 +450,28 @@ const [state, setState] = useState(initData)
 
 基本用法 ( 主要介绍两种`setState`的使用方法 )：
 ~~~tsx
-import { useState } from "react";
-import { Button } from "antd";
+import &#123; useState &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
-  	const [count, setCount] = useState<number>(0);
+const Index: React.FC&lt;any&gt; = () => &#123;
+  	const [count, setCount] = useState&lt;number&gt;(0);
 
   	return (
     <>
-      	<div>数字：{count}</div>
-    	<Button type="primary" onClick={() => setCount(count + 1)}>
+      	&lt;div&gt;数字：&#123;count&#125;</div>
+    	<Button type="primary" onClick=&#123;() => setCount(count + 1)&#125;>
         	第一种方式+1
     	</Button>
     	<Button
         	type="primary"
-        	style={{ marginLeft: 10 }}
-        	onClick={() => setCount((v) => v + 1)}
+        	style=&#123;&#123; marginLeft: 10 &#125;&#125;
+        	onClick=&#123;() => setCount((v) => v + 1)&#125;
       	>
         第二种方式+1
     	</Button>
     </>
   	);
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -480,38 +480,38 @@ export default Index;
 :::
 我们做个简单的对比，比如：
 ~~~tsx
-import { useState } from "react";
-import { Button } from "antd";
+import &#123; useState &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
-  const [state, setState] = useState({ number: 0 });
+const Index: React.FC&lt;any&gt; = () => &#123;
+  const [state, setState] = useState(&#123; number: 0 &#125;);
   let [count, setCount] = useState(0);
 
   return (
     <>
-      <div>数字形式：{count}</div>
+      &lt;div&gt;数字形式：&#123;count&#125;</div>
       <Button
         type="primary"
-        onClick={() => {
+        onClick=&#123;() => &#123;
           count++;
           setCount(count);
-        }}
+        &#125;&#125;
       >
         点击+1
       </Button>
-      <div>对象形式：{state.number}</div>
+      &lt;div&gt;对象形式：&#123;state.number&#125;</div>
       <Button
         type="primary"
-        onClick={() => {
+        onClick=&#123;() => &#123;
           state.number++;
           setState(state);
-        }}
+        &#125;&#125;
       >
         点击+1
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -521,9 +521,9 @@ export default Index;
 
 基本使用：
 ~~~ts
-useEffect(()=>{ 
+useEffect(()=>&#123; 
     return destory
-}, deps)
+&#125;, deps)
 ~~~
 - `callback`：`useEffect` 的第一个入参，最终返回 `destory`，它会在下一次 `callback` 执行之前调用，其作用是清除上次的 `callback` 产生的副作用；
 - `deps`：依赖项，可选参数，是一个数组，可以有多个依赖项，通过依赖去改变，执行上一次的 `callback` 返回的 `destory` 和新的 `effect` 第一个参数 `callback`。
@@ -531,105 +531,105 @@ useEffect(()=>{
 **模拟挂载和卸载阶段：**
 事实上，`destory` 会用在组件卸载阶段上，把它当作组件卸载时执行的方法就 `ok`，通常用于监听 `addEventListener` 和 `removeEventListener` 上，如：
 ~~~tsx
-import { useState, useEffect } from "react";
-import { Button } from "antd";
+import &#123; useState, useEffect &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Child = () => {
-  useEffect(() => {
+const Child = () => &#123;
+  useEffect(() => &#123;
     console.log("挂载");
 
-    return () => {
+    return () => &#123;
       console.log("卸载");
-    };
-  }, []);
+    &#125;;
+  &#125;, []);
 
-  return <div>大家好，我是小杜杜，一起学习hooks吧！</div>;
-};
+  return &lt;div&gt;大家好，我是小杜杜，一起学习hooks吧！</div>;
+&#125;;
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const [flag, setFlag] = useState(false);
 
   return (
     <>
       <Button
         type="primary"
-        onClick={() => {
+        onClick=&#123;() => &#123;
           setFlag((v) => !v);
-        }}
+        &#125;&#125;
       >
-        {flag ? "卸载" : "挂载"}
+        表达式(flag 条件判断)
       </Button>
-      {flag && <Child />}
+      &#123;flag && <Child />&#125;
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
 **依赖变化：**
 `dep`的个数决定`callback`什么时候执行，如：
 ~~~tsx
-import { useState, useEffect } from "react";
-import { Button } from "antd";
+import &#123; useState, useEffect &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const [number, setNumber] = useState(0);
   const [count, setCount] = useState(0);
 
-  useEffect(() => {
+  useEffect(() => &#123;
     console.log("count改变才会执行");
-  }, [count]);
+  &#125;, [count]);
 
   return (
     <>
-      <div>
-        number: {number} count: {count}
+      &lt;div&gt;
+        number: &#123;number&#125; count: &#123;count&#125;
       </div>
-      <Button type="primary" onClick={() => setNumber((v) => v + 1)}>
+      <Button type="primary" onClick=&#123;() => setNumber((v) => v + 1)&#125;>
         number + 1
       </Button>
       <Button
         type="primary"
-        style={{ marginLeft: 10 }}
-        onClick={() => setCount((v) => v + 1)}
+        style=&#123;&#123; marginLeft: 10 &#125;&#125;
+        onClick=&#123;() => setCount((v) => v + 1)&#125;
       >
         count + 1
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
 **无限执行：**
 当 `useEffect` 的第二个参数 `deps` 不存在时，会无限执行。更加准确地说，只要数据源发生变化（不限于自身中），该函数都会执行，所以请不要这么做，否则会出现不可控的现象。
 ~~~tsx
-import { useState, useEffect } from "react";
-import { Button } from "antd";
+import &#123; useState, useEffect &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const [count, setCount] = useState(0);
   const [flag, setFlag] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => &#123;
     console.log("大家好，我是小杜杜，一起学习hooks吧！");
-  });
+  &#125;);
 
   return (
     <>
-      <Button type="primary" onClick={() => setCount((v) => v + 1)}>
-        数字加一：{count}
+      <Button type="primary" onClick=&#123;() => setCount((v) => v + 1)&#125;>
+        数字加一：&#123;count&#125;
       </Button>
       <Button
         type="primary"
-        style={{ marginLeft: 10 }}
-        onClick={() => setFlag((v) => !v)}
+        style=&#123;&#123; marginLeft: 10 &#125;&#125;
+        onClick=&#123;() => setFlag((v) => !v)&#125;
       >
-        状态切换：{JSON.stringify(flag)}
+        状态切换：&#123;JSON.stringify(flag)&#125;
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -648,43 +648,43 @@ const contextValue = useContext(context)
 
 基本用法 ( 子组件 `Child` 和孙组件 `Son`，共享父组件 `Index` 的数据 `count` ) ： 
 ~~~tsx
-import { useState, createContext, useContext } from "react";
-import { Button } from "antd";
+import &#123; useState, createContext, useContext &#125; from "react";
+import &#123; Button &#125; from "antd";
 
 const CountContext = createContext(-1);
 
-const Child = () => {
+const Child = () => &#123;
   const count = useContext(CountContext);
 
   return (
-    <div style={{ marginTop: 10 }}>
-      子组件获取到的count: {count}
+    <div style=&#123;&#123; marginTop: 10 &#125;&#125;>
+      子组件获取到的count: &#123;count&#125;
       <Son />
     </div>
   );
-};
+&#125;;
 
-const Son = () => {
+const Son = () => &#123;
   const count = useContext(CountContext);
 
-  return <div style={{ marginTop: 10 }}>孙组件获取到的count: {count}</div>;
-};
+  return <div style=&#123;&#123; marginTop: 10 &#125;&#125;>孙组件获取到的count: &#123;count&#125;</div>;
+&#125;;
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   let [count, setCount] = useState(0);
 
   return (
     <>
-      <div>父组件中的count：{count}</div>
-      <Button type="primary" onClick={() => setCount((v) => v + 1)}>
+      &lt;div&gt;父组件中的count：&#123;count&#125;</div>
+      <Button type="primary" onClick=&#123;() => setCount((v) => v + 1)&#125;>
         点击+1
       </Button>
-      <CountContext.Provider value={count}>
+      <CountContext.Provider value=&#123;count&#125;>
         <Child />
       </CountContext.Provider>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -695,7 +695,7 @@ export default Index;
 基本使用：
 ~~~ts
 const [state, dispatch] = useReducer(
-    (state, action) => {}, 
+    (state, action) => &#123;&#125;, 
     initialArg,
     init
 );
@@ -714,40 +714,40 @@ const [state, dispatch] = useReducer(
 
 基本用法：
 ~~~tsx
-import { useReducer } from "react";
-import { Button } from "antd";
+import &#123; useReducer &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
-  const [count, dispatch] = useReducer((state: number, action: any) => {
-    switch (action?.type) {
+const Index: React.FC&lt;any&gt; = () => &#123;
+  const [count, dispatch] = useReducer((state: number, action: any) => &#123;
+    switch (action?.type) &#123;
       case "add":
         return state + action?.payload;
       case "sub":
         return state - action?.payload;
       default:
         return state;
-    }
-  }, 0);
+    &#125;
+  &#125;, 0);
 
   return (
     <>
-      <div>count：{count}</div>
+      &lt;div&gt;count：&#123;count&#125;</div>
       <Button
         type="primary"
-        onClick={() => dispatch({ type: "add", payload: 1 })}
+        onClick=&#123;() => dispatch(&#123; type: "add", payload: 1 &#125;)&#125;
       >
         加1
       </Button>
       <Button
         type="primary"
-        style={{ marginLeft: 10 }}
-        onClick={() => dispatch({ type: "sub", payload: 1 })}
+        style=&#123;&#123; marginLeft: 10 &#125;&#125;
+        onClick=&#123;() => dispatch(&#123; type: "sub", payload: 1 &#125;)&#125;
       >
         减1
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -756,7 +756,7 @@ export default Index;
 :::
 比如这个组件是子组件，并不是组件本身，然后我们对上面的例子稍加更改，看看这个问题：
 ~~~tsx
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   console.log("父组件发生更新");
   ...
   return (
@@ -764,20 +764,20 @@ const Index: React.FC<any> = () => {
         ...
       <Button
         type="primary"
-        style={{ marginLeft: 10 }}
-        onClick={() => dispatch({ type: "no", payload: 1 })}
+        style=&#123;&#123; marginLeft: 10 &#125;&#125;
+        onClick=&#123;() => dispatch(&#123; type: "no", payload: 1 &#125;)&#125;
       >
         无关按钮
       </Button>
-      <Child count={count} />
+      <Child count=&#123;count&#125; />
     </>
   )
-};
+&#125;;
 
-const Child: React.FC<any> = ({ count }) => {
+const Child: React.FC&lt;any&gt; = (&#123; count &#125;) => &#123;
   console.log("子组件发生更新");
-  return <div>在子组件的count：{count}</div>;
-};
+  return &lt;div&gt;在子组件的count：&#123;count&#125;</div>;
+&#125;;
 ~~~
 ::: tip
 当 `count` 无变化时，子组件并不会更新，这点还希望大家铭记。
@@ -798,45 +798,45 @@ const cacheData = useMemo(fn, deps)
 
 举个案例：
 ~~~tsx
-import { useState } from "react";
-import { Button } from "antd";
+import &#123; useState &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const usePow = (list: number[]) => {
-  return list.map((item: number) => {
+const usePow = (list: number[]) => &#123;
+  return list.map((item: number) => &#123;
     console.log("我是usePow");
     return Math.pow(item, 2);
-  });
-};
+  &#125;);
+&#125;;
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   let [flag, setFlag] = useState(true);
 
   const data = usePow([1, 2, 3]);
 
   return (
     <>
-      <div>数字集合：{JSON.stringify(data)}</div>
-      <Button type="primary" onClick={() => setFlag((v) => !v)}>
-        状态切换{JSON.stringify(flag)}
+      &lt;div&gt;数字集合：&#123;JSON.stringify(data)&#125;</div>
+      <Button type="primary" onClick=&#123;() => setFlag((v) => !v)&#125;>
+        状态切换&#123;JSON.stringify(flag)&#125;
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
 从例子中来看， 按钮切换的 `flag` 应该与 `usePow` 的数据毫无关系，但当我们点击按钮后，会打印我是 `usePow`，这样就会产生开销。毫无疑问，这种开销并不是我们想要见到的结果，所以有了 `useMemo`。 并用它进行如下改造：
 ~~~ts
-const usePow = (list: number[]) => {
+const usePow = (list: number[]) => &#123;
   return useMemo(
     () =>
-      list.map((item: number) => {
+      list.map((item: number) => &#123;
         console.log(1);
         return Math.pow(item, 2);
-      }),
+      &#125;),
     []
   );
-};
+&#125;;
 ~~~
 
 ### useCallback
@@ -852,41 +852,41 @@ const resfn = useCallback(fn, deps)
 
 基础用法：
 ~~~tsx
-import { useState, useCallback, memo } from "react";
-import { Button } from "antd";
+import &#123; useState, useCallback, memo &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   let [count, setCount] = useState(0);
   let [flag, setFlag] = useState(true);
 
-  const add = useCallback(() => {
+  const add = useCallback(() => &#123;
     setCount(count + 1);
-  }, [count]);
+  &#125;, [count]);
 
   return (
     <>
-      <TestButton onClick={() => setCount((v) => v + 1)}>普通点击</TestButton>
-      <TestButton onClick={add}>useCallback点击</TestButton>
-      <div>数字：{count}</div>
-      <Button type="primary" onClick={() => setFlag((v) => !v)}>
-        切换{JSON.stringify(flag)}
+      <TestButton onClick=&#123;() => setCount((v) => v + 1)&#125;>普通点击</TestButton>
+      <TestButton onClick=&#123;add&#125;>useCallback点击</TestButton>
+      &lt;div&gt;数字：&#123;count&#125;</div>
+      <Button type="primary" onClick=&#123;() => setFlag((v) => !v)&#125;>
+        切换&#123;JSON.stringify(flag)&#125;
       </Button>
     </>
   );
-};
+&#125;;
 
-const TestButton = memo(({ children, onClick = () => {} }: any) => {
+const TestButton = memo((&#123; children, onClick = () => &#123;&#125; &#125;: any) => &#123;
   console.log(children);
   return (
     <Button
       type="primary"
-      onClick={onClick}
-      style={children === "useCallback点击" ? { marginLeft: 10 } : undefined}
+      onClick=&#123;onClick&#125;
+      style=&#123;children === "useCallback点击" ? &#123; marginLeft: 10 &#125; : undefined&#125;
     >
-      {children}
+      &#123;children&#125;
     </Button>
   );
-});
+&#125;);
 
 export default Index;
 ~~~
@@ -909,42 +909,42 @@ const ref = useRef(initialValue);
 
 基本用法：
 ~~~tsx
-import { useState, useRef } from "react";
+import &#123; useState, useRef &#125; from "react";
 
-const Index: React.FC<any> = () => {
-  	const scrollRef = useRef<any>(null);
-  	const [clientHeight, setClientHeight] = useState<number>(0);
-  	const [scrollTop, setScrollTop] = useState<number>(0);
-  	const [scrollHeight, setScrollHeight] = useState<number>(0);
+const Index: React.FC&lt;any&gt; = () => &#123;
+  	const scrollRef = useRef&lt;any&gt;(null);
+  	const [clientHeight, setClientHeight] = useState&lt;number&gt;(0);
+  	const [scrollTop, setScrollTop] = useState&lt;number&gt;(0);
+  	const [scrollHeight, setScrollHeight] = useState&lt;number&gt;(0);
 
-  	const onScroll = () => {
-    	if (scrollRef?.current) {
+  	const onScroll = () => &#123;
+    	if (scrollRef?.current) &#123;
       		let clientHeight = scrollRef?.current.clientHeight; //可视区域高度
       		let scrollTop = scrollRef?.current.scrollTop; //滚动条滚动高度
       		let scrollHeight = scrollRef?.current.scrollHeight; //滚动内容高度
       		setClientHeight(clientHeight);
       		setScrollTop(scrollTop);
       		setScrollHeight(scrollHeight);
-    	}
-  	};
+    	&#125;
+  	&#125;;
 
   	return (
     	<>
-      		<div>
-        		<p>可视区域高度：{clientHeight}</p>
-        		<p>滚动条滚动高度：{scrollTop}</p>
-        		<p>滚动内容高度：{scrollHeight}</p>
+      		&lt;div&gt;
+        		<p>可视区域高度：&#123;clientHeight&#125;</p>
+        		<p>滚动条滚动高度：&#123;scrollTop&#125;</p>
+        		<p>滚动内容高度：&#123;scrollHeight&#125;</p>
       		</div>
       		<div
-        		style={{ height: 200, border: "1px solid #000", overflowY: "auto" }}
-        		ref={scrollRef}
-        		onScroll={onScroll}
+        		style=&#123;&#123; height: 200, border: "1px solid #000", overflowY: "auto" &#125;&#125;
+        		ref=&#123;scrollRef&#125;
+        		onScroll=&#123;onScroll&#125;
       		>
-        		<div style={{ height: 2000 }}></div>
+        		<div style=&#123;&#123; height: 2000 &#125;&#125;></div>
       		</div>
     	</>
   	)
-}
+&#125;
 
 export default Index;
 ~~~
@@ -966,44 +966,44 @@ useImperativeHandle(ref, createHandle, deps)
 
 父组件是函数式组件：
 ~~~tsx
-import { useState, useRef, useImperativeHandle } from "react";
-import { Button } from "antd";
+import &#123; useState, useRef, useImperativeHandle &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Child = ({cRef}:any) => {
+const Child = (&#123;cRef&#125;:any) => &#123;
 
   const [count, setCount] = useState(0)
 
-  useImperativeHandle(cRef, () => ({
+  useImperativeHandle(cRef, () => (&#123;
     add
-  }))
+  &#125;))
 
-  const add = () => {
+  const add = () => &#123;
     setCount((v) => v + 1)
-  }
+  &#125;
 
-  return <div>
-    <p>点击次数：{count}</p>
-    <Button onClick={() => add()}> 子组件的按钮，点击+1</Button>
+  return &lt;div&gt;
+    <p>点击次数：&#123;count&#125;</p>
+    <Button onClick=&#123;() => add()&#125;> 子组件的按钮，点击+1</Button>
   </div>
-}
+&#125;
 
-const Index: React.FC<any> = () => {
-  const ref = useRef<any>(null)
+const Index: React.FC&lt;any&gt; = () => &#123;
+  const ref = useRef&lt;any&gt;(null)
 
   return (
     <>
-      <div>大家好，我是小杜杜，一起学习hooks吧！</div>
-      <div></div>
+      &lt;div&gt;大家好，我是小杜杜，一起学习hooks吧！</div>
+      &lt;div&gt;</div>
       <Button
         type="primary"
-        onClick={() =>  ref.current.add()}
+        onClick=&#123;() =>  ref.current.add()&#125;
       >
         父组件上的按钮，点击+1
       </Button>
-      <Child cRef={ref} />
+      <Child cRef=&#123;ref&#125; />
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1026,45 +1026,45 @@ export default Index;
 
 经过 `forwardRef` 包裹后，会将 `props`（其余参数）和 `ref` 拆分出来，`ref` 会作为第二个参数进行传递。如：
 ~~~tsx
-import { useState, useRef, useImperativeHandle, Component, forwardRef } from "react";
-import { Button } from "antd";
+import &#123; useState, useRef, useImperativeHandle, Component, forwardRef &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Child = (props:any, ref:any) => {
+const Child = (props:any, ref:any) => &#123;
 
   const [count, setCount] = useState(0)
 
-  useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => (&#123;
     add
-  }))
+  &#125;))
 
-  const add = () => {
+  const add = () => &#123;
     setCount((v) => v + 1)
-  }
+  &#125;
 
-  return <div>
-    <p>点击次数：{count}</p>
-    <Button onClick={() => add()}> 子组件的按钮，点击+1</Button>
+  return &lt;div&gt;
+    <p>点击次数：&#123;count&#125;</p>
+    <Button onClick=&#123;() => add()&#125;> 子组件的按钮，点击+1</Button>
   </div>
-}
+&#125;
 
 const ForwardChild = forwardRef(Child)
 
-class Index extends Component{
+class Index extends Component&#123;
   countRef:any = null
-  render(){
+  render()&#123;
     return   <>
-      <div>大家好，我是小杜杜，一起学习hooks吧！</div>
-      <div></div>
+      &lt;div&gt;大家好，我是小杜杜，一起学习hooks吧！</div>
+      &lt;div&gt;</div>
       <Button
         type="primary"
-        onClick={() => this.countRef.add()}
+        onClick=&#123;() => this.countRef.add()&#125;
       >
         父组件上的按钮，点击+1
       </Button>
-      <ForwardChild ref={node => this.countRef = node} />
+      <ForwardChild ref=&#123;node => this.countRef = node&#125; />
     </>
-  }
-}
+  &#125;
+&#125;
 
 export default Index;
 ~~~
@@ -1082,32 +1082,32 @@ useLayoutEffect(callback,deps)
 
 防抖效果：
 ~~~tsx
-import { useState, useEffect, useLayoutEffect } from "react";
+import &#123; useState, useEffect, useLayoutEffect &#125; from "react";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   let [count, setCount] = useState(0);
   let [count1, setCount1] = useState(0);
 
-  useEffect(() => {
-    if(count === 0){
+  useEffect(() => &#123;
+    if(count === 0)&#123;
       setCount(10 + Math.random() * 100)
-    }
-  }, [count])
+    &#125;
+  &#125;, [count])
 
-  useLayoutEffect(() => {
-    if(count1 === 0){
+  useLayoutEffect(() => &#123;
+    if(count1 === 0)&#123;
       setCount1(10 + Math.random() * 100)
-    }
-  }, [count1])
+    &#125;
+  &#125;, [count1])
 
   return (
     <>
-      <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>
-      <div>useEffect的count:{count}</div>
-      <div>useLayoutEffect的count:{count1}</div>
+      &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>
+      &lt;div&gt;useEffect的count:&#123;count&#125;</div>
+      &lt;div&gt;useLayoutEffect的count:&#123;count1&#125;</div>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1137,14 +1137,14 @@ export default Index;
 :::
 基本使用：
 ~~~ts
-useDebugValue(value, (status) => {})
+useDebugValue(value, (status) => &#123;&#125;)
 ~~~
 - `value`：判断的值；
 - `callback`：可选，这个函数只有在 `Hook` 被检查时才会调用，它接受 `debug` 值作为参数，并且会返回一个格式化的显示值。
 
 基本用法：
 ~~~ts
-function useFriendStatus(friendID) {
+function useFriendStatus(friendID) &#123;
   const [isOnline, setIsOnline] = useState(null);
 
   // ...
@@ -1152,7 +1152,7 @@ function useFriendStatus(friendID) {
   // 在开发者工具中的这个 Hook 旁边显示标签  
   // e.g. "FriendStatus: Online"  useDebugValue(isOnline ? 'Online' : 'Offline');
   return isOnline;
-}
+&#125;
 ~~~
 
 ### useSyncExternalStore
@@ -1179,26 +1179,26 @@ const state = useSyncExternalStore(
 
 基本用法：
 ~~~tsx
-import { useSyncExternalStore } from "react";
-import { Button } from "antd";
-import { combineReducers, createStore } from "redux";
+import &#123; useSyncExternalStore &#125; from "react";
+import &#123; Button &#125; from "antd";
+import &#123; combineReducers, createStore &#125; from "redux";
 
-const reducer = (state: number = 1, action: any) => {
-  switch (action.type) {
+const reducer = (state: number = 1, action: any) => &#123;
+  switch (action.type) &#123;
     case "ADD":
       return state + 1;
     case "DEL":
       return state - 1;
     default:
       return state;
-  }
-};
+  &#125;
+&#125;;
 
 /* 注册reducer,并创建store */
-const rootReducer = combineReducers({ count: reducer });
-const store = createStore(rootReducer, { count: 1 });
+const rootReducer = combineReducers(&#123; count: reducer &#125;);
+const store = createStore(rootReducer, &#123; count: 1 &#125;);
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   //订阅
   const state = useSyncExternalStore(
     store.subscribe,
@@ -1207,20 +1207,20 @@ const Index: React.FC<any> = () => {
 
   return (
     <>
-      <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>
-      <div>数据源： {state}</div>
-      <Button type="primary" onClick={() => store.dispatch({ type: "ADD" })}>
+      &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>
+      &lt;div&gt;数据源： &#123;state&#125;</div>
+      <Button type="primary" onClick=&#123;() => store.dispatch(&#123; type: "ADD" &#125;)&#125;>
         加1
       </Button>
       <Button
-        style={{ marginLeft: 8 }}
-        onClick={() => store.dispatch({ type: "DEL" })}
+        style=&#123;&#123; marginLeft: 8 &#125;&#125;
+        onClick=&#123;() => store.dispatch(&#123; type: "DEL" &#125;)&#125;
       >
         减1
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1254,38 +1254,38 @@ const [isPending, startTransition] = useTransition();
 
 基本用法：
 ~~~tsx
-import { useState, useTransition } from "react";
-import { Input } from "antd";
+import &#123; useState, useTransition &#125; from "react";
+import &#123; Input &#125; from "antd";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const [isPending, startTransition] = useTransition();
   const [input, setInput] = useState("");
   const [list, setList] = useState<string[]>([]);
 
   return (
     <>
-      <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>
+      &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>
       <Input
-        value={input}
-        onChange={(e) => {
+        value=&#123;input&#125;
+        onChange=&#123;(e) => &#123;
           setInput(e.target.value);
-          startTransition(() => {
+          startTransition(() => &#123;
             const res: string[] = [];
-            for (let i = 0; i < 10000; i++) {
+            for (let i = 0; i < 10000; i++) &#123;
               res.push(e.target.value);
-            }
+            &#125;
             setList(res);
-          });
-        }}
+          &#125;);
+        &#125;&#125;
       />
-      {isPending ? (
-        <div>加载中...</div>
+      &#123;isPending ? (
+        &lt;div&gt;加载中...</div>
       ) : (
-        list.map((item, index) => <div key={index}>{item}</div>)
-      )}
+        list.map((item, index) => <div key=&#123;index&#125;>&#123;item&#125;</div>)
+      )&#125;
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1315,20 +1315,20 @@ const deferredValue = useDeferredValue(value);
 
 基本用法：
 ~~~tsx
-import { useState, useDeferredValue } from "react";
-import { Input } from "antd";
+import &#123; useState, useDeferredValue &#125; from "react";
+import &#123; Input &#125; from "antd";
 
-const getList = (key: any) => {
+const getList = (key: any) => &#123;
   const arr = [];
-  for (let i = 0; i < 10000; i++) {
-    if (String(i).includes(key)) {
-      arr.push(<li key={i}>{i}</li>);
-    }
-  }
+  for (let i = 0; i < 10000; i++) &#123;
+    if (String(i).includes(key)) &#123;
+      arr.push(<li key=&#123;i&#125;>&#123;i&#125;</li>);
+    &#125;
+  &#125;
   return arr;
-};
+&#125;;
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   //订阅
   const [input, setInput] = useState("");
   const deferredValue = useDeferredValue(input);
@@ -1337,14 +1337,14 @@ const Index: React.FC<any> = () => {
 
   return (
     <>
-      <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>
-      <Input value={input} onChange={(e: any) => setInput(e.target.value)} />
-      <div>
-        <ul>{deferredValue ? getList(deferredValue) : null}</ul>
+      &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>
+      <Input value=&#123;input&#125; onChange=&#123;(e: any) => setInput(e.target.value)&#125; />
+      &lt;div&gt;
+        &lt;ul&gt;表达式(deferredValue 条件判断)</ul>
       </div>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1372,41 +1372,41 @@ useInsertionEffect(callback,deps)
 ~~~
 基本用法：
 ~~~tsx
-import { useInsertionEffect } from "react";
+import &#123; useInsertionEffect &#125; from "react";
 
-const Index: React.FC<any> = () => {
-  useInsertionEffect(() => {
+const Index: React.FC&lt;any&gt; = () => &#123;
+  useInsertionEffect(() => &#123;
     const style = document.createElement("style");
     style.innerHTML = `
-      .css-in-js{
+      .css-in-js&#123;
         color: blue;
-      }
+      &#125;
     `;
     document.head.appendChild(style);
-  }, []);
+  &#125;, []);
 
   return (
-    <div>
+    &lt;div&gt;
       <div className="css-in-js">大家好，我是小杜杜，一起玩转Hooks吧！</div>
     </div>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
 在目前的版本中，`React` 官方共提供三种有关副作用的钩子，分别是 `useEffect`、`useLayoutEffect` 和 `useInsertionEffect`，我们一起来看看三者的执行顺序：
 ~~~ts
-import { useEffect, useLayoutEffect, useInsertionEffect } from "react";
+import &#123; useEffect, useLayoutEffect, useInsertionEffect &#125; from "react";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   useEffect(() => console.log("useEffect"), []);
 
   useLayoutEffect(() => console.log("useLayoutEffect"), []);
 
   useInsertionEffect(() => console.log("useInsertionEffect"), []);
 
-  return <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>;
-};
+  return &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>;
+&#125;;
 
 export default Index;
 ~~~
@@ -1430,13 +1430,13 @@ const id = useId();
 
 基本用法：
 ~~~tsx
-import { useId } from "react";
+import &#123; useId &#125; from "react";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const id = useId();
 
-  return <div id={id}>大家好，我是小杜杜，一起玩转Hooks吧！</div>;
-};
+  return <div id=&#123;id&#125;>大家好，我是小杜杜，一起玩转Hooks吧！</div>;
+&#125;;
 
 export default Index;
 ~~~
@@ -1469,26 +1469,26 @@ const [ xxx, ...] = useXxx(参数一，参数二, ...)
 
 示例：
 ~~~ts
-import { useState, useEffect } from "react";
+import &#123; useState, useEffect &#125; from "react";
 
-export default () => {
+export default () => &#123;
   const [count, setCount] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
+  useEffect(() => &#123;
+    const interval = setInterval(() => &#123;
       console.log("count:", count);
       setCount(count + 1);
-    }, 1000);
+    &#125;, 1000);
     return () => clearInterval(interval);
-  }, []);
+  &#125;, []);
 
   return (
     <>
-      <div>自定义Hooks：useLatestt</div>
-      <div>count: {count}</div>
+      &lt;div&gt;自定义Hooks：useLatestt</div>
+      &lt;div&gt;count: &#123;count&#125;</div>
     </>
   );
-};
+&#125;;
 ~~~
 打印出的 `count` 为 `0`，页面中的 `count` 为 `1`（具体原因我们在讲 `useEffect` 源码篇时提及，这里先看解决方法）
 
@@ -1496,25 +1496,25 @@ export default () => {
 
 利用 `useRef` 的高级用法：缓存数据去解决，并且这种方式在`react-redux`源码中进行应用，而不止是获取元素属性。
 ~~~ts
-import { useRef } from "react";
+import &#123; useRef &#125; from "react";
 
-const useLatest = <T,>(value: T): { readonly current: T } => {
+const useLatest = <T,>(value: T): &#123; readonly current: T &#125; => &#123;
   const ref = useRef(value);
   ref.current = value;
 
   return ref;
-};
+&#125;;
 
 export default useLatest;
 ~~~
 ::: tip
-一起来看下这段代码 `<T,>(value: T): { readonly current: T }`。
+一起来看下这段代码 (<T,>(value: T): &#123; readonly current: T &#125;)。
 
 从作用来看，这个钩子返回的永远是最新值，也就是说，这个钩子的入参与出参都是这个值，但这个值我们却不知道是 `string`、`number` 还是其他类型的值，这时，我们就希望它传入的值与返回的值是同种类型。
 
 简单来说，无论传入什么类型，都要返回对应的类型，这种情况必是泛型。
 
-`:{readonly current: T}` 代表返回结果的类型，由于我们使用的为 `useRef` ，所以，返回的值都在 `current` 内，那么 `current` 的类型就是 `T`。
+(:&#123;readonly current: T&#125;) 代表返回结果的类型，由于我们使用的为 `useRef` ，所以，返回的值都在 `current` 内，那么 `current` 的类型就是 `T`。
 
 至于 `readonly` 则是代表的只读不可修改，因为固定模式为 `current` 对象，所以这里使用 `readonly` 。
 :::
@@ -1526,64 +1526,64 @@ export default useLatest;
 两者都是根据 `useEffect` 演化而来，而 `useUnmount` 需要注意一下，这里传入的函数需要保持最新值，直接使用 `useLatest` 即可：
 ~~~ts
 // useMount
-import { useEffect } from "react";
+import &#123; useEffect &#125; from "react";
 
-const useMount = (fn: () => void) => {
-  useEffect(() => {
+const useMount = (fn: () => void) => &#123;
+  useEffect(() => &#123;
     fn?.();
-  }, []);
-};
+  &#125;, []);
+&#125;;
 
 export default useMount;
 
 // useUnmount
-import { useEffect } from "react";
+import &#123; useEffect &#125; from "react";
 import useLatest from "../useLatest";
 
-const useUnmount = (fn: () => void) => {
+const useUnmount = (fn: () => void) => &#123;
   const fnRef = useLatest(fn);
 
   useEffect(
-    () => () => {
+    () => () => &#123;
       fnRef.current();
-    },
+    &#125;,
     []
   );
-};
+&#125;;
 
 export default useUnmount;
 ~~~
 示例：
 ~~~tsx
-import { useState } from "react";
-import { useMount, useUnmount } from "../../hooks";
+import &#123; useState &#125; from "react";
+import &#123; useMount, useUnmount &#125; from "../../hooks";
 
-import { Button, message } from "antd";
+import &#123; Button, message &#125; from "antd";
 
-const Child = () => {
-  useMount(() => {
+const Child = () => &#123;
+  useMount(() => &#123;
     message.info("首次渲染");
-  });
+  &#125;);
 
-  useUnmount(() => {
+  useUnmount(() => &#123;
     message.info("组件已卸载");
-  });
+  &#125;);
 
-  return <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>;
-};
+  return &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>;
+&#125;;
 
-const Index = () => {
-  const [flag, setFlag] = useState<boolean>(false);
+const Index = () => &#123;
+  const [flag, setFlag] = useState&lt;boolean&gt;(false);
 
   return (
-    <div>
-      <Button type="primary" onClick={() => setFlag((v) => !v)}>
-        切换 {flag ? "unmount" : "mount"}
+    &lt;div&gt;
+      <Button type="primary" onClick=&#123;() => setFlag((v) => !v)&#125;>
+        切换 表达式(flag 条件判断)
       </Button>
-      {flag && <Child />}
+      &#123;flag && <Child />&#125;
     </div>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1591,54 +1591,54 @@ export default Index;
 ### useUnmountedRef
 获取当前组件是否卸载，这个钩子的思路也很简单，只需要利用 `useEffect` 的状态，来保存对应的值就 ok 了。
 ~~~ts
-import { useEffect, useRef } from "react";
+import &#123; useEffect, useRef &#125; from "react";
 
-const useUnmountedRef = (): { readonly current: boolean } => {
-  const unmountedRef = useRef<boolean>(false);
+const useUnmountedRef = (): &#123; readonly current: boolean &#125; => &#123;
+  const unmountedRef = useRef&lt;boolean&gt;(false);
 
-  useEffect(() => {
+  useEffect(() => &#123;
     unmountedRef.current = false;
-    return () => {
+    return () => &#123;
       unmountedRef.current = true;
-    };
-  }, []);
+    &#125;;
+  &#125;, []);
 
   return unmountedRef;
-};
+&#125;;
 
 export default useUnmountedRef;
 ~~~
 示例：
 ~~~tsx
-import { useState } from "react";
-import { useUnmountedRef, useUnmount, useMount } from "../../hooks";
-import { Button } from "antd";
+import &#123; useState &#125; from "react";
+import &#123; useUnmountedRef, useUnmount, useMount &#125; from "../../hooks";
+import &#123; Button &#125; from "antd";
 
-const Child = () => {
+const Child = () => &#123;
   const unmountedRef = useUnmountedRef();
 
-  useMount(() => {
+  useMount(() => &#123;
     console.log("初始化：", unmountedRef);
-  });
-  useUnmount(() => {
+  &#125;);
+  useUnmount(() => &#123;
     console.log("卸载：", unmountedRef);
-  });
+  &#125;);
 
-  return <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>;
-};
+  return &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>;
+&#125;;
 
-const Index = () => {
-  const [flag, setFlag] = useState<boolean>(false);
+const Index = () => &#123;
+  const [flag, setFlag] = useState&lt;boolean&gt;(false);
 
   return (
-    <div>
-      <Button type="primary" onClick={() => setFlag((v) => !v)}>
-        切换 {flag ? "卸载" : "初始化"}
+    &lt;div&gt;
+      <Button type="primary" onClick=&#123;() => setFlag((v) => !v)&#125;>
+        切换 表达式(flag 条件判断)
       </Button>
-      {flag && <Child />}
+      &#123;flag && <Child />&#125;
     </div>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1648,34 +1648,34 @@ export default Index;
 
 这里要注意的是卸载后的异步条件，所以直接使用 `useUnmountedRef` 即可，代码如下：
 ~~~ts
-import { useCallback, useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import &#123; useCallback, useState &#125; from "react";
+import type &#123; Dispatch, SetStateAction &#125; from "react";
 import useUnmountedRef from "../useUnmountedRef";
 
-function useSafeState<S>(
+function useSafeState&lt;S&gt;(
   initialState: S | (() => S)
-): [S, Dispatch<SetStateAction<S>>];
+): [S, Dispatch<SetStateAction&lt;S&gt;>];
 function useSafeState<S = undefined>(): [
   S | undefined,
   Dispatch<SetStateAction<S | undefined>>
 ];
-function useSafeState<S>(initialState?: S | (() => S)) {
-  const unmountedRef: { current: boolean } = useUnmountedRef();
+function useSafeState&lt;S&gt;(initialState?: S | (() => S)) &#123;
+  const unmountedRef: &#123; current: boolean &#125; = useUnmountedRef();
   const [state, setState] = useState(initialState);
-  const setCurrentState = useCallback((currentState: any) => {
+  const setCurrentState = useCallback((currentState: any) => &#123;
     if (unmountedRef.current) return;
     setState(currentState);
-  }, []);
+  &#125;, []);
 
   return [state, setCurrentState] as const;
-}
+&#125;
 
 export default useSafeState;
 ~~~
 - 首先，这个钩子和 `useState` 的用法完全一致，所以我们的入参和出参保持一致。这里使用泛型与 `useLatest` 的原因一样；
 - 入参：`initialState`，这个参数并不是一定必需的，所以存在两种情况，一种是 S（传入什么就是什么类型）、另一种是 `undefined`，其中 S 还分为是否为函数。所以标准的写法是函数重载，简单理解为：可以在同一个函数下定义多种类型值，最后汇总到一块；
-- 返参：`[state, setCurrentState] as const`，这种写法叫做断言，所谓断言，通过 `as` 这个参数告诉编辑器，就是这种类型，不用你再次校验。是不是很任性，像极了你的女朋友，而 `as const` 是标记为不可变，即这个数组的长度与成员类型均不可再进行修改，可翻译为 `readonly [S, Dispatch<SetStateAction<S>>]`，这样可能更加好理解一点；
-- 至于 `Dispatch<SetStateAction<S>>` 这种写法是固定的，就是对应 `useState` 的第二个参数。
+- 返参：`[state, setCurrentState] as const`，这种写法叫做断言，所谓断言，通过 `as` 这个参数告诉编辑器，就是这种类型，不用你再次校验。是不是很任性，像极了你的女朋友，而 `as const` 是标记为不可变，即这个数组的长度与成员类型均不可再进行修改，可翻译为 `readonly [S, Dispatch<SetStateAction&lt;S&gt;>]`，这样可能更加好理解一点；
+- 至于 `Dispatch<SetStateAction&lt;S&gt;>` 这种写法是固定的，就是对应 `useState` 的第二个参数。
 
 ::: tip
 除此之外，这里还用到了 `useCallback`。在之前的介绍中，我说要配合使用 `React.Memo`，那么这里为什么要用呢？
@@ -1690,38 +1690,38 @@ export default useSafeState;
 
 具体的做法是：搞个累加器，无关的变量，触发一次，就累加 `1`，这样就会强制刷新。
 ~~~ts
-import { useReducer } from "react";
+import &#123; useReducer &#125; from "react";
 
-function useUpdate(): () => void {
+function useUpdate(): () => void &#123;
   const [, update] = useReducer((num: number): number => num + 1, 0);
 
   return update;
-}
+&#125;
 
 export default useUpdate;
 ~~~
 测试：
 ~~~tsx
-import { useUpdate } from "../../hooks";
-import { Button, message } from "antd";
+import &#123; useUpdate &#125; from "../../hooks";
+import &#123; Button, message &#125; from "antd";
 
-const Index = () => {
+const Index = () => &#123;
   const update = useUpdate();
 
   return (
-    <div>
-      <div>时间：{Date.now()}</div>
+    &lt;div&gt;
+      &lt;div&gt;时间：&#123;Date.now()&#125;</div>
       <Button
         type="primary"
-        onClick={() => {
+        onClick=&#123;() => &#123;
           update();
-        }}
+        &#125;&#125;
       >
         更新
       </Button>
     </div>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1739,37 +1739,37 @@ useCreation 如何增强：
 - 触发更新条件：比较每次传入的数组，与之前对比，若不同，则触发、更新对应的函数。
 
 ~~~ts
-import { useRef } from "react";
-import type { DependencyList } from "react";
+import &#123; useRef &#125; from "react";
+import type &#123; DependencyList &#125; from "react";
 
 const depsAreSame = (
   oldDeps: DependencyList,
   deps: DependencyList
-): boolean => {
+): boolean => &#123;
   if (oldDeps === deps) return true;
 
-  for (let i = 0; i < oldDeps.length; i++) {
+  for (let i = 0; i < oldDeps.length; i++) &#123;
     if (!Object.is(oldDeps[i], deps[i])) return false;
-  }
+  &#125;
 
   return true;
-};
+&#125;;
 
-const useCreation = <T,>(fn: () => T, deps: DependencyList) => {
-  const { current } = useRef({
+const useCreation = <T,>(fn: () => T, deps: DependencyList) => &#123;
+  const &#123; current &#125; = useRef(&#123;
     deps,
     obj: undefined as undefined | T,
     initialized: false,
-  });
+  &#125;);
 
-  if (current.initialized === false || !depsAreSame(current.deps, deps)) {
+  if (current.initialized === false || !depsAreSame(current.deps, deps)) &#123;
     current.deps = deps;
     current.obj = fn();
     current.initialized = true;
-  }
+  &#125;
 
   return current.obj as T;
-};
+&#125;;
 
 export default useCreation;
 ~~~
@@ -1779,34 +1779,34 @@ export default useCreation;
 
 测试：
 ~~~tsx
-import React, { useState } from "react";
-import { Button } from "antd";
-import { useCreation } from "../../hooks";
+import React, &#123; useState &#125; from "react";
+import &#123; Button &#125; from "antd";
+import &#123; useCreation &#125; from "../../hooks";
 
-const Index: React.FC<any> = () => {
-  const [flag, setFlag] = useState<boolean>(false);
+const Index: React.FC&lt;any&gt; = () => &#123;
+  const [flag, setFlag] = useState&lt;boolean&gt;(false);
 
-  const getNowData = () => {
+  const getNowData = () => &#123;
     return Math.random();
-  };
+  &#125;;
 
   const nowData = useCreation(() => getNowData(), []);
 
   return (
     <>
-      <div>正常的函数： {getNowData()}</div>
-      <div>useCreation包裹后的： {nowData}</div>
+      &lt;div&gt;正常的函数： &#123;getNowData()&#125;</div>
+      &lt;div&gt;useCreation包裹后的： &#123;nowData&#125;</div>
       <Button
         type="primary"
-        onClick={() => {
+        onClick=&#123;() => &#123;
           setFlag((v) => !v);
-        }}
+        &#125;&#125;
       >
-        切换状态{JSON.stringify(flag)}
+        切换状态&#123;JSON.stringify(flag)&#125;
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -1815,14 +1815,14 @@ export default Index;
 ### useReactive
 一种具备响应式的 `useState`，用法与 `useState` 类似，但可以动态地设置值。
 
-背景：当我们开发组件或做功能复杂的页面时，会有大量的变量，再来看看 `useState` 的结构`const [count, setCount] = useState<number>(0)`，假设要设置 10 个变量，那么我们是不是要设置 10 个这样的结构？`useReactive` 可以帮我们解决这个问题。
+背景：当我们开发组件或做功能复杂的页面时，会有大量的变量，再来看看 `useState` 的结构`const [count, setCount] = useState&lt;number&gt;(0)`，假设要设置 10 个变量，那么我们是不是要设置 10 个这样的结构？`useReactive` 可以帮我们解决这个问题。
 
 **useReactive 如何设计：**
 - `useReactive` 的入参、出参怎么设定？
 - 如何制作成响应式数据？
 - 如何使用 `Ts` 类型？如何优化 `useReactive` ？
 
-useReactive 整体结构：`const state = useReactive({ count: 0 })` 。
+useReactive 整体结构：(const state = useReactive(&#123; count: 0 &#125;)) 。
 - 使用：`state.count`；
 - 设置：`state.count = 7`。
 
@@ -1838,41 +1838,41 @@ useReactive 整体结构：`const state = useReactive({ count: 0 })` 。
 
 至于优化，直接用 `useCreation` 即可，配合 `useLatest` 来处理存放 `initialState`（初始值），用来确保值永远是最新值。
 ~~~ts
-import { useUpdate, useCreation, useLatest } from "../index";
+import &#123; useUpdate, useCreation, useLatest &#125; from "../index";
 
 const observer = <T extends Record<string, any>>(
   initialVal: T,
   cb: () => void
-): T => {
-  const proxy = new Proxy<T>(initialVal, {
-    get(target, key, receiver) {
+): T => &#123;
+  const proxy = new Proxy&lt;T&gt;(initialVal, &#123;
+    get(target, key, receiver) &#123;
       const res = Reflect.get(target, key, receiver);
       return typeof res === "object"
         ? observer(res, cb)
         : Reflect.get(target, key);
-    },
-    set(target, key, val) {
+    &#125;,
+    set(target, key, val) &#123;
       const ret = Reflect.set(target, key, val);
       cb();
       return ret;
-    },
-  });
+    &#125;,
+  &#125;);
 
   return proxy;
-};
+&#125;;
 
-const useReactive = <T extends Record<string, any>>(initialState: T): T => {
-  const ref = useLatest<T>(initialState);
+const useReactive = <T extends Record<string, any>>(initialState: T): T => &#123;
+  const ref = useLatest&lt;T&gt;(initialState);
   const update = useUpdate();
 
-  const state = useCreation(() => {
-    return observer(ref.current, () => {
+  const state = useCreation(() => &#123;
+    return observer(ref.current, () => &#123;
       update();
-    });
-  }, []);
+    &#125;);
+  &#125;, []);
 
   return state;
-};
+&#125;;
 
 export default useReactive;
 ~~~
@@ -1882,23 +1882,23 @@ export default useReactive;
 
 **举个例子：**
 ~~~ts
-interface Props {
+interface Props &#123;
     name: string,
     age: number
-}
+&#125;
 
 type InfoProps = 'JS' | 'TS'
 
-const Info: Record<InfoProps, Props> = {
-    JS: {
+const Info: Record&lt;InfoProps, Props&gt; = &#123;
+    JS: &#123;
         name: '小杜杜',
         age: 7
-    },
-    TS: {
+    &#125;,
+    TS: &#123;
         name: 'TypeScript',
         age: 11
-    }
-}
+    &#125;
+&#125;
 ~~~
 也就是说，`InfoProps` 的每一项属性都包含 `Props` 的属性。
 ::: tip
@@ -1910,172 +1910,172 @@ const Info: Record<InfoProps, Props> = {
 :::
 验证：
 ~~~tsx
-import { useReactive } from "../../hooks";
-import { Button, Input } from "antd";
+import &#123; useReactive &#125; from "../../hooks";
+import &#123; Button, Input &#125; from "antd";
 
-const Index = () => {
-  const state = useReactive<any>({
+const Index = () => &#123;
+  const state = useReactive&lt;any&gt;(&#123;
     count: 0,
     name: "大家好，我是小杜杜，一起玩转Hooks吧！",
     flag: true,
     arr: [],
     bugs: ["小杜杜", "react", "hook"],
-    addBug(bug: string) {
+    addBug(bug: string) &#123;
       this.bugs.push(bug);
-    },
-    get bugsCount() {
+    &#125;,
+    get bugsCount() &#123;
       return this.bugs.length;
-    },
-  });
+    &#125;,
+  &#125;);
 
   return (
-    <div>
-      <div style={{ fontWeight: "bold" }}>基本使用：</div>
-      <div style={{ marginTop: 8 }}> 对数字进行操作：{state.count}</div>
+    &lt;div&gt;
+      <div style=&#123;&#123; fontWeight: "bold" &#125;&#125;>基本使用：</div>
+      <div style=&#123;&#123; marginTop: 8 &#125;&#125;> 对数字进行操作：&#123;state.count&#125;</div>
       <div
-        style={{
+        style=&#123;&#123;
           margin: "8px 0",
           display: "flex",
           justifyContent: "flex-start",
-        }}
+        &#125;&#125;
       >
-        <Button type="primary" onClick={() => state.count++}>
+        <Button type="primary" onClick=&#123;() => state.count++&#125;>
           加1
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => state.count--}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => state.count--&#125;
         >
           减1
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => (state.count = 7)}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => (state.count = 7)&#125;
         >
           设置为7
         </Button>
       </div>
-      <div style={{ marginTop: 8 }}> 对字符串进行操作：{state.name}</div>
+      <div style=&#123;&#123; marginTop: 8 &#125;&#125;> 对字符串进行操作：&#123;state.name&#125;</div>
       <div
-        style={{
+        style=&#123;&#123;
           margin: "8px 0",
           display: "flex",
           justifyContent: "flex-start",
-        }}
+        &#125;&#125;
       >
-        <Button type="primary" onClick={() => (state.name = "小杜杜")}>
+        <Button type="primary" onClick=&#123;() => (state.name = "小杜杜")&#125;>
           设置为小杜杜
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => (state.name = "Domesy")}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => (state.name = "Domesy")&#125;
         >
           设置为Domesy
         </Button>
       </div>
-      <div style={{ marginTop: 8 }}>
-        {" "}
-        对布尔值进行操作：{JSON.stringify(state.flag)}
+      <div style=&#123;&#123; marginTop: 8 &#125;&#125;>
+        &#123;" "&#125;
+        对布尔值进行操作：&#123;JSON.stringify(state.flag)&#125;
       </div>
       <div
-        style={{
+        style=&#123;&#123;
           margin: "8px 0",
           display: "flex",
           justifyContent: "flex-start",
-        }}
+        &#125;&#125;
       >
-        <Button type="primary" onClick={() => (state.flag = !state.flag)}>
+        <Button type="primary" onClick=&#123;() => (state.flag = !state.flag)&#125;>
           切换状态
         </Button>
       </div>
-      <div style={{ marginTop: 8 }}>
-        {" "}
-        对数组进行操作：{JSON.stringify(state.arr)}
+      <div style=&#123;&#123; marginTop: 8 &#125;&#125;>
+        &#123;" "&#125;
+        对数组进行操作：&#123;JSON.stringify(state.arr)&#125;
       </div>
       <div
-        style={{
+        style=&#123;&#123;
           margin: "8px 0",
           display: "flex",
           justifyContent: "flex-start",
-        }}
+        &#125;&#125;
       >
         <Button
           type="primary"
-          onClick={() => state.arr.push(Math.floor(Math.random() * 100))}
+          onClick=&#123;() => state.arr.push(Math.floor(Math.random() * 100))&#125;
         >
           push
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => state.arr.pop()}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => state.arr.pop()&#125;
         >
           pop
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => state.arr.shift()}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => state.arr.shift()&#125;
         >
           shift
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => state.arr.unshift(Math.floor(Math.random() * 100))}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => state.arr.unshift(Math.floor(Math.random() * 100))&#125;
         >
           unshift
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => state.arr.reverse()}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => state.arr.reverse()&#125;
         >
           reverse
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => state.arr.sort()}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => state.arr.sort()&#125;
         >
           sort
         </Button>
       </div>
-      <div style={{ fontWeight: "bold", marginTop: 8 }}>计算属性：</div>
-      <div style={{ marginTop: 8 }}>数量：{state.bugsCount} 个</div>
-      <div style={{ margin: "8px 0" }}>
+      <div style=&#123;&#123; fontWeight: "bold", marginTop: 8 &#125;&#125;>计算属性：</div>
+      <div style=&#123;&#123; marginTop: 8 &#125;&#125;>数量：&#123;state.bugsCount&#125; 个</div>
+      <div style=&#123;&#123; margin: "8px 0" &#125;&#125;>
         <form
-          onSubmit={(e) => {
+          onSubmit=&#123;(e) => &#123;
             state.bug ? state.addBug(state.bug) : state.addBug("domesy");
             state.bug = "";
             e.preventDefault();
-          }}
+          &#125;&#125;
         >
           <Input
             type="text"
-            value={state.bug}
-            style={{ width: 200 }}
-            onChange={(e) => (state.bug = e.target.value)}
+            value=&#123;state.bug&#125;
+            style=&#123;&#123; width: 200 &#125;&#125;
+            onChange=&#123;(e) => (state.bug = e.target.value)&#125;
           />
-          <Button type="primary" htmlType="submit" style={{ marginLeft: 8 }}>
+          <Button type="primary" htmlType="submit" style=&#123;&#123; marginLeft: 8 &#125;&#125;>
             增加
           </Button>
-          <Button style={{ marginLeft: 8 }} onClick={() => state.bugs.pop()}>
+          <Button style=&#123;&#123; marginLeft: 8 &#125;&#125; onClick=&#123;() => state.bugs.pop()&#125;>
             删除
           </Button>
         </form>
       </div>
-      <ul>
-        {state.bugs.map((bug: any, index: number) => (
-          <li key={index}>{bug}</li>
-        ))}
+      &lt;ul&gt;
+        &#123;state.bugs.map((bug: any, index: number) => (
+          <li key=&#123;index&#125;>&#123;bug&#125;</li>
+        ))&#125;
       </ul>
     </div>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -2094,37 +2094,37 @@ export default Index;
 
 **代码展示：**
 ~~~ts
-import { useLatest, useUnmount, useCreation } from "..";
+import &#123; useLatest, useUnmount, useCreation &#125; from "..";
 import debounce from "lodash/debounce";
 
 type noop = (...args: any[]) => any;
 
-interface DebounceOptions {
+interface DebounceOptions &#123;
   wait?: number;
   leading?: boolean;
   trailing?: boolean;
   maxWait?: number;
-}
+&#125;
 
-const useDebounceFn = <T extends noop>(fn: T, options?: DebounceOptions) => {
+const useDebounceFn = <T extends noop>(fn: T, options?: DebounceOptions) => &#123;
   const fnRef = useLatest(fn);
 
   const debounced = useCreation(
     () =>
       debounce(
-        (...args: Parameters<T>): ReturnType<T> => fnRef.current(...args),
+        (...args: Parameters&lt;T&gt;): ReturnType&lt;T&gt; => fnRef.current(...args),
         options?.wait ?? 1000,
         options
       ),
     []
   );
 
-  useUnmount(() => {
+  useUnmount(() => &#123;
     debounced.cancel();
-  });
+  &#125;);
 
   return debounced;
-};
+&#125;;
 
 export default useDebounceFn;
 ~~~
@@ -2153,23 +2153,23 @@ const run = useDebounceFn(
 
 **代码展示：**
 ~~~ts
-import { useDebounceFn, useSafeState, useCreation } from "..";
+import &#123; useDebounceFn, useSafeState, useCreation &#125; from "..";
 
-import type { DebounceOptions } from "../useDebounceFn";
+import type &#123; DebounceOptions &#125; from "../useDebounceFn";
 
-const useDebounce = <T,>(value: T, options?: DebounceOptions) => {
+const useDebounce = <T,>(value: T, options?: DebounceOptions) => &#123;
   const [debounced, setDebounced] = useSafeState(value);
 
-  const run = useDebounceFn(() => {
+  const run = useDebounceFn(() => &#123;
     setDebounced(value);
-  }, options);
+  &#125;, options);
 
-  useCreation(() => {
+  useCreation(() => &#123;
     run();
-  }, [value]);
+  &#125;, [value]);
 
   return debounced;
-};
+&#125;;
 
 export default useDebounce;
 ~~~
@@ -2201,36 +2201,36 @@ useThrottle：用来处理节流值的 `Hooks`。
 
 **代码展示：**
 ~~~ts
-import { useRef, useCallback } from "react";
+import &#123; useRef, useCallback &#125; from "react";
 
 const useLockFn = <P extends any[] = any[], V extends any = any>(
-  fn: (...args: P) => Promise<V>
-) => {
+  fn: (...args: P) => Promise&lt;V&gt;
+) => &#123;
   const lockRef = useRef(false);
 
   return useCallback(
-    async (...args: P) => {
+    async (...args: P) => &#123;
       if (lockRef.current) return;
       lockRef.current = true;
-      try {
+      try &#123;
         const ret = await fn(...args);
         lockRef.current = false;
         return ret;
-      } catch (e) {
+      &#125; catch (e) &#123;
         lockRef.current = false;
         throw e;
-      }
-    },
+      &#125;
+    &#125;,
     [fn]
   );
-};
+&#125;;
 
 export default useLockFn;
 ~~~
 **使用方式：**
 ~~~ts
 const run = useLockFn<P extends any[] = any[], V extends any = any>(
-   fn: (...args: P) => Promise<V>
+   fn: (...args: P) => Promise&lt;V&gt;
 ): (...args: P) => Promise<V | undefined>
 ~~~
 
@@ -2248,102 +2248,102 @@ const run = useLockFn<P extends any[] = any[], V extends any = any>(
 import type BasicTarget from "./BasicTarget";
 type TargetType = HTMLElement | Element | Window | Document;
 
-const getTarget = <T extends TargetType>(target: BasicTarget<T>) => {
+const getTarget = <T extends TargetType>(target: BasicTarget&lt;T&gt;) => &#123;
   let targetElement: any;
 
-  if (!target) {
+  if (!target) &#123;
     targetElement = window;
-  } else if ("current" in target) {
+  &#125; else if ("current" in target) &#123;
     targetElement = target.current;
-  } else {
+  &#125; else &#123;
     targetElement = target;
-  }
+  &#125;
 
   return targetElement;
-};
+&#125;;
 export default getTarget;
 ~~~
 **代码展示：**
 ~~~ts
 import screenfull from "screenfull";
-import { useLatest, useSafeState } from "..";
-import { getTarget } from "../utils";
-import type { BasicTarget } from "../utils";
-import { useCallback } from "react";
+import &#123; useLatest, useSafeState &#125; from "..";
+import &#123; getTarget &#125; from "../utils";
+import type &#123; BasicTarget &#125; from "../utils";
+import &#123; useCallback &#125; from "react";
 
-interface Options {
+interface Options &#123;
   onEnter?: () => void;
   onExit?: () => void;
-}
+&#125;
 
-const useFullscreen = (target: BasicTarget, options?: Options) => {
-  const { onEnter, onExit } = options || {};
+const useFullscreen = (target: BasicTarget, options?: Options) => &#123;
+  const &#123; onEnter, onExit &#125; = options || &#123;&#125;;
 
   const [isFullscreen, setIsFullscreen] = useSafeState(false);
 
   const onExitRef = useLatest(onExit);
   const onEnterRef = useLatest(onEnter);
 
-  const onChange = () => {
-    if (screenfull.isEnabled) {
+  const onChange = () => &#123;
+    if (screenfull.isEnabled) &#123;
       const ele = getTarget(target);
-      if (!screenfull.element) {
+      if (!screenfull.element) &#123;
         onExitRef.current?.();
         setIsFullscreen(false);
         screenfull.off("change", onChange);
-      } else {
+      &#125; else &#123;
         const isFullscreen = screenfull.element === ele;
-        if (isFullscreen) {
+        if (isFullscreen) &#123;
           onEnterRef.current?.();
-        } else {
+        &#125; else &#123;
           onExitRef.current?.();
-        }
+        &#125;
         setIsFullscreen(isFullscreen);
-      }
-    }
-  };
+      &#125;
+    &#125;
+  &#125;;
 
-  const enterFullscreen = useCallback(() => {
+  const enterFullscreen = useCallback(() => &#123;
     const ele = getTarget(target);
     if (!ele) return;
-    if (screenfull.isEnabled) {
+    if (screenfull.isEnabled) &#123;
       screenfull.request(ele);
       screenfull.on("change", onChange);
-    }
-  }, []);
+    &#125;
+  &#125;, []);
 
-  const exitFullscreen = useCallback(() => {
+  const exitFullscreen = useCallback(() => &#123;
     const ele = getTarget(target);
-    if (screenfull.isEnabled && screenfull.element === ele) {
+    if (screenfull.isEnabled && screenfull.element === ele) &#123;
       screenfull.exit();
-    }
-  }, []);
+    &#125;
+  &#125;, []);
 
-  return {
+  return &#123;
     isFullscreen,
     isEnabled: screenfull.isEnabled,
     enterFullscreen,
     exitFullscreen,
-  };
-};
+  &#125;;
+&#125;;
 
 export default useFullscreen;
 ~~~
 ::: tip
 注：这里要注意一点，有些浏览器在点击全屏后，背景会是黑色，而非白色，这是因为浏览器默认全屏没有背景色，所以是黑色，所以此时需要在整个项目下设置颜色，如：
 
-`*:-webkit-full-screen { background: #fff; }`
+(*:-webkit-full-screen &#123; background: #fff; &#125;)
 :::
 **使用方式：**
 ~~~ts
-const { 
+const &#123; 
   isFullscreen,
   isEnabled,
   enterFullscreen,
-  exitFullscreen } = useFullscreen(target, {
+  exitFullscreen &#125; = useFullscreen(target, &#123;
     onEnter?: () => void,
     onExit?: () => void
-});
+&#125;);
 ~~~
 
 ### useCopy
@@ -2356,27 +2356,27 @@ const {
 **代码展示：**
 ~~~ts
 import writeText from "copy-to-clipboard";
-import { useSafeState } from "..";
-import { useCallback } from "react";
+import &#123; useSafeState &#125; from "..";
+import &#123; useCallback &#125; from "react";
 
 type copyTextProps = string | undefined;
 type CopyFn = (text: string) => void; // Return success
 
-const useCopy = (): [copyTextProps, CopyFn] => {
+const useCopy = (): [copyTextProps, CopyFn] => &#123;
   const [copyText, setCopyText] = useSafeState<copyTextProps>(undefined);
 
-  const copy = useCallback((value?: string | number) => {
+  const copy = useCallback((value?: string | number) => &#123;
     if (!value) return setCopyText("");
-    try {
+    try &#123;
       writeText(value.toString());
       setCopyText(value.toString());
-    } catch (err) {
+    &#125; catch (err) &#123;
       setCopyText("");
-    }
-  }, []);
+    &#125;
+  &#125;, []);
 
   return [copyText, copy];
-};
+&#125;;
 
 export default useCopy;
 ~~~
@@ -2407,75 +2407,75 @@ const [copyText, copy] = useCopy();
 import useEventListener from "../useEventListener";
 import useSafeState from "../useSafeState";
 import useLatest from "../useLatest";
-import type { BasicTarget } from "../utils";
+import type &#123; BasicTarget &#125; from "../utils";
 
-interface RectProps {
+interface RectProps &#123;
   top: number;
   left: number;
   bottom: number;
   right: number;
   height: number;
   width: number;
-}
+&#125;
 
-interface StateProps extends RectProps {
+interface StateProps extends RectProps &#123;
   text: string;
-}
+&#125;
 
-const initRect: RectProps = {
+const initRect: RectProps = &#123;
   top: NaN,
   left: NaN,
   bottom: NaN,
   right: NaN,
   height: NaN,
   width: NaN,
-};
+&#125;;
 
-const initState: StateProps = {
+const initState: StateProps = &#123;
   text: "",
   ...initRect,
-};
+&#125;;
 
-const getRectSelection = (selection: Selection | null): RectProps | {} => {
+const getRectSelection = (selection: Selection | null): RectProps | &#123;&#125; => &#123;
   const range = selection?.getRangeAt(0);
-  if (range) {
-    const { height, width, top, left, right, bottom } =
+  if (range) &#123;
+    const &#123; height, width, top, left, right, bottom &#125; =
       range.getBoundingClientRect();
-    return { height, width, top, left, right, bottom };
-  }
-  return {};
-};
+    return &#123; height, width, top, left, right, bottom &#125;;
+  &#125;
+  return &#123;&#125;;
+&#125;;
 
 const useTextSelection = (
   target: BasicTarget | Document = document
-): StateProps => {
+): StateProps => &#123;
   const [state, setState] = useSafeState(initState);
   const lastRef = useLatest(state);
 
   useEventListener(
     "mouseup",
-    () => {
+    () => &#123;
       if (!window.getSelection) return;
       const select = window.getSelection();
       const text = select?.toString() || "";
-      if (text) setState({ ...state, text, ...getRectSelection(select) });
-    },
+      if (text) setState(&#123; ...state, text, ...getRectSelection(select) &#125;);
+    &#125;,
     target
   );
 
   useEventListener(
     "mousedown",
-    () => {
+    () => &#123;
       if (!window.getSelection) return;
-      if (lastRef.current.text) setState({ ...initState });
+      if (lastRef.current.text) setState(&#123; ...initState &#125;);
       const select = window.getSelection();
       select?.removeAllRanges();
-    },
+    &#125;,
     target
   );
 
   return state;
-};
+&#125;;
 
 export default useTextSelection;
 ~~~
@@ -2521,54 +2521,54 @@ type ResponsiveConfig = Record<string, number>;
 type ResponsiveInfo = Record<string, boolean>;
 
 // bootstrap 对应的四种尺寸
-let responsiveConfig: ResponsiveConfig = {
+let responsiveConfig: ResponsiveConfig = &#123;
   xs: 0,
   sm: 576,
   md: 768,
   lg: 992,
   xl: 1200,
-};
+&#125;;
 
-let info: ResponsiveInfo = {};
+let info: ResponsiveInfo = &#123;&#125;;
 
-export const configResponsive = (config: ResponsiveConfig) => {
+export const configResponsive = (config: ResponsiveConfig) => &#123;
   responsiveConfig = config;
-};
+&#125;;
 
-const clac = () => {
+const clac = () => &#123;
   const width = window.innerWidth;
-  const newInfo = {} as ResponsiveInfo;
+  const newInfo = &#123;&#125; as ResponsiveInfo;
   let shouldUpdate = false;
-  for (const key of Object.keys(responsiveConfig)) {
+  for (const key of Object.keys(responsiveConfig)) &#123;
     newInfo[key] = width >= responsiveConfig[key];
     // 如果发生改变，则出发更新
-    if (newInfo[key] !== info[key]) {
+    if (newInfo[key] !== info[key]) &#123;
       shouldUpdate = true;
-    }
-  }
-  if (shouldUpdate) {
+    &#125;
+  &#125;
+  if (shouldUpdate) &#123;
     info = newInfo;
-  }
-  return {
+  &#125;
+  return &#123;
     shouldUpdate,
     info,
-  };
-};
+  &#125;;
+&#125;;
 
-const useResponsive = () => {
-  if (isBrowser) {
+const useResponsive = () => &#123;
+  if (isBrowser) &#123;
     clac();
-  }
+  &#125;
 
-  const [state, setState] = useSafeState<ResponsiveInfo>(() => clac().info);
+  const [state, setState] = useSafeState&lt;ResponsiveInfo&gt;(() => clac().info);
 
-  useEventListener("resize", () => {
+  useEventListener("resize", () => &#123;
     const res = clac();
     if (res.shouldUpdate) setState(res.info);
-  });
+  &#125;);
 
   return state;
-};
+&#125;;
 
 export default useResponsive;
 ~~~
@@ -2577,11 +2577,11 @@ export default useResponsive;
 **使用方式：**
 ~~~ts
 // 配置
-configResponsive({
+configResponsive(&#123;
   small: 0,
   middle: 800,
   large: 1200,
-});
+&#125;);
 
 // 使用
 const responsive = useResponsive();
@@ -2611,8 +2611,8 @@ const responsive = useResponsive();
 
 **代码展示：**
 ~~~ts
-import type { DependencyList } from "react";
-import { useEffect, useRef } from "react";
+import type &#123; DependencyList &#125; from "react";
+import &#123; useEffect, useRef &#125; from "react";
 
 type Effect = (
   changes?: number[], // 改变的 deps 参数
@@ -2622,26 +2622,26 @@ type Effect = (
 ) => void | (() => void);
 
 // 判断改变的effect
-const onChangeEffect = (deps1?: DependencyList, deps2?: DependencyList) => {
-  if (deps1) {
+const onChangeEffect = (deps1?: DependencyList, deps2?: DependencyList) => &#123;
+  if (deps1) &#123;
     return deps1
       .map((_, index) =>
         !Object.is(deps1[index], deps2?.[index]) ? index : -1
       )
       .filter((v) => v !== -1);
-  } else if (deps2) {
+  &#125; else if (deps2) &#123;
     return deps2.map((_, index) => index);
-  } else return [];
-};
+  &#125; else return [];
+&#125;;
 
 const useTrackedEffect = (
   effect: Effect,
   deps?: DependencyList,
   type_list?: string[]
-) => {
-  const previousDepsRef = useRef<DependencyList>();
+) => &#123;
+  const previousDepsRef = useRef&lt;DependencyList&gt;();
 
-  useEffect(() => {
+  useEffect(() => &#123;
     const changes = onChangeEffect(previousDepsRef.current, deps);
     const previousDeps = previousDepsRef.current;
     previousDepsRef.current = deps;
@@ -2649,8 +2649,8 @@ const useTrackedEffect = (
       changes.includes(index)
     );
     return effect(changes, previousDeps, deps, type_changes);
-  }, deps);
-};
+  &#125;, deps);
+&#125;;
 
 export default useTrackedEffect;
 ~~~
@@ -2690,9 +2690,9 @@ useTrackedEffect(
 
 先看看最常见的一段 `jsx` 代码：
 ~~~ts
-const Index = () => {
-  return <div>大家好，我是小杜杜，一起玩转hooks吧！</div>;
-}
+const Index = () => &#123;
+  return &lt;div&gt;大家好，我是小杜杜，一起玩转hooks吧！</div>;
+&#125;
 ~~~
 然后到达绑定的结构：
 ~~~ts
@@ -2740,15 +2740,15 @@ fiber | element
 `IndeterminateComponent` = 2 | 初始化的时候不知道是函数组件还是类组件
 `HostRoot` = 3 | 根元素，通过`reactDom.render()`产生的根元素
 `HostPortal` = 4 | `ReactDOM.createPortal` 产生的 `Portal`
-`HostComponent` = 5 | `dom` 元素（如`<div>`）
+`HostComponent` = 5 | `dom` 元素（如`&lt;div&gt;`）
 `HostText` = 6 | 文本节点
 `Fragment` = 7 | `<React.Fragment>`
 `Mode` = 8 | `<React.StrictMode>`
 `ContextConsumer` = 9 | `<Context.Consumer>`
 `ContextProvider` = 10 | `<Context.Provider>`
 `ForwardRef` = 11 | `React.ForwardRef`
-`Profiler` = 12 | `<Profiler>`
-`SuspenseComponent` = 13 | `<Suspense>`
+`Profiler` = 12 | `&lt;Profiler&gt;`
+`SuspenseComponent` = 13 | `&lt;Suspense&gt;`
 `MemoComponent` = 14 | `React.memo` 返回的组件
 `SimpleMemoComponent` = 15 | `React.memo` 没有制定比较的方法，所返回的组件
 `LazyComponent` = 16 | `<lazy />`
@@ -2767,18 +2767,18 @@ fiber | element
 `Instance`：这个部分是用来存储一些对应 `element` 元素的属性。
 
 ~~~ts
-export type Fiber = {
+export type Fiber = &#123;
   tag: WorkTag,  // 组件的类型，判断函数式组件、类组件等（上述的tag）
   key: null | string, // key
   elementType: any, // 元素的类型
-  type: any, // 与fiber关联的功能或类，如<div>,指向对应的类或函数
+  type: any, // 与fiber关联的功能或类，如&lt;div&gt;,指向对应的类或函数
   stateNode: any, // 真实的DOM节点
   ...
-}
+&#125;
 ~~~
 **Fiber**：这部分内容存储的是关于 `Fiber` 链表相关的内容和相关的 `props`、`state`。
 ~~~ts
-export type Fiber = {
+export type Fiber = &#123;
   ...
   return: Fiber | null, // 指向父节点的fiber
   child: Fiber | null, // 指向第一个子节点的fiber
@@ -2787,7 +2787,7 @@ export type Fiber = {
   
   ref:
     | null
-    | (((handle: mixed) => void) & {_stringRef: ?string, ...})
+    | (((handle: mixed) => void) & 对象(_stringRef属性))
     | RefObject,  // ref的指向，可能为null、函数或对象
     
   pendingProps: any,  // 本次渲染所需的props
@@ -2798,24 +2798,24 @@ export type Fiber = {
 
   mode: TypeOfMode, // 类型为number，用于描述fiber的模式 
   ...
-}
+&#125;
 ~~~
 **Effect**：副作用相关的内容。
 ~~~ts
-export type Fiber = {
+export type Fiber = &#123;
   ...
    flags: Flags, // 用于记录fiber的状态（删除、新增、替换等）
    subtreeFlags: Flags, // 当前子节点的副作用状态
-   deletions: Array<Fiber> | null, // 删除的子节点的fiber
+   deletions: Array&lt;Fiber&gt; | null, // 删除的子节点的fiber
    nextEffect: Fiber | null, // 指向下一个副作用的fiber
    firstEffect: Fiber | null, // 指向第一个副作用的fiber
    lastEffect: Fiber | null, // 指向最后一个副作用的fiber
   ...
-}
+&#125;
 ~~~
 **Priority**：优先级相关的内容。
 ~~~ts
-export type Fiber = {
+export type Fiber = &#123;
   ...
   lanes: Lanes, // 优先级，用于调度
   childLanes: Lanes,
@@ -2825,22 +2825,22 @@ export type Fiber = {
   selfBaseDuration?: number,
   treeBaseDuration?: number,
   ...
-}
+&#125;
 ~~~
 
 ### 链表之间如何连接的
 我们知道了 `Fiber` 中保存的属性，那么我们要知道标签之间是如何连接的。`Fiber` 中通过 `return`、`child`、`sibling` 这三个参数来进行连接，它们分别指向父级、子级、兄弟，也就是说每个 `element` 通过这三个属性进行连接，同时通过 `tag` 的值来判断对应的 `element` 是什么。如：
 ~~~ts
-const Index = (props)=> {
+const Index = (props)=> &#123;
 
   return (
-    <div>
+    &lt;div&gt;
       大家好，我是小杜杜，一起玩转Hooks吧！
-      <div>知悉Fiber</div>
+      &lt;div&gt;知悉Fiber</div>
       <p>更好的了解Hooks</p>
     </div>
   );
-}
+&#125;
 ~~~
 那么按照之前讲的就会转化为：
 
@@ -2923,14 +2923,14 @@ const Index = (props)=> {
 ### 引入 useState 后发生了什么
 先举个例子：
 ~~~tsx
-import { Button } from "antd";
-import { useState } from "react";
-const Index = () => {
+import &#123; Button &#125; from "antd";
+import &#123; useState &#125; from "react";
+const Index = () => &#123;
   const [count, setCount] = useState(0);
   return (
-    <><div>大家好，我是小杜杜，一起玩转Hooks吧！</div><div>数字：{count}</div><Button onClick={() => setCount((v) => v + 1)}>点击加1</Button></>
+    <>&lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>&lt;div&gt;数字：&#123;count&#125;</div><Button onClick=&#123;() => setCount((v) => v + 1)&#125;>点击加1</Button></>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -2942,27 +2942,27 @@ export default Index;
 
 文件位置：`packages/react/src/ReactHooks.js`。
 ~~~ts
-export function useState<S>(
+export function useState&lt;S&gt;(
   initialState: (() => S) | S,
-): [S, Dispatch<BasicStateAction<S>>] {
+): [S, Dispatch<BasicStateAction&lt;S&gt;>] &#123;
   const dispatcher = resolveDispatcher();
   return dispatcher.useState(initialState);
-}
+&#125;
 ~~~
 可以看出 `useState` 的执行就等价于 `resolveDispatcher().useState(initialState)`，那么我们顺着线索看下去：
 **resolveDispatcher() ：**
 ~~~ts
-function resolveDispatcher() {
+function resolveDispatcher() &#123;
   const dispatcher = ReactCurrentDispatcher.current;
   return ((dispatcher: any): Dispatcher);
-}
+&#125;
 ~~~
 **ReactCurrentDispatcher：**
 文件位置：`packages/react/src/ReactCurrentDispatcher.js`。
 ~~~ts
-const ReactCurrentDispatcher = {
+const ReactCurrentDispatcher = &#123;
   current: (null: null | Dispatcher),
-};
+&#125;;
 ~~~
 通过类型可以看到 `ReactCurrentDispatcher` 不是 `null`，就是 `Dispatcher`，而在初始化时 `ReactCurrentDispatcher.current` 的值必为 `null`，因为此时还未进行操作。
 
@@ -2977,14 +2977,14 @@ const ReactCurrentDispatcher = {
 
 文件位置：`packages/react-reconciler/src/ReactFiberHooks`。
 ~~~ts
-export function renderWithHooks<Props, SecondArg>(
+export function renderWithHooks&lt;Props, SecondArg&gt;(
   current: Fiber | null,
   workInProgress: Fiber,
   Component: (p: Props, arg: SecondArg) => any,
   props: Props,
   secondArg: SecondArg,
   nextRenderLanes: Lanes,
-): any {
+): any &#123;
   currentlyRenderingFiber = workInProgress;
 
   // memoizedState: 用于存放hooks的信息，如果是类组件，则存放state信息
@@ -3004,9 +3004,9 @@ export function renderWithHooks<Props, SecondArg>(
   finishRenderingHooks(current, workInProgress);
 
   return children;
-}
+&#125;
 
-function finishRenderingHooks(current: Fiber | null, workInProgress: Fiber) {
+function finishRenderingHooks(current: Fiber | null, workInProgress: Fiber) &#123;
     
   // 防止hooks乱用，所报错的方案
   ReactCurrentDispatcher.current = ContextOnlyDispatcher;
@@ -3019,7 +3019,7 @@ function finishRenderingHooks(current: Fiber | null, workInProgress: Fiber) {
   workInProgressHook = null;
 
   didScheduleRenderPhaseUpdate = false;
-}
+&#125;
 ~~~
 我们先分析下 `renderWithHooks` 函数的入参。
 - **current**： 即 `current fiber`，渲染完成时所生成的 `current` 树，之后在 **commit 阶段替换为真正的 DOM 树**；
@@ -3052,7 +3052,7 @@ function finishRenderingHooks(current: Fiber | null, workInProgress: Fiber) {
 文件位置：`packages/react-reconciler/src/ReactFiberHooks.js`。
 ~~~ts
  // 包含所有的hooks，这里列举常见的
-const HooksDispatcherOnMount = { 
+const HooksDispatcherOnMount = &#123; 
     useRef: mountRef,
     useMemo: mountMemo,
     useCallback: mountCallback,
@@ -3062,26 +3062,26 @@ const HooksDispatcherOnMount = {
     useSyncExternalStore: mountSyncExternalStore,
     useMutableSource: mountMutableSource,
     ...
-}
+&#125;
 
-function mountState(initialState){
+function mountState(initialState)&#123;
   // 所有的hooks都会走这个函数
   const hook = mountWorkInProgressHook(); 
   
   // 确定初始入参
-  if (typeof initialState === 'function') {
+  if (typeof initialState === 'function') &#123;
     // $FlowFixMe: Flow doesn't like mixed types
     initialState = initialState();
-  }
+  &#125;
   hook.memoizedState = hook.baseState = initialState;
   
-  const queue = {
+  const queue = &#123;
     pending: null,
     lanes: NoLanes,
     dispatch: null,
     lastRenderedReducer: basicStateReducer,
     lastRenderedState: (initialState),
-  };
+  &#125;;
   hook.queue = queue;
   
   const dispatch = (queue.dispatch = (dispatchSetState.bind(
@@ -3090,27 +3090,27 @@ function mountState(initialState){
     queue,
   ): any));
   return [hook.memoizedState, dispatch];
-}
+&#125;
 ~~~
 #### mountWorkInProgressHook
 整体的流程先走向 `mountWorkInProgressHook()` 这个函数，它的作用尤为重要，因为这个函数的作用是将 `Hooks` 与 `Fiber` 联系起来，并且你会发现，所有的 `Hooks` 都会走这个函数，只是不同的 `Hooks` 保存着不同的信息。
 ~~~ts
-function mountWorkInProgressHook(): Hook {
-  const hook: Hook = {
+function mountWorkInProgressHook(): Hook &#123;
+  const hook: Hook = &#123;
     memoizedState: null,
     baseState: null,
     baseQueue: null,
     queue: null,
     next: null,
-  };
+  &#125;;
 
-  if (workInProgressHook === null) { // 第一个hooks执行
+  if (workInProgressHook === null) &#123; // 第一个hooks执行
     currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
-  } else { // 之后的hooks
+  &#125; else &#123; // 之后的hooks
     workInProgressHook = workInProgressHook.next = hook;
-  }
+  &#125;
   return workInProgressHook;
-}
+&#125;
 ~~~
 来看看 `hook` 值的参数：
 - **memoizedState**：用于保存数据，不同的 `Hooks` 保存的信息不同，比如 `useState` 保存 `state` 信息，`useEffect` 保存 `effect` 对象，`useRef` 保存 `ref` 对象；
@@ -3139,40 +3139,40 @@ function mountWorkInProgressHook(): Hook {
 #### dispatchSetState
 `dispatch` 的机制就是 `dispatchSetState`，在源码内部还是调用了很多函数，所以在这里对 `dispatchSetState` 函数做了些优化，方便我们更好地观看。
 ~~~ts
-function dispatchSetState<S, A>(
+function dispatchSetState&lt;S, A&gt;(
   fiber: Fiber, // 对应currentlyRenderingFiber
-  queue: UpdateQueue<S, A>, // 对应 queue
+  queue: UpdateQueue&lt;S, A&gt;, // 对应 queue
   action: A, // 真实传入的参数
-): void {
+): void &#123;
 
   // 优先级，不做介绍，后面也会去除有关优先级的部分
   const lane = requestUpdateLane(fiber);
 
   // 创建一个update
-  const update: Update<S, A> = {
+  const update: Update&lt;S, A&gt; = &#123;
     lane,
     action,
     hasEagerState: false,
     eagerState: null,
     next: (null: any),
-  };
+  &#125;;
 
    // 判断是否在渲染阶段
-  if (fiber === currentlyRenderingFiber || (fiber.alternate !== null && fiber.alternate === currentlyRenderingFiber)) {
+  if (fiber === currentlyRenderingFiber || (fiber.alternate !== null && fiber.alternate === currentlyRenderingFiber)) &#123;
       didScheduleRenderPhaseUpdateDuringThisPass = didScheduleRenderPhaseUpdate = true;
       const pending = queue.pending;
       // 判断是否是第一次更新
-      if (pending === null) {
+      if (pending === null) &#123;
         update.next = update;
-      } else {
+      &#125; else &#123;
         update.next = pending.next;
         pending.next = update;
-      }
+      &#125;
       // 将update存入到queue.pending中
       queue.pending = update;
-  } else { // 用于获取最新的state值
+  &#125; else &#123; // 用于获取最新的state值
     const alternate = fiber.alternate;
-    if (alternate === null && lastRenderedReducer !== null){
+    if (alternate === null && lastRenderedReducer !== null)&#123;
       const lastRenderedReducer = queue.lastRenderedReducer;
       let prevDispatcher;
       const currentState: S = (queue.lastRenderedState: any);
@@ -3181,16 +3181,16 @@ function dispatchSetState<S, A>(
       update.hasEagerState = true;
       update.eagerState = eagerState;
       if (is(eagerState, currentState)) return;
-    }
+    &#125;
 
     // 将update 插入链表尾部，然后返回root节点
     const root = enqueueConcurrentHookUpdate(fiber, queue, update, lane);
-    if (root !== null) {
+    if (root !== null) &#123;
       // 实现对应节点的更新
       scheduleUpdateOnFiber(root, fiber, lane, eventTime);
-    }
-  }
-}
+    &#125;
+  &#125;
+&#125;
 ~~~
 在代码中，我已经将每段代码执行的目的标注出来，为了我们更好地理解，分析一下对应的入参，以及函数体内较重要的参数与步骤。
 - **分析入参**：`dispatchSetState` 一共有三个入参，前两个入参数被 `bind` 分别改为 `currentlyRenderingFiber` 和 `queue`，第三个 `action` 则是我们实际写的函数；
@@ -3210,7 +3210,7 @@ function dispatchSetState<S, A>(
 
 文件位置：`packages/react-reconciler/src/ReactFiberHooks.js`。
 ~~~ts
-const HooksDispatcherOnUpdate: Dispatcher = {
+const HooksDispatcherOnUpdate: Dispatcher = &#123;
   useRef: updateRef,
   useMemo: updateMemo,
   useCallback: updateCallback,
@@ -3220,17 +3220,17 @@ const HooksDispatcherOnUpdate: Dispatcher = {
   useSyncExternalStore: updateSyncExternalStore,
   useMutableSource: updateMutableSource,
   ...
-};
+&#125;;
 
-function updateState<S>(
+function updateState&lt;S&gt;(
   initialState: (() => S) | S,
-): [S, Dispatch<BasicStateAction<S>>] {
+): [S, Dispatch<BasicStateAction&lt;S&gt;>] &#123;
   return updateReducer(basicStateReducer, (initialState: any));
-}
+&#125;
 
-function basicStateReducer<S>(state: S, action: BasicStateAction<S>): S {
+function basicStateReducer&lt;S&gt;(state: S, action: BasicStateAction&lt;S&gt;): S &#123;
   return typeof action === 'function' ? action(state) : action;
-}
+&#125;
 ~~~
 在 `updateState` 有两个函数，一个是 `updateReducer`，另一个是 `basicStateReducer`。
 
@@ -3243,70 +3243,70 @@ function basicStateReducer<S>(state: S, action: BasicStateAction<S>): S {
 
 文件位置：`packages/react-reconciler/src/ReactFiberHooks.js`。
 ~~~ts
-function updateWorkInProgressHook(): Hook {
+function updateWorkInProgressHook(): Hook &#123;
   let nextCurrentHook: null | Hook;
   
   // 判断是否是第一个更新的hook
-  if (currentHook === null) { 
+  if (currentHook === null) &#123; 
     const current = currentlyRenderingFiber.alternate;
-    if (current !== null) {
+    if (current !== null) &#123;
       nextCurrentHook = current.memoizedState;
-    } else {
+    &#125; else &#123;
       nextCurrentHook = null;
-    }
-  } else { // 如果不是第一个hook，则指向下一个hook
+    &#125;
+  &#125; else &#123; // 如果不是第一个hook，则指向下一个hook
     nextCurrentHook = currentHook.next;
-  }
+  &#125;
 
   let nextWorkInProgressHook: null | Hook;
   // 第一次执行
-  if (workInProgressHook === null) { 
+  if (workInProgressHook === null) &#123; 
     nextWorkInProgressHook = currentlyRenderingFiber.memoizedState;
-  } else {
+  &#125; else &#123;
     nextWorkInProgressHook = workInProgressHook.next;
-  }
+  &#125;
 
-  if (nextWorkInProgressHook !== null) {
+  if (nextWorkInProgressHook !== null) &#123;
     // 特殊情况：发生多次函数组件的执行
     workInProgressHook = nextWorkInProgressHook;
     nextWorkInProgressHook = workInProgressHook.next;
     currentHook = nextCurrentHook;
-  } else {
-    if (nextCurrentHook === null) {
+  &#125; else &#123;
+    if (nextCurrentHook === null) &#123;
       const currentFiber = currentlyRenderingFiber.alternate;
       
-      const newHook: Hook = {
+      const newHook: Hook = &#123;
         memoizedState: null,
         baseState: null,
         baseQueue: null,
         queue: null,
         next: null,
-      };
+      &#125;;
         nextCurrentHook = newHook;
-      } else {
+      &#125; else &#123;
         throw new Error('Rendered more hooks than during the previous render.');
-      }
-    }
+      &#125;
+    &#125;
 
     currentHook = nextCurrentHook;
 
     // 创建一个新的hook
-    const newHook: Hook = {
+    const newHook: Hook = &#123;
       memoizedState: currentHook.memoizedState,
       baseState: currentHook.baseState,
       baseQueue: currentHook.baseQueue,
       queue: currentHook.queue,
       next: null,
-    };
+    &#125;;
 
-    if (workInProgressHook === null) { // 如果是第一个函数
+    if (workInProgressHook === null) &#123; // 如果是第一个函数
       currentlyRenderingFiber.memoizedState = workInProgressHook = newHook;
-    } else {
+    &#125; else &#123;
       workInProgressHook = workInProgressHook.next = newHook;
-    }
-  }
+    &#125;
+  &#125;
   return workInProgressHook;
-}
+&#125;
 ~~~
 `updateWorkInProgressHook` 执行流程：如果是首次执行 `Hooks` 函数，就会从已有的 `current` 树中取到对应的值，然后声明 `nextWorkInProgressHook`，经过一系列的操作，得到更新后的 `Hooks` 状态。
 
@@ -3315,11 +3315,11 @@ function updateWorkInProgressHook(): Hook {
 #### updateReducer
 掌握了 `updateWorkInProgressHook` 执行流程后， 再来看 `updateReducer` 具体有哪些内容。
 ~~~ts
-function updateReducer<S, I, A>(
+function updateReducer&lt;S, I, A&gt;(
   reducer: (S, A) => S,
   initialArg: I,
   init?: I => S,
-): [S, Dispatch<A>] {
+): [S, Dispatch&lt;A&gt;] &#123;
 
   // 获取更新的hook，每个hook都会走
   const hook = updateWorkInProgressHook();
@@ -3333,19 +3333,19 @@ function updateReducer<S, I, A>(
  
   // 在更新的过程中，存在新的更新，加入新的更新队列
   const pendingQueue = queue.pending;
-  if (pendingQueue !== null) {
+  if (pendingQueue !== null) &#123;
     // 如果在更新过程中有新的更新，则加入新的队列，有个合并的作用，合并到 baseQueue
-    if (baseQueue !== null) {
+    if (baseQueue !== null) &#123;
       const baseFirst = baseQueue.next;
       const pendingFirst = pendingQueue.next;
       baseQueue.next = pendingFirst;
       pendingQueue.next = baseFirst;
-    }
+    &#125;
     current.baseQueue = baseQueue = pendingQueue;
     queue.pending = null;
-  }
+  &#125;
 
-  if (baseQueue !== null) {
+  if (baseQueue !== null) &#123;
     const first = baseQueue.next;
     let newState = current.baseState;
 
@@ -3355,7 +3355,7 @@ function updateReducer<S, I, A>(
     let update = first;
     
     // 循环更新
-    do {
+    do &#123;
       // 获取优先级
       const updateLane = removeLanes(update.lane, OffscreenLane);
       const isHiddenUpdate = updateLane !== update.lane;
@@ -3364,20 +3364,20 @@ function updateReducer<S, I, A>(
         ? !isSubsetOfLanes(getWorkInProgressRootRenderLanes(), updateLane)
         : !isSubsetOfLanes(renderLanes, updateLane);
 
-      if (shouldSkipUpdate) {
-        const clone: Update<S, A> = {
+      if (shouldSkipUpdate) &#123;
+        const clone: Update&lt;S, A&gt; = &#123;
           lane: updateLane,
           action: update.action,
           hasEagerState: update.hasEagerState,
           eagerState: update.eagerState,
           next: (null: any),
-        };
-        if (newBaseQueueLast === null) {
+        &#125;;
+        if (newBaseQueueLast === null) &#123;
           newBaseQueueFirst = newBaseQueueLast = clone;
           newBaseState = newState;
-        } else {
+        &#125; else &#123;
           newBaseQueueLast = newBaseQueueLast.next = clone;
-        }
+        &#125;
         
         // 合并优先级（低级任务）
         currentlyRenderingFiber.lanes = mergeLanes(
@@ -3385,45 +3385,45 @@ function updateReducer<S, I, A>(
           updateLane,
         );
         markSkippedUpdateLanes(updateLane);
-      } else {
+      &#125; else &#123;
          // 判断更新队列是否还有更新任务
-        if (newBaseQueueLast !== null) {
-          const clone: Update<S, A> = {
+        if (newBaseQueueLast !== null) &#123;
+          const clone: Update&lt;S, A&gt; = &#123;
             lane: NoLane,
             action: update.action,
             hasEagerState: update.hasEagerState,
             eagerState: update.eagerState,
             next: (null: any),
-          };
+          &#125;;
           
           // 将更新任务插到末尾
           newBaseQueueLast = newBaseQueueLast.next = clone;
-        }
+        &#125;
 
         const action = update.action;
         
         // 判断更新的数据是否相等
-        if (update.hasEagerState) {
+        if (update.hasEagerState) &#123;
           newState = ((update.eagerState: any): S);
-        } else {
+        &#125; else &#123;
           newState = reducer(newState, action);
-        }
-      }
+        &#125;
+      &#125;
       // 判断是否还需要更新
       update = update.next;
-    } while (update !== null && update !== first);
+    &#125; while (update !== null && update !== first);
 
     // 如果 newBaseQueueLast 为null，则说明所有的update处理完成，对baseState进行更新
-    if (newBaseQueueLast === null) {
+    if (newBaseQueueLast === null) &#123;
       newBaseState = newState;
-    } else {
+    &#125; else &#123;
       newBaseQueueLast.next = (newBaseQueueFirst: any);
-    }
+    &#125;
 
     // 如果新值与旧值不想等，则触发更新流程
-    if (!is(newState, hook.memoizedState)) {
+    if (!is(newState, hook.memoizedState)) &#123;
       markWorkInProgressReceivedUpdate();
-    }
+    &#125;
 
     // 将新值，保存在hook中
     hook.memoizedState = newState;
@@ -3431,15 +3431,15 @@ function updateReducer<S, I, A>(
     hook.baseQueue = newBaseQueueLast;
 
     queue.lastRenderedState = newState;
-  }
+  &#125;
 
-  if (baseQueue === null) {
+  if (baseQueue === null) &#123;
     queue.lanes = NoLanes;
-  }
+  &#125;
 
-  const dispatch: Dispatch<A> = (queue.dispatch: any);
+  const dispatch: Dispatch&lt;A&gt; = (queue.dispatch: any);
   return [hook.memoizedState, dispatch];
-}
+&#125;
 ~~~
 `updateReducer` 的作用是将待更新的队列 `pendingQueue` 合并到 `baseQueue` 上，之后进行循环更新，最后进行一次合成更新，也就是批量更新，统一更换节点。
 
@@ -3448,14 +3448,14 @@ function updateReducer<S, I, A>(
 ### 更新 state 值
 为了更好理解更新流程，我们做一个简单的例子来说明：
 ~~~tsx
-function Index() {
+function Index() &#123;
   const [count, setCount] = useState(0);
 
   return (
-    <div style={{ padding: 20 }}>
-      <div>数字：{count}</div>
+    <div style=&#123;&#123; padding: 20 &#125;&#125;>
+      &lt;div&gt;数字：&#123;count&#125;</div>
       <Button
-        onClick={() => {
+        onClick=&#123;() => &#123;
           // 第一种方式
           setCount((v) => v + 1);
           setCount((v) => v + 2);
@@ -3465,13 +3465,13 @@ function Index() {
           setCount(count + 1);
           setCount(count + 2);
           setCount(count + 3);
-        }}
+        &#125;&#125;
       >
         批量执行
       </Button>
     </div>
   );
-}
+&#125;
 
 export default Index;
 ~~~
@@ -3494,7 +3494,7 @@ export default Index;
 
 **throwInvalidHookError**：
 ~~~ts
-function throwInvalidHookError() {
+function throwInvalidHookError() &#123;
   throw new Error(
     'Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for' +
       ' one of the following reasons:\n' +
@@ -3503,7 +3503,7 @@ function throwInvalidHookError() {
       '3. You might have more than one copy of React in the same app\n' +
       'See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem.',
   );
-}
+&#125;
 ~~~
 可以看到，`ContextOnlyDispatcher` 是判断所需 `Hooks` 是否在函数组件内部，有**捕获并抛出异常的作用**，这也就解释了 `Hooks` 无法在 `React` 之外运行的原因。
 
@@ -3518,16 +3518,16 @@ function throwInvalidHookError() {
 const [name, setName] = useState("小杜杜")
 const [age, setAge] = useState(0)
 
-useEffect(() => {}, [])
+useEffect(() => &#123;&#125;, [])
 ~~~
 这两个 `useState` 只有参数上的区别，那么 `React` 是如何区分是 `name` 还是 `age` 呢？
 
 答案其实很简单，就是时序，`React` 相当于做了一个合并操作，当我们第一次调用 `useState` 时，保存了 `name`，第二次调用时保存了 `age`，相当于类中的结构。
 ~~~ts
-this.setState({
+this.setState(&#123;
     name: "小杜杜",
     age: 7
-})
+&#125;)
 ~~~
 当然，在 `mountWorkInProgressHook` 讲解中说过，所有的 `Hooks` 在创建时，都会产生对应的 `hook` 对象，当有多个 `Hooks` 时会以 `next` 连接起来。
 
@@ -3540,11 +3540,11 @@ this.setState({
 那如果就把它放在条件中，会发生什么变化呢？
 ~~~ts
 let age, setAge
-if(name! == "小杜杜"){
+if(name! == "小杜杜")&#123;
    [age, setAge] = useState(0)
-}
+&#125;
 
-useEffect(() => {}, [])
+useEffect(() => &#123;&#125;, [])
 ~~~
 在初始化中 `name` 为小杜杜，但当 `name` 改变时，便没有了 `age`，看看此时的报错：
 
@@ -3582,22 +3582,22 @@ useEffect(() => {}, [])
 ~~~ts
 function mountEffect(
   create: () => (() => void) | void, // 回调函数，也是副作用函数
-  deps: Array<mixed> | void | null, // 依赖项
-): void {
+  deps: Array&lt;mixed&gt; | void | null, // 依赖项
+): void &#123;
   mountEffectImpl(
     PassiveEffect | PassiveStaticEffect,
     HookPassive,
     create,
     deps,
   );
-}
+&#125;
 
 function mountEffectImpl(
   fiberFlags: Flags,
   hookFlags: HookFlags,
   create: () => (() => void) | void,
-  deps: Array<mixed> | void | null,
-): void {
+  deps: Array&lt;mixed&gt; | void | null,
+): void &#123;
   const hook = mountWorkInProgressHook();
   const nextDeps = deps === undefined ? null : deps;
   currentlyRenderingFiber.flags |= fiberFlags;
@@ -3607,7 +3607,7 @@ function mountEffectImpl(
     undefined,
     nextDeps,
   );
-}
+&#125;
 ~~~
 从 `mountEffect` 进来，直接走向 `mountEffectImpl` 函数，先来看看 `mountEffectImpl` 的入参：
 - `fiberFlags`：有副作用的更新标记，用来标记 `hook` 在 `fiber` 中的位置；
@@ -3624,53 +3624,53 @@ function mountEffectImpl(
 #### pushEffect
 副作用的操作来到了 `pushEffect`，一起来看看：
 ~~~ts
-function pushEffect(tag, create, destroy, deps): Effect {
+function pushEffect(tag, create, destroy, deps): Effect &#123;
 
   // 初始化一个effect对象
-  const effect: Effect = {
+  const effect: Effect = &#123;
     tag,
     create,
     destroy,
     deps,
     next: (null: any),
-  };
+  &#125;;
   
   let componentUpdateQueue = (currentlyRenderingFiber.updateQueue: any);
   
-  if (componentUpdateQueue === null) { //第一个effect对象
+  if (componentUpdateQueue === null) &#123; //第一个effect对象
     componentUpdateQueue = createFunctionComponentUpdateQueue();
     currentlyRenderingFiber.updateQueue = (componentUpdateQueue: any);
     componentUpdateQueue.lastEffect = effect.next = effect;
-  } else { // 存放多个effect对象
+  &#125; else &#123; // 存放多个effect对象
     const lastEffect = componentUpdateQueue.lastEffect;
-    if (lastEffect === null) {
+    if (lastEffect === null) &#123;
       componentUpdateQueue.lastEffect = effect.next = effect;
-    } else {
+    &#125; else &#123;
       const firstEffect = lastEffect.next;
       lastEffect.next = effect;
       effect.next = firstEffect;
       componentUpdateQueue.lastEffect = effect;
-    }
-  }
+    &#125;
+  &#125;
   return effect;
-}
+&#125;
 ~~~
 别看 `pushEffect` 中有一大坨，但是不是有种似曾相识的感觉呢？没错，它与上节的内容类似，它的作用是创建一个 `effect` 对象，然后形成一个 `effect` 链表，通过 `next` 链接 ，最后绑定在 `fiber` 中的 `updateQueue` 上。比如下面这段代码：
 ~~~ts
 const [name, setName] = useState("小杜杜");
 const [count, setCount] = useState(0);
 
-useEffect(() => {
+useEffect(() => &#123;
   console.log(1);
-}, []);
+&#125;, []);
 
-useEffect(() => {
+useEffect(() => &#123;
   console.log(2);
-}, [name]);
+&#125;, [name]);
 
-useEffect(() => {
+useEffect(() => &#123;
   console.log(3);
-}, [count]);
+&#125;, [count]);
 ~~~
 转化后的 `fiber.updateQueue` 为：
 
@@ -3687,17 +3687,17 @@ useEffect(() => {
 ~~~ts
 function updateEffect(
   create: () => (() => void) | void,
-  deps: Array<mixed> | void | null,
-): void {
+  deps: Array&lt;mixed&gt; | void | null,
+): void &#123;
   updateEffectImpl(PassiveEffect, HookPassive, create, deps);
-}
+&#125;
 
 function updateEffectImpl(
   fiberFlags: Flags,
   hookFlags: HookFlags,
   create: () => (() => void) | void,
-  deps: Array<mixed> | void | null,
-): void {
+  deps: Array&lt;mixed&gt; | void | null,
+): void &#123;
 
   // 获取更新的hooks
   const hook = updateWorkInProgressHook();
@@ -3705,19 +3705,19 @@ function updateEffectImpl(
   const nextDeps = deps === undefined ? null : deps;
   let destroy = undefined;
 
-  if (currentHook !== null) {
+  if (currentHook !== null) &#123;
     const prevEffect = currentHook.memoizedState;
     destroy = prevEffect.destroy;
-    if (nextDeps !== null) {
+    if (nextDeps !== null) &#123;
       const prevDeps = prevEffect.deps;
       
       // 判断依赖是否发生改变，如果没有，只更新副作用链表
-      if (areHookInputsEqual(nextDeps, prevDeps)) {
+      if (areHookInputsEqual(nextDeps, prevDeps)) &#123;
         hook.memoizedState = pushEffect(hookFlags, create, destroy, nextDeps);
         return;
-      }
-    }
-  }
+      &#125;
+    &#125;
+  &#125;
 
   // 如果依赖发生改变，则在更新链表的时候，打上对应的标签
   currentlyRenderingFiber.flags |= fiberFlags;
@@ -3728,7 +3728,7 @@ function updateEffectImpl(
     destroy,
     nextDeps,
   );
-}
+&#125;
 ~~~
 `updateEffect`：在更新阶段做的事其实很简单，就是判断 `deps` 是否发生改变，如果没有发生改变，则直接执行 `pushEffect`，如果发生改变，则附上不同的标签，最后在 `commit` 阶段，通过这些标签来判断是否执行 `effect` 函数。
 
@@ -3736,43 +3736,43 @@ function updateEffectImpl(
 在日常的开发中，有些不熟悉 `useEffect` 的小伙伴只知道 `deps` 发生改变，则执行对应的 `effect` 函数，但对 `deps` 本身的类型并不了解，这也造就了一些莫名奇怪的 `bug`，怎么找也找不到，有时候真的有可能是规范所引起的，因此我们看看以下关于 `deps` 的问题：
 1. `deps` 不存在时，造成的后果是什么？
 2. `deps` 是空数组，造成的后果是什么（如：`[]`）？
-3. `deps` 是数组、对象、函数时，造成的后果是什么（如：`[ [1] ]、[{ a: 1 }]`）？
+3. `deps` 是数组、对象、函数时，造成的后果是什么（如：([ [1] ]、[&#123; a: 1 &#125;])）？
 
 实际上，所有的答案都在 `areHookInputsEqual` 函数中：
 ~~~ts
 const nextDeps = deps === undefined ? null : deps;
 
 function areHookInputsEqual(
-  nextDeps: Array<mixed>,
-  prevDeps: Array<mixed> | null,
-): boolean {
+  nextDeps: Array&lt;mixed&gt;,
+  prevDeps: Array&lt;mixed&gt; | null,
+): boolean &#123;
 
-  if (prevDeps === null) {
+  if (prevDeps === null) &#123;
     return false;
-  }
+  &#125;
 
-  for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
-    if (objectIs(nextDeps[i], prevDeps[i])) {
+  for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) &#123;
+    if (objectIs(nextDeps[i], prevDeps[i])) &#123;
       continue;
-    }
+    &#125;
     return false;
-  }
+  &#125;
   return true;
-}
+&#125;
 
 // 存在Object.is，就直接使用，没有的话，手动实现Object.is
 const objectIs: (x: any, y: any) => boolean = typeof Object.is === 'function' ? Object.is : is;
 
-function is(x: any, y: any) {
+function is(x: any, y: any) &#123;
   return (
     (x === y && (x !== 0 || 1 / x === 1 / y)) || (x !== x && y !== y) 
   );
-}
+&#125;
 ~~~
 从代码中，共分为三种情况：
 - 当 `deps` 不存在时，也就是 `undefined`，则会当作 `null` 处理，所以无论发生什么改变，`areHookInputsEqual` 的值始终为 `false`，从而每次都会执行；
 - 当 `deps` 为空数组时，`areHookInputsEqual` 返回值为 `true`，此时只更新链表，并没有执行对应的副作用，所以只会走一次；
-- 当 `deps` 为对象、数组、函数时，虽然保存了，但在 `objectIs` 做比较时，旧值与新值永远不相等，也就是`[1] !== [1]`、`{a: 1} !== {a: 1}`（指向不同），所以只要当 `deps` 发生变动，都会触发更新。
+- 当 `deps` 为对象、数组、函数时，虽然保存了，但在 `objectIs` 做比较时，旧值与新值永远不相等，也就是`[1] !== [1]`、(对象(a属性) !== 对象(a属性))（指向不同），所以只要当 `deps` 发生变动，都会触发更新。
 
 ::: tip
 注意： 如果强行比较对象、数组时，可以通过 `JSON.stringify()` 转化为字符串，当作 `deps` 的参数。
@@ -3787,9 +3787,9 @@ function is(x: any, y: any) {
 ~~~ts
 function commitRoot(
   root: FiberRoot,
-  recoverableErrors: null | Array<CapturedValue<mixed>>,
-  transitions: Array<Transition> | null,
-) {
+  recoverableErrors: null | Array<CapturedValue&lt;mixed&gt;>,
+  transitions: Array&lt;Transition&gt; | null,
+) &#123;
   // 获取优先级
   const previousUpdateLanePriority = getCurrentUpdatePriority();
   const prevTransition = ReactCurrentBatchConfig.transition;
@@ -3802,46 +3802,46 @@ function commitRoot(
   );
 
   return null;
-}
+&#125;
 ~~~
 在 `commitRoot` 中，首先会制定函数的优先级，当执行完毕后，恢复优先级，而这个函数的主体为 `commitRootImpl` 函数。
 
 #### commitRootImpl
 `commitRootImpl` 函数非常复杂，这里我们只关注 `effect` 的逻辑即可，而关于 `effect` 的逻辑主要是 `scheduleCallback`。
 ~~~ts
-function commitRootImpl(root, recoverableErrors, transitions, renderPriorityLevel ) {
+function commitRootImpl(root, recoverableErrors, transitions, renderPriorityLevel ) &#123;
   ...
-  scheduleCallback(NormalSchedulerPriority, () => {
+  scheduleCallback(NormalSchedulerPriority, () => &#123;
     // 调度 Effect
     flushPassiveEffects();
     return null;
-  });
+  &#125;);
   ...
   return null;
-}
+&#125;
 ~~~
 `scheduleCallback` 是 `React` 调度器（`Scheduler`）的一个 `API`，最终通过一个宏任务来异步调度传入的回调函数，使得该回调在下一轮事件循环中执行，此时浏览器已经绘制过一次。同时可以看出，`effectlist` 的优先级是：普通优先级。
 
 #### flushPassiveEffects
 ~~~ts
-export function flushPassiveEffects(): boolean {
+export function flushPassiveEffects(): boolean &#123;
 
-  if (rootWithPendingPassiveEffects !== null) {
+  if (rootWithPendingPassiveEffects !== null) &#123;
     ...
-    try {
+    try &#123;
       ReactCurrentBatchConfig.transition = null;
       // 设置优先级
       setCurrentUpdatePriority(priority);
       // 调用函数
       return flushPassiveEffectsImpl();
-    } finally {
+    &#125; finally &#123;
       setCurrentUpdatePriority(previousPriority);
       ReactCurrentBatchConfig.transition = prevTransition;
       releaseRootPooledCache(root, remainingLanes);
-    }
-  }
+    &#125;
+  &#125;
   return false;
-}
+&#125;
 ~~~
 到 `flushPassiveEffects` 中，也是一系列跟优先级有关的操作，最终走向 `flushPassiveEffectsImpl` 这个函数。而在这个函数中会执行两个方法，分别是：`commitPassiveUnmountEffects`（执行所有 `effect` 的销毁程序） 和 `commitPassiveMountEffects`（执行所有 `effect` 的回调函数）。
 
@@ -3853,39 +3853,39 @@ export function flushPassiveEffects(): boolean {
 
 最终的走向为 `commitHookEffectListMount` 函数，着重看下：
 ~~~ts
-function commitHookEffectListMount(flags: HookFlags, finishedWork: Fiber) {
+function commitHookEffectListMount(flags: HookFlags, finishedWork: Fiber) &#123;
   const updateQueue = (finishedWork.updateQueue: any);
   const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
-  if (lastEffect !== null) {
+  if (lastEffect !== null) &#123;
     const firstEffect = lastEffect.next;
     let effect = firstEffect;
-    do {
-      if ((effect.tag & flags) === flags) {
-        if (enableSchedulingProfiler) {
-          if ((flags & HookPassive) !== NoHookEffect) {
+    do &#123;
+      if ((effect.tag & flags) === flags) &#123;
+        if (enableSchedulingProfiler) &#123;
+          if ((flags & HookPassive) !== NoHookEffect) &#123;
             markComponentPassiveEffectMountStarted(finishedWork);
-          } else if ((flags & HookLayout) !== NoHookEffect) {
+          &#125; else if ((flags & HookLayout) !== NoHookEffect) &#123;
             markComponentLayoutEffectMountStarted(finishedWork);
-          }
-        }
+          &#125;
+        &#125;
 
         // 执行effect函数， 并保存effect函数的结果给destroy
         const create = effect.create;
         effect.destroy = create();
 
-        if (enableSchedulingProfiler) {
-          if ((flags & HookPassive) !== NoHookEffect) {
+        if (enableSchedulingProfiler) &#123;
+          if ((flags & HookPassive) !== NoHookEffect) &#123;
             markComponentPassiveEffectMountStopped();
-          } else if ((flags & HookLayout) !== NoHookEffect) {
+          &#125; else if ((flags & HookLayout) !== NoHookEffect) &#123;
             markComponentLayoutEffectMountStopped();
-          }
-        }
+          &#125;
+        &#125;
 
-      }
+      &#125;
       effect = effect.next;
-    } while (effect !== firstEffect);
-  }
-}
+    &#125; while (effect !== firstEffect);
+  &#125;
+&#125;
 ~~~
 主要作用是：遍历所有的 `effect list`，然后依次执行对应的 `effect` 副作用函数，并将其结果保留在 `destroy` 函数中。
 ::: tip
@@ -3903,40 +3903,40 @@ function commitHookEffectListUnmount(
   flags: HookFlags,
   finishedWork: Fiber,
   nearestMountedAncestor: Fiber | null,
-) {
+) &#123;
   const updateQueue= finishedWork.updateQueue;
   const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
-  if (lastEffect !== null) {
+  if (lastEffect !== null) &#123;
     const firstEffect = lastEffect.next;
     let effect = firstEffect;
-    do {
-      if ((effect.tag & flags) === flags) {
+    do &#123;
+      if ((effect.tag & flags) === flags) &#123;
         // Unmount
         const destroy = effect.destroy;
         effect.destroy = undefined;
-        if (destroy !== undefined) {
-          if (enableSchedulingProfiler) {
-            if ((flags & HookPassive) !== NoHookEffect) {
+        if (destroy !== undefined) &#123;
+          if (enableSchedulingProfiler) &#123;
+            if ((flags & HookPassive) !== NoHookEffect) &#123;
               markComponentPassiveEffectUnmountStarted(finishedWork);
-            } else if ((flags & HookLayout) !== NoHookEffect) {
+            &#125; else if ((flags & HookLayout) !== NoHookEffect) &#123;
               markComponentLayoutEffectUnmountStarted(finishedWork);
-            }
-          }
+            &#125;
+          &#125;
            // 调用销毁逻辑
           safelyCallDestroy(finishedWork, nearestMountedAncestor, destroy);
-          if (enableSchedulingProfiler) {
-            if ((flags & HookPassive) !== NoHookEffect) {
+          if (enableSchedulingProfiler) &#123;
+            if ((flags & HookPassive) !== NoHookEffect) &#123;
               markComponentPassiveEffectUnmountStopped();
-            } else if ((flags & HookLayout) !== NoHookEffect) {
+            &#125; else if ((flags & HookLayout) !== NoHookEffect) &#123;
               markComponentLayoutEffectUnmountStopped();
-            }
-          }
-        }
-      }
+            &#125;
+          &#125;
+        &#125;
+      &#125;
       effect = effect.next;
-    } while (effect !== firstEffect);
-  }
-}
+    &#125; while (effect !== firstEffect);
+  &#125;
+&#125;
 ~~~
 主要通过 `safelyCallDestroy` 走对应的销毁逻辑，这里要注意下，`effect` 的执行需要保证所有组件的 `effect` 的销毁函数执行完才能够执行。
 
@@ -3947,36 +3947,36 @@ function commitHookEffectListUnmount(
 
 先看下面这段代码：
 ~~~tsx
-import { useState, useEffect } from "react";
-import { Button, message } from "antd";
-const Index = () => {
+import &#123; useState, useEffect &#125; from "react";
+import &#123; Button, message &#125; from "antd";
+const Index = () => &#123;
   const [count, setCount] = useState(0);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  useEffect(() => &#123;
+    const timer = setTimeout(() => &#123;
       setCount((v) => v + 1);
-    }, 2000);
-    return () => {
+    &#125;, 2000);
+    return () => &#123;
       clearTimeout(timer);
-    };
-  }, []);
+    &#125;;
+  &#125;, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      message.info(`当前的count为：${count}`);
-    }, 3000);
-    return () => {
+  useEffect(() => &#123;
+    const timer = setTimeout(() => &#123;
+      message.info(`当前的count为：$&#123;count&#125;`);
+    &#125;, 3000);
+    return () => &#123;
       clearTimeout(timer);
-    };
-  }, []);
+    &#125;;
+  &#125;, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      <div>数字：{count}</div>
-      <Button onClick={() => setCount((v) => v + 1)}>加1</Button>
+    <div style=&#123;&#123; padding: 20 &#125;&#125;>
+      &lt;div&gt;数字：&#123;count&#125;</div>
+      <Button onClick=&#123;() => setCount((v) => v + 1)&#125;>加1</Button>
     </div>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -4015,12 +4015,12 @@ export default Index;
 其实答案很简单，利用 `ref` 的高级用法——缓存数据，也就是 `useLatest` 去解决就 ok 了。如：
 ~~~ts
 const countRef = useLatest(count);
-useEffect(() => {
-  const timer = setTimeout(() => {
-    message.info(`当前的count为：${countRef.current}`);
-  }, 3000);
+useEffect(() => &#123;
+  const timer = setTimeout(() => &#123;
+    message.info(`当前的count为：$&#123;countRef.current&#125;`);
+  &#125;, 3000);
 
-}, []);
+&#125;, []);
 ~~~
 
 #### 结果何时为 1
@@ -4038,27 +4038,27 @@ useEffect(() => {
 #### mountMemo/mountCallback（初始化）
 ~~~ts
 // mountMemo
-function mountMemo<T>(
+function mountMemo&lt;T&gt;(
   nextCreate: () => T, 
-  deps: Array<mixed> | void | null,
-): T {
+  deps: Array&lt;mixed&gt; | void | null,
+): T &#123;
   const hook = mountWorkInProgressHook();
   const nextDeps = deps === undefined ? null : deps;
   const nextValue = nextCreate();
   hook.memoizedState = [nextValue, nextDeps];
   return nextValue;
-}
+&#125;
 
 // mountCallback
-function mountCallback<T>(
+function mountCallback&lt;T&gt;(
   callback: T,
-  deps: Array<mixed> | void | null
-): T {
+  deps: Array&lt;mixed&gt; | void | null
+): T &#123;
   const hook = mountWorkInProgressHook();
   const nextDeps = deps === undefined ? null : deps;
   hook.memoizedState = [callback, nextDeps];
   return callback;
-}
+&#125;
 ~~~
 在初始化中，`useMemo` 首先创建一个 `hook`，然后判断 `deps` 的类型，执行 `nextCreate`，这个参数是需要缓存的值，然后**将值与 deps 保存到 memoizedState 上**。
 
@@ -4067,47 +4067,47 @@ function mountCallback<T>(
 #### updateMemo/updateCallback（更新）
 ~~~ts
 // updateMemo
-function updateMemo<T>(
+function updateMemo&lt;T&gt;(
   nextCreate: () => T,
-  deps: Array<mixed> | void | null,
-): T {
+  deps: Array&lt;mixed&gt; | void | null,
+): T &#123;
   const hook = updateWorkInProgressHook();
   // 判断新值
   const nextDeps = deps === undefined ? null : deps;
   const prevState = hook.memoizedState;
-  if (prevState !== null) {
-    if (nextDeps !== null) {
+  if (prevState !== null) &#123;
+    if (nextDeps !== null) &#123;
       //之前保存的值
-      const prevDeps: Array<mixed> | null = prevState[1];
+      const prevDeps: Array&lt;mixed&gt; | null = prevState[1];
       // 与useEffect判断deps一致
-      if (areHookInputsEqual(nextDeps, prevDeps)) {
+      if (areHookInputsEqual(nextDeps, prevDeps)) &#123;
         return prevState[0];
-      }
-    }
-  }
+      &#125;
+    &#125;
+  &#125;
   const nextValue = nextCreate();
   hook.memoizedState = [nextValue, nextDeps];
   return nextValue;
-}
+&#125;
 
 // updateCallback
-function updateCallback<T>(callback: T, deps: Array<mixed> | void | null): T {
+function updateCallback&lt;T&gt;(callback: T, deps: Array&lt;mixed&gt; | void | null): T &#123;
   const hook = updateWorkInProgressHook();
   const nextDeps = deps === undefined ? null : deps;
   const prevState = hook.memoizedState;
-  if (prevState !== null) {
-    if (nextDeps !== null) {
+  if (prevState !== null) &#123;
+    if (nextDeps !== null) &#123;
         //之前保存的值
-      const prevDeps: Array<mixed> | null = prevState[1];
+      const prevDeps: Array&lt;mixed&gt; | null = prevState[1];
       // 与useEffect判断deps一致
-      if (areHookInputsEqual(nextDeps, prevDeps)) {
+      if (areHookInputsEqual(nextDeps, prevDeps)) &#123;
         return prevState[0];
-      }
-    }
-  }
+      &#125;
+    &#125;
+  &#125;
   hook.memoizedState = [callback, nextDeps];
   return callback;
-}
+&#125;
 ~~~
 在更新过程中，`useMemo` 实际上只做了一件事，就是通过判断两次的 `deps` 是否发生改变，如果发生改变，则重新执行 `nextCreate()`，将得到的新值重新复制给 `memoizedState`；如果没发生改变，则直接返回缓存的值。
 
@@ -4134,39 +4134,39 @@ function updateCallback<T>(callback: T, deps: Array<mixed> | void | null): T {
 
 举个例子：
 ~~~tsx
-import { PureComponent } from "react";
-import { Button } from "antd";
+import &#123; PureComponent &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-class Index extends PureComponent<any, any> {
-  constructor(props: any) {
+class Index extends PureComponent<any, any> &#123;
+  constructor(props: any) &#123;
     super(props);
-    this.state = {
-      data: {
+    this.state = &#123;
+      data: &#123;
         number: 0,
-      },
-    };
-  }
+      &#125;,
+    &#125;;
+  &#125;
 
-  render() {
-    const { data } = this.state;
+  render() &#123;
+    const &#123; data &#125; = this.state;
     return (
       <>
-        <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>
-        <div> 数字： {data.number}</div>
+        &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>
+        &lt;div&gt; 数字： &#123;data.number&#125;</div>
         <Button
           type="primary"
-          onClick={() => {
-            const { data } = this.state;
+          onClick=&#123;() => &#123;
+            const &#123; data &#125; = this.state;
             data.number++;
-            this.setState({ data });
-          }}
+            this.setState(&#123; data &#125;);
+          &#125;&#125;
         >
           数字加1
         </Button>
       </>
     );
-  }
-}
+  &#125;
+&#125;
 
 export default Index;
 ~~~
@@ -4174,7 +4174,7 @@ export default Index;
 
 解决方法：
 ~~~ts
-this.setState({ data: {...data} })
+this.setState(&#123; data: &#123;...data&#125; &#125;)
 ~~~
 #### 对比 shouldComponentUpdate 和 PureComponent
 首先要特别明确 **shouldComponentUpdate 是生命周期的方法，而 PureComponent 是组件**。
@@ -4186,9 +4186,9 @@ this.setState({ data: {...data} })
 
 文件位置：`packages/react-reconciler/src/ReactFiberClassComponent.js`
 ~~~ts
-function checkShouldComponentUpdate(workInProgress, ctor, oldProps, newProps, oldState, newState, nextContext) {
+function checkShouldComponentUpdate(workInProgress, ctor, oldProps, newProps, oldState, newState, nextContext) &#123;
   const instance = workInProgress.stateNode;
-  if (typeof instance.shouldComponentUpdate === 'function') {
+  if (typeof instance.shouldComponentUpdate === 'function') &#123;
     // shouldComponentUpdate 更新
     let shouldUpdate = instance.shouldComponentUpdate(
       newProps,
@@ -4196,56 +4196,56 @@ function checkShouldComponentUpdate(workInProgress, ctor, oldProps, newProps, ol
       nextContext,
     );
     return shouldUpdate;
-  }
+  &#125;
 
    // 判断原型链是否存在isPureReactComponent
-  if (ctor.prototype && ctor.prototype.isPureReactComponent) {
+  if (ctor.prototype && ctor.prototype.isPureReactComponent) &#123;
     return (
       !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState)
     );
-  }
+  &#125;
 
   return true;
-}
+&#125;
 ~~~
 在 `PureComponent` 组件的原型链包含 `isPureReactComponent` 属性，同时也是通过这个属性来判断是否要进行浅比较。
 
 **shallowEqual：**
 ~~~ts
-function shallowEqual(objA: mixed, objB: mixed): boolean {
+function shallowEqual(objA: mixed, objB: mixed): boolean &#123;
   // 这里的is和useEffect源码中的is一致，不做过多的介绍
-  if (is(objA, objB)) {
+  if (is(objA, objB)) &#123;
     return true;
-  }
+  &#125;
 
   if (
     typeof objA !== 'object' ||
     objA === null ||
     typeof objB !== 'object' ||
     objB === null
-  ) {
+  ) &#123;
     return false;
-  }
+  &#125;
 
   const keysA = Object.keys(objA);
   const keysB = Object.keys(objB);
 
-  if (keysA.length !== keysB.length) {
+  if (keysA.length !== keysB.length) &#123;
     return false;
-  }
+  &#125;
 
-  for (let i = 0; i < keysA.length; i++) {
+  for (let i = 0; i < keysA.length; i++) &#123;
     const currentKey = keysA[i];
     if (
       !hasOwnProperty.call(objB, currentKey) ||
       !is(objA[currentKey], objB[currentKey])
-    ) {
+    ) &#123;
       return false;
-    }
-  }
+    &#125;
+  &#125;
 
   return true;
-}
+&#125;
 ~~~
 **shallowEqual 浅比较流程：**
 1. 首先比较新旧 `props/state` 是否相等，如果相等，则返回 `true`，不更新组件；
@@ -4271,56 +4271,56 @@ function shallowEqual(objA: mixed, objB: mixed): boolean {
 :::
 举个例子：
 ~~~tsx
-import { Component, memo } from "react";
-import { Button } from "antd";
+import &#123; Component, memo &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Child = ({ number, msg = "" }: any) => {
+const Child = (&#123; number, msg = "" &#125;: any) => &#123;
   return (
     <>
-      {console.log(`${msg}子组件渲染`)}
+      &#123;console.log(`$&#123;msg&#125;子组件渲染`)&#125;
       <p>
-        {msg}数字：{number}
+        &#123;msg&#125;数字：&#123;number&#125;
       </p>
     </>
   );
-};
+&#125;;
 
-const HOCChild = memo(Child, (pre, next) => {
+const HOCChild = memo(Child, (pre, next) => &#123;
   if (pre.number === next.number) return true;
   if (next.number < 7) return false;
   return true;
-});
+&#125;);
 
-class Index extends Component<any, any> {
-  constructor(props: any) {
+class Index extends Component<any, any> &#123;
+  constructor(props: any) &#123;
     super(props);
-    this.state = {
+    this.state = &#123;
       flag: true,
       number: 1,
-    };
-  }
+    &#125;;
+  &#125;
 
-  render() {
-    const { flag, number } = this.state;
+  render() &#123;
+    const &#123; flag, number &#125; = this.state;
     return (
-      <div>
+      &lt;div&gt;
         大家好，我是小杜杜，一起玩转Hooks吧！
-        <Child number={number} />
-        <HOCChild number={number} msg="被memo包的" />
-        <Button type="primary" onClick={() => this.setState({ flag: !flag })}>
-          状态切换{JSON.stringify(flag)}
+        <Child number=&#123;number&#125; />
+        <HOCChild number=&#123;number&#125; msg="被memo包的" />
+        <Button type="primary" onClick=&#123;() => this.setState(&#123; flag: !flag &#125;)&#125;>
+          状态切换&#123;JSON.stringify(flag)&#125;
         </Button>
         <Button
           type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => this.setState({ number: number + 1 })}
+          style=&#123;&#123; marginLeft: 8 &#125;&#125;
+          onClick=&#123;() => this.setState(&#123; number: number + 1 &#125;)&#125;
         >
-          数字加一：{number}
+          数字加一：&#123;number&#125;
         </Button>
       </div>
     );
-  }
-}
+  &#125;
+&#125;
 
 export default Index;
 ~~~
@@ -4354,47 +4354,47 @@ useMemo | 函数组件 | -
 
 而**函数式组件的性能本身是非常快的**，它不同于 `Class` 组件，本身并没有 `renderProps` 等额外层级技术，所以相对轻量，而我们使用 `useCallack` 的时候，这本身就有一定的代价，相当于在原本的基础上增加了**闭包的使用、deps 对比的逻辑**，因此，盲目的使用反而会造成组件的负担。
 ~~~tsx
-import { useState, useCallback, memo } from "react";
-import { Button } from "antd";
+import &#123; useState, useCallback, memo &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   let [count, setCount] = useState(0);
   let [number, setNumber] = useState(0);
   let [flag, setFlag] = useState(true);
 
-  const add = useCallback(() => {
+  const add = useCallback(() => &#123;
     setCount(count + 1);
-  }, [count]);
+  &#125;, [count]);
 
   return (
     <>
-      <div>数字number：{number}</div>
-      <div>数字count：{count}</div>
-      <TestButton onClick={() => setNumber((v) => v + 1)}>普通点击</TestButton>
-      <TestButton onClick={add}>useCallback点击</TestButton>
+      &lt;div&gt;数字number：&#123;number&#125;</div>
+      &lt;div&gt;数字count：&#123;count&#125;</div>
+      <TestButton onClick=&#123;() => setNumber((v) => v + 1)&#125;>普通点击</TestButton>
+      <TestButton onClick=&#123;add&#125;>useCallback点击</TestButton>
       <Button
-        style={{ marginLeft: 10 }}
+        style=&#123;&#123; marginLeft: 10 &#125;&#125;
         type="primary"
-        onClick={() => setFlag((v) => !v)}
+        onClick=&#123;() => setFlag((v) => !v)&#125;
       >
-        切换{JSON.stringify(flag)}
+        切换&#123;JSON.stringify(flag)&#125;
       </Button>
     </>
   );
-};
+&#125;;
 
-const TestButton = memo(({ children, onClick = () => {} }: any) => {
+const TestButton = memo((&#123; children, onClick = () => &#123;&#125; &#125;: any) => &#123;
   console.log(children);
   return (
     <Button
       type="primary"
-      onClick={onClick}
-      style={children === "useCallback点击" ? { marginLeft: 10 } : undefined}
+      onClick=&#123;onClick&#125;
+      style=&#123;children === "useCallback点击" ? &#123; marginLeft: 10 &#125; : undefined&#125;
     >
-      {children}
+      &#123;children&#125;
     </Button>
   );
-});
+&#125;);
 
 export default Index;
 ~~~
@@ -4440,44 +4440,44 @@ d = useMemo(() => a + b, [a, b])
 ### Ref 的基本使用
 关于 `Ref`，`React` 主要提供 **React.createRef（类组件） 和 React.useRef（函数组件）** 两种方式进行创建，会生成一个 `ref` 对象，结构为：
 ~~~ts
-{
+&#123;
     current: null; 
-}
+&#125;
 ~~~
 ::: tip
 `current` 为 `ref` 对象获取的实际内容，可以是 `DOM` 元素、组件实例、其他元素。
 :::
 具体使用：
 ~~~ts
-import { Component, createRef, useEffect, useRef } from "react";
+import &#123; Component, createRef, useEffect, useRef &#125; from "react";
 
 // createRef: 类组件
-class Index extends Component<any, any> {
+class Index extends Component<any, any> &#123;
   currentRef: any;
-  constructor(props: any) {
+  constructor(props: any) &#123;
     super(props);
     this.currentRef = createRef();
-  }
+  &#125;
 
-  componentDidMount() {
+  componentDidMount() &#123;
     console.log(this.currentRef);
-  }
+  &#125;
 
-  render() {
-    return <div ref={this.currentRef}>class 中获取 Ref 的实例</div>;
-  }
-}
+  render() &#123;
+    return <div ref=&#123;this.currentRef&#125;>class 中获取 Ref 的实例</div>;
+  &#125;
+&#125;
 
 // useRef：函数组件
-const Index = () => {
-  const currentRef = useRef<any>();
+const Index = () => &#123;
+  const currentRef = useRef&lt;any&gt;();
 
-  useEffect(() => {
+  useEffect(() => &#123;
     console.log(currentRef);
-  }, []);
+  &#125;, []);
 
-  return <div ref={currentRef}>函数中获取 Ref 的实例</div>;
-};
+  return <div ref=&#123;currentRef&#125;>函数中获取 Ref 的实例</div>;
+&#125;;
 ~~~
 打印结果：
 
@@ -4497,12 +4497,12 @@ const Index = () => {
 ### createRef 源码
 文件位置：`packages/react/src/ReactCreateRef.js`。
 ~~~ts
-export function createRef(): RefObject {
-  const refObject = {
+export function createRef(): RefObject &#123;
+  const refObject = &#123;
     current: null,
-  };
+  &#125;;
   return refObject;
-}
+&#125;
 ~~~
 
 ### useRef 源码
@@ -4511,18 +4511,18 @@ export function createRef(): RefObject {
 文件位置：`packages/react-reconciler/src/ReactFiberHooks`。
 ~~~ts
 // 初始化
-function mountRef<T>(initialValue: T): {current: T} {
+function mountRef&lt;T&gt;(initialValue: T): 对象(current属性) &#123;
   const hook = mountWorkInProgressHook();
-  const ref = {current: initialValue};
+  const ref = 对象(current属性);
   hook.memoizedState = ref;
   return ref;
-}
+&#125;
 
 // 更新
-function updateRef<T>(initialValue: T): {current: T} {
+function updateRef&lt;T&gt;(initialValue: T): 对象(current属性) &#123;
   const hook = updateWorkInProgressHook();
   return hook.memoizedState;
-}
+&#125;
 ~~~
 从源码的角度来看，`createRef` 和 `useRef` 的逻辑非常简单，两者都是创建了一个对象，对象上的 `currrent` 属性，用来保存**通过 `ref` 属性获取的 DOM 元素、组件实例、数据等**，以便后续使用。
 
@@ -4533,34 +4533,34 @@ function updateRef<T>(initialValue: T): {current: T} {
 
 假设我们在函数组件中使用 `createRef`，来看看它与 `useRef` 具体有什么不同：
 ~~~tsx
-import { useState, useRef, createRef } from "react";
-import { Button } from "antd";
+import &#123; useState, useRef, createRef &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index = () => {
+const Index = () => &#123;
   const [count, useCount] = useState(0);
 
   const ref = useRef(0);
   const cRef = createRef(0);
 
-  if (!ref.current) {
+  if (!ref.current) &#123;
     ref.current = count;
-  }
+  &#125;
 
-  if (!cRef.current) {
+  if (!cRef.current) &#123;
     cRef.current = count;
-  }
+  &#125;
 
   return (
     <>
-      <div>数字：{count}</div>
-      <div>useRef 包裹的数字： {ref.current}</div>
-      <div>createRef 包裹的数字： {cRef.current}</div>
-      <Button type="primary" onClick={() => useCount((v) => v + 1)}>
+      &lt;div&gt;数字：&#123;count&#125;</div>
+      &lt;div&gt;useRef 包裹的数字： &#123;ref.current&#125;</div>
+      &lt;div&gt;createRef 包裹的数字： &#123;cRef.current&#125;</div>
+      <Button type="primary" onClick=&#123;() => useCount((v) => v + 1)&#125;>
         点击加1
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -4586,30 +4586,30 @@ export default Index;
 
 先做一个计数器的功能，来对比下：
 ~~~tsx
-import { useState, useRef } from "react";
-import { Button } from "antd";
+import &#123; useState, useRef &#125; from "react";
+import &#123; Button &#125; from "antd";
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const [count, setCount] = useState(0);
-  const countRef = useRef<number>(0);
+  const countRef = useRef&lt;number&gt;(0);
 
   return (
     <>
-      <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>
-      <div>useState的count：{count}</div>
-      <Button type="primary" onClick={() => setCount((v) => v + 1)}>
+      &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>
+      &lt;div&gt;useState的count：&#123;count&#125;</div>
+      <Button type="primary" onClick=&#123;() => setCount((v) => v + 1)&#125;>
         useState点击
       </Button>
-      <div>ref的count：{countRef.current}</div>
+      &lt;div&gt;ref的count：&#123;countRef.current&#125;</div>
       <Button
         type="primary"
-        onClick={() => (countRef.current = countRef.current + 1)}
+        onClick=&#123;() => (countRef.current = countRef.current + 1)&#125;
       >
         useRef点击
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -4626,59 +4626,59 @@ export default Index;
 #### 跨层级获取实例与通信
 我们可以通过 `forwardRef` 转发 `ref` 来获取子组件的实例，获取一些方法、值，并且可以自定义设置 `ref` 的值。如：
 ~~~tsx
-import { useRef, useEffect, Component, forwardRef } from "react";
-class Son extends Component {
-  render() {
-    return <div>我是孙组件</div>;
-  }
-}
+import &#123; useRef, useEffect, Component, forwardRef &#125; from "react";
+class Son extends Component &#123;
+  render() &#123;
+    return &lt;div&gt;我是孙组件</div>;
+  &#125;
+&#125;
 
-class Child extends Component<any, any> {
-  constructor(props: any) {
+class Child extends Component<any, any> &#123;
+  constructor(props: any) &#123;
     super(props);
-    this.state = {
+    this.state = &#123;
       count: 0,
-    };
-  }
+    &#125;;
+  &#125;
 
   div: any = null;
   son: any = null;
-  componentDidMount() {
-    this.props.forwardRef.current = {
+  componentDidMount() &#123;
+    this.props.forwardRef.current = &#123;
       div: this.div, // 子组件的div
       child: this, // 子组件的实例
       son: this.son, // 孙组件的实例
-    };
-  }
+    &#125;;
+  &#125;
 
-  render() {
+  render() &#123;
     return (
       <>
-        <div ref={(node) => (this.div = node)}>我是子组件</div>
-        <Son ref={(node) => (this.son = node)} />
+        <div ref=&#123;(node) => (this.div = node)&#125;>我是子组件</div>
+        <Son ref=&#123;(node) => (this.son = node)&#125; />
       </>
     );
-  }
-}
+  &#125;
+&#125;
 
 const ForwardChild = forwardRef((props, ref) => (
-  <Child {...props} forwardRef={ref} />
+  <Child &#123;...props&#125; forwardRef=&#123;ref&#125; />
 ));
 
-const Index = () => {
+const Index = () => &#123;
   const ref = useRef(null);
 
-  useEffect(() => {
+  useEffect(() => &#123;
     console.log(ref.current);
-  }, []);
+  &#125;, []);
 
   return (
     <>
-      <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>
-      <ForwardChild ref={ref} />
+      &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>
+      <ForwardChild ref=&#123;ref&#125; />
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -4700,27 +4700,27 @@ export default Index;
 
 在上文中提及到 `ref` 共用三种方式来获取，其中通过回调函数的情况有一个特殊的现象，我们先来看看：
 ~~~tsx
-import { Button } from "antd";
-import { useState } from "react";
+import &#123; Button &#125; from "antd";
+import &#123; useState &#125; from "react";
 
-const Index = () => {
-  const [_, setCount] = useState<number>(0);
+const Index = () => &#123;
+  const [_, setCount] = useState&lt;number&gt;(0);
 
   return (
     <>
       <div
-        ref={(node) => {
+        ref=&#123;(node) => &#123;
           console.log(node);
-        }}
+        &#125;&#125;
       >
         大家好，我是小杜杜，一起玩转Hooks吧！
       </div>
-      <Button type="primary" onClick={() => setCount((v) => v + 1)}>
+      <Button type="primary" onClick=&#123;() => setCount((v) => v + 1)&#125;>
         点击
       </Button>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -4746,7 +4746,7 @@ export default Index;
 
 `commitRootImpl` 包含很多东西，主要包含三个阶段（这里只是提及下，感兴趣的可自行研究，在这里主要看 `Ref` 的处理逻辑）：
 ~~~ts
-function commitRootImpl(){
+function commitRootImpl()&#123;
     ...
     // BeforeMutation 阶段
     commitBeforeMutationEffects(root, finishedWork);
@@ -4756,7 +4756,7 @@ function commitRootImpl(){
     
     // Layout 阶段
     commitLayoutEffects(finishedWork, root, lanes);
-}
+&#125;
 ~~~
 1. **BeforeMutation 阶段**： 进行深度优先遍历，找到最后一个带有标识的 `Fiber` 作为起点（子 => 父 查找），然后会调用一个实例 `instance` 的 `getSnapshotBeforeUpdate` 方法，并生成快照对象，之后作为 `componentDidUpdate` 的第三个参数，这里主要针对的是 `Class` 组件的操作，对其他类型的组件并不做处理。
 2. **Mutation 阶段**： 此阶段为核心阶段，是真正进行更新 `DOM` 树的阶段。 是真正处理 `Class` 组件、函数式组件以及原生组件的地方，同时也是增加、删除、更新的处理阶段。
@@ -4782,14 +4782,14 @@ function commitRootImpl(){
 
 文件位置：`packages/react-reconciler/src/ReactChildFiber.js`。
 ~~~ts
-const ref = function(value: mixed) {
+const ref = function(value: mixed) &#123;
   const refs = resolvedInst.refs;
-  if (value === null) {
+  if (value === null) &#123;
     delete refs[stringRef];
-  } else {
+  &#125; else &#123;
     refs[stringRef] = value;
-  }
-};
+  &#125;
+&#125;;
 ~~~
 也就是说，当 `ref` 是字符串类型时，会自动转化为函数，绑定在组件的实例的 `refs` 属性下。
 :::
@@ -4799,17 +4799,17 @@ const ref = function(value: mixed) {
 
 所以，我们首先要明白 `React` 是如何打上 `Ref tag` 的。主要是在 `markRef` 函数中。
 ~~~ts
-function markRef(current: Fiber | null, workInProgress: Fiber) {
+function markRef(current: Fiber | null, workInProgress: Fiber) &#123;
   const ref = workInProgress.ref;
   if (
     (current === null && ref !== null) || // 初始化
     (current !== null && current.ref !== ref) // 更新时
-  ) {
+  ) &#123;
     // Schedule a Ref effect
     workInProgress.flags |= Ref;
     workInProgress.flags |= RefStatic;
-  }
-}
+  &#125;
+&#125;
 ~~~
 当然，`markRef` 是在 `Class` 组件或原生组件的更新过程中进行调用，同时分为两种情况，一种是初始化，另一种是更新中发生变化，
 
@@ -4819,26 +4819,26 @@ function markRef(current: Fiber | null, workInProgress: Fiber) {
 `Ref` 的更新操作在 `Layout` 阶段，在更新真实元素节点之后，会进行有关 `Ref` 的更新。我们先来看下源码：
 ~~~ts
 // 更新条件
-if (flags & Ref) {
+if (flags & Ref) &#123;
   safelyAttachRef(finishedWork, finishedWork.return);
-}
+&#125;
 
 // safelyAttachRef
-function safelyAttachRef(current: Fiber, nearestMountedAncestor: Fiber | null) {
-  try {
+function safelyAttachRef(current: Fiber, nearestMountedAncestor: Fiber | null) &#123;
+  try &#123;
     commitAttachRef(current);
-  } catch (error) {
+  &#125; catch (error) &#123;
     captureCommitPhaseError(current, nearestMountedAncestor, error);
-  }
-}
+  &#125;
+&#125;
 
 // commitAttachRef 更新操作
-function commitAttachRef(finishedWork: Fiber) {
+function commitAttachRef(finishedWork: Fiber) &#123;
   const ref = finishedWork.ref;
-  if (ref !== null) {
+  if (ref !== null) &#123;
     const instance = finishedWork.stateNode;
     let instanceToUse;
-    switch (finishedWork.tag) {
+    switch (finishedWork.tag) &#123;
       case HostResource:
       case HostSingleton:
       case HostComponent: // 原生元素
@@ -4846,26 +4846,26 @@ function commitAttachRef(finishedWork: Fiber) {
         break;
       default: // 类组件
         instanceToUse = instance;
-    }
-    if (enableScopeAPI && finishedWork.tag === ScopeComponent) {
+    &#125;
+    if (enableScopeAPI && finishedWork.tag === ScopeComponent) &#123;
       instanceToUse = instance;
-    }
-    if (typeof ref === 'function') {
-      if (shouldProfile(finishedWork)) {
-        try {
+    &#125;
+    if (typeof ref === 'function') &#123;
+      if (shouldProfile(finishedWork)) &#123;
+        try &#123;
           startLayoutEffectTimer();
           finishedWork.refCleanup = ref(instanceToUse);
-        } finally {
+        &#125; finally &#123;
           recordLayoutEffectDuration(finishedWork);
-        }
-      } else {
+        &#125;
+      &#125; else &#123;
         finishedWork.refCleanup = ref(instanceToUse);
-      }
-    } else {
+      &#125;
+    &#125; else &#123;
       ref.current = instanceToUse;
-    }
-  }
-}
+    &#125;
+  &#125;
+&#125;
 ~~~
 当具备更新条件后会走到 `safelyAttachRef` 中，而 `safelyAttachRef` 中的主体是 `commitAttachRef` 函数。
 
@@ -4900,57 +4900,57 @@ This value can change without React’s knowledge, so you should read it with us
 我们先来看看官网的示例：在 `useSyncExternalStore` 的基础上封装了 `useOnlineStatus`，去检查网络连接的状态：
 ~~~ts
 // useOnlineStatus
-import { useSyncExternalStore } from "react";
+import &#123; useSyncExternalStore &#125; from "react";
 
-export function useOnlineStatus() {
+export function useOnlineStatus() &#123;
   const isOnline = useSyncExternalStore(subscribe, getSnapshot);
   return isOnline;
-}
+&#125;
 
-function getSnapshot() {
+function getSnapshot() &#123;
   return navigator.onLine;
-}
+&#125;
 
-function subscribe(callback: any) {
+function subscribe(callback: any) &#123;
   window.addEventListener("online", callback);
   window.addEventListener("offline", callback);
-  return () => {
+  return () => &#123;
     window.removeEventListener("online", callback);
     window.removeEventListener("offline", callback);
-  };
-}
+  &#125;;
+&#125;
 ~~~
 ~~~ts
 // Index
-import { useOnlineStatus } from "./useOnlineStatus";
+import &#123; useOnlineStatus &#125; from "./useOnlineStatus";
 
-function StatusBar() {
+function StatusBar() &#123;
   const isOnline = useOnlineStatus();
-  return <h1>{isOnline ? "✅ Online" : "❌ Disconnected"}</h1>;
-}
+  return &lt;h1&gt;表达式(isOnline 条件判断)</h1>;
+&#125;
 
-function SaveButton() {
+function SaveButton() &#123;
   const isOnline = useOnlineStatus();
 
-  function handleSaveClick() {
+  function handleSaveClick() &#123;
     console.log("✅ Progress saved");
-  }
+  &#125;
 
   return (
-    <button disabled={!isOnline} onClick={handleSaveClick}>
-      {isOnline ? "Save progress" : "Reconnecting..."}
+    <button disabled=&#123;!isOnline&#125; onClick=&#123;handleSaveClick&#125;>
+      表达式(isOnline 条件判断)
     </button>
   );
-}
+&#125;
 
-const Index = () => {
+const Index = () => &#123;
   return (
     <>
       <SaveButton />
       <StatusBar />
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -4999,11 +4999,11 @@ export default Index;
 #### mountSyncExternalStore（初始化阶段）
 文件位置：`packages/react-reconciler/src/ReactFiberHooks.js`。
 ~~~ts
-function mountSyncExternalStore<T>(
+function mountSyncExternalStore&lt;T&gt;(
   subscribe: (() => void) => () => void,
   getSnapshot: () => T,
   getServerSnapshot?: () => T,
-): T {
+): T &#123;
   const fiber = currentlyRenderingFiber;
   const hook = mountWorkInProgressHook();
 
@@ -5011,26 +5011,26 @@ function mountSyncExternalStore<T>(
   
   // 是否属于 hydrate 模式
   const isHydrating = getIsHydrating();
-  if (isHydrating) {
+  if (isHydrating) &#123;
     // hydrate 模式下
     nextSnapshot = getServerSnapshot();
-  } else {
+  &#125; else &#123;
   
     nextSnapshot = getSnapshot();
     const root: FiberRoot | null = getWorkInProgressRoot();
 
     // 并发模式下，一致性检查
-    if (!includesBlockingLane(root, renderLanes)) {
+    if (!includesBlockingLane(root, renderLanes)) &#123;
       pushStoreConsistencyCheck(fiber, getSnapshot, nextSnapshot);
-    }
-  }
+    &#125;
+  &#125;
 
   hook.memoizedState = nextSnapshot;
   
-  const inst: StoreInstance<T> = {
+  const inst: StoreInstance&lt;T&gt; = &#123;
     value: nextSnapshot,
     getSnapshot,
-  };
+  &#125;;
   hook.queue = inst;
 
   // useEffect 中的 mountEffect
@@ -5047,7 +5047,7 @@ function mountSyncExternalStore<T>(
   );
 
   return nextSnapshot;
-}
+&#125;
 ~~~
 `mountSyncExternalStore` 对应三个入参，分别是：
 - **subscribe**：订阅函数，用于**注册一个回调函数，当存储值发生更改时被调用**；
@@ -5066,78 +5066,78 @@ function mountSyncExternalStore<T>(
 ##### pushStoreConsistencyCheck
 **pushStoreConsistencyCheck**：检查一致性，如果是并发模式，会创建一个 `check` 对象，并添加到 `fiber` 中的 `updateQueue` 对象的 `store` 数组中。
 ~~~ts
-function pushStoreConsistencyCheck<T>(
+function pushStoreConsistencyCheck&lt;T&gt;(
   fiber: Fiber,
   getSnapshot: () => T,
   renderedSnapshot: T,
-): void {
+): void &#123;
   fiber.flags |= StoreConsistency;
   
-  const check: StoreConsistencyCheck<T> = {
+  const check: StoreConsistencyCheck&lt;T&gt; = &#123;
     getSnapshot,
     value: renderedSnapshot,
-  };
+  &#125;;
   
   let componentUpdateQueue: null | FunctionComponentUpdateQueue = (currentlyRenderingFiber.updateQueue: any);
   
-  if (componentUpdateQueue === null) { // 第一个 check 对象
+  if (componentUpdateQueue === null) &#123; // 第一个 check 对象
     componentUpdateQueue = createFunctionComponentUpdateQueue();
     currentlyRenderingFiber.updateQueue = (componentUpdateQueue: any);
     
     componentUpdateQueue.stores = [check];
-  } else { // 多个 check 对象
+  &#125; else &#123; // 多个 check 对象
     const stores = componentUpdateQueue.stores;
     
-    if (stores === null) {
+    if (stores === null) &#123;
       componentUpdateQueue.stores = [check];
-    } else {
+    &#125; else &#123;
       stores.push(check);
-    }
-  }
-}
+    &#125;
+  &#125;
+&#125;
 ~~~
 从源码可以看出，收集 `check` 的过程和 `useEffect` 中收集 `effect` 对象类似， `createFunctionComponentUpdateQueue()` 用来创建一个更新队列，最终放入 `stores` 数组中。
 
 ##### subscribeToStore
 **subscribeToStore**： 通过 `store` 提供的 `subscribe` 方法订阅对应的状态变化，如果发生变化，则会采用同步阻塞模式渲染。
 ~~~ts
-function subscribeToStore<T>(
+function subscribeToStore&lt;T&gt;(
   fiber: Fiber,
-  inst: StoreInstance<T>,
+  inst: StoreInstance&lt;T&gt;,
   subscribe: (() => void) => () => void,
-): any {
+): any &#123;
  // 通过 store 的 dispatch 方法修改 store 会触发
- const handleStoreChange = () => {
-    if (checkIfSnapshotChanged(inst)) {
+ const handleStoreChange = () => &#123;
+    if (checkIfSnapshotChanged(inst)) &#123;
       forceStoreRerender(fiber);
-    }
-  };
+    &#125;
+  &#125;;
   return subscribe(handleStoreChange);
-}
+&#125;
 
 // 判断 store 的值是否发生变化
-function checkIfSnapshotChanged<T>(inst: StoreInstance<T>): boolean {
+function checkIfSnapshotChanged&lt;T&gt;(inst: StoreInstance&lt;T&gt;): boolean &#123;
   const latestGetSnapshot = inst.getSnapshot;
   
   // 旧值
   const prevValue = inst.value;
-  try {
+  try &#123;
     // 新值
     const nextValue = latestGetSnapshot();
     // 与 useEffect 中的一致，进行浅比较
     return !is(prevValue, nextValue);
-  } catch (error) {
+  &#125; catch (error) &#123;
     return true;
-  }
-}
+  &#125;
+&#125;
 
 // 使用阻塞模式渲染
-function forceStoreRerender(fiber: Fiber) {
+function forceStoreRerender(fiber: Fiber) &#123;
   const root = enqueueConcurrentRenderForLane(fiber, SyncLane);
-  if (root !== null) {
+  if (root !== null) &#123;
     scheduleUpdateOnFiber(root, fiber, SyncLane, NoTimestamp);
-  }
-}
+  &#125;
+&#125;
 ~~~
 在 `subscribeToStore` 中，会进行一层判断：`checkIfSnapshotChanged` 函数，它会判断 `store` 是否发生变化，判断的依据也跟 `useEffect` 中的一致，通过 `is` 进行**浅比较**，如果发生了变化，则会执行 `forceStoreRerender` 方法，手动触发 `Sync` 阻塞渲染，处理优先级和挂载更新节点。
 
@@ -5146,30 +5146,30 @@ function forceStoreRerender(fiber: Fiber) {
 ##### updateStoreInstance
 **updateStoreInstance**： 在 `commit` 阶段中，会统一处理 `render` 阶段的所有 `effect`，此时会再次检查 `store` 是否发生变化，防止 `store` 的状态不一致。
 ~~~ts
-function updateStoreInstance<T>(
+function updateStoreInstance&lt;T&gt;(
   fiber: Fiber,
-  inst: StoreInstance<T>,
+  inst: StoreInstance&lt;T&gt;,
   nextSnapshot: T,
   getSnapshot: () => T,
-): void {
+): void &#123;
   inst.value = nextSnapshot;
   inst.getSnapshot = getSnapshot;
 
   // 在 commit 阶段中，检查 store 是否发生变化
-  if (checkIfSnapshotChanged(inst)) {
+  if (checkIfSnapshotChanged(inst)) &#123;
     // 触发同步阻塞渲染
     forceStoreRerender(fiber);
-  }
-}
+  &#125;
+&#125;
 ~~~
 
 #### updateSyncExternalStore（更新阶段）
 ~~~ts
-function updateSyncExternalStore<T>(
+function updateSyncExternalStore&lt;T&gt;(
   subscribe: (() => void) => () => void,
   getSnapshot: () => T,
   getServerSnapshot?: () => T,
-): T {
+): T &#123;
   const fiber = currentlyRenderingFiber;
   
   // 获取更新的hooks
@@ -5179,10 +5179,10 @@ function updateSyncExternalStore<T>(
   const nextSnapshot = getSnapshot();
   const prevSnapshot = (currentHook || hook).memoizedState;
   const snapshotChanged = !is(prevSnapshot, nextSnapshot);
-  if (snapshotChanged) {
+  if (snapshotChanged) &#123;
     hook.memoizedState = nextSnapshot;
     markWorkInProgressReceivedUpdate();
-  }
+  &#125;
   const inst = hook.queue;
 
   updateEffect(subscribeToStore.bind(null, fiber, inst, subscribe), [
@@ -5194,7 +5194,7 @@ function updateSyncExternalStore<T>(
     snapshotChanged ||
     (workInProgressHook !== null &&
       workInProgressHook.memoizedState.tag & HookHasEffect)
-  ) {
+  ) &#123;
     fiber.flags |= PassiveEffect;
     pushEffect(
       HookHasEffect | HookPassive,
@@ -5205,13 +5205,13 @@ function updateSyncExternalStore<T>(
 
     const root: FiberRoot | null = getWorkInProgressRoot();
 
-    if (!includesBlockingLane(root, renderLanes)) {
+    if (!includesBlockingLane(root, renderLanes)) &#123;
       pushStoreConsistencyCheck(fiber, getSnapshot, nextSnapshot);
-    }
-  }
+    &#125;
+  &#125;
 
   return nextSnapshot;
-}
+&#125;
 ~~~
 可以看出 `updateSyncExternalStore` 和 `mountSyncExternalStore` 的步骤基本类似，来看看对应的流程：
 1. 获取更新的 `hooks` 对象、新的 `store` 状态，存储到 `memoizedState` 中；
@@ -5223,58 +5223,58 @@ function updateSyncExternalStore<T>(
 
 文件位置：`packages/use-sync-external-store/src/useSyncExternalStoreShimClient.js`。
 ~~~ts
-import { useState, useEffect, useLayoutEffect } from "react";
+import &#123; useState, useEffect, useLayoutEffect &#125; from "react";
 
 const useSyncExternalStore = <T,>(
   subscribe: any,
   getSnapshot: () => T,
   getServerSnapshot?: () => T
-) => {
+) => &#123;
   const value = getSnapshot();
-  const [{ inst }, forceUpdate] = useState({ inst: { value, getSnapshot } });
+  const [&#123; inst &#125;, forceUpdate] = useState(&#123; inst: &#123; value, getSnapshot &#125; &#125;);
 
   // 同步执行
-  useLayoutEffect(() => {
+  useLayoutEffect(() => &#123;
     inst.value = value;
     inst.getSnapshot = getSnapshot;
 
-    if (checkIfSnapshotChanged(inst)) {
-      forceUpdate({ inst });
-    }
-  }, [subscribe, value, getSnapshot]);
+    if (checkIfSnapshotChanged(inst)) &#123;
+      forceUpdate(&#123; inst &#125;);
+    &#125;
+  &#125;, [subscribe, value, getSnapshot]);
 
   // 异步执行
-  useEffect(() => {
-    if (checkIfSnapshotChanged(inst)) {
-      forceUpdate({ inst });
-    }
-    const handleStoreChange: any = () => {
-      if (checkIfSnapshotChanged(inst)) {
-        forceUpdate({ inst });
-      }
-    };
+  useEffect(() => &#123;
+    if (checkIfSnapshotChanged(inst)) &#123;
+      forceUpdate(&#123; inst &#125;);
+    &#125;
+    const handleStoreChange: any = () => &#123;
+      if (checkIfSnapshotChanged(inst)) &#123;
+        forceUpdate(&#123; inst &#125;);
+      &#125;
+    &#125;;
     // 取消订阅
     return subscribe(handleStoreChange);
-  }, [subscribe]);
+  &#125;, [subscribe]);
 
   return value;
-};
+&#125;;
 
 // 检查 store 是否发生变化
-function checkIfSnapshotChanged<T>(inst: {
+function checkIfSnapshotChanged&lt;T&gt;(inst: &#123;
   value: T;
   getSnapshot: () => T;
-}): boolean {
+&#125;): boolean &#123;
   const latestGetSnapshot = inst.getSnapshot;
   const prevValue = inst.value;
-  try {
+  try &#123;
     const nextValue = latestGetSnapshot();
     // 对应 is 方法
     return !Object.is(prevValue, nextValue);
-  } catch (error) {
+  &#125; catch (error) &#123;
     return true;
-  }
-}
+  &#125;
+&#125;
 
 export default useSyncExternalStore;
 ~~~
@@ -5290,7 +5290,7 @@ export default useSyncExternalStore;
 
 此外，在 `SSR` 中，如果使用 `useSyncExternalStore`，必须定义 `getServerSnapshot`，否则会引发错误。
 
-如果在服务端渲染时不能提供一个初值，可以将组件转换成一个只在客户端渲染的组件，方法是在服务端渲染时抛出一个异常通过 `<Suspense>` 展示 `fallback` 的 `UI`（具体可参照：[useSyncExternalStore First Look](https://julesblom.com/writing/usesyncexternalstore)）。
+如果在服务端渲染时不能提供一个初值，可以将组件转换成一个只在客户端渲染的组件，方法是在服务端渲染时抛出一个异常通过 `&lt;Suspense&gt;` 展示 `fallback` 的 `UI`（具体可参照：[useSyncExternalStore First Look](https://julesblom.com/writing/usesyncexternalstore)）。
 :::
 
 ## 探究 useTransition 和 useDeferredValue
@@ -5331,31 +5331,31 @@ export default useSyncExternalStore;
 // utils 
 export const count = 20000; // 渲染次数
 
-import { useState } from "react";
-import { Input } from "antd";
-import { count } from "./utils";
+import &#123; useState &#125; from "react";
+import &#123; Input &#125; from "antd";
+import &#123; count &#125; from "./utils";
 
 // 正常情况
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const [list, setList] = useState<string[]>([]);
 
   return (
     <>
       <Input
-        onChange={(e) => {
+        onChange=&#123;(e) => &#123;
           const res: string[] = [];
-          for (let i = 0; i < count; i++) {
+          for (let i = 0; i < count; i++) &#123;
             res.push(e.target.value);
-          }
+          &#125;
           setList(res);
-        }}
+        &#125;&#125;
       />
-      {list.map((item, index) => (
-        <div key={index}>{item}</div>
-      ))}
+      &#123;list.map((item, index) => (
+        <div key=&#123;index&#125;>&#123;item&#125;</div>
+      ))&#125;
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -5406,13 +5406,13 @@ export default Index;
 function mountTransition(): [
   boolean,
   (callback: () => void, options?: StartTransitionOptions) => void,
-] {
+] &#123;
   const [isPending, setPending] = mountState(false);
   const start = startTransition.bind(null, setPending);
   const hook = mountWorkInProgressHook();
   hook.memoizedState = start;
   return [isPending, start];
-}
+&#125;
 ~~~
 在 `mountTransition` 中，首先由 `isPending` 来定义状态，然后会走 `startTransition` 方法，返回的 `start` 会保存在 `memoizedState` 中，那么我们一起看看 `startTransition` 做了哪些事。
 
@@ -5422,7 +5422,7 @@ function startTransition(
   setPending: boolean => void,
   callback: () => void,
   options?: StartTransitionOptions,
-): void {
+): void &#123;
 
   // 获取优先级
   const previousPriority = getCurrentUpdatePriority();
@@ -5436,34 +5436,34 @@ function startTransition(
 
   // 标记一个过渡位
   const prevTransition = ReactCurrentBatchConfig.transition;
-  ReactCurrentBatchConfig.transition = ({}: BatchConfigTransition);
+  ReactCurrentBatchConfig.transition = (&#123;&#125;: BatchConfigTransition);
   const currentTransition = ReactCurrentBatchConfig.transition;
 
-  if (enableTransitionTracing) {
-    if (options !== undefined && options.name !== undefined) {
+  if (enableTransitionTracing) &#123;
+    if (options !== undefined && options.name !== undefined) &#123;
       ReactCurrentBatchConfig.transition.name = options.name;
       ReactCurrentBatchConfig.transition.startTime = now();
-    }
-  }
+    &#125;
+  &#125;
 
  
-  try {
+  try &#123;
     setPending(false);
     callback();
-  } finally {
+  &#125; finally &#123;
     setCurrentUpdatePriority(previousPriority);
     ReactCurrentBatchConfig.transition = prevTransition;
 
-  }
-}
+  &#125;
+&#125;
 
 // higherEventPriority
 export function higherEventPriority(
   a: EventPriority,
   b: EventPriority,
-): EventPriority {
+): EventPriority &#123;
   return a !== 0 && a < b ? a : b;
-}
+&#125;
 ~~~
 在 `startTransition` 中的流程为：
 1. 首先通过 `getCurrentUpdatePriority` 获取优先级，通过 `higherEventPriority` 方法重新给 `ContinuousEventPriority`（连续事件优先级）设置优先级，如果该任务的优先级低于 `ContinuousEventPriority`，则继续使用该任务的优先级。
@@ -5479,7 +5479,7 @@ export function higherEventPriority(
 
 实际原因是：
 ~~~ts
-ReactCurrentBatchConfig.transition = ({}: BatchConfigTransition);
+ReactCurrentBatchConfig.transition = (&#123;&#125;: BatchConfigTransition);
 ~~~
 将 `transition` 设置为空，使得前后逻辑中的上下文不一致，导致采用的模式不同，分别采用 `legacy`（同步阻塞）模式和 `concurrent`（并发）模式。 而后面的两次更新会触发批量更新，合并为一次。所以，一共会触发两次更新。
 
@@ -5488,12 +5488,12 @@ ReactCurrentBatchConfig.transition = ({}: BatchConfigTransition);
 function updateTransition(): [
   boolean,
   (callback: () => void, options?: StartTransitionOptions) => void,
-] {
+] &#123;
   const [isPending] = updateState(false);
   const hook = updateWorkInProgressHook();
   const start = hook.memoizedState;
   return [isPending, start];
-}
+&#125;
 ~~~
 可以看出，`useTransition` 在更新过程中并没有什么特殊的逻辑，只是调用 `updateState` 去更新 `isPending` 的状态。
 
@@ -5507,20 +5507,20 @@ function updateTransition(): [
 export function startTransition(
   scope: () => void,
   options?: StartTransitionOptions,
-) {
+) &#123;
   const prevTransition = ReactCurrentBatchConfig.transition;
   
   // 设置状态
-  ReactCurrentBatchConfig.transition = ({}: BatchConfigTransition);
+  ReactCurrentBatchConfig.transition = (&#123;&#125;: BatchConfigTransition);
 
-  try {
+  try &#123;
     // 执行更新
     scope();
-  } finally {
+  &#125; finally &#123;
     // 恢复原来的状态
     ReactCurrentBatchConfig.transition = prevTransition;
-  }
-}
+  &#125;
+&#125;
 ~~~
 在 `startTransition` 源码中，我们发现并没有 `isPending` 的逻辑，这是直接导致 `startTransition` 不具备防抖效果的原因。
 
@@ -5542,33 +5542,33 @@ export function startTransition(
 #### 使用示例
 `useDeferredValue` 是趋向于值的维护，当我们存在批量查找的时候，它会是一个好帮手，举个例子：
 ~~~tsx
-import { useState, useDeferredValue } from "react";
-import { Input } from "antd";
+import &#123; useState, useDeferredValue &#125; from "react";
+import &#123; Input &#125; from "antd";
 
-const getList = (key: any) => {
+const getList = (key: any) => &#123;
   const arr = [];
-  for (let i = 0; i < 20000; i++) {
-    if (String(i).includes(key)) {
-      arr.push(<li key={i}>{i}</li>);
-    }
-  }
+  for (let i = 0; i < 20000; i++) &#123;
+    if (String(i).includes(key)) &#123;
+      arr.push(<li key=&#123;i&#125;>&#123;i&#125;</li>);
+    &#125;
+  &#125;
   return arr;
-};
+&#125;;
 
-const Index: React.FC<any> = () => {
+const Index: React.FC&lt;any&gt; = () => &#123;
   const [input, setInput] = useState("");
   const deferredValue = useDeferredValue(input);
 
   return (
     <>
-      <div>寻找2w以内匹配的数据：</div>
-      <Input value={input} onChange={(e: any) => setInput(e.target.value)} />
-      <div>
-        <ul>{deferredValue ? getList(deferredValue) : null}</ul>
+      &lt;div&gt;寻找2w以内匹配的数据：</div>
+      <Input value=&#123;input&#125; onChange=&#123;(e: any) => setInput(e.target.value)&#125; />
+      &lt;div&gt;
+        &lt;ul&gt;表达式(deferredValue 条件判断)</ul>
       </div>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -5579,28 +5579,28 @@ export default Index;
 #### mountDeferredValue（初始化）
 文件位置：`packages/react-reconciler/src/ReactFiberHooks.js`。
 ~~~ts
-function mountDeferredValue<T>(value: T): T {
+function mountDeferredValue&lt;T&gt;(value: T): T &#123;
   const hook = mountWorkInProgressHook();
   hook.memoizedState = value;
   return value;
-}
+&#125;
 ~~~
 `mountDeferredValue` 的功能很简单，只是进行了一个初始化 `hook`，将值保存在 `memoizedState` 中。
 
 #### updateDeferredValue（更新）
 ~~~ts
-function updateDeferredValue<T>(value: T): T {
+function updateDeferredValue&lt;T&gt;(value: T): T &#123;
   const hook = updateWorkInProgressHook();
   const resolvedCurrentHook: Hook = (currentHook: any);
   const prevValue: T = resolvedCurrentHook.memoizedState;
   return updateDeferredValueImpl(hook, prevValue, value);
-}
+&#125;
 
-function updateDeferredValueImpl<T>(hook: Hook, prevValue: T, value: T): T {
+function updateDeferredValueImpl&lt;T&gt;(hook: Hook, prevValue: T, value: T): T &#123;
   const shouldDeferValue = !includesOnlyNonUrgentLanes(renderLanes); // 对比优先级
   
-  if (shouldDeferValue) {
-    if (!is(value, prevValue)) {
+  if (shouldDeferValue) &#123;
+    if (!is(value, prevValue)) &#123;
       // 设置优先级
       currentlyRenderingFiber.lanes = mergeLanes(
         currentlyRenderingFiber.lanes,
@@ -5608,20 +5608,20 @@ function updateDeferredValueImpl<T>(hook: Hook, prevValue: T, value: T): T {
       );
       markSkippedUpdateLanes(deferredLane);
       hook.baseState = true;
-    }
+    &#125;
 
     return prevValue;
-  } else {
+  &#125; else &#123;
     // 如果 baseState 存在，则会触发更新流程
-    if (hook.baseState) {
+    if (hook.baseState) &#123;
       hook.baseState = false;
       markWorkInProgressReceivedUpdate();
-    }
+    &#125;
 
     hook.memoizedState = value;
     return value;
-  }
-}
+  &#125;
+&#125;
 ~~~
 在 `updateDeferredValue` 中，首先拿到上一次记录的值（`prevValue`），然后走向 `updateDeferredValueImpl` 函数。
 
@@ -5668,7 +5668,7 @@ function updateDeferredValueImpl<T>(hook: Hook, prevValue: T, value: T): T {
 ### 具体使用
 首先，在 `react-redux` 中提供了一个名为 `Provider` 的组件，它接收一个 `store`，用于将 `store` 传递给应用程序的所有组件，如：
 ~~~tsx
-<Provider store={store}>
+<Provider store=&#123;store&#125;>
   <View /> // 视图组件
 </Provider>
 ~~~
@@ -5678,16 +5678,16 @@ const store = createStore(reducers);
 
 // reducers 对应 action，多个 action 可用 combineReducers 处理
 // initialState 为默认值
-export default function action(state = initialState, action: any) {
+export default function action(state = initialState, action: any) &#123;
 
   // 通过 type 去判断
-  switch (action.type) {
+  switch (action.type) &#123;
     case xxx:
     ...
     default:
       return state;
-  }
-}
+  &#125;
+&#125;
 ~~~
 之后，我们需要通过 `react-redux` 库中的 `connect` 函数去将组件与 `redux store` 连接起来，去使用即可。
 
@@ -5698,36 +5698,36 @@ export default function action(state = initialState, action: any) {
 // 文件位置：example/ReduxView/view
 
 // Father
-const Index = ({ count, msg, onAdd, onSub }: any) => {
+const Index = (&#123; count, msg, onAdd, onSub &#125;: any) => &#123;
   return (
      ...
   );
-};
+&#125;;
 
 // 第一个用于传递 props， 第二个参数用于传递 action, 如果 第二个参数不传，会把 dispatch 当作 props 传递过去
 export default connect(
-  (state: any) => ({ count: state.count, msg: state.msg }),
-  (dispatch: any) => {
-    return {
-      onAdd: () => dispatch({ type: "add" }),
-      onSub: () => dispatch({ type: "sub" }),
-    };
-  }
+  (state: any) => (&#123; count: state.count, msg: state.msg &#125;),
+  (dispatch: any) => &#123;
+    return &#123;
+      onAdd: () => dispatch(&#123; type: "add" &#125;),
+      onSub: () => dispatch(&#123; type: "sub" &#125;),
+    &#125;;
+  &#125;
 )(Index);
 
 // Clear
-const Index = ({ count, dispatch }: any) => {
+const Index = (&#123; count, dispatch &#125;: any) => &#123;
   return (
       ...
       <Button
-        style={{ marginLeft: 8 }}
-        onClick={() => dispatch({ type: "clear" })}
+        style=&#123;&#123; marginLeft: 8 &#125;&#125;
+        onClick=&#123;() => dispatch(&#123; type: "clear" &#125;)&#125;
       >
         清除
       </Button>
     ... 
   );
-};
+&#125;;
 
 export default connect((state) => state)(Index);
 ~~~
@@ -5757,33 +5757,33 @@ export default connect((state) => state)(Index);
 首先，我利用 `createContext` 来替代 `Provider`，如：
 ~~~tsx
 // createRedux.ts
-import { createContext } from "react";
+import &#123; createContext &#125; from "react";
 const ReduxContext = createContext(null);
 export default ReduxContext;
 
 // index.ts
-const Index = () => {
+const Index = () => &#123;
   const store = useCreateStore(reducers, initialState);
 
   return (
-    <ReduxContext.Provider value={store}>
+    <ReduxContext.Provider value=&#123;store&#125;>
       <View />
     </ReduxContext.Provider>
   );
-};
+&#125;;
 ~~~
 那么，`ReduxContext.Provider` 所接收的 `store` 需要 `useCreateStore` 进行处理即可。我们进行如下设计：
 ~~~ts
 // useCreateStore.ts
-const useCreateStore = (reducer: any, initState: any) => {
-  let store = useRef<any>(null);
+const useCreateStore = (reducer: any, initState: any) => &#123;
+  let store = useRef&lt;any&gt;(null);
 
-  if (!store.current) {
+  if (!store.current) &#123;
     store.current = new ReduxHooksStore(reducer, initState);
-  }
+  &#125;
 
   return store.current;
-};
+&#125;;
 ~~~
 `useCreateStore` 的入参数分为两个：
 - **reducer**： 对应 `createStore` 的 `reducers`，也就是 `action`；
@@ -5805,51 +5805,51 @@ const useCreateStore = (reducer: any, initState: any) => {
 
 在初始化的场景中，我们什么都没处理，所以 `useConnect` 对应的第一个参数 `state` 就应该是 `useCreteStore` 中的 `initState`，所以在 `ReduxHooksStore` 中只需要提供一个初始化方法即可，如：
 ~~~ts
-class ReduxHooksStore {
+class ReduxHooksStore &#123;
   reducer: any;
   state: any;
 
-  constructor(reducer: any, initState: any) {
+  constructor(reducer: any, initState: any) &#123;
     this.reducer = reducer;
     this.state = initState;
-  }
+  &#125;
 
   // 初始化方法
-  getInitState = () => {
+  getInitState = () => &#123;
     return this.state;
-  };
-}
+  &#125;;
+&#125;
 ~~~
 然后，通过 `useContext` 获取到实例方法，用 `useRef` 存储即可。
 ~~~ts
 import ReduxContext from "./createRedux";
 
-const useConnect = () => {
+const useConnect = () => &#123;
   // 获取对应的值
   const contextValue: any = useContext(ReduxContext);
-  const { getInitState } = contextValue;
+  const &#123; getInitState &#125; = contextValue;
 
   const stateValue = useRef(getInitState());
   return [stateValue.current, dispatch];
-};
+&#125;;
 ~~~
 
 ### 定制化入参
 通过上述的处理，我们拿到的 `state` 为全量的数据，要想拿到特定的数据，只需要给 `useConnect` 一个入参即可，让用户手动获取状态。
 ~~~ts
-const useConnect = (mapStoreToState?: (data: any) => void) => {
+const useConnect = (mapStoreToState?: (data: any) => void) => &#123;
   ...
   const stateValue = useRef(getInitState(mapStoreToState));
   ...
-};
+&#125;;
 
 // useCreateStore.ts
-class ReduxHooksStore{
+class ReduxHooksStore&#123;
   ...
-  getInitState = (mapStoreToState?: (data: any) => void) => {
+  getInitState = (mapStoreToState?: (data: any) => void) => &#123;
     return mapStoreToState ? mapStoreToState(this.state) : this.state;
-  };
-}
+  &#125;;
+&#125;
 ~~~
 此时，`useConnect` 就支持以下两种方式：
 ~~~ts
@@ -5857,7 +5857,7 @@ class ReduxHooksStore{
 const [state, dispatch] = useConnect();
 
 //  定制化
-const [state, dispatch] = useConnect((data) => ({ count: data.count }));
+const [state, dispatch] = useConnect((data) => (&#123; count: data.count &#125;));
 ~~~
 
 ### 更新场景
@@ -5870,64 +5870,64 @@ const [state, dispatch] = useConnect((data) => ({ count: data.count }));
 #### 统计组件
 统计组件的个数，我们通过一个对象去存储，然后保持每个存储的组件唯一即可，所以我们在 `ReduxHooksStore` 设置 `components_connect`，然后比较旧值（`oldState`）与新值（`newState`）是否 相等（用 `id` 区分组件）， 来帮助我们实现功能。
 ~~~ts
-class ReduxHooksStore {
+class ReduxHooksStore &#123;
   id: number;
   components_connect: any;
 
   // 注册
-  subscribe = (connectCurrent: any) => {
+  subscribe = (connectCurrent: any) => &#123;
     const connectName = `domesy_redux_` + ++this.id;
     this.components_connect[connectName] = connectCurrent;
     return connectName;
-  };
+  &#125;;
 
   // 卸载
-  unSubscribe = (connectName: any) => {
+  unSubscribe = (connectName: any) => &#123;
     delete this.components_connect[connectName];
-  };
-}
+  &#125;;
+&#125;
 ~~~
 在 `subscribe` 中接收一个参数 `connectCurrent`，`connectCurrent` 是保存信息，同时我们返回对应的组件名称，方便后续的卸载即可。
 
 当使用 `useConnect` 的时候触发注册，所以触发的条件为保存的值 `connectValue`，而 `connectValue` 的变化取决于 `contextValue(useContext(ReduxContext))`，这里我们直接使用 `useCreation` 即可。
 ~~~ts
-const useConnect = () => {
+const useConnect = () => &#123;
   ...
-  const connectValue = useCreation(() => {
-    const state = {
+  const connectValue = useCreation(() => &#123;
+    const state = &#123;
       oldState: stateValue.current,
       mapStoreToState,
       /* 更新函数 */
-      update: (newState: any) => {
+      update: (newState: any) => &#123;
         state.oldState = newState;
         stateValue.current = newState;
-      },
-    };
+      &#125;,
+    &#125;;
     return state;
-  }, [contextValue]); // 将 contextValue 作为依赖项。
+  &#125;, [contextValue]); // 将 contextValue 作为依赖项。
 
-  useEffect(() => {
+  useEffect(() => &#123;
     const name = subscribe(connectValue);
-    return function () {
+    return function () &#123;
       // 卸载
       unSubscribe(name);
-    };
-  }, [connectValue]);
+    &#125;;
+  &#125;, [connectValue]);
 
   ...
-};
+&#125;;
 ~~~
 关于保存的数据，我们需要一个旧值（`oldState`），以及更新函数（`update`），而 `mapStoreToState` 则是针对定制化入参的兼容处理。
 
 #### 更新组件
 当我们统计完组件的个数时，我们只需要触发 `dispatch` 时，去遍历 `components_connect`，然后比较旧值（`oldState`）与新值（`newState`）是否发生改变即可，如果发生改变，则触发对应的 `update` 方法，刷新视图即可。
 ~~~ts
-dispatch = (action: any) => {
+dispatch = (action: any) => &#123;
   this.state = this.reducer(this.state, action);
 
   /* 批量更新 */
-  Object.keys(this.components_connect).forEach((name) => {
-    const { update, oldState, mapStoreToState } =
+  Object.keys(this.components_connect).forEach((name) => &#123;
+    const &#123; update, oldState, mapStoreToState &#125; =
       this.components_connect[name];
     const newState = mapStoreToState
       ? mapStoreToState(this.state)
@@ -5935,32 +5935,32 @@ dispatch = (action: any) => {
 
     // 如果不一致，则触发更新函数
     if (!shallowEqual(oldState, newState)) update(newState);
-  });
-};
+  &#125;);
+&#125;;
 ~~~
 最后，我们在 `update` 的方法使用 `useUpdate` 即可。
 ~~~ts
-const useConnect = () => {
+const useConnect = () => &#123;
   ...
-  const {  dispatch } = contextValue;
+  const &#123;  dispatch &#125; = contextValue;
   
   const update = useUpdate();
 
-  const connectValue = useCreation(() => {
-    const state = {
+  const connectValue = useCreation(() => &#123;
+    const state = &#123;
       ...
-      update: (newState: any) => {
+      update: (newState: any) => &#123;
         ...
         // 更新
         update();
-      },
-    };
+      &#125;,
+    &#125;;
     return state;
-  }, [contextValue]); // 将 contextValue 作为依赖项。
+  &#125;, [contextValue]); // 将 contextValue 作为依赖项。
 
   ...
   return [stateValue.current, dispatch];
-};
+&#125;;
 ~~~
 
 ### 扩展：批量更新
@@ -5987,13 +5987,13 @@ const useConnect = () => {
 在设计之前，我们以 `Ant Design` 中的 `Form` 为例，来看看一个基本的表单长什么样，又具备什么样的功能（文件位置：`example/AntDForm`）：
 ~~~tsx
 <Form
-  initialValues={{ book: "玩转 React Hooks" }}
-  onFinish={(data: any) => {
+  initialValues=&#123;&#123; book: "玩转 React Hooks" &#125;&#125;
+  onFinish=&#123;(data: any) => &#123;
     console.log("表单数据:", data);
-  }}
-  onReset={() => {
+  &#125;&#125;
+  onReset=&#123;() => &#123;
     console.log("重制表单成功");
-  }}
+  &#125;&#125;
 >
   <Form.Item label="小册名称" name="book">
     <Input placeholder="请输入小册名称" />
@@ -6003,11 +6003,11 @@ const useConnect = () => {
     <Input placeholder="请输入作者" />
   </Form.Item>
 
-  <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+  <Form.Item wrapperCol=&#123;&#123; offset: 8, span: 16 &#125;&#125;>
     <Button type="primary" htmlType="submit">
       提交
     </Button>
-    <Button style={{ marginLeft: 4 }} htmlType="reset">
+    <Button style=&#123;&#123; marginLeft: 4 &#125;&#125; htmlType="reset">
       重制
     </Button>
   </Form.Item>
@@ -6028,36 +6028,36 @@ const useConnect = () => {
 经过上面的示例，我们需要创建 `Form` 和 `Form.Item` 组件作为容器，表单控件需要通过包裹的形式（`children` 属性）进行展示。
 ~~~tsx
 // Form
-<form> // 满足原生的 form 表单
-  {children} // 包裹 Form.Item
+&lt;form&gt; // 满足原生的 form 表单
+  &#123;children&#125; // 包裹 Form.Item
 </form>
 
 // Form.Item
-<Layout>   // 布局组件
-  {children}  // 包裹表单控件
+&lt;Layout&gt;   // 布局组件
+  &#123;children&#125;  // 包裹表单控件
 </Layout>
 ~~~
 其中，`Layout` 组件属于布局组件，可控制表单的样式。为了让后续的效果更加好看，我们在这里简单处理下，可通过 `Col` 和 `Row` 进行宽度的设置，如：
 ~~~tsx
 // Layout
-import { Col, Row } from "antd";
+import &#123; Col, Row &#125; from "antd";
 
-const Index = ({ children, label }: any) => {
+const Index = (&#123; children, label &#125;: any) => &#123;
   return (
     <>
-      <Row gutter={8}>
+      <Row gutter=&#123;8&#125;>
         <Col
-          span={4}
-          style={{ textAlign: "right", lineHeight: "32px", fontSize: 14 }}
+          span=&#123;4&#125;
+          style=&#123;&#123; textAlign: "right", lineHeight: "32px", fontSize: 14 &#125;&#125;
         >
-          {label ? label + "：" : ""}
+          表达式(label 条件判断)
         </Col>
-        <Col span={9}> {children}</Col>
+        <Col span=&#123;9&#125;> &#123;children&#125;</Col>
       </Row>
-      <div style={{ height: 12 }}></div>
+      <div style=&#123;&#123; height: 12 &#125;&#125;></div>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -6066,30 +6066,30 @@ export default Index;
 提示语也是表单常见的功能之一，也相对简单，只需要通过 `tooltip` 字段控制配合即可，如：
 ~~~tsx
 // Layout
-import { Col, Row } from "antd";
+import &#123; Col, Row &#125; from "antd";
 
-const Index = ({ children, label }: any) => {
+const Index = (&#123; children, label &#125;: any) => &#123;
   return (
     <>
-      <Row gutter={8}>
+      <Row gutter=&#123;8&#125;>
          <Col
-          span={4}
-          style={{ textAlign: "right", lineHeight: "32px", fontSize: 14 }}
+          span=&#123;4&#125;
+          style=&#123;&#123; textAlign: "right", lineHeight: "32px", fontSize: 14 &#125;&#125;
         >
-          {label || ""}
-          {tooltip && (
-            <Tooltip title={tooltip}>
-              <QuestionCircleOutlined style={{ margin: "0 3px" }} />
+          &#123;label || ""&#125;
+          &#123;tooltip && (
+            <Tooltip title=&#123;tooltip&#125;>
+              <QuestionCircleOutlined style=&#123;&#123; margin: "0 3px" &#125;&#125; />
             </Tooltip>
-          )}
-          {label && "："}
+          )&#125;
+          &#123;label && "："&#125;
         </Col>
-        <Col span={9}> {children}</Col>
+        <Col span=&#123;9&#125;> &#123;children&#125;</Col>
       </Row>
-      <div style={{ height: 12 }}></div>
+      <div style=&#123;&#123; height: 12 &#125;&#125;></div>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -6103,20 +6103,20 @@ export default Index;
 
 因此，我们通过 `useForm` （自定义 `Hooks`）来集中管理表单的数据，通过对应的实例，暴露对应的方法，在 `Form`、`FormItem` 组件中传递数据，更好地帮助管理表单。 如：
 ~~~ts
-import { useRef } from "react";
-import { FormInstance, DataProps } from "./interface.d";
+import &#123; useRef &#125; from "react";
+import &#123; FormInstance, DataProps &#125; from "./interface.d";
 import FormStore from "./FormStore";
 
-const useForm = () => {
+const useForm = () => &#123;
   const formRef = useRef<FormInstance | null>();
 
-  if (!formRef.current) {
+  if (!formRef.current) &#123;
     // 创建一个实例，帮我们获取对应的方法
     formRef.current = new FormStore().getDetail();
-  }
+  &#125;
 
   return [formRef.current];
-};
+&#125;;
 
 export default useForm;
 ~~~
@@ -6130,7 +6130,7 @@ export default useForm;
 
 那么，如何在不改变结构的情况下，还能使组件受控，就变成了一个有趣的点，我们先来看看通常情况下如何让组件受控：
 ~~~tsx
-<Input value={value} onChange={(e) => setValue(e.target.value)} />
+<Input value=&#123;value&#125; onChange=&#123;(e) => setValue(e.target.value)&#125; />
 ~~~
 在通常情况下，`Input` 受控，需要 `value` 和 `onChange` 属性的帮助，但在表单的场景中，并不需要通过 `value` 和 `onChange` 进行控制，主要原因有以下两点：
 - 操作麻烦，不能确定具体表单控件的个数，如果每个控件都需要配置，比较麻烦。
@@ -6150,17 +6150,17 @@ export default useForm;
 ~~~tsx
 import React from "react";
 
-const Index: React.FC = () => {
+const Index: React.FC = () => &#123;
   const children = React.cloneElement(
-    <div>大家好，我是小杜杜，一起玩转Hooks吧！</div>,
-    {
+    &lt;div&gt;大家好，我是小杜杜，一起玩转Hooks吧！</div>,
+    &#123;
       book: "玩转 React Hooks",
-    }
+    &#125;
   );
 
   console.log(children);
-  return <>{children}</>;
-};
+  return <>&#123;children&#125;</>;
+&#125;;
 
 export default Index;
 ~~~
@@ -6183,42 +6183,42 @@ const children = (
 
 单节点的本质是 `React` 元素，所以我们可以借助 `React.isValidElement` 来帮助我们判别下是否属于有效的 `React` 元素，如果是，则对其受控，如果不是，则不处理。如：
 ~~~ts
-const FormItem = (props: any) => {
-  const { name, children } = props;
+const FormItem = (props: any) => &#123;
+  const &#123; name, children &#125; = props;
   const update = useUpdate();
   
   const contextValue = useContext(FormContext);
-  const { getFieldValue, dispatch, registerField, unRegisterField } = contextValue;
+  const &#123; getFieldValue, dispatch, registerField, unRegisterField &#125; = contextValue;
   
   let childrenPro;
 
   // 利用 isValidElement 来判断传递的数据是否是 React.ReactElement. 注意他可以判断多节点的情况，和无值的情况
-  if (isValidElement(children) && name) {
+  if (isValidElement(children) && name) &#123;
     
     // 利用 cloneElement 给传递的组件加入 value 和 onChange 属性，剥离出对应的方法
-    childrenPro = cloneElement(children as React.ReactElement, {
+    childrenPro = cloneElement(children as React.ReactElement, &#123;
       value: getFieldValue(name),
-      onChange: (v: any) => {
-        let payload: any = {};
+      onChange: (v: any) => &#123;
+        let payload: any = &#123;&#125;;
         payload[name] = v.target.value;
 
         // 更新 store 中的值
-        dispatch({
+        dispatch(&#123;
           type: "updateValue",
           name
           ,
           value: v.target?.value,
-        });
+        &#125;);
 
         update(); // 触发更新
-      },
-    });
-  } else {
+      &#125;,
+    &#125;);
+  &#125; else &#123;
     childrenPro = children;
-  }
+  &#125;
 
-  return <Layout {...props}>{childrenPro}</Layout>;
-};
+  return <Layout &#123;...props&#125;>&#123;childrenPro&#125;</Layout>;
+&#125;;
 ~~~
 在 `cloneElement` 中，共涉及三个部分，分别是：
 1. **getFieldValue**： 获取对应表单的 `value`；
@@ -6228,40 +6228,40 @@ const FormItem = (props: any) => {
 #### 值的获取和更新
 当学习完 `cloneElement` 和 `isValidElement` 后，值的获取和更新就变得非常简单，只要简单处理下 `useForm` 的核心：`FormStore` 即可。如：
 ~~~ts
-class FormStore {
-  store: DataProps = {}; // 管理表单的整体数据
+class FormStore &#123;
+  store: DataProps = &#123;&#125;; // 管理表单的整体数据
 
   // 用于暴露方法
-  public getDetail = (): FormInstance => ({
+  public getDetail = (): FormInstance => (&#123;
     getFieldValue: this.getFieldValue,
     dispatch: this.dispatch,
-  });
+  &#125;);
 
   // 获取对应的值
-  getFieldValue = (name: NameProps) => {
+  getFieldValue = (name: NameProps) => &#123;
     return this.store[name];
-  };
+  &#125;;
 
   // 触发更新
-  dispatch = (action: ReducerAction) => {
-    switch (action.type) {
-      case "updateValue": {
-        const { name, value } = action;
+  dispatch = (action: ReducerAction) => &#123;
+    switch (action.type) &#123;
+      case "updateValue": &#123;
+        const &#123; name, value &#125; = action;
         this.updateValue(name, value);
         break;
-      }
+      &#125;
       default:
-    }
-  };
+    &#125;
+  &#125;;
 
   // 更新
-  updateValue = (name: NameProps, value: any) => {
-    this.store = {
+  updateValue = (name: NameProps, value: any) => &#123;
+    this.store = &#123;
       ...this.store,
       [name]: value
-    };
-  };
-}
+    &#125;;
+  &#125;;
+&#125;
 ~~~
 只需要一个 `store` 变量去整体维护表单的值即可。
 
@@ -6275,67 +6275,67 @@ class FormStore {
 然后，当值发生改变后，判断对应的表单控件进行控制，执行更新方法，使视图发生改变。如：  
 ~~~ts
 // Form.Item
-const FormItem = (props: any) => {
+const FormItem = (props: any) => &#123;
   const contextValue = useContext(FormContext);
-  const { getFieldValue, dispatch, registerField, unRegisterField } =
+  const &#123; getFieldValue, dispatch, registerField, unRegisterField &#125; =
     contextValue;
 
   // 优化
-  const updateChange = useCreation(() => {
-    return {
+  const updateChange = useCreation(() => &#123;
+    return &#123;
       updateValue: () => update(),
-    };
-  }, [contextValue]);
+    &#125;;
+  &#125;, [contextValue]);
 
-  useEffect(() => {
+  useEffect(() => &#123;
     // 注册
     name && registerField(name, updateChange);
-    return () => {
+    return () => &#123;
       //卸载
       name && unRegisterField(name);
-    };
-  }, [updateChange]);
+    &#125;;
+  &#125;, [updateChange]);
   
   ...
-}
+&#125;
 
 // FormStore
-class FormStore {
-  update_store: DataProps = {}; // 保存更新的对象
+class FormStore &#123;
+  update_store: DataProps = &#123;&#125;; // 保存更新的对象
   
   // 用于暴露方法
-  public getDetail = (): FormInstance => ({
+  public getDetail = (): FormInstance => (&#123;
     unRegisterField: this.unRegisterField,
     registerField: this.registerField,
     ...
-  });
+  &#125;);
   
     // 注册表单方法
-  registerField = (name: NameProps, updateChange: DataProps) => {
+  registerField = (name: NameProps, updateChange: DataProps) => &#123;
     this.update_store[name] = updateChange;
-  };
+  &#125;;
 
   // 卸载表单方法
-  unRegisterField = (name: NameProps) => {
+  unRegisterField = (name: NameProps) => &#123;
     delete this.update_store[name];
-  };
+  &#125;;
   
     // 更新
-  updateValue = (name: NameProps, value: any) => {
-    this.store = {
+  updateValue = (name: NameProps, value: any) => &#123;
+    this.store = &#123;
       ...this.store,
       [name]: value,
-    };
+    &#125;;
 
     this.updateStoreField(name);
-  };
+  &#125;;
 
   // 更新对应的表单
-  updateStoreField = (name: NameProps) => {
+  updateStoreField = (name: NameProps) => &#123;
     const update = this.update_store[name];
     if (update) update?.updateValue();
-  };
-}
+  &#125;;
+&#125;
 ~~~
 
 ### 表单的基本操作
@@ -6351,88 +6351,88 @@ class FormStore {
 const [formRef] = useForm(initialValues);
 
 // useForm
-const useForm = (initialValues: DataProps) => {
+const useForm = (initialValues: DataProps) => &#123;
   ...
-  if (!formRef.current) {
+  if (!formRef.current) &#123;
     formRef.current = new FormStore(initialValues).getDetail();
-  }
+  &#125;
   ...
-};
+&#125;;
 
 // FormStore
-class FormStore {
+class FormStore &#123;
   ...
-  initialValues: DataProps = {}; // 保存初始值
+  initialValues: DataProps = &#123;&#125;; // 保存初始值
 
-  constructor(initialValues: DataProps) {
+  constructor(initialValues: DataProps) &#123;
     this.store = initialValues;
     this.initialValues = initialValues;
-  }
+  &#125;
   ...
-}
+&#125;
 ~~~
 #### 提交、重置
 跟刷新的逻辑一样，我们希望 `useForm` 去统一管理表单的提交和重置，将 `onFinish` 和 `onReset` 通过 `setConfigWays` 保留到 `FormStore` 的 `configWays` 中，然后再提交和重置的时候进行调用即可。如：
 ~~~tsx
 // Form
-const Index = (props: FormProps) => {
+const Index = (props: FormProps) => &#123;
   ...
-  formRef.setConfigWays({
+  formRef.setConfigWays(&#123;
     onFinish,
     onReset,
-  });
+  &#125;);
 
   return (
     <form
-      {...payload}
-      onSubmit={(e) => {
+      &#123;...payload&#125;
+      onSubmit=&#123;(e) => &#123;
         // 阻止默认事件
         e.preventDefault();
         e.stopPropagation();
         formRef.submit();
-      }}
-      onReset={(e) => {
+      &#125;&#125;
+      onReset=&#123;(e) => &#123;
         e.preventDefault();
         e.stopPropagation();
         formRef.resetFields(); /* 重置表单 */
-      }}
+      &#125;&#125;
     >
-      <FormContext.Provider value={formRef}>{children}</FormContext.Provider>
+      <FormContext.Provider value=&#123;formRef&#125;>&#123;children&#125;</FormContext.Provider>
     </form>
   );
-};
+&#125;;
 
 // FormStore
-class FormStore {
+class FormStore &#123;
    ...
-   configWays: ConfigWayProps = {}; // 收录对应的方法集合
+   configWays: ConfigWayProps = &#123;&#125;; // 收录对应的方法集合
    ...
     
   // 设置方法区间
-  setConfigWays = (configWays: ConfigWayProps) => {
+  setConfigWays = (configWays: ConfigWayProps) => &#123;
     this.configWays = configWays;
-  };
+  &#125;;
 
   // 用于表单提交
-  submit = () => {
-    const { onFinish } = this.configWays;
+  submit = () => &#123;
+    const &#123; onFinish &#125; = this.configWays;
 
     onFinish && onFinish(this.store);
-  };
+  &#125;;
 
   // 重置表单
-  resetFields = () => {
-    const { onReset } = this.configWays;
-    Object.keys(this.store).forEach((key) => {
+  resetFields = () => &#123;
+    const &#123; onReset &#125; = this.configWays;
+    Object.keys(this.store).forEach((key) => &#123;
       // 重置表单的时候，如果有初始值，就用初始值，没有就删除
       this.initialValues[key]
         ? (this.store[key] = this.initialValues[key])
         : delete this.store[key];
       this.updateStoreField(key);
-    });
+    &#125;);
     onReset && onReset();
-  };
-}
+  &#125;;
+&#125;
 ~~~
 这样，一个基本的表单组件就完成了
 
@@ -6461,47 +6461,47 @@ getFieldValidate | 获取表单的验证 | 用于检测表单控件的值成功�
 表单校验是表单组件中最常见、最核心的功能之一，对整个数据流向有着至关重要的作用。在此之前，我们先来看看 `Ant Design` 中的表单验证：
 ~~~tsx
 // AntDForm
-const Index: React.FC = () => {
+const Index: React.FC = () => &#123;
   return (
     <>
      
       <Form
         ...
-        onFinish={(data: any) => {
+        onFinish=&#123;(data: any) => &#123;
           console.log("表单数据:", data);
-        }}
-        onFinishFailed={(errorInfo: any) => {
+        &#125;&#125;
+        onFinishFailed=&#123;(errorInfo: any) => &#123;
           console.log("Failed:", errorInfo);
-        }}
+        &#125;&#125;
       >
         ...
         <Form.Item
           label="必填"
           name="rules"
-          rules={[{ required: true, message: "请输入规则" }]}
+          rules=&#123;[&#123; required: true, message: "请输入规则" &#125;]&#125;
         >
           <Input placeholder="请输入作者" />
         </Form.Item>
 
         <Form.Item
-          rules={[{ required: true, message: "请输入必填" }]}
+          rules=&#123;[&#123; required: true, message: "请输入必填" &#125;]&#125;
           label="选择框必填"
           name="select"
         >
           <Select
-            style={{ width: 120 }}
+            style=&#123;&#123; width: 120 &#125;&#125;
             allowClear
-            options={[
-              { value: "React", label: "React" },
-              { value: "Vue", label: "Vue" },
-              { value: "Hooks", label: "Hooks" },
-            ]}
+            options=&#123;[
+              &#123; value: "React", label: "React" &#125;,
+              &#123; value: "Vue", label: "Vue" &#125;,
+              &#123; value: "Hooks", label: "Hooks" &#125;,
+            ]&#125;
           />
         </Form.Item>
         ...
     </>
   );
-};
+&#125;;
 ~~~
 我们发现校验的场景共有三处，分别是：
 - **表单提交**。 点击提交按钮，对所有表单控件进行校验，校验失败后，框的状态变红，下方出现提示语，触发 `onFinishFailed`，而不会触发 `onFinish` 事件。
@@ -6515,34 +6515,34 @@ const Index: React.FC = () => {
 
 再来看看校验的规则（`rules`）格式：
 ~~~ts
-rules=[{ required: true, message: "请输入规则" }]
+rules=[&#123; required: true, message: "请输入规则" &#125;]
 ~~~
 显然，`rules` 的结构是数组，`required` 是必填字段，`message` 是错误信息字段，除了必填字段之外，还具备正则校验、自定义校验等。
 
 那么，我们可以这样定义 `rules` 的字段：
 ~~~ts
-rules => validateRuleProps = {
+rules => validateRuleProps = &#123;
   required?: boolean => 是否必填
   message?: string => 错误提示的提示语
   rule?: RegExp | ((value: any) => boolean) => 正则、自定以校验
-}
+&#125;
 ~~~
 其中，必填字段与其他校验有所不同，因为 `required` 需要控制 `label` 前面的样式 `*`，并且与其他规则是**共存**的关系，所以必填应该与其他校验分开来存储。
 
 在 `FormStore` 中的校验结构：
 ~~~ts
-validateRule = {
-    [name] => validateRule = {
+validateRule = &#123;
+    [name] => validateRule = &#123;
        required: boolean  => 是否必填
        requiredMessage?: string => 必填错误的提示语
        message: string => 具体的错误提示语
        status: pen ｜ res ｜ rej => 状态控制
-       rules: rulesProps => 规则数据 => {
+       rules: rulesProps => 规则数据 => &#123;
            rule: RegExp | ((value: any) => boolean) => 正则、自定义校验
            message：string => 对应的校验提示语
-       }
-    }
-}
+       &#125;
+    &#125;
+&#125;
 ~~~
 - `validateRule`：校验表单的规则结构；
 - `name`：`Form.Item` 中的 `name`，每个 `Form.Item` 中的 `name` 应该是唯一值；
@@ -6559,50 +6559,50 @@ validateRule = {
 **注册：**
 ~~~ts
 // formItem
-const FormItem = (props: FormItemProps) => {
+const FormItem = (props: FormItemProps) => &#123;
   ...
-  const updateChange: updateProps = useCreation(() => {
-    return {
-      message: props?.message || `请填写${props?.label}字段`,
+  const updateChange: updateProps = useCreation(() => &#123;
+    return &#123;
+      message: props?.message || `请填写$&#123;props?.label&#125;字段`,
       required: props?.required,
       rules: props?.rules,
       updateValue: () => update(),
-    };
-  }, [contextValue, name]);
+    &#125;;
+  &#125;, [contextValue, name]);
 
-  useEffect(() => {
+  useEffect(() => &#123;
     // 注册
     name && registerField(name, updateChange);
-    return () => {
+    return () => &#123;
       //卸载
       name && unRegisterField(name);
-    };
-  }, [updateChange]);
+    &#125;;
+  &#125;, [updateChange]);
   
   ...
-}
+&#125;
 ~~~
 在必填校验中，具备两种状态，分别是 `required` 和 `rules` 中的 `required`， 所以在 `updateChange` 设置 `rules`、`required`、`message` 三个字段。
 
 **创建一个验证模块：**
 ~~~ts
 // FormStore
-class FormStore {
+class FormStore &#123;
   ...
-  validateRule: validateRule = {}; // 校验表单的规则
+  validateRule: validateRule = &#123;&#125;; // 校验表单的规则
   
   // 注册表单方法
-  registerField = (name: NameProps, updateChange: updateProps) => {
+  registerField = (name: NameProps, updateChange: updateProps) => &#123;
     ...
     this.validateRule[name] = this.createValidate(name, updateChange);
-  };
+  &#125;;
 
   // 创建一个验证模块
   createValidate(
     name: NameProps,
     updateChange: updateProps
-  ): validateRuleListProps | null {
-    const { rules = [], required = false, message = "" } = updateChange;
+  ): validateRuleListProps | null &#123;
+    const &#123; rules = [], required = false, message = "" &#125; = updateChange;
     if (rules.length === 0 && !required) return null;
 
     // 抽离出必填项
@@ -6611,17 +6611,17 @@ class FormStore {
     // 如果存在必填则更新对应表单
     if (requiredFlag) this.updateStoreField(name);
 
-    return {
+    return &#123;
       message,
       requiredMessage: message,
       required: requiredFlag || false,
       status: "pen", // 设置为等待状态
       rules: rules.filter((v) => v?.rule), // 过滤掉有required的项
-    };
-  }
+    &#125;;
+  &#125;
   
   ...
-}
+&#125;
 ~~~
 在验证模块中，`rules` 和 `required` 不存在时，则直接赋予 `null`。如果存在，抽离出必填项，然后将其赋予到 `validateRule` 中。
 ::: tip
@@ -6632,17 +6632,17 @@ class FormStore {
 
 卸载表单控件后，同时卸载对应的规则。
 ~~~ts
-class FormStore {
+class FormStore &#123;
   ...
   
   // 卸载表单方法
-  unRegisterField = (name: NameProps) => {
+  unRegisterField = (name: NameProps) => &#123;
     ...
     delete this.validateRule[name];
-  };
+  &#125;;
   
   ...
-}
+&#125;
 ~~~
 
 ### 提交校验
@@ -6651,52 +6651,52 @@ class FormStore {
 **验证表单：**
 ~~~ts
 // FormStore
-class FormStore {
+class FormStore &#123;
   ...
   // 用于表单提交
-  submit = () => {
+  submit = () => &#123;
     const status = this.validateField();
-    const { onFinish } = this.configWays;
+    const &#123; onFinish &#125; = this.configWays;
     
     status && onFinish && onFinish(this.store);
-  };
+  &#125;;
   
   // 用于集中表单验证
-  validateField = () => {
+  validateField = () => &#123;
     let flag = true;
-    Object.keys(this.validateRule).forEach((name) => {
+    Object.keys(this.validateRule).forEach((name) => &#123;
       const status = this.validateFieldValue(name);
       if (status === "rej") flag = false;
-    });
+    &#125;);
     return flag;
-  };
+  &#125;;
   
   // 用于单个验证表单
-  validateFieldValue = (name: NameProps) => {
+  validateFieldValue = (name: NameProps) => &#123;
     const data = this.validateRule[name];
     if (!data) return null;
     const value = this.store[name];
     const last_status = data.status;
     const last_message = data.message;
     let status: validateStatusProps = "res";
-    if (data.required && !value) {
+    if (data.required && !value) &#123;
       status = "rej";
       data.message = data?.requiredMessage || "";
-    }
+    &#125;
 
-    data.rules.map((v) => {
-      if (status !== "rej" && value && v.rule) {
-        if (v.rule instanceof RegExp && !v.rule.test(value)) {
+    data.rules.map((v) => &#123;
+      if (status !== "rej" && value && v.rule) &#123;
+        if (v.rule instanceof RegExp && !v.rule.test(value)) &#123;
           status = "rej";
           data.message = v?.message || "";
-        }
+        &#125;
 
-        if (typeof v.rule === "function" && !v.rule(value)) {
+        if (typeof v.rule === "function" && !v.rule(value)) &#123;
           status = "rej";
           data.message = v?.message || "";
-        }
-      }
-    });
+        &#125;
+      &#125;
+    &#125;);
 
     // 如果状态或错误提示不一致，则进行更新
     if (last_status !== status || last_message !== data.message)
@@ -6704,8 +6704,8 @@ class FormStore {
 
     data.status = status;
     return status;
-  };
-}
+  &#125;;
+&#125;
 ~~~
 - **this.validateField()**： 集中校验表单控件，如果返回的状态为 `true`，则校验成功，触发 `onFinish`。
 - **this.validateFieldValue()**： 校验单个表单控件，如果校验失败，`status` 的状态为 `rej`。其中规则校验分为必填、正则、自定义校验三种，`message` 则是对应规则的 `message`。
@@ -6721,36 +6721,36 @@ class FormStore {
 **Promise 异步校验：**
 ~~~ts
 //FormStore
-class FormStore {
+class FormStore &#123;
   ...
   validateQueue: any[] = []; // 校验队列
   
   ...
   // 用于单个验证表单
-  validateFieldValue = (name: NameProps) => {
+  validateFieldValue = (name: NameProps) => &#123;
     ...
   
     // 如果状态或错误提示不一致，则进行更新
-    if (last_status !== status || last_message !== data.message) {
+    if (last_status !== status || last_message !== data.message) &#123;
       const validateUpdate = this.updateStoreField.bind(this, name);
       this.validateQueue.push(validateUpdate);
-    }
+    &#125;
 
     this.promiseValidate();
     ...
-  };
+  &#125;;
 
   // 异步校验队列
-  promiseValidate = () => {
+  promiseValidate = () => &#123;
     if (this.validateQueue.length === 0) return null;
-    Promise.resolve().then(() => {
-      do {
+    Promise.resolve().then(() => &#123;
+      do &#123;
         let validateUpdate = this.validateQueue.shift();
         validateUpdate && validateUpdate(); /* 触发更新 */
-      } while (this.validateQueue.length > 0);
-    });
-  };
-}
+      &#125; while (this.validateQueue.length > 0);
+    &#125;);
+  &#125;;
+&#125;
 ~~~
 其中，`validateQueue` 是校验队列，如果 `validateQueue` 为空，则不进行校验，否则通过 `Promise` 来触发校验。
 
@@ -6760,64 +6760,64 @@ class FormStore {
 **获取表单的验证值：**
 ~~~ts
 // FormStore
-class FormStore {
+class FormStore &#123;
   ..
 
   // 用于暴露方法
-  public getDetail = (): FormInstance => ({
+  public getDetail = (): FormInstance => (&#123;
     ...
     getFieldValidate: this.getFieldValidate,
-  });
+  &#125;);
   
   // 获取表单的验证值
-  getFieldValidate = (name: NameProps) => {
+  getFieldValidate = (name: NameProps) => &#123;
     return this.validateRule[name];
-  };
+  &#125;;
   
   ....
-}
+&#125;
 ~~~
 **红框效果：**
 ~~~tsx
 // formItem
-const FormItem = (props: FormItemProps) => {
-    const { getFieldValidate } = contextValue;
+const FormItem = (props: FormItemProps) => &#123;
+    const &#123; getFieldValidate &#125; = contextValue;
     ...
-    if (isValidElement(children) && name) {
-      childrenPro = cloneElement(children as React.ReactElement, {
+    if (isValidElement(children) && name) &#123;
+      childrenPro = cloneElement(children as React.ReactElement, &#123;
         ...
         status: getFieldValidate(name)?.status === "rej" ? "error" : undefined,
-        });
-    }
+        &#125;);
+    &#125;
     return (
-      <Layout {...props} {...getFieldValidate(name)}>
-        {childrenPro}
+      <Layout &#123;...props&#125; &#123;...getFieldValidate(name)&#125;>
+        &#123;childrenPro&#125;
       </Layout>
     );
-}
+&#125;
 ~~~
 **提示语：**
 ~~~tsx
 // Layout
-const Index = ({ children, status, message }) => {
-    const classRule = useCss({
+const Index = (&#123; children, status, message &#125;) => &#123;
+    const classRule = useCss(&#123;
       color: "red",
       fontSize: 12,
       lineHeight: "22px",
       padding: "0 6px",
-    });
+    &#125;);
     
     return (
   <>
-    <Row gutter={8}>
+    <Row gutter=&#123;8&#125;>
       ...
-      <Col span={9}>
-        <div>{children}</div>
-        {status === "rej" && <div className={classRule}>{message}</div>}
+      <Col span=&#123;9&#125;>
+        &lt;div&gt;&#123;children&#125;</div>
+        &#123;status === "rej" && <div className=&#123;classRule&#125;>&#123;message&#125;</div>&#125;
       </Col>
     </Row>
   </>
-}
+&#125;
 ~~~
 ::: tip
 其中，第一个和第二个是必填的两种模式，第三个的规则是正则，第四个的规则是自定义校验，第五个是：必填 + 正则 + 自定义。
@@ -6827,103 +6827,103 @@ const Index = ({ children, status, message }) => {
 更新的逻辑是在表单控件的**值**改变时触发，所以我们直接在 `FormItem` 中 `onChange` 触发校验即可。
 ~~~ts
 // FormItem
-dispatch({
+dispatch(&#123;
   type: "validateField",
   name,
-});
+&#125;);
 
 // FormStore
-class FormStore {
+class FormStore &#123;
   ...
-  dispatch = (action: ReducerAction) => {
-    switch (action.type) {
+  dispatch = (action: ReducerAction) => &#123;
+    switch (action.type) &#123;
       ...
       // 触发检验
-      case "validateField": {
-        const { name } = action;
+      case "validateField": &#123;
+        const &#123; name &#125; = action;
         this.validateFieldValue(name); // 触发单个更新
         break;
-      }
+      &#125;
       default:
-    }
-  };
-}
+    &#125;
+  &#125;;
+&#125;
 ~~~
 
 ### 表单控件元素
 这里演示的表单控件是 `Input`， 但不同的表单控件 `onChange` 的返回可能不同，所以我们只需要将值处理后给 `value` 即可（这里多加入 `Select` ）。
 ~~~ts
 // formItem
-onChange: (v: any) => {
+onChange: (v: any) => &#123;
   // 判断属于那种控件
   const value = v?.target?.localName === "input" ? v?.target?.value : v;
   
   ...
-}
+&#125;
 ~~~
 
 ### 失败校验（onFinishFailed）
 数据校验失败后，需要把对应的错误类型和当前的表单值传入到 `onFinishFailed` 中，也就是 `status === "rej"` 的情况，如：
 ~~~ts
 // FormStore
-class FormStore {
+class FormStore &#123;
   ...
   
   // 用于表单提交
-  submit = () => {
+  submit = () => &#123;
     const status = this.validateField();
 
-    const { onFinish, onFinishFailed } = this.configWays;
+    const &#123; onFinish, onFinishFailed &#125; = this.configWays;
 
-    if (!status) {
+    if (!status) &#123;
       const errorFields = this.errorValidateFields();
       onFinishFailed &&
-        onFinishFailed({
+        onFinishFailed(&#123;
           errorFields,
           values: this.store,
-        });
-    } else {
+        &#125;);
+    &#125; else &#123;
       onFinish && onFinish(this.store);
-    }
-  };
+    &#125;
+  &#125;;
 
   // 错误收集
-  errorValidateFields = () => {
+  errorValidateFields = () => &#123;
     let errorList: any = [];
-    Object.keys(this.validateRule).forEach((name) => {
+    Object.keys(this.validateRule).forEach((name) => &#123;
       const data = this.validateRule[name];
-      if (data && data.status === "rej") {
-        errorList = [...errorList, { name, errors: data.message }];
-      }
-    });
+      if (data && data.status === "rej") &#123;
+        errorList = [...errorList, &#123; name, errors: data.message &#125;];
+      &#125;
+    &#125;);
     return errorList;
-  };
+  &#125;;
   ...
-}
+&#125;
 ~~~
 
 ### 取消校验（重置按钮）
 所有的表单控件都通过 `status === "rej"` 来控制，所以只需要将 `status` 的状态改为 `pen` 即可，同时状态为 `rej` 更改为 `pen`，需要刷新视图。
 ~~~ts
 // FormStore
-class  FormStore {
+class  FormStore &#123;
   ...
   
   // 重置表单
-  resetFields = () => {
+  resetFields = () => &#123;
     ...
 
-    Object.keys(this.validateRule).forEach((key) => {
+    Object.keys(this.validateRule).forEach((key) => &#123;
       const data = this.validateRule[key];
-      if (data) {
+      if (data) &#123;
         if (data.status === "rej") this.updateStoreField(key);
         data.status = "pen";
-      }
-    });
+      &#125;
+    &#125;);
     
     ...
-  };
-}
+  &#125;;
+&#125;
 ~~~
 
 ### 暴露实例方法
@@ -6939,8 +6939,8 @@ class  FormStore {
 :::
 ~~~ts
 //Form
-import { forwardRef, useImperativeHandle } from "react";
-  const Index = (props: FormProps, ref: any) => {
+import &#123; forwardRef, useImperativeHandle &#125; from "react";
+  const Index = (props: FormProps, ref: any) => &#123;
   ...
   const [formRef] = useForm(initialValues);
 
@@ -6948,7 +6948,7 @@ import { forwardRef, useImperativeHandle } from "react";
   useImperativeHandle(ref, () => formRef, []);
 
   ...
-};
+&#125;;
 
 export default forwardRef(Index);
 ~~~
@@ -6961,13 +6961,13 @@ export default forwardRef(Index);
 **剔除不需要暴露的方法：**
 ~~~ts
 // 用于剔除方法，不提供给外部使用
-const {
+const &#123;
   registerField,
   unRegisterField,
   dispatch,
   setConfigWays,
   ...formRefInstance
-} = formRef;
+&#125; = formRef;
 
 /* Form 能够被 ref 标记，并操作实例。 */
 useImperativeHandle(ref, () => formRefInstance, []);
@@ -6977,72 +6977,72 @@ useImperativeHandle(ref, () => formRefInstance, []);
 如果存在实例方法，则直接去使用。如：
 ~~~ts
 // Form
-const Index = (props: FormProps, ref: any) => {
-  const { form, ...} = props;
+const Index = (props: FormProps, ref: any) => &#123;
+  const &#123; form, ...&#125; = props;
   
   const [formRef] = useForm(initialValues, form);
   ...
-}
+&#125;
 
 // useForm
-const useForm = (initialValues: DataProps, formInstance?: FormInstance) => {
+const useForm = (initialValues: DataProps, formInstance?: FormInstance) => &#123;
   const formRef = useRef<FormInstance | null>();
 
-  if (!formRef.current) {
+  if (!formRef.current) &#123;
     // 如果存在实例，则直接使用
-    if (formInstance) {
+    if (formInstance) &#123;
       formRef.current = formInstance;
-    } else {
+    &#125; else &#123;
       // 创建一个实例，帮我们获取对应的方法，而 getDetail 是暴露的方法集合
       formRef.current = new FormStore(initialValues).getDetail();
-    }
-  }
+    &#125;
+  &#125;
 
   return [formRef.current];
-};
+&#125;;
 ~~~
 
 ### 方法优化
 因为我们可以直接获取 `ref` 的实例，所以我们可以直接通过实例去完成一些操作，比如：获取表单数据、提交、重置等功能，但也要再对应的方法处理兼容问题，使实例可以正常运行，如：
 ~~~ts
 // FormStore
-class FormStore {
+class FormStore &#123;
   ...
   
   // 获取对应的值
-  getFieldValue = (name?: NameProps) => {
+  getFieldValue = (name?: NameProps) => &#123;
     if (name) return this.store[name];
     return this.store;
-  };
+  &#125;;
 
   // 用于表单提交
-  submit = (cb?: any) => {
+  submit = (cb?: any) => &#123;
     const status = this.validateField();
 
-    const { onFinish, onFinishFailed } = this.configWays;
+    const &#123; onFinish, onFinishFailed &#125; = this.configWays;
 
-    if (!status) {
+    if (!status) &#123;
       const errorFields = this.errorValidateFields();
 
       cb &&
-        cb({
+        cb(&#123;
           errorFields,
           values: this.store,
-        });
+        &#125;);
 
       onFinishFailed &&
-        onFinishFailed({
+        onFinishFailed(&#123;
           errorFields,
           values: this.store,
-        });
-    } else {
+        &#125;);
+    &#125; else &#123;
       onFinish && onFinish(this.store);
       cb && cb(this.store);
-    }
-  };
+    &#125;
+  &#125;;
   
   ...
-}
+&#125;
 ~~~
 
 ## CheckCard：多选卡片
@@ -7056,53 +7056,53 @@ class FormStore {
 #### 基本布局
 在 `CheckCard` 中具备四种布局元素，分别是 `avatar`（头像）、 `title`（标题）、`description`（描述信息）、`extra`（右上角额外信息）。这里用 `useCss` 来简单实现 `CheckCard` 的样式即可：
 ~~~tsx
-const CheckCard = (props: CheckCardProps) => {
+const CheckCard = (props: CheckCardProps) => &#123;
 
-  const dataMemo = useCreation(() => {
+  const dataMemo = useCreation(() => &#123;
     const avatarDom = avatar ? (
-      <div className={styleDateMemo["check-card-avatar"]}>
-        {typeof avatar === "string" ? (
-          <Avatar size={48} shape="square" src={avatar} />
+      <div className=&#123;styleDateMemo["check-card-avatar"]&#125;>
+        &#123;typeof avatar === "string" ? (
+          <Avatar size=&#123;48&#125; shape="square" src=&#123;avatar&#125; />
         ) : (
           avatar
-        )}
+        )&#125;
       </div>
     ) : null;
 
     const header = (title ?? extra) !== null && (
-      <div className={styleDateMemo["check-card-header"]}>
-        <div className={styleDateMemo["check-card-title"]}>{title}</div>
-        {extra && (
-          <div className={styleDateMemo["check-card-extra"]}>{extra}</div>
-        )}
+      <div className=&#123;styleDateMemo["check-card-header"]&#125;>
+        <div className=&#123;styleDateMemo["check-card-title"]&#125;>&#123;title&#125;</div>
+        &#123;extra && (
+          <div className=&#123;styleDateMemo["check-card-extra"]&#125;>&#123;extra&#125;</div>
+        )&#125;
       </div>
     );
 
     const descriptionDom = description ? (
-      <div className={styleDateMemo["check-card-description"]}>
-        {description}
+      <div className=&#123;styleDateMemo["check-card-description"]&#125;>
+        &#123;description&#125;
       </div>
     ) : null;
 
     return (
-      <div className={styleDateMemo["check-card-content"]}>
-        {avatarDom}
-        {header || descriptionDom ? (
-          <div className={styleDateMemo["check-card-detail"]}>
-            {header}
-            {descriptionDom}
+      <div className=&#123;styleDateMemo["check-card-content"]&#125;>
+        &#123;avatarDom&#125;
+        &#123;header || descriptionDom ? (
+          <div className=&#123;styleDateMemo["check-card-detail"]&#125;>
+            &#123;header&#125;
+            &#123;descriptionDom&#125;
           </div>
-        ) : null}
+        ) : null&#125;
       </div>
     );
-  }, [title, extra, description]);
+  &#125;, [title, extra, description]);
   
   return (
-    <div>
-      {dataMemo}
+    &lt;div&gt;
+      &#123;dataMemo&#125;
     </div>
   );
-}
+&#125;
 ~~~
 #### 额外信息
 可以通过 `extra` 来制作卡片的额外操作，但要注意，我们在整个卡片都附有点击事件，所以我们的额外操作中一定要**阻止事件冒泡**，即 `e.stopPropagation()`;。
@@ -7110,23 +7110,23 @@ const CheckCard = (props: CheckCardProps) => {
 #### 基本状态的改变
 在 `CheckCard` 中，共有三种状态，分别是未选中、选中、禁用，而这三种状态所对应的样式都有所改变，此时我们可以利用 `classNames` 来帮助我们处理卡片的样式，使效果更美观。
 ~~~tsx
-const CheckCard = (props: CheckCardProps) => {
-  const {
+const CheckCard = (props: CheckCardProps) => &#123;
+  const &#123;
     avatar,
     title,
     extra,
     description,
     disabled = false,
     loading = false,
-    style = {},
+    style = &#123;&#125;,
     ...params
-  } = props;
+  &#125; = props;
 
-  const [checked, setChecked] = useSafeState<boolean>(
+  const [checked, setChecked] = useSafeState&lt;boolean&gt;(
     params.defaultChecked || false
   );
 
-  const styleClassName: StylesBooleanProps = {};
+  const styleClassName: StylesBooleanProps = &#123;&#125;;
   styleClassName[useCss(styles["check-card"])] = true;
   styleClassName[useCss(styles["check-card-checked"])] = !!checked;
   styleClassName[useCss(styles["check-card-disabled"])] = !!disabled;
@@ -7134,20 +7134,20 @@ const CheckCard = (props: CheckCardProps) => {
 
   return (
     <div
-      className={classNames(styleClassName)}
-      style={style}
-      onClick={(v) => {
-        if (!disabled && !loading) {
+      className=&#123;classNames(styleClassName)&#125;
+      style=&#123;style&#125;
+      onClick=&#123;(v) => &#123;
+        if (!disabled && !loading) &#123;
           params.onClick && params.onClick(v);
           params.onChange && params.onChange(!checked);
           setChecked((v) => !v);
-        }
-      }}
+        &#125;
+      &#125;&#125;
     >
-      {dataMemo}
+      &#123;dataMemo&#125;
     </div>
   );
-};
+&#125;;
 ~~~
 ::: tip
 其中，鼠标移动到卡片上可以通过 `hover` 属性，右上角的标可以通过 `after` 简单制作，鼠标的样式可以通过 `cursor` 来控制。
@@ -7156,52 +7156,52 @@ const CheckCard = (props: CheckCardProps) => {
 #### 加载状态
 通过配置 `loading` 属性可以配置组件的加载状态，可以通过 `Row`、`Col` 来做简单的布局，然后通过 `linear-gradient` 来控制颜色的渐变，再配合 `animation` 控制颜色的滚动。
 ~~~tsx
-const Loading = () => {
+const Loading = () => &#123;
   return (
-    <div className={useCss(styles["check-card-loading-content"])}>
-      <Row gutter={8}>
-        <Col span={22}>
-          <div className={useCss(styles["check-card-loading"])} />
+    <div className=&#123;useCss(styles["check-card-loading-content"])&#125;>
+      <Row gutter=&#123;8&#125;>
+        <Col span=&#123;22&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
       </Row>
-      <Row gutter={8}>
-        <Col span={8}>
-          <div className={useCss(styles["check-card-loading"])} />
+      <Row gutter=&#123;8&#125;>
+        <Col span=&#123;8&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
-        <Col span={14}>
-          <div className={useCss(styles["check-card-loading"])} />
-        </Col>
-      </Row>
-      <Row gutter={8}>
-        <Col span={6}>
-          <div className={useCss(styles["check-card-loading"])} />
-        </Col>
-        <Col span={16}>
-          <div className={useCss(styles["check-card-loading"])} />
+        <Col span=&#123;14&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
       </Row>
-      <Row gutter={8}>
-        <Col span={13}>
-          <div className={useCss(styles["check-card-loading"])} />
+      <Row gutter=&#123;8&#125;>
+        <Col span=&#123;6&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
-        <Col span={9}>
-          <div className={useCss(styles["check-card-loading"])} />
+        <Col span=&#123;16&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
       </Row>
-      <Row gutter={8}>
-        <Col span={4}>
-          <div className={useCss(styles["check-card-loading"])} />
+      <Row gutter=&#123;8&#125;>
+        <Col span=&#123;13&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
-        <Col span={3}>
-          <div className={useCss(styles["check-card-loading"])} />
+        <Col span=&#123;9&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
-        <Col span={14}>
-          <div className={useCss(styles["check-card-loading"])} />
+      </Row>
+      <Row gutter=&#123;8&#125;>
+        <Col span=&#123;4&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
+        </Col>
+        <Col span=&#123;3&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
+        </Col>
+        <Col span=&#123;14&#125;>
+          <div className=&#123;useCss(styles["check-card-loading"])&#125; />
         </Col>
       </Row>
     </div>
   );
-};
+&#125;;
 ~~~
 
 ### CheckCard.Group
@@ -7211,24 +7211,24 @@ const Loading = () => {
 `CheckCard.Group` 和 `CheckCard` 组件存在深层的嵌套关系，所以需要通过 `context(createContext + useContext)`跨层级方式传递数据。
 ~~~tsx
 // GroupContext
-import { createContext } from "react";
-import { SelectGroupConnextType } from "./interface.d";
+import &#123; createContext &#125; from "react";
+import &#123; SelectGroupConnextType &#125; from "./interface.d";
 
 const GroupContext = createContext<SelectGroupConnextType | null>(null);
 
 export default GroupContext;
 
 // Group
-const Group: React.FC<GroupProps> = (props) => {
+const Group: React.FC&lt;GroupProps&gt; = (props) => &#123;
   ...
   <GroupContext.Provider
-    value={{ ... }}
+    value=&#123;&#123; ... &#125;&#125;
   >
-    <div className={useCss(styles["select-card-group"])} style={style}>
-      {params.children}
+    <div className=&#123;useCss(styles["select-card-group"])&#125; style=&#123;style&#125;>
+      &#123;params.children&#125;
     </div>
   </GroupContext.Provider>
-}
+&#125;
 ~~~
 
 #### 注册与卸载
@@ -7237,33 +7237,33 @@ const Group: React.FC<GroupProps> = (props) => {
 同时，在 `CheckCard.Group` 中通过 `new Map()` 集中管理数据，并以 `useRef` 保存数据源，防止闭包。
 ~~~ts
 // Group
-const Group: React.FC<GroupProps> = (props) => {
+const Group: React.FC&lt;GroupProps&gt; = (props) => &#123;
   const ref = useRef<Map<ValueType, any>>(new Map());
 
   // 注册
-  const registerValue = (value: string) => {
+  const registerValue = (value: string) => &#123;
     ref.current?.set(value, true);
-  };
+  &#125;;
 
   // 卸载
-  const cancelValue = (value: string) => {
+  const cancelValue = (value: string) => &#123;
     ref.current?.delete(value);
-  };
+  &#125;;
   
   ...
-}
+&#125;
 
 // index
-const CheckCard = (props: CheckCardProps) => {
-  useEffect(() => {
+const CheckCard = (props: CheckCardProps) => &#123;
+  useEffect(() => &#123;
     params.value && group?.registerValue?.(params.value);
-    return () => {
+    return () => &#123;
       params.value && group?.cancelValue?.(params.value);
-    };
-  }, [params.value]);
+    &#125;;
+  &#125;, [params.value]);
   
   ...
-}
+&#125;
 ~~~
 
 #### 使 CheckCard 受控
@@ -7277,68 +7277,68 @@ const CheckCard = (props: CheckCardProps) => {
 触发 `CheckCard.Group` 的变化时机则是 `CheckCard` 的 `onChange` 方法。如：
 ~~~tsx
 // Group
-const Group: React.FC<GroupProps> = (props) => {
-  const { multiple = false, onChange, ...params } = props;
-  const [stateValue, setStateValue] = useSafeState<GroupValueType>();
+const Group: React.FC&lt;GroupProps&gt; = (props) => &#123;
+  const &#123; multiple = false, onChange, ...params &#125; = props;
+  const [stateValue, setStateValue] = useSafeState&lt;GroupValueType&gt;();
   
   ....
-  const selectOption = (option: SelectOptionProps) => {
-    if (multiple) {
+  const selectOption = (option: SelectOptionProps) => &#123;
+    if (multiple) &#123;
       let newValue: ValueType[] = [];
       const stateValues = stateValue as ValueType[];
       const flag = stateValues?.includes(option.value);
       newValue = [...(stateValues || [])];
-      if (flag) {
+      if (flag) &#123;
         newValue = newValue.filter((itemValue) => itemValue !== option.value);
-      } else {
+      &#125; else &#123;
         newValue.push(option.value);
-      }
+      &#125;
 
       setStateValue?.(newValue);
       onChange && onChange(newValue);
-    } else {
+    &#125; else &#123;
       let newValue = stateValue;
-      if (newValue === option.value) {
+      if (newValue === option.value) &#123;
         newValue = undefined;
-      } else {
+      &#125; else &#123;
         newValue = option.value;
-      }
+      &#125;
       setStateValue?.(newValue);
       onChange && onChange(newValue);
-    }
-  };
+    &#125;
+  &#125;;
   
   ...
-}
+&#125;
 
 // index
-const CheckCard = (props: CheckCardProps) => {
-  const selectData: any = {};
+const CheckCard = (props: CheckCardProps) => &#123;
+  const selectData: any = &#123;&#125;;
     
     ...
     selectData.checked = checked;
-    if (group) { // 通过 Group 组件控制对应的选中状态
+    if (group) &#123; // 通过 Group 组件控制对应的选中状态
     const isChecked = group.multiple
       ? group.value?.includes(params.value)
       : group.value === params.value;
     selectData.checked = isChecked;
-  }
+  &#125;
 
   return (
     <div
-      className={classNames(styleClassName)}
-      style={style}
-      onClick={(v) => {
-        if (!disabled && !loading) {
+      className=&#123;classNames(styleClassName)&#125;
+      style=&#123;style&#125;
+      onClick=&#123;(v) => &#123;
+        if (!disabled && !loading) &#123;
           ...
-          group?.selectOption?.({ value: props.value });
-        }
-      }}
+          group?.selectOption?.(&#123; value: props.value &#125;);
+        &#125;
+      &#125;&#125;
     >
-      {dataMemo}
+      &#123;dataMemo&#125;
     </div>
   );
-}
+&#125;
 ~~~
 
 #### 配合 Form 组件使用
@@ -7347,38 +7347,38 @@ const CheckCard = (props: CheckCardProps) => {
 因为 `Form` 组件会统一管理 `value`，所以在 `CheckCard.Group` 中要对 `value` 进行监控，控制 `value` 属性。
 ~~~ts
 // Check.Group
-const Group: React.FC<GroupProps> = (props) => {
+const Group: React.FC&lt;GroupProps&gt; = (props) => &#123;
 
-  const [stateValue, setStateValue] = useSafeState<GroupValueType>();
+  const [stateValue, setStateValue] = useSafeState&lt;GroupValueType&gt;();
   
-  useEffect(() => {
+  useEffect(() => &#123;
     setStateValue(params.value || params.initValue);
-  }, [params.value]);
+  &#125;, [params.value]);
   
   ...
-}
+&#125;
 ~~~
 **代码演示：**
 ~~~tsx
 import React from "react";
 import CheckCard from "./CheckCard";
-import { Button, message } from "antd";
+import &#123; Button, message &#125; from "antd";
 import Form from "../Form/HooksForm";
 
-const Index: React.FC = () => {
+const Index: React.FC = () => &#123;
   return (
     <>
-      <h1>在 Form 表单的应用</h1>
+      &lt;h1&gt;在 Form 表单的应用</h1>
       <Form
-        initialValues={{ card: "A" }}
-        onFinish={(data: any) => {
+        initialValues=&#123;&#123; card: "A" &#125;&#125;
+        onFinish=&#123;(data: any) => &#123;
           console.log("表单数据:", data);
-        }}
-        onReset={() => {
+        &#125;&#125;
+        onReset=&#123;() => &#123;
           console.log("重制表单成功");
-        }}
+        &#125;&#125;
       >
-        <Form.Item label="选择卡片-单选" name="card" styles={{ with: "100%" }}>
+        <Form.Item label="选择卡片-单选" name="card" styles=&#123;&#123; with: "100%" &#125;&#125;>
           <CheckCard.Group>
             <CheckCard title="Card A" description="一起玩转Hooks吧" value="A" />
             <CheckCard title="Card B" description="一起玩转Hooks吧" value="B" />
@@ -7396,14 +7396,14 @@ const Index: React.FC = () => {
           <Button type="primary" htmlType="submit">
             提交
           </Button>
-          <Button style={{ marginLeft: 4 }} htmlType="reset">
+          <Button style=&#123;&#123; marginLeft: 4 &#125;&#125; htmlType="reset">
             重置
           </Button>
         </Form.Item>
       </Form>
     </>
   );
-};
+&#125;;
 
 export default Index;
 ~~~
@@ -7411,26 +7411,26 @@ export default Index;
 #### 集中控制 loading
 `CheckGroup.Card` 除了可以控制 `CheckGroup` 的 `value` 外，还可以集中控制加载状态、边框样式、卡片大小等，原理与 `value` 一样。这里巩固一下，加一个 `loading` 状态，整体去控制 `CheckGroup`。
 ~~~tsx
-const CheckCard = (props: CheckCardProps) => {
-  const selectData: any = {};
+const CheckCard = (props: CheckCardProps) => &#123;
+  const selectData: any = &#123;&#125;;
     
   selectData.checked = checked;
   selectData.loading = loading;
-  if (group) {
+  if (group) &#123;
     // 通过 Group 组件控制对应的选中状态
     const isChecked = group.multiple
       ? group.value?.includes(params.value)
       : group.value === params.value;
     selectData.checked = isChecked;
     selectData.loading = loading || group.loading;
-  }
+  &#125;
   
   // 之后使用 loading 的地方都换成 selectData.loading 即可
   ...
-}
+&#125;
 
 // 使用
-<h1>集中控制 Loading：</h1>
+&lt;h1&gt;集中控制 Loading：</h1>
 <CheckCard.Group loading>
   <CheckCard title="Card A" description="一起玩转Hooks吧" value="A" />
   <CheckCard title="Card B" description="一起玩转Hooks吧" value="B" />

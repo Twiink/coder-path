@@ -53,21 +53,21 @@ package main
 
 import "github.com/gin-gonic/gin"
 
-func main() {
+func main() &#123;
 	// 创建一个默认的路由引擎，包含 Logger 和 Recovery 中间件
 	r := gin.Default()
 
 	// 注册 GET 路由
-	r.GET("/ping", func(c *gin.Context) {
+	r.GET("/ping", func(c *gin.Context) &#123;
 		// 返回 JSON 数据，状态码 200
-		c.JSON(200, gin.H{
+		c.JSON(200, gin.H&#123;
 			"message": "pong",
-		})
-	})
+		&#125;)
+	&#125;)
 
 	// 默认监听 0.0.0.0:8080
 	r.Run()
-}
+&#125;
 ~~~
 
 运行：
@@ -81,7 +81,7 @@ go run main.go
 ```
 
 ::: tip
-`gin.H` 是 `map[string]interface{}` 的简写，用于快速构造 JSON 响应。
+`gin.H` 是 `map[string]interface&#123;&#125;` 的简写，用于快速构造 JSON 响应。
 :::
 
 ## 路由基础
@@ -89,37 +89,37 @@ go run main.go
 Gin 支持所有常见的 HTTP 方法：
 
 ~~~go
-r.GET("/get", func(c *gin.Context) { c.String(200, "GET") })
-r.POST("/post", func(c *gin.Context) { c.String(200, "POST") })
-r.PUT("/put", func(c *gin.Context) { c.String(200, "PUT") })
-r.DELETE("/delete", func(c *gin.Context) { c.String(200, "DELETE") })
-r.PATCH("/patch", func(c *gin.Context) { c.String(200, "PATCH") })
-r.HEAD("/head", func(c *gin.Context) { c.String(200, "HEAD") })
-r.OPTIONS("/options", func(c *gin.Context) { c.String(200, "OPTIONS") })
+r.GET("/get", func(c *gin.Context) &#123; c.String(200, "GET") &#125;)
+r.POST("/post", func(c *gin.Context) &#123; c.String(200, "POST") &#125;)
+r.PUT("/put", func(c *gin.Context) &#123; c.String(200, "PUT") &#125;)
+r.DELETE("/delete", func(c *gin.Context) &#123; c.String(200, "DELETE") &#125;)
+r.PATCH("/patch", func(c *gin.Context) &#123; c.String(200, "PATCH") &#125;)
+r.HEAD("/head", func(c *gin.Context) &#123; c.String(200, "HEAD") &#125;)
+r.OPTIONS("/options", func(c *gin.Context) &#123; c.String(200, "OPTIONS") &#125;)
 
 // Any 注册所有 HTTP 方法的路由
-r.Any("/any", func(c *gin.Context) { c.String(200, "Any") })
+r.Any("/any", func(c *gin.Context) &#123; c.String(200, "Any") &#125;)
 
 // NoRoute 处理所有未匹配的路由（404）
-r.NoRoute(func(c *gin.Context) {
-	c.JSON(404, gin.H{"msg": "页面不存在"})
-})
+r.NoRoute(func(c *gin.Context) &#123;
+	c.JSON(404, gin.H&#123;"msg": "页面不存在"&#125;)
+&#125;)
 ~~~
 
 ## 路由参数
 
 ~~~go
 // 路径参数 /user/tom
-r.GET("/user/:name", func(c *gin.Context) {
+r.GET("/user/:name", func(c *gin.Context) &#123;
 	name := c.Param("name")
 	c.String(200, "Hello %s", name)
-})
+&#125;)
 
 // 通配参数 /files/xxx/yyy，*action 匹配 / 后所有内容
-r.GET("/files/*filepath", func(c *gin.Context) {
+r.GET("/files/*filepath", func(c *gin.Context) &#123;
 	filepath := c.Param("filepath")
 	c.String(200, "文件路径: %s", filepath)
-})
+&#125;)
 ~~~
 
 ## 路由分组
@@ -128,36 +128,36 @@ r.GET("/files/*filepath", func(c *gin.Context) {
 
 ~~~go
 v1 := r.Group("/v1")
-{
-	v1.GET("/users", func(c *gin.Context) { c.JSON(200, "用户列表") })
-	v1.GET("/users/:id", func(c *gin.Context) { c.JSON(200, "用户详情") })
-	v1.POST("/users", func(c *gin.Context) { c.JSON(200, "创建用户") })
-}
+&#123;
+	v1.GET("/users", func(c *gin.Context) &#123; c.JSON(200, "用户列表") &#125;)
+	v1.GET("/users/:id", func(c *gin.Context) &#123; c.JSON(200, "用户详情") &#125;)
+	v1.POST("/users", func(c *gin.Context) &#123; c.JSON(200, "创建用户") &#125;)
+&#125;
 
 // 带中间件的路由组
 auth := r.Group("/admin")
 auth.Use(AuthMiddleware()) // 该组下所有路由都会经过鉴权中间件
-{
-	auth.GET("/dashboard", func(c *gin.Context) { c.JSON(200, "控制台") })
-}
+&#123;
+	auth.GET("/dashboard", func(c *gin.Context) &#123; c.JSON(200, "控制台") &#125;)
+&#125;
 ~~~
 
 ::: tip
-`Group` 中的 `{}` 只是代码分块，没有实际作用，纯粹是为了代码可读性。
+`Group` 中的 `&#123;&#125;` 只是代码分块，没有实际作用，纯粹是为了代码可读性。
 :::
 
 ## 获取客户端信息
 
 ~~~go
-r.GET("/info", func(c *gin.Context) {
+r.GET("/info", func(c *gin.Context) &#123;
 	// 请求方法
-	c.JSON(200, gin.H{
+	c.JSON(200, gin.H&#123;
 		"method": c.Request.Method,
 		"path":   c.Request.URL.Path,
 		"ip":     c.ClientIP(),
 		"ua":     c.Request.UserAgent(),
-	})
-})
+	&#125;)
+&#125;)
 ~~~
 
 ## 热重载开发

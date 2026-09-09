@@ -82,11 +82,11 @@ package model
 
 import "gorm.io/gorm"
 
-type User struct {
+type User struct &#123;
 	gorm.Model
 	Name  string `gorm:"size:50;not null" json:"name"`
 	Email string `gorm:"size:100;uniqueIndex" json:"email"`
-}
+&#125;
 ~~~
 
 ### Repository 层（数据访问）
@@ -95,31 +95,31 @@ type User struct {
 // internal/repository/user.go
 package repository
 
-type UserRepository struct {
+type UserRepository struct &#123;
 	db *gorm.DB
-}
+&#125;
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{db: db}
-}
+func NewUserRepository(db *gorm.DB) *UserRepository &#123;
+	return &UserRepository对象(db属性)
+&#125;
 
-func (r *UserRepository) Create(u *model.User) error {
+func (r *UserRepository) Create(u *model.User) error &#123;
 	return r.db.Create(u).Error
-}
+&#125;
 
-func (r *UserRepository) FindByID(id uint) (*model.User, error) {
+func (r *UserRepository) FindByID(id uint) (*model.User, error) &#123;
 	var u model.User
 	err := r.db.First(&u, id).Error
 	return &u, err
-}
+&#125;
 
-func (r *UserRepository) List(page, size int) ([]model.User, int64, error) {
+func (r *UserRepository) List(page, size int) ([]model.User, int64, error) &#123;
 	var users []model.User
 	var total int64
-	r.db.Model(&model.User{}).Count(&total)
+	r.db.Model(&model.User&#123;&#125;).Count(&total)
 	err := r.db.Offset((page - 1) * size).Limit(size).Find(&users).Error
 	return users, total, err
-}
+&#125;
 ~~~
 
 ### Service 层（业务逻辑）
@@ -128,34 +128,34 @@ func (r *UserRepository) List(page, size int) ([]model.User, int64, error) {
 // internal/service/user.go
 package service
 
-type UserService struct {
+type UserService struct &#123;
 	repo *repository.UserRepository
-}
+&#125;
 
-func NewUserService(repo *repository.UserRepository) *UserService {
-	return &UserService{repo: repo}
-}
+func NewUserService(repo *repository.UserRepository) *UserService &#123;
+	return &UserService对象(repo属性)
+&#125;
 
-func (s *UserService) Register(req *CreateUserReq) (*model.User, error) {
+func (s *UserService) Register(req *CreateUserReq) (*model.User, error) &#123;
 	// 业务校验：邮箱是否已存在
 	exist, err := s.repo.ExistsByEmail(req.Email)
-	if err != nil {
+	if err != nil &#123;
 		return nil, err
-	}
-	if exist {
+	&#125;
+	if exist &#123;
 		return nil, apperr.New(2001, "邮箱已被注册")
-	}
+	&#125;
 	// 密码加密
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	user := &model.User{
+	user := &model.User&#123;
 		Name:  req.Name,
 		Email: req.Email,
-	}
-	if err := s.repo.Create(user); err != nil {
+	&#125;
+	if err := s.repo.Create(user); err != nil &#123;
 		return nil, err
-	}
+	&#125;
 	return user, nil
-}
+&#125;
 ~~~
 
 ### Controller 层（HTTP 处理）
@@ -164,31 +164,31 @@ func (s *UserService) Register(req *CreateUserReq) (*model.User, error) {
 // internal/controller/user.go
 package controller
 
-type UserController struct {
+type UserController struct &#123;
 	svc *service.UserService
-}
+&#125;
 
-func NewUserController(svc *service.UserService) *UserController {
-	return &UserController{svc: svc}
-}
+func NewUserController(svc *service.UserService) *UserController &#123;
+	return &UserController对象(svc属性)
+&#125;
 
-func (uc *UserController) Register(c *gin.Context) {
+func (uc *UserController) Register(c *gin.Context) &#123;
 	var req service.CreateUserReq
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil &#123;
 		response.Fail(c, 1003, err.Error())
 		return
-	}
+	&#125;
 	user, err := uc.svc.Register(&req)
-	if err != nil {
-		if be, ok := err.(*apperr.BizError); ok {
+	if err != nil &#123;
+		if be, ok := err.(*apperr.BizError); ok &#123;
 			response.Fail(c, be.Code, be.Msg)
 			return
-		}
+		&#125;
 		response.Fail(c, 5000, "服务器错误")
 		return
-	}
+	&#125;
 	response.Success(c, user)
-}
+&#125;
 ~~~
 
 ### Router 层（依赖注入与路由注册）
@@ -197,19 +197,19 @@ func (uc *UserController) Register(c *gin.Context) {
 // internal/router/router.go
 package router
 
-func Setup(r *gin.Engine, deps *Dependencies) {
+func Setup(r *gin.Engine, deps *Dependencies) &#123;
 	// 公开路由
 	r.POST("/login", deps.Auth.Login)
 
 	// 需认证路由
 	api := r.Group("/api")
 	api.Use(middleware.JWTAuth())
-	{
+	&#123;
 		api.GET("/users", deps.User.List)
 		api.POST("/users", deps.User.Register)
 		api.GET("/users/:id", deps.User.Get)
-	}
-}
+	&#125;
+&#125;
 ~~~
 
 ### main.go（组装依赖）
@@ -218,7 +218,7 @@ func Setup(r *gin.Engine, deps *Dependencies) {
 // cmd/server/main.go
 package main
 
-func main() {
+func main() &#123;
 	// 1. 加载配置
 	cfg := config.Load("configs/config.yaml")
 
@@ -230,13 +230,13 @@ func main() {
 	userSvc := service.NewUserService(userRepo)
 	userCtrl := controller.NewUserController(userSvc)
 
-	deps := &Dependencies{User: userCtrl}
+	deps := &Dependencies对象(User属性)
 
 	// 4. 启动服务
 	r := gin.Default()
 	router.Setup(r, deps)
 	r.Run(":" + cfg.Server.Port)
-}
+&#125;
 ~~~
 
 ## 配置管理
@@ -261,16 +261,16 @@ jwt:
 ~~~go
 package config
 
-func Load(path string) *Config {
+func Load(path string) *Config &#123;
 	viper.SetConfigFile(path)
 	viper.AutomaticEnv() // 支持环境变量覆盖
-	if err := viper.ReadInConfig(); err != nil {
+	if err := viper.ReadInConfig(); err != nil &#123;
 		log.Fatal("读取配置失败: ", err)
-	}
+	&#125;
 	var c Config
 	viper.Unmarshal(&c)
 	return &c
-}
+&#125;
 ~~~
 
 ::: tip
@@ -284,9 +284,9 @@ func Load(path string) *Config {
 ~~~go
 gin.SetMode(gin.ReleaseMode) // 生产环境关闭调试日志
 // 或
-if os.Getenv("GIN_MODE") == "release" {
+if os.Getenv("GIN_MODE") == "release" &#123;
 	gin.SetMode(gin.ReleaseMode)
-}
+&#125;
 ~~~
 
 ## Makefile 自动化

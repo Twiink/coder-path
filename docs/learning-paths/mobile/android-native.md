@@ -12,7 +12,8 @@ Android 是移动开发的半壁江山(全球七成以上设备),原生开发直
 
 ## 进阶篇:UI 与架构(Jetpack Compose 时代)
 
-**Compose 声明式 UI(现代 Android 的主线)**:`@Composable` 函数描述界面(与 SwiftUI/React 同心智)——**状态驱动 UI:状态变,界面自动重组**;布局 Column/Row/Box、`LazyColumn`(列表——对应 React Native 的 FlatList)、Material 3 主题;**状态管理**:`remember`(局部)/`mutableStateOf`、**ViewModel**(界面状态持有者:旋转屏幕不丢,见架构)、`collectAsState`(把 Flow/StateFlow 接进 UI——**现代状态管理:UI 层 collect,业务层 StateFlow**);**导航**:Navigation Compose(导航图/传参/返回栈——页面流转的标准);**Jetpack 组件全家**(Android 的"官方最佳实践库"):ViewModel + StateFlow(状态)、Room(数据库,见 [Android 数据层] 下)、WorkManager(后台任务:延迟/约束执行——**别用裸线程做后台**)、DataStore(键值,替代 SharedPreferences)、Paging(分页加载)。**架构规范(MVVM/单向数据流)**:UI(Compose)→ ViewModel(状态与逻辑)→ Repository(数据源:网络/数据库)——**Google 官方推荐的 App Architecture:UI 层 + 数据层分离**,配合依赖注入(Hilt——见 [Kotlin](/learning-paths/languages/kotlin) 的 Android 章)。
+**Compose 声明式 UI(现代 Android 的主线)**:`@Composable` 函数描述界面(与 SwiftUI/React 同心智)——**状态驱动 UI:状态变,界面自动重组**;布局 Column/Row/Box、`LazyColumn`(列表——对应 React Native 的 FlatList)、Material 3 主题;**状态管理**:`remember`(局部)/`mutableStateOf`、**ViewModel**(界面状态持有者:旋转屏幕不丢,见架构)、`collectAsState`(把 Flow/StateFlow 接进 UI——**现代状态管理:UI 层 collect,业务层 StateFlow**);**导航**:Navigation Compose(导航图/传参/返回栈——页面流转的标准);**Jetpack 组件全家**(Android 的"官方最佳实践库"):ViewModel + StateFlow(状态)、Room(数据库,见 [Android 数据层] 下)、WorkManager(后台任务:延迟/约束执行——**别用裸线程做后台**)、DataStore(键值,替代 SharedPreferences)、Paging(分页加载)。
+**架构规范(MVVM/单向数据流)**:UI(Compose)→ ViewModel(状态与逻辑)→ Repository(数据源:网络/数据库)——**Google 官方推荐的 App Architecture:UI 层 + 数据层分离**,配合依赖注入(Hilt——见 [Kotlin](/learning-paths/languages/kotlin) 的 Android 章)。
 
 ## 实战篇:功能与发布
 

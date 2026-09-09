@@ -4,15 +4,19 @@
 
 ## 配方:Spring Boot(后端)+ Vue 或 React(前端)
 
-**后端:Spring Boot 全家**(见 [Spring Boot](/learning-paths/backend/spring-boot)):Spring Web 写 REST API、**Spring Security + JWT 做认证授权**(SecurityFilterChain/方法级权限)、数据层二选一——**Spring Data JPA**(对象关系映射,官方主线)或 **MyBatis-Plus**(SQL 可控,国内互联网公司主流)、Swagger/knife4j **自动生成接口文档**(前端照着调,见 [Spring Boot](/learning-paths/backend/spring-boot) 文档章)、全局异常处理统一错误格式。**前端:Vue 3 或 React**(Java 后端不绑定前端——同一套 REST API,Vue/React 随意切换,团队熟悉哪个用哪个):Vue 见 [Vue](/learning-paths/frontend/vue)、React 见 [React](/learning-paths/frontend/react),Vite + TypeScript 是标配。**国内主流组合**:Spring Boot + Vue(生态资料多)+ MyBatis-Plus + MySQL + Redis——**中后台管理系统(Admin)的黄金配方**(前端框架自带 Table/Form 组件,后端 CRUD 接口一套生成)。
+**后端:Spring Boot 全家**(见 [Spring Boot](/learning-paths/backend/spring-boot)):Spring Web 写 REST API、**Spring Security + JWT 做认证授权**(SecurityFilterChain/方法级权限)、数据层二选一——**Spring Data JPA**(对象关系映射,官方主线)或 **MyBatis-Plus**(SQL 可控,国内互联网公司主流)、Swagger/knife4j **自动生成接口文档**(前端照着调,见 [Spring Boot](/learning-paths/backend/spring-boot) 文档章)、全局异常处理统一错误格式。
+**前端:Vue 3 或 React**(Java 后端不绑定前端——同一套 REST API,Vue/React 随意切换,团队熟悉哪个用哪个):Vue 见 [Vue](/learning-paths/frontend/vue)、React 见 [React](/learning-paths/frontend/react),Vite + TypeScript 是标配。
+**国内主流组合**:Spring Boot + Vue(生态资料多)+ MyBatis-Plus + MySQL + Redis——**中后台管理系统(Admin)的黄金配方**(前端框架自带 Table/Form 组件,后端 CRUD 接口一套生成)。
 
 ## Java 全栈的工程特征
 
-**①企业级规范是默认值**:分层架构(Controller/Service/Mapper——见 [Spring Boot](/learning-paths/backend/spring-boot) 工程章)、统一返回体 Result<T> 与错误码、参数校验注解(@Valid)、事务边界(@Transactional)——**Java 生态把"规范"焊进了框架与约定,团队写出来的是同一种风格**;**②认证授权体系最完整**:Spring Security 的 JWT 无状态认证 + RBAC 方法级权限 + OAuth2(见 [认证](/learning-paths/security/auth) 与 [Spring Boot](/learning-paths/backend/spring-boot) 安全章)——**复杂权限需求(多角色/数据权限)Java 栈的答案最成熟**;**③接口文档即契约**:knife4j/Swagger 自动生成 + DTO 校验注解即文档——前后端对接的沟通成本被框架吃掉(见 [协作](/learning-paths/fullstack/collaboration))。**④性能与扩展**:JVM 调优、连接池(HikariCP)、Redis 缓存、分库分表(见 [Java](/learning-paths/languages/java) 的 JVM 章与 [MySQL](/learning-paths/database/mysql))——**量大时的深度题 Java 栈全有现成答案**。
+**①企业级规范是默认值**:分层架构(Controller/Service/Mapper——见 [Spring Boot](/learning-paths/backend/spring-boot) 工程章)、统一返回体 Result&lt;T&gt; 与错误码、参数校验注解(@Valid)、事务边界(@Transactional)——**Java 生态把"规范"焊进了框架与约定,团队写出来的是同一种风格**;**②认证授权体系最完整**:Spring Security 的 JWT 无状态认证 + RBAC 方法级权限 + OAuth2(见 [认证](/learning-paths/security/auth) 与 [Spring Boot](/learning-paths/backend/spring-boot) 安全章)——**复杂权限需求(多角色/数据权限)Java 栈的答案最成熟**;**③接口文档即契约**:knife4j/Swagger 自动生成 + DTO 校验注解即文档——前后端对接的沟通成本被框架吃掉(见 [协作](/learning-paths/fullstack/collaboration))。
+**④性能与扩展**:JVM 调优、连接池(HikariCP)、Redis 缓存、分库分表(见 [Java](/learning-paths/languages/java) 的 JVM 章与 [MySQL](/learning-paths/database/mysql))——**量大时的深度题 Java 栈全有现成答案**。
 
 ## 学习路径建议
 
-**第一步**:Spring Boot 从 [start.spring.io](无外链,用 Initializr 建项目)跑通 REST CRUD(实体→Repository→Service→Controller——见 [Spring Boot](/learning-paths/backend/spring-boot) 前五站);**第二步**:接 Vue 或 React 前端调通自己写的 API(前后端分离最小闭环);**第三步**:补认证(Spring Security + JWT——**Java 全栈必过的一关**)与全局异常/统一返回;**第四步**:上 MyBatis-Plus/JPA 的复杂查询、Redis 缓存、Swagger 文档;**第五步**:部署(Docker + 云服务器,见 [部署](/learning-paths/fullstack/deployment))与 CI([GitHub Actions](/learning-paths/devops/github-actions) 跑 mvn test + 构建镜像)。**企业进阶**:微服务(Spring Cloud,见 [Spring Cloud](/learning-paths/microservices/spring-cloud))、消息队列、分库分表——**Java 栈的成长路径最清晰:从单体 CRUD 到企业级架构一路有教材**。
+**第一步**:Spring Boot 从 [start.spring.io](无外链,用 Initializr 建项目)跑通 REST CRUD(实体→Repository→Service→Controller——见 [Spring Boot](/learning-paths/backend/spring-boot) 前五站);**第二步**:接 Vue 或 React 前端调通自己写的 API(前后端分离最小闭环);**第三步**:补认证(Spring Security + JWT——**Java 全栈必过的一关**)与全局异常/统一返回;**第四步**:上 MyBatis-Plus/JPA 的复杂查询、Redis 缓存、Swagger 文档;**第五步**:部署(Docker + 云服务器,见 [部署](/learning-paths/fullstack/deployment))与 CI([GitHub Actions](/learning-paths/devops/github-actions) 跑 mvn test + 构建镜像)。
+**企业进阶**:微服务(Spring Cloud,见 [Spring Cloud](/learning-paths/microservices/spring-cloud))、消息队列、分库分表——**Java 栈的成长路径最清晰:从单体 CRUD 到企业级架构一路有教材**。
 
 ## 通关标准
 

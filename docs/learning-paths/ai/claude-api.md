@@ -10,7 +10,8 @@ Claude 是 Anthropic 的大模型系列,以**安全对齐、长文本理解、�
 
 ## 第二站:Messages API 基础
 
-**核心请求形态**(Python/TS SDK 都同构):`messages.create(model=..., max_tokens=..., system=..., messages=[{role: "user", content: "..."}])`——要点:**`system` 是独立顶层参数**(Claude 的 system prompt 设计:角色/规则/输出格式放这里,和对话消息分离,便于做 Prompt Caching);**`max_tokens` 必填**(不设会报错——同时它也是成本与"跑题长度"的硬闸);消息角色只有 user/assistant(多轮 = 交替追加);**流式输出**:`stream=True` 走 SSE,增量 `content_block_delta`——打字机体验、长输出尽早可见、可中途止损(用户打断就断开,省 token)。**SDK 与接入**:官方 anthropic SDK(python/typescript)+ 社区适配(Vercel AI SDK、LangChain `ChatAnthropic`——见 [LangChain](/learning-paths/ai/langchain));**调用入口形态**:自建后端代理(密钥不下发前端——**API Key 只进服务端是铁律**,前端走你自己的接口)。
+**核心请求形态**(Python/TS SDK 都同构):(messages.create(model=..., max_tokens=..., system=..., messages=[对象(role属性)]))——要点:**`system` 是独立顶层参数**(Claude 的 system prompt 设计:角色/规则/输出格式放这里,和对话消息分离,便于做 Prompt Caching);**`max_tokens` 必填**(不设会报错——同时它也是成本与"跑题长度"的硬闸);消息角色只有 user/assistant(多轮 = 交替追加);**流式输出**:`stream=True` 走 SSE,增量 `content_block_delta`——打字机体验、长输出尽早可见、可中途止损(用户打断就断开,省 token)。
+**SDK 与接入**:官方 anthropic SDK(python/typescript)+ 社区适配(Vercel AI SDK、LangChain `ChatAnthropic`——见 [LangChain](/learning-paths/ai/langchain));**调用入口形态**:自建后端代理(密钥不下发前端——**API Key 只进服务端是铁律**,前端走你自己的接口)。
 
 ## 第三站:长上下文与多轮——用好 200K
 
@@ -18,11 +19,13 @@ Claude 是 Anthropic 的大模型系列,以**安全对齐、长文本理解、�
 
 ## 第四站:Prompt Caching——长上下文应用必开
 
-**机制**:对请求中**稳定的前缀**(system prompt、长文档、工具定义、few-shot 示例)打缓存标记(`cache_control: {"type": "ephemeral"}` 或 SDK 参数);命中缓存后该部分输入**成本降至约 1/10、延迟下降**——**"重复的长 prompt 只付一次全价"**。**用法**:把"每次相同"的内容放最前并标缓存(缓存按前缀匹配:相同的开头越长约省);**典型收益场景**:①长 system prompt + 工具描述的 Agent(每轮都重发——缓存后成本骤降);②文档问答(长文档标缓存,用户问题变但不重算文档);③多轮对话(把历史的一部分设为缓存前缀)。**注意**:缓存有 TTL(几分钟内有效——连续请求才命中;跨小时不活跃会过期);不同模型缓存定价不同;写码前看官方最新缓存文档——**这是 Claude API 成本优化的第一性价比动作**。
+**机制**:对请求中**稳定的前缀**(system prompt、长文档、工具定义、few-shot 示例)打缓存标记((cache_control: &#123;"type": "ephemeral"&#125;) 或 SDK 参数);命中缓存后该部分输入**成本降至约 1/10、延迟下降**——**"重复的长 prompt 只付一次全价"**。**用法**:把"每次相同"的内容放最前并标缓存(缓存按前缀匹配:相同的开头越长约省);**典型收益场景**:①长 system prompt + 工具描述的 Agent(每轮都重发——缓存后成本骤降);②文档问答(长文档标缓存,用户问题变但不重算文档);③多轮对话(把历史的一部分设为缓存前缀)。**注意**:缓存有 TTL(几分钟内有效——连续请求才命中;跨小时不活跃会过期);不同模型缓存定价不同;写码前看官方最新缓存文档——**这是 Claude API 成本优化的第一性价比动作**。
 
 ## 第五站:工具使用(Tool Use)——Agent 的引擎
 
-**Claude 的原生工具调用**(与 OpenAI function calling 同构):请求带 `tools: [{name, description, input_schema(JSON Schema)}]`;模型需要时返回 **`tool_use` content block**(工具名+参数 JSON)——**不执行,只是意图**;你的代码执行后把结果作为 `tool_result` 回传,模型继续推理——循环直到不再要工具(完整模式见 [Agent 基础](/learning-paths/ai/agent-basics))。**工程要点**:工具描述写清"何时用";参数 schema 严格;**强制结构化输出的可靠姿势:定义"输出工具"让模型把结果写进 JSON 参数**(比裸 JSON 模式更稳——Claude 文档推荐的 JSON 输出法);工具结果超长先摘要;**Agent 场景的 Claude 优势**:长上下文(带大文档做工具决策)、代码工具链(读文件/写文件/终端——Claude Code 就是这么干的,见 [Claude MCP](/learning-paths/ai/claude-mcp) 的工具生态)。**安全**:工具权限最小化 + 敏感操作确认(Claude 安全训练会拒绝明显有害指令,但你的应用层护栏不能省——见 [Agent](/learning-paths/ai/agent-development) 安全章)。
+**Claude 的原生工具调用**(与 OpenAI function calling 同构):请求带 `tools: [&#123;name, description, input_schema(JSON Schema)&#125;]`;模型需要时返回 **`tool_use` content block**(工具名+参数 JSON)——**不执行,只是意图**;你的代码执行后把结果作为 `tool_result` 回传,模型继续推理——循环直到不再要工具(完整模式见 [Agent 基础](/learning-paths/ai/agent-basics))。
+**工程要点**:工具描述写清"何时用";参数 schema 严格;**强制结构化输出的可靠姿势:定义"输出工具"让模型把结果写进 JSON 参数**(比裸 JSON 模式更稳——Claude 文档推荐的 JSON 输出法);工具结果超长先摘要;**Agent 场景的 Claude 优势**:长上下文(带大文档做工具决策)、代码工具链(读文件/写文件/终端——Claude Code 就是这么干的,见 [Claude MCP](/learning-paths/ai/claude-mcp) 的工具生态)。
+**安全**:工具权限最小化 + 敏感操作确认(Claude 安全训练会拒绝明显有害指令,但你的应用层护栏不能省——见 [Agent](/learning-paths/ai/agent-development) 安全章)。
 
 ## 第六站:视觉与多模态
 
@@ -30,7 +33,10 @@ Claude 支持**图像输入**(content block 传 image:base64 或 URL):**截图�
 
 ## 第七站:工程化——错误、成本、安全
 
-**错误处理矩阵**:429(限流:退避重试+并发控制)、529(Anthropic 过载:重试)、400(参数错:查 max_tokens/schema)、5xx(服务端:重试);超时(长输出流式要设读超时)——**统一封装:重试(指数退避+抖动)+ 熔断(连续失败降级)**;**并发**:SDK 异步并发 + 客户端限流(配额管理);**批量 API**(非实时任务):异步批处理约 5 折——**日志分析/批量翻译/离线评估这类任务先考虑批处理**。**成本控制清单**:模型路由(按任务分 Haiku/Sonnet/Opus)、Prompt Caching(长前缀)、批处理(离线)、max_tokens 收紧、上下文裁剪、逐请求记账+预算告警(见 [Agent 开发](/learning-paths/ai/agent-development) 成本节)。**安全与治理**:API 密钥服务端保管;Claude 有拒绝有害请求的安全训练——应用要设计好"拒绝/边界"的呈现(别让用户觉得被莫名其妙拒绝,给理由与替代);**提示注入防御**(外部内容当数据——见 Prompt 页);**数据合规**:了解 API 的数据政策(默认不用于训练;企业/零保留选项)——涉及敏感业务先查官方条款。**评估**:换模型/改 prompt 跑你的 golden 集(LLM-as-judge 或人工),**别盲信榜单——在自己任务上实测**(Claude 与 GPT 各有擅长:代码/长文/写作场景常是 Claude 强项,但以实测为准)。
+**错误处理矩阵**:429(限流:退避重试+并发控制)、529(Anthropic 过载:重试)、400(参数错:查 max_tokens/schema)、5xx(服务端:重试);超时(长输出流式要设读超时)——**统一封装:重试(指数退避+抖动)+ 熔断(连续失败降级)**;**并发**:SDK 异步并发 + 客户端限流(配额管理);**批量 API**(非实时任务):异步批处理约 5 折——**日志分析/批量翻译/离线评估这类任务先考虑批处理**。
+**成本控制清单**:模型路由(按任务分 Haiku/Sonnet/Opus)、Prompt Caching(长前缀)、批处理(离线)、max_tokens 收紧、上下文裁剪、逐请求记账+预算告警(见 [Agent 开发](/learning-paths/ai/agent-development) 成本节)。
+**安全与治理**:API 密钥服务端保管;Claude 有拒绝有害请求的安全训练——应用要设计好"拒绝/边界"的呈现(别让用户觉得被莫名其妙拒绝,给理由与替代);**提示注入防御**(外部内容当数据——见 Prompt 页);**数据合规**:了解 API 的数据政策(默认不用于训练;企业/零保留选项)——涉及敏感业务先查官方条款。
+**评估**:换模型/改 prompt 跑你的 golden 集(LLM-as-judge 或人工),**别盲信榜单——在自己任务上实测**(Claude 与 GPT 各有擅长:代码/长文/写作场景常是 Claude 强项,但以实测为准)。
 
 ## 第八站:场景实践与生态
 

@@ -120,7 +120,7 @@ strconv.ParseFloat(变量, 小数类型位数)
 
 `iota`的使用：
 ~~~go
-func main() {
+func main() &#123;
 	//iota数值递增
 	const (
 		a = iota
@@ -128,7 +128,7 @@ func main() {
 		c, d = iota, iota	//不会递增
 	)
 	fmt.Println(a,b,c,d) //0,1,2,2
-}
+&#125;
 ~~~
 
 ## 指针

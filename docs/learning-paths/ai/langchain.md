@@ -6,11 +6,14 @@ LangChain 是 LLM 应用开发最流行的组装框架:把"模型调用、提示
 
 ## 第一站:三大基础抽象
 
-**①Models(统一模型接口)**:ChatOpenAI/ChatAnthropic 等把各家 API 包成同一接口(`invoke/stream/batch`),模型可插拔;参数(模型名/temperature/max_tokens);**换模型只改一行**——但注意各家能力差异(工具/长上下文),抽象不能抹平特性。**②Prompt Templates(模板化,告别字符串拼接)**:`ChatPromptTemplate` 按 system/human/ai 组织消息,`{变量}` 占位、`format` 填充;**MessagePlaceholder(现代写法的关键)**:在模板里留"历史消息/工具结果/动态内容"的插槽(`MessagesPlaceholder("chat_history")`、`MessagesPlaceholder("agent_scratchpad")`)——**Agent 循环与多轮对话都靠它**,比老式"字符串拼历史"干净得多;Few-shot 示例也可模板化,示例多时用**语义相似度动态挑选最相关的几条**(省 token 且效果更好)。**③Output Parsers(结构化输出)**:LLM 输出是文本,业务要 JSON/对象——**现代姿势:`model.with_structured_output(PydanticClass)`**(模型直接按 schema 输出 + 解析校验,解析失败自动重试);老式 PydanticOutputParser 了解即可——**铁律:模型输出进业务前必须程序校验**(框架校验失败会抛错,别吞)。
+**①Models(统一模型接口)**:ChatOpenAI/ChatAnthropic 等把各家 API 包成同一接口(`invoke/stream/batch`),模型可插拔;参数(模型名/temperature/max_tokens);**换模型只改一行**——但注意各家能力差异(工具/长上下文),抽象不能抹平特性。
+**②Prompt Templates(模板化,告别字符串拼接)**:`ChatPromptTemplate` 按 system/human/ai 组织消息,`&#123;变量&#125;` 占位、`format` 填充;**MessagePlaceholder(现代写法的关键)**:在模板里留"历史消息/工具结果/动态内容"的插槽(`MessagesPlaceholder("chat_history")`、`MessagesPlaceholder("agent_scratchpad")`)——**Agent 循环与多轮对话都靠它**,比老式"字符串拼历史"干净得多;Few-shot 示例也可模板化,示例多时用**语义相似度动态挑选最相关的几条**(省 token 且效果更好)。
+**③Output Parsers(结构化输出)**:LLM 输出是文本,业务要 JSON/对象——**现代姿势:`model.with_structured_output(PydanticClass)`**(模型直接按 schema 输出 + 解析校验,解析失败自动重试);老式 PydanticOutputParser 了解即可——**铁律:模型输出进业务前必须程序校验**(框架校验失败会抛错,别吞)。
 
 ## 第二站:LCEL——声明式链式组合
 
-**LCEL(LangChain Expression Language)是 0.2+ 的组合语法**:用 `|` 把组件串成管道:`prompt | model | output_parser`——每个环节都是 **Runnable(统一协议:invoke(单次)/stream(流式)/batch(批量)/ainvoke(异步))**;组合子:`RunnablePassthrough`(透传/加字段)、`RunnableParallel`(并行分支:一个输入同时跑多条链再合并——"检索与生成并行"场景)、`RunnableBranch`/`RunnableLambda`(条件与自定义函数——普通 Python 函数经 RunnableLambda 就能进链)、`with_fallbacks`(模型失败自动换备用——容错);老 LLMChain/SequentialChain 类已让位于 LCEL(概念相通:流水线、输入输出自动传递)。**心智**:LCEL 链 = 纯函数管道,**容易测试与插桩**(每一步可单独 invoke 验证)——比"一个巨型 prompt"工程化得多(呼应 [Prompt](/learning-paths/ai/prompt-engineering) 的 Chaining 章)。**复杂状态流交给 LangGraph**(见第四站):有分支循环/需要共享状态/中断恢复的流程,别用 LCEL 硬凹。
+**LCEL(LangChain Expression Language)是 0.2+ 的组合语法**:用 `|` 把组件串成管道:`prompt | model | output_parser`——每个环节都是 **Runnable(统一协议:invoke(单次)/stream(流式)/batch(批量)/ainvoke(异步))**;组合子:`RunnablePassthrough`(透传/加字段)、`RunnableParallel`(并行分支:一个输入同时跑多条链再合并——"检索与生成并行"场景)、`RunnableBranch`/`RunnableLambda`(条件与自定义函数——普通 Python 函数经 RunnableLambda 就能进链)、`with_fallbacks`(模型失败自动换备用——容错);老 LLMChain/SequentialChain 类已让位于 LCEL(概念相通:流水线、输入输出自动传递)。
+**心智**:LCEL 链 = 纯函数管道,**容易测试与插桩**(每一步可单独 invoke 验证)——比"一个巨型 prompt"工程化得多(呼应 [Prompt](/learning-paths/ai/prompt-engineering) 的 Chaining 章)。**复杂状态流交给 LangGraph**(见第四站):有分支循环/需要共享状态/中断恢复的流程,别用 LCEL 硬凹。
 
 ## 第三站:记忆与状态
 
@@ -18,11 +21,15 @@ LangChain 是 LLM 应用开发最流行的组装框架:把"模型调用、提示
 
 ## 第四站:Agent 与工具——现代姿势是 LangGraph
 
-**Agent 在 LangChain 的演进**(面试/选型常问):老 AgentExecutor(黑盒循环)→ **LangGraph 的显式 Agent 图(create_react_agent 等,推荐)**:节点(模型决策/工具执行)+ 边 + 共享状态——**循环可见、可打断、可恢复**。**工具定义**:`@tool` 装饰器把函数变工具(**函数 docstring 自动成为工具描述——模型靠它决定何时调用,写清楚!**;参数自动生成 JSON Schema;可配返回类型);内置工具集(搜索(Tavily)/计算/维基)与社区工具;**MCP 集成**(langchain-mcp-adapters:把现成 MCP Server 变成工具——见 [MCP](/learning-paths/ai/claude-mcp))。**LangGraph 核心概念(值得专门学)**:StateGraph(定义状态结构与节点)、节点(普通函数:读状态/返回更新)、**边与条件边**(决定流程走向——工具调用循环就是"模型节点→有 tool_calls 则去工具节点→回模型节点")、**interrupt(人在环:节点暂停等人确认/输入——生产 Agent 的关键能力,见 [Agent 开发](/learning-paths/ai/agent-development))**、checkpointer(状态持久化)、子图(模块复用)。**学习顺序**:先裸写工具循环(理解,见 [Agent 基础](/learning-paths/ai/agent-basics))→ 用 create_react_agent 跑通 → 手写 StateGraph 控制复杂流程。
+**Agent 在 LangChain 的演进**(面试/选型常问):老 AgentExecutor(黑盒循环)→ **LangGraph 的显式 Agent 图(create_react_agent 等,推荐)**:节点(模型决策/工具执行)+ 边 + 共享状态——**循环可见、可打断、可恢复**。
+**工具定义**:`@tool` 装饰器把函数变工具(**函数 docstring 自动成为工具描述——模型靠它决定何时调用,写清楚!**;参数自动生成 JSON Schema;可配返回类型);内置工具集(搜索(Tavily)/计算/维基)与社区工具;**MCP 集成**(langchain-mcp-adapters:把现成 MCP Server 变成工具——见 [MCP](/learning-paths/ai/claude-mcp))。
+**LangGraph 核心概念(值得专门学)**:StateGraph(定义状态结构与节点)、节点(普通函数:读状态/返回更新)、**边与条件边**(决定流程走向——工具调用循环就是"模型节点→有 tool_calls 则去工具节点→回模型节点")、**interrupt(人在环:节点暂停等人确认/输入——生产 Agent 的关键能力,见 [Agent 开发](/learning-paths/ai/agent-development))**、checkpointer(状态持久化)、子图(模块复用)。
+**学习顺序**:先裸写工具循环(理解,见 [Agent 基础](/learning-paths/ai/agent-basics))→ 用 create_react_agent 跑通 → 手写 StateGraph 控制复杂流程。
 
 ## 第五站:RAG 组件链——加载到生成的流水线
 
-LangChain 的 RAG 组件是全的,按顺序认识:**①Document Loaders**:几十种格式(PDF/网页/Office/数据库/Notion……)统一输出 Document(page_content + metadata——**metadata(来源/页码)是引用溯源的基础**);**②Text Splitters**:把长文档切成检索友好的块——**首选 RecursiveCharacterTextSplitter(按段落句子递归切,chunk_size 500-1000 token 起步)**;切太大超 token、太小丢上下文,**切分质量直接决定检索质量**(进阶:按结构切(标题)/语义切分,见 [RAG](/learning-paths/ai/rag-systems));**③Embeddings 接口**(模型无关:OpenAI/Anthropic 兼容/本地 Ollama——统一 embed 调用);**④VectorStores 接口**:本地 Chroma/FAISS、生产 pgvector/Milvus/Qdrant(见 [向量数据库](/learning-paths/ai/vector-databases))——写入(add)与召回(similarity_search)是统一 API;⑤**Retrievers(检索器,决定 RAG 上限)**:基础向量检索 → **MMR(最大边际相关:去重保多样)** → 多查询检索(拆多个子查询)、**Contextual/压缩检索**(只留相关片段)、重排(Reranker 二段检索——**生产 RAG 的标配**);⑥**组装 RAG 链(LCEL)**:`{question} → 检索 → 拼上下文 → model → 回答`——"检索器 | 格式化 | prompt | model";**RunnableWithMessageHistory + RAG** 就是多轮文档问答。完整方法论(评估/进阶)见 [RAG 系统](/learning-paths/ai/rag-systems) 页。
+LangChain 的 RAG 组件是全的,按顺序认识:**①Document Loaders**:几十种格式(PDF/网页/Office/数据库/Notion……)统一输出 Document(page_content + metadata——**metadata(来源/页码)是引用溯源的基础**);**②Text Splitters**:把长文档切成检索友好的块——**首选 RecursiveCharacterTextSplitter(按段落句子递归切,chunk_size 500-1000 token 起步)**;切太大超 token、太小丢上下文,**切分质量直接决定检索质量**(进阶:按结构切(标题)/语义切分,见 [RAG](/learning-paths/ai/rag-systems));**③Embeddings 接口**(模型无关:OpenAI/Anthropic 兼容/本地 Ollama——统一 embed 调用);**④VectorStores 接口**:本地 Chroma/FAISS、生产 pgvector/Milvus/Qdrant(见 [向量数据库](/learning-paths/ai/vector-databases))——写入(add)与召回(similarity_search)是统一 API;⑤**Retrievers(检索器,决定 RAG 上限)**:基础向量检索 → **MMR(最大边际相关:去重保多样)** → 多查询检索(拆多个子查询)、**Contextual/压缩检索**(只留相关片段)、重排(Reranker 二段检索——**生产 RAG 的标配**);⑥**组装 RAG 链(LCEL)**:`&#123;question&#125; → 检索 → 拼上下文 → model → 回答`——"检索器 | 格式化 | prompt | model";**RunnableWithMessageHistory + RAG** 就是多轮文档问答。
+完整方法论(评估/进阶)见 [RAG 系统](/learning-paths/ai/rag-systems) 页。
 
 ## 第六站:可观测与工程化
 
@@ -30,7 +37,9 @@ LangChain 的 RAG 组件是全的,按顺序认识:**①Document Loaders**:几十
 
 ## 第七站:最佳实践、批评与选型
 
-**最佳实践清单**:先裸写小例跑通再上框架(理解在框架前);能确定性流程就别上 Agent(见 [Agent 开发](/learning-paths/ai/agent-development) 的编排原则);每步可单独测试(LCEL 天然支持);追踪与预算从第一天就接;模型/检索质量用数据集评估而不是"感觉"。**批评与替代(面试/选型要会说)**:LangChain 的问题——抽象层厚(出问题要扒三层)、**API 变动快(教程半年过期)**、包体积与依赖重;**替代坐标系**:极简小项目 → 官方 SDK 手写(几百行搞定,见 [Claude API](/learning-paths/ai/claude-api));复杂状态化 Agent → **LangGraph(或自写状态机)**;数据/RAG 向 → **LlamaIndex**(见下页);需要长文档多格式问答 → LlamaIndex 或直接 LangChain RAG 链;前端/全栈 → Vercel AI SDK。**什么时候选 LangChain**:组件生态要得多(几十种 loader/vectorstore 适配)、团队要统一抽象、要 LangSmith 一条龙——**"复杂度不够别引框架,引了就要跟上游版本"**。
+**最佳实践清单**:先裸写小例跑通再上框架(理解在框架前);能确定性流程就别上 Agent(见 [Agent 开发](/learning-paths/ai/agent-development) 的编排原则);每步可单独测试(LCEL 天然支持);追踪与预算从第一天就接;模型/检索质量用数据集评估而不是"感觉"。
+**批评与替代(面试/选型要会说)**:LangChain 的问题——抽象层厚(出问题要扒三层)、**API 变动快(教程半年过期)**、包体积与依赖重;**替代坐标系**:极简小项目 → 官方 SDK 手写(几百行搞定,见 [Claude API](/learning-paths/ai/claude-api));复杂状态化 Agent → **LangGraph(或自写状态机)**;数据/RAG 向 → **LlamaIndex**(见下页);需要长文档多格式问答 → LlamaIndex 或直接 LangChain RAG 链;前端/全栈 → Vercel AI SDK。
+**什么时候选 LangChain**:组件生态要得多(几十种 loader/vectorstore 适配)、团队要统一抽象、要 LangSmith 一条龙——**"复杂度不够别引框架,引了就要跟上游版本"**。
 
 ## 通关标准
 

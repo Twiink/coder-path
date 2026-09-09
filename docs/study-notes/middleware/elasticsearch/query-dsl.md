@@ -870,7 +870,7 @@ POST /products/_search
 
 ## 本章小结
 
-- Query DSL 是 ES 的 JSON 查询语言，结构为 `{ "query": { ... } }`
+- Query DSL 是 ES 的 JSON 查询语言，结构为 (&#123; "query": &#123; ... &#125; &#125;)
 - **Query Context** 计算相关性分数，**Filter Context** 不计算但有缓存
 - `match` 是全文搜索的核心，`term` 是精确匹配的核心
 - `bool` 查询可组合 `must`/`should`/`must_not`/`filter`

@@ -693,10 +693,10 @@ ssm-demo/
 > | `DispatcherServlet` | `DispatcherServletAutoConfiguration` 自动注册 |
 > | `CharacterEncodingFilter` | `HttpEncodingAutoConfiguration`（`server.servlet.encoding.*`） |
 > | `HiddenHttpMethodFilter` | `WebMvcAutoConfiguration`（`spring.mvc.hiddenmethod.filter.enabled`） |
-> | `<session-config>` | `server.servlet.session.*` |
-> | `<error-page>` | `ErrorMvcAutoConfiguration` + `ErrorController` |
-> | `<multipart-config>` | `MultipartAutoConfiguration`（`spring.servlet.multipart.*`） |
-> | `<load-on-startup>` | `spring.mvc.servlet.load-on-startup` |
+> | `&lt;session-config&gt;` | `server.servlet.session.*` |
+> | `&lt;error-page&gt;` | `ErrorMvcAutoConfiguration` + `ErrorController` |
+> | `&lt;multipart-config&gt;` | `MultipartAutoConfiguration`（`spring.servlet.multipart.*`） |
+> | `&lt;load-on-startup&gt;` | `spring.mvc.servlet.load-on-startup` |
 
 ## 4. Spring 配置文件详解
 
@@ -1294,7 +1294,7 @@ redis.database=0
 </configuration>
 ```
 
-> 【坑】**整合 Spring 后，`mybatis-config.xml` 中的 `<environments>` 和 `<mappers>` 必须去掉或注释**：
+> 【坑】**整合 Spring 后，`mybatis-config.xml` 中的 `&lt;environments&gt;` 和 `&lt;mappers&gt;` 必须去掉或注释**：
 > - 数据源由 Spring 的 `SqlSessionFactoryBean.dataSource` 提供
 > - Mapper 由 `MapperScannerConfigurer` 扫描 + `mapperLocations` 指定
 > - 如果同时配置，会冲突或导致 Spring 的事务管理失效（MyBatis 用了自己的连接）。
@@ -1850,7 +1850,7 @@ public class UserServiceTest {
 | 5 | **静态资源 404** | js/css 加载失败 | DispatcherServlet 拦截了，需 `<mvc:resources>` + `<mvc:default-servlet-handler/>` |
 | 6 | **JSP 报「找不到 JSTL」** | `Unable to find taglib` | 缺 jstl 依赖，或 jar 未打入 WEB-INF/lib |
 | 7 | **中文参数乱码** | 表单提交乱码 | `CharacterEncodingFilter` 未配置或未放最前面 |
-| 8 | **MyBatis XML 找不到** | `Invalid bound statement (not found)` | `mapperLocations` 路径错，或 XML 在 src/main/java 下未配 `<resources>` |
+| 8 | **MyBatis XML 找不到** | `Invalid bound statement (not found)` | `mapperLocations` 路径错，或 XML 在 src/main/java 下未配 `&lt;resources&gt;` |
 | 9 | **namespace 与方法名不匹配** | 同上 | XML 的 namespace 必须是 Mapper 接口全限定名，id 必须与方法名一致 |
 | 10 | **下划线字段映射为 null** | `userName` 为 null | 未开启 `mapUnderscoreToCamelCase` |
 | 11 | **事务管理器与数据源不匹配** | 事务无效 | `DataSourceTransactionManager` 的 dataSource 必须与 MyBatis 用的是**同一个** |

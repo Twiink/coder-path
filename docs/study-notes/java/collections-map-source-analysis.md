@@ -554,14 +554,14 @@ threshold = capacity * loadFactor     // 16 * 0.75 = 12，size > 12 时扩容
 > ```java
 > // 要存 1000 个元素，避免扩容的最佳初始容量
 > int initCapacity = (int) (1000 / 0.75f) + 1;   // 1334
-> Map<String, Object> map = new HashMap<>(initCapacity);   // 实际会是 2048（tableSizeFor）
+> Map&lt;String, Object&gt; map = new HashMap<>(initCapacity);   // 实际会是 2048（tableSizeFor）
 >
 > // Guava 提供的工具（更准确）
-> Map<String, Object> map2 = Maps.newHashMapWithExpectedSize(1000);
+> Map&lt;String, Object&gt; map2 = Maps.newHashMapWithExpectedSize(1000);
 > // 内部：(int) ((float) expectedSize / 0.75F + 1.0F)
 >
 > // JDK 19+ 官方提供
-> Map<String, Object> map3 = HashMap.newHashMap(1000);
+> Map&lt;String, Object&gt; map3 = HashMap.newHashMap(1000);
 > ```
 > 【强制】阿里手册：**集合初始化时指定初始容量**（`HashMap` 用 `initialCapacity = (需要存储的元素数 / 负载因子) + 1`）。
 

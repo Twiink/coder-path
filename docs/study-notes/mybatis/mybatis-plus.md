@@ -387,22 +387,22 @@ public interface UserMapper extends BaseMapper<User> {
 | **插入** | `int insert(T entity)` | ★ 插入（主键回填、null 字段不插入） |
 | **删除** | `int deleteById(Serializable id)` | 按主键删除 |
 | | `int deleteById(T entity)` | ★ 按实体删除（3.4.4+，用实体的主键） |
-| | `int deleteByMap(Map<String,Object> map)` | 按 Map 条件删除 |
-| | `int delete(Wrapper<T> queryWrapper)` | ★ 按条件删除 |
+| | `int deleteByMap(Map&lt;String,Object&gt; map)` | 按 Map 条件删除 |
+| | `int delete(Wrapper&lt;T&gt; queryWrapper)` | ★ 按条件删除 |
 | | `int deleteBatchIds(Collection<?> ids)` | ★ 批量按 ID 删除 |
 | **更新** | `int updateById(T entity)` | ★ 按主键更新（null 字段不更新） |
-| | `int update(T entity, Wrapper<T> updateWrapper)` | ★ 按条件更新 |
+| | `int update(T entity, Wrapper&lt;T&gt; updateWrapper)` | ★ 按条件更新 |
 | **查询单个** | `T selectById(Serializable id)` | ★ 按主键查询 |
-| | `T selectOne(Wrapper<T> queryWrapper)` | ★ 查一条（多条抛异常） |
+| | `T selectOne(Wrapper&lt;T&gt; queryWrapper)` | ★ 查一条（多条抛异常） |
 | | `T selectOne(Wrapper, boolean throwEx)` | ★ 3.5.4+，多条不抛异常 |
-| **查询多个** | `List<T> selectBatchIds(Collection<?> ids)` | ★ 批量按 ID 查询 |
-| | `List<T> selectByMap(Map<String,Object> map)` | 按 Map 条件查询 |
-| | `List<T> selectList(Wrapper<T> queryWrapper)` | ★ 按条件查询列表 |
-| | `List<T> selectObjs(Wrapper<T> queryWrapper)` | ★ 只查第一列 |
-| | `List<Map<String,Object>> selectMaps(Wrapper)` | ★ 查成 Map |
-| **统计** | `Long selectCount(Wrapper<T> queryWrapper)` | ★ 统计条数 |
-| **分页** | `<P extends IPage<T>> P selectPage(P page, Wrapper<T> queryWrapper)` | ★★ 分页查询 |
-| | `<P extends IPage<Map>> P selectMapsPage(P page, Wrapper)` | 分页查 Map |
+| **查询多个** | `List&lt;T&gt; selectBatchIds(Collection<?> ids)` | ★ 批量按 ID 查询 |
+| | `List&lt;T&gt; selectByMap(Map&lt;String,Object&gt; map)` | 按 Map 条件查询 |
+| | `List&lt;T&gt; selectList(Wrapper&lt;T&gt; queryWrapper)` | ★ 按条件查询列表 |
+| | `List&lt;T&gt; selectObjs(Wrapper&lt;T&gt; queryWrapper)` | ★ 只查第一列 |
+| | `List<Map&lt;String,Object&gt;> selectMaps(Wrapper)` | ★ 查成 Map |
+| **统计** | `Long selectCount(Wrapper&lt;T&gt; queryWrapper)` | ★ 统计条数 |
+| **分页** | `<P extends IPage&lt;T&gt;> P selectPage(P page, Wrapper&lt;T&gt; queryWrapper)` | ★★ 分页查询 |
+| | `<P extends IPage&lt;Map&gt;> P selectMapsPage(P page, Wrapper)` | 分页查 Map |
 | **其他** | `boolean exists(Wrapper)` | 3.5.3.2+ 是否存在 |
 
 ```java
@@ -1083,7 +1083,7 @@ public interface UserMapper extends BaseMapper<User> {
 | 11 | JSON 字段未配 `autoResultMap` | typeHandler 不生效 | `@TableName(autoResultMap=true)` |
 | 12 | `saveBatch` 性能差 | 逐条插入 | JDBC URL 加 `rewriteBatchedStatements=true` |
 | 13 | `last()` 拼接用户输入 | ★ SQL 注入 | `last` 只用固定字符串（如 LIMIT 1） |
-| 14 | `apply()` 用字符串拼接参数 | SQL 注入 | 用 `apply("x = {0}", param)` 占位符 |
+| 14 | `apply()` 用字符串拼接参数 | SQL 注入 | 用 `apply("x = &#123;0&#125;", param)` 占位符 |
 | 15 | Wrapper 的 `orderBy` 用用户输入 | SQL 注入 | 排序字段白名单校验 |
 | 16 | `@EnumValue` 未配 handler | 枚举存的是 name | 配 `default-enum-type-handler` |
 | 17 | 插件顺序错误 | 多租户/分页互相干扰 | 多租户 → 动态表名 → 分页 → 乐观锁 |

@@ -8,7 +8,7 @@ Tauri 是 **Electron 的轻量级替代**:前端仍是 Web 技术(React/Vue/Svel
 
 ## 基础篇:环境、架构与命令系统
 
-**环境**:装 Rust(rustup)与系统依赖;`npm create tauri-app` 脚手架(选前端框架)→ `npm run tauri dev`(开发窗口)。**项目结构**:前端(src/ 常规 Web 工程)+ `src-tauri/`(Rust:main.rs/lib.rs 命令 + tauri.conf.json 配置)+ `src-tauri/capabilities/`(**权限白名单:前端能调哪些命令/API——Tauri 的安全特色,配置要理解**)。**命令系统(核心机制,对应 Electron 的 IPC)**:Rust 里 `#[tauri::command] fn greet(name: String) -> String` + 注册 → 前端 **`invoke('greet', { name })` 调用并拿 Promise 结果**——**"点按钮 → Rust 算 → 回前端"是第一个里程碑**;参数与返回值走 serde 序列化(结构体传参——**类型在前后端之间被 Rust 的强类型约束住**)。
+**环境**:装 Rust(rustup)与系统依赖;`npm create tauri-app` 脚手架(选前端框架)→ `npm run tauri dev`(开发窗口)。**项目结构**:前端(src/ 常规 Web 工程)+ `src-tauri/`(Rust:main.rs/lib.rs 命令 + tauri.conf.json 配置)+ `src-tauri/capabilities/`(**权限白名单:前端能调哪些命令/API——Tauri 的安全特色,配置要理解**)。**命令系统(核心机制,对应 Electron 的 IPC)**:Rust 里 `#[tauri::command] fn greet(name: String) -> String` + 注册 → 前端 **`invoke('greet', &#123; name &#125;)` 调用并拿 Promise 结果**——**"点按钮 → Rust 算 → 回前端"是第一个里程碑**;参数与返回值走 serde 序列化(结构体传参——**类型在前后端之间被 Rust 的强类型约束住**)。
 
 ## 进阶篇:系统 API 与事件
 

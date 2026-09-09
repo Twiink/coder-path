@@ -35,7 +35,7 @@
 **增量同步（Partial Resynchronization）**：
 - **触发场景**：从节点短暂断线后重连（默认 1 分钟内）
 - **流程**：
-  1. 从节点发送 `PSYNC <runid> <offset>` 给主节点
+  1. 从节点发送 `PSYNC &lt;runid&gt; &lt;offset&gt;` 给主节点
   2. 主节点检查 runid 和 offset 是否匹配
   3. 如果匹配，从 repl_backlog 缓冲区发送缺失的命令
   4. 从节点执行缺失命令，完成同步
@@ -52,7 +52,7 @@ repl_backlog 缓冲区：
 
 **方式一：配置文件**
 
-```conf
+```ini
 # replica.conf（从节点配置）
 port 6380
 replicaof 127.0.0.1 6379    # 指向主节点
@@ -127,7 +127,7 @@ OK
 
 ### 5.2.3 配置哨兵
 
-```conf
+```ini
 # sentinel.conf（哨兵配置）
 port 26379
 daemonize yes
@@ -310,7 +310,7 @@ redis-cli -p 7000 CLUSTER NODES
 
 **方式二：手动配置**
 
-```conf
+```ini
 # redis.conf（每个节点）
 cluster-enabled yes
 cluster-config-file nodes.conf
@@ -391,7 +391,7 @@ redis-cli --cluster del-node 127.0.0.1:7006 <node-id>
 
 | 限制 | 说明 | 解决方案 |
 |------|------|---------|
-| **不支持跨槽的多 key 操作** | `MGET key1 key2` 如果 key1 和 key2 不在同一槽会报错 | 使用 `{hashtag}` 强制同槽 |
+| **不支持跨槽的多 key 操作** | `MGET key1 key2` 如果 key1 和 key2 不在同一槽会报错 | 使用 `&#123;hashtag&#125;` 强制同槽 |
 | **不支持 SELECT 命令** | 只能用 db0 | — |
 | **事务支持有限** | `MULTI/EXEC` 只能操作同一槽的 key | 使用 Lua 脚本 |
 | **Pub/Sub 广播到所有节点** | 性能开销大 | 使用 `SSUBSCRIBE`（7.0+） |
@@ -486,7 +486,7 @@ jc.set("foo", "bar");
 
 ### 5.5.2 集群配置建议
 
-```conf
+```ini
 # redis.conf（集群节点）
 # 内存
 maxmemory 8gb

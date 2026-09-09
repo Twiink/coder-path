@@ -616,7 +616,7 @@ public class AppConfig { }
 | `@Autowired` | 字段/构造器/setter/方法/参数 | ★ 按类型注入 |
 | `@Qualifier("name")` | 配合 @Autowired | 按名称筛选 |
 | `@Resource` | 字段/setter | ★ 按名称注入（JSR-250） |
-| `@Value("${x}")` | 字段/参数 | ★ 注入配置值 / SpEL |
+| `@Value("$&#123;x&#125;")` | 字段/参数 | ★ 注入配置值 / SpEL |
 | `@Primary` | 类/@Bean | 同类型多 Bean 时优先 |
 | `@Lazy` | 类/@Bean/注入点 | ★ 延迟初始化 / 延迟注入代理 |
 | `@Scope` | 类/@Bean | singleton/prototype/request/session |

@@ -1435,11 +1435,11 @@ public class SmsRateLimitInterceptor implements SmsInterceptor {
 
 | 规范 | 说明 |
 | --- | --- |
-| **官方 Starter** | `spring-boot-starter-{name}`（如 `spring-boot-starter-web`） |
-| **第三方 Starter** | ★ **`{name}-spring-boot-starter`**（如 `mybatis-spring-boot-starter`、`druid-spring-boot-starter`） |
+| **官方 Starter** | `spring-boot-starter-&#123;name&#125;`（如 `spring-boot-starter-web`） |
+| **第三方 Starter** | ★ **`&#123;name&#125;-spring-boot-starter`**（如 `mybatis-spring-boot-starter`、`druid-spring-boot-starter`） |
 | **不要占用官方命名** | 避免 `spring-boot-starter-sms`（会与未来官方冲突） |
-| 自动配置类命名 | `{Name}AutoConfiguration` |
-| 属性类命名 | `{Name}Properties` |
+| 自动配置类命名 | `&#123;Name&#125;AutoConfiguration` |
+| 属性类命名 | `&#123;Name&#125;Properties` |
 | 前缀 | 用组织/产品名（`example.sms`、`alibaba.cloud.nacos`），避免 `spring.*` |
 
 **最佳实践清单：**
@@ -1515,7 +1515,7 @@ class SmsAutoConfigurationTest {
 | 4 | `version: 1.10` | 变成 1.1 | 用引号 `"1.10"` |
 | 5 | 邮编 `07701` | 变成 7701 | 用引号 |
 | 6 | properties 与 yml 同时存在同名配置 | properties 生效（优先级高） | 统一用一种 |
-| 7 | profile 文件名与 active 值不匹配 | 配置不加载 | `application-{profile}.yml` 严格对应 |
+| 7 | profile 文件名与 active 值不匹配 | 配置不加载 | `application-&#123;profile&#125;.yml` 严格对应 |
 | 8 | 单文件多 profile 用了老语法 | Boot 2.4+ 报错 | 用 `spring.config.activate.on-profile` |
 | 9 | `@ConfigurationProperties` 未注册 | 属性全是默认值 | 加 `@EnableConfigurationProperties` 或 `@ConfigurationPropertiesScan` |
 | 10 | `@Validated` 忘加 | 校验注解无效 | 属性类上加 `@Validated` |
@@ -1528,7 +1528,7 @@ class SmsAutoConfigurationTest {
 | 17 | Starter 忘了 `.imports` 文件 | 自动配置完全不生效 | 创建 SPI 文件，路径和文件名严格一致 |
 | 18 | Starter 未加 `@ConditionalOnMissingBean` | 用户配置无法覆盖 | ★ 每个 @Bean 都加 |
 | 19 | `@ConditionalOnClass` 用 Class 引用可选依赖 | `NoClassDefFoundError` | 用 `name = "com.x.Y"` 字符串形式 |
-| 20 | Starter 命名占用官方前缀 | 未来冲突 | `{name}-spring-boot-starter` |
+| 20 | Starter 命名占用官方前缀 | 未来冲突 | `&#123;name&#125;-spring-boot-starter` |
 | 21 | 属性类用了 `@Component` + `@EnableConfigurationProperties` | Bean 重复注册 | 二选一 |
 | 22 | 未加 configuration-processor | IDE 无提示，用户体验差 | 加 optional 依赖 |
 | 23 | `Duration` 配置写成数字 | 默认按毫秒 | 用 `30s`、`5m`、`1h` 格式 |

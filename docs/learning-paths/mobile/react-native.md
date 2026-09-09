@@ -8,7 +8,8 @@ React Native(Facebook/Meta 出品)是**用 JavaScript/React 写 iOS 与 Android 
 
 ## 基础篇:环境与核心组件
 
-**环境(现代姿势)**:Node + **Expo**(`npx create-expo-app`——脚手架/模拟器/真机扫码预览一条龙,新项目默认);想完全控制原生代码再走 React Native CLI(需 Xcode/Android Studio)。**RN 与 Web 的差异(第一课)**:没有 DOM/HTML/CSS——**一切皆组件**:核心组件 `View`(容器,对应 div)/`Text`(文本,不能用字符串裸放)/`Image`/`TextInput`/`Pressable`(触摸);**样式是 JS 对象**(StyleSheet.create,类 CSS 子集:flexbox 为主、无 CSS 文件);**Flexbox 布局**(与 Web 同思维:flexDirection/justifyContent——RN 默认 column 与 Web 不同,注意);尺寸单位无 px(逻辑像素)。**触摸与手势**:Pressable(按压状态回调)/Touchable 系列;**列表(性能关键)**:`FlatList`(虚拟化长列表:只渲染可视区——**别用 map 渲染长列表**)/SectionList(分组);**ScrollView**(短内容滚动)。
+**环境(现代姿势)**:Node + **Expo**(`npx create-expo-app`——脚手架/模拟器/真机扫码预览一条龙,新项目默认);想完全控制原生代码再走 React Native CLI(需 Xcode/Android Studio)。**RN 与 Web 的差异(第一课)**:没有 DOM/HTML/CSS——**一切皆组件**:核心组件 `View`(容器,对应 div)/`Text`(文本,不能用字符串裸放)/`Image`/`TextInput`/`Pressable`(触摸);**样式是 JS 对象**(StyleSheet.create,类 CSS 子集:flexbox 为主、无 CSS 文件);**Flexbox 布局**(与 Web 同思维:flexDirection/justifyContent——RN 默认 column 与 Web 不同,注意);尺寸单位无 px(逻辑像素)。
+**触摸与手势**:Pressable(按压状态回调)/Touchable 系列;**列表(性能关键)**:`FlatList`(虚拟化长列表:只渲染可视区——**别用 map 渲染长列表**)/SectionList(分组);**ScrollView**(短内容滚动)。
 
 ## 进阶篇:导航、状态与数据
 

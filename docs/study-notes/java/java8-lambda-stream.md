@@ -143,7 +143,7 @@ Runnable ok = () -> {
 | 参数括号 | **只有一个参数**时 | `x -> x * 2` |
 | 方法体大括号 | **只有一条语句**时 | `x -> x * 2` |
 | `return` 关键字 | 省略大括号时（单表达式自动返回） | `x -> x * 2` |
-| `return` | 有大括号时必须写 | `x -> { return x * 2; }` |
+| `return` | 有大括号时必须写 | `x -> &#123; return x * 2; &#125;` |
 
 ### 2.3 函数式接口 ★★★★★
 
@@ -169,12 +169,12 @@ public interface MyFunction<T, R> {
 
 | 接口 | 抽象方法 | 语义 | Lambda 示例 | 典型用途 |
 | --- | --- | --- | --- | --- |
-| **`Function<T,R>`** | `R apply(T t)` | 转换：T → R | `x -> x.toString()` | `Stream.map` |
-| **`Consumer<T>`** | `void accept(T t)` | 消费：处理 T 无返回 | `x -> System.out.println(x)` | `Stream.forEach` |
-| **`Supplier<T>`** | `T get()` | 供给：无参返回 T | `() -> new User()` | 懒加载、工厂、`orElseGet` |
-| **`Predicate<T>`** | `boolean test(T t)` | 判断：T → boolean | `x -> x > 0` | `Stream.filter` |
-| `UnaryOperator<T>` | `T apply(T t)` | Function 的特例（T → T） | `s -> s.trim()` | 同类型转换 |
-| `BinaryOperator<T>` | `T apply(T t1, T t2)` | BiFunction 的特例 | `(a,b) -> a + b` | `reduce` |
+| **`Function&lt;T,R&gt;`** | `R apply(T t)` | 转换：T → R | `x -> x.toString()` | `Stream.map` |
+| **`Consumer&lt;T&gt;`** | `void accept(T t)` | 消费：处理 T 无返回 | `x -> System.out.println(x)` | `Stream.forEach` |
+| **`Supplier&lt;T&gt;`** | `T get()` | 供给：无参返回 T | `() -> new User()` | 懒加载、工厂、`orElseGet` |
+| **`Predicate&lt;T&gt;`** | `boolean test(T t)` | 判断：T → boolean | `x -> x > 0` | `Stream.filter` |
+| `UnaryOperator&lt;T&gt;` | `T apply(T t)` | Function 的特例（T → T） | `s -> s.trim()` | 同类型转换 |
+| `BinaryOperator&lt;T&gt;` | `T apply(T t1, T t2)` | BiFunction 的特例 | `(a,b) -> a + b` | `reduce` |
 
 **完整列表（43 个接口）：**
 
@@ -622,7 +622,7 @@ Stream<String> built = builder.build();
 
 > 【坑】**Stream 只能消费一次**：
 > ```java
-> Stream<String> s = list.stream().filter(x -> x.length() > 1);
+> Stream&lt;String&gt; s = list.stream().filter(x -> x.length() > 1);
 > long c1 = s.count();
 > long c2 = s.count();     // ❌ IllegalStateException: stream has already been operated upon or closed
 > // 解决：重新创建流
@@ -1083,7 +1083,7 @@ String name = findById(1L).map(User::getName).orElse("匿名");
 | 作为**方法返回值**，明确表达「可能无结果」 | 作为**字段**（不实现 Serializable，且增加对象大小） |
 | 链式 `map/filter/orElse` 处理 | `opt.get()` 不判空（等于 NPE 换了个异常） |
 | `orElseThrow` 抛业务异常 | `if (opt.isPresent()) opt.get()`（等于判空，啰嗦） |
-| 集合查询返回 `Optional<T>` | `Optional<List<T>>`（应返回空 List） |
+| 集合查询返回 `Optional&lt;T&gt;` | `Optional<List&lt;T&gt;>`（应返回空 List） |
 | `orElseGet` 惰性创建默认值 | `orElse(expensiveCall())`（总是执行昂贵调用） |
 | — | 作为方法参数（调用方要包装，啰嗦；用重载或 `@Nullable`） |
 | — | `Optional<基本类型>`（用 `OptionalInt/Long/Double`） |
@@ -1746,7 +1746,7 @@ catch (NumberFormatException _) { }
 | 19 | `mapToInt` 后忘记 `sum()` | 类型不对 | 特化流有自己的聚合方法 |
 | 20 | `limit` 在 `sorted` 前 | Top N 结果错误 | 先 sorted 后 limit |
 | 21 | `peek` 不执行 | 短路操作或无终止操作 | 加终止操作，peek 只用于调试 |
-| 22 | 基本类型装箱性能差 | Stream<Integer> 慢 | 用 IntStream/LongStream |
+| 22 | 基本类型装箱性能差 | Stream&lt;Integer&gt; 慢 | 用 IntStream/LongStream |
 | 23 | `List.of()` 返回不可变 | add 抛异常 | 需要可变用 `new ArrayList<>(...)` |
 | 24 | `stream.toList()` 不可变（JDK 16+） | add 抛异常 | 用 `collect(Collectors.toList())` 得可变 List |
 | 25 | `distinct` 对未重写 hashCode 的对象 | 去重失效 | 重写 equals/hashCode 或 `distinctByKey` |

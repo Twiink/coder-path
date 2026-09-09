@@ -260,15 +260,15 @@ User u5 = mapper.readValue(json, User.class);
 
 > 【坑】**`newInstance()` 的异常包装**：
 > ```java
-> try {
+> try &#123;
 >     clazz.newInstance();
-> } catch (InstantiationException e) {   // 抽象类/接口/无无参构造器
-> } catch (IllegalAccessException e) {   // 构造器不可访问（private）
-> }
+> &#125; catch (InstantiationException e) &#123;   // 抽象类/接口/无无参构造器
+> &#125; catch (IllegalAccessException e) &#123;   // 构造器不可访问（private）
+> &#125;
 > // 构造器内部抛出的异常会被包装成 InvocationTargetException
-> catch (InvocationTargetException e) {
+> catch (InvocationTargetException e) &#123;
 >     Throwable real = e.getTargetException();   // ★ 取出真正的异常
-> }
+> &#125;
 > ```
 > **`newInstance()` 会把构造器抛出的受检异常「偷偷」抛出**（绕过编译检查），所以 JDK 9 起废弃它，推荐 `getDeclaredConstructor().newInstance()`。
 
@@ -332,23 +332,23 @@ try {
 >
 > Spring AOP 的处理方式（`AopUtils.invokeJoinpointUsingReflection`）：
 > ```java
-> try {
+> try &#123;
 >     return method.invoke(target, args);
-> } catch (InvocationTargetException ex) {
+> &#125; catch (InvocationTargetException ex) &#123;
 >     throw ex.getTargetException();      // ★ 直接把真实异常抛出，让 @Transactional 能正确回滚
-> } catch (IllegalArgumentException ex) {
+> &#125; catch (IllegalArgumentException ex) &#123;
 >     throw new AopInvocationException(...);
-> }
+> &#125;
 > ```
 > **这就是为什么 AOP 代理的方法能正确触发事务回滚** —— 真实异常被原样抛出，没有被包装污染。
 
 > 【坑 2】**反射获取参数名需要编译时加 `-parameters`**：
 > ```xml
 > <!-- Maven 配置 -->
-> <plugin>
+> &lt;plugin&gt;
 >   <artifactId>maven-compiler-plugin</artifactId>
->   <configuration>
->     <parameters>true</parameters>       <!-- ★ Spring Boot 的 parent 已默认开启 -->
+>   &lt;configuration&gt;
+>     &lt;parameters&gt;true</parameters>       <!-- ★ Spring Boot 的 parent 已默认开启 -->
 >   </configuration>
 > </plugin>
 > ```
@@ -867,24 +867,24 @@ public class Proxy implements Serializable {
 
 > 【坑 1】**`invoke` 的第一个参数 `proxy` 不是 `target`**：
 > ```java
-> public Object invoke(Object proxy, Method method, Object[] args) {
+> public Object invoke(Object proxy, Method method, Object[] args) &#123;
 >     // ❌ 死循环！proxy 的方法又会调到 invoke
 >     method.invoke(proxy, args);
 >     // ✅ 必须调用 target
 >     method.invoke(target, args);
-> }
+> &#125;
 > ```
 
 > 【坑 2】**`UndeclaredThrowableException`**：
 > ```java
-> interface Service { void doIt(); }        // 没声明 throws
-> class Impl implements Service {
->     public void doIt() { throw new RuntimeException("x"); }   // RuntimeException 没事
-> }
+> interface Service &#123; void doIt(); &#125;        // 没声明 throws
+> class Impl implements Service &#123;
+>     public void doIt() &#123; throw new RuntimeException("x"); &#125;   // RuntimeException 没事
+> &#125;
 > // 如果 handler 中抛出的是「接口方法未声明的受检异常」
-> public Object invoke(...) throws Throwable {
+> public Object invoke(...) throws Throwable &#123;
 >     throw new IOException("io error");    // ← 接口方法没声明 IOException
-> }
+> &#125;
 > // 调用方会收到 UndeclaredThrowableException，真实异常在 getCause() 里
 > // 排查时容易困惑「我的 IOException 哪去了」
 > ```

@@ -145,7 +145,7 @@ def list_items(pagination: dict = Depends(get_pagination)):
     return pagination
 ```
 
-访问 `/items?page=3&size=10` → `{"page":3,"size":10,"offset":20}`。
+访问 `/items?page=3&size=10` → (&#123;"page":3,"size":10,"offset":20&#125;)。
 
 ### 依赖的链式嵌套
 
@@ -501,7 +501,7 @@ def get_item(item_id: int):
     return {"item_id": item_id}
 ```
 
-返回给客户端:`{"detail": "商品不存在"}`,状态码 404。附加自定义响应头:
+返回给客户端:(&#123;"detail": "商品不存在"&#125;),状态码 404。附加自定义响应头:
 
 ```python
 raise HTTPException(
@@ -602,7 +602,7 @@ async def not_found_handler(request: Request, exc: StarletteHTTPException):
 
 | 参数来源 | 声明方式 | 示例 |
 | --- | --- | --- |
-| 路径参数 | 同名函数参数(在路径中有 `{x}`) | `def f(item_id: int)` |
+| 路径参数 | 同名函数参数(在路径中有 `&#123;x&#125;`) | `def f(item_id: int)` |
 | 查询参数 | 非路径参数且是标量类型 | `def f(page: int = 1)` |
 | 请求体 | Pydantic 模型 | `def f(item: Item)` |
 | 请求体字段 | `Body()` | `def f(q: Annotated[str, Body()])` |

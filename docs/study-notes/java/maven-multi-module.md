@@ -78,15 +78,15 @@ my-project/
 
 > 【坑】**`src/main/resources` 下的 `.xml`/`.properties` 默认会被打包，但 `src/main/java` 下的 `.xml` 默认不会！** MyBatis 的 Mapper XML 如果放在 `src/main/java` 的包目录下，需要在 `pom.xml` 中额外配置：
 > ```xml
-> <build>
->   <resources>
->     <resource>
->       <directory>src/main/java</directory>
->       <includes><include>**/*.xml</include></includes>
+> &lt;build&gt;
+>   &lt;resources&gt;
+>     &lt;resource&gt;
+>       &lt;directory&gt;src/main/java</directory>
+>       &lt;includes&gt;&lt;include&gt;**/*.xml</include></includes>
 >     </resource>
->     <resource>
->       <directory>src/main/resources</directory>
->       <filtering>true</filtering>          <!-- ★ 开启变量替换 -->
+>     &lt;resource&gt;
+>       &lt;directory&gt;src/main/resources</directory>
+>       &lt;filtering&gt;true</filtering>          <!-- ★ 开启变量替换 -->
 >     </resource>
 >   </resources>
 > </build>
@@ -894,8 +894,8 @@ mvn -q clean package                     # 安静模式（只输出错误）
 
 | 概念 | 配置 | 作用 |
 | --- | --- | --- |
-| **聚合** | 父 pom 的 `<modules>` | ★ 一条命令构建所有模块（`mvn clean install` 在父目录执行） |
-| **继承** | 子 pom 的 `<parent>` | ★ 复用父 pom 的配置（依赖版本、插件、属性） |
+| **聚合** | 父 pom 的 `&lt;modules&gt;` | ★ 一条命令构建所有模块（`mvn clean install` 在父目录执行） |
+| **继承** | 子 pom 的 `&lt;parent&gt;` | ★ 复用父 pom 的配置（依赖版本、插件、属性） |
 
 > 聚合和继承是**两个独立的概念**，通常一起用（父 pom 既聚合又被子模块继承），但可以只用其一。
 
@@ -1295,7 +1295,7 @@ mvn clean install -U                     # ★ 强制更新 SNAPSHOT（依赖方
 
 > 【坑】**生产环境依赖 SNAPSHOT 是大忌**：SNAPSHOT 会变，同一份代码今天构建和明天构建的产物可能不同（**构建不可重现**），出问题时无法回溯。发布前必须把所有 SNAPSHOT 依赖改为 RELEASE。用 `maven-enforcer-plugin` 的 `requireReleaseDeps` 规则强制检查。
 
-**② `${revision}` 统一管理版本（Maven 3.5+ 的 CI Friendly Versions）：**
+**② `$&#123;revision&#125;` 统一管理版本（Maven 3.5+ 的 CI Friendly Versions）：**
 
 ```xml
 <!-- 父 pom -->
@@ -1444,25 +1444,25 @@ mvn deploy:deploy-file -Dfile=ojdbc8.jar \
 | 1 | `mirrorOf` 设为 `*` | 私服依赖下载不到 | 改为 `central` 或排除私服 id |
 | 2 | 依赖版本冲突 | `NoSuchMethodError`、`NoClassDefFoundError` | `dependency:tree -Dverbose` 定位 + `dependencyManagement` 锁版本 |
 | 3 | 多个 BOM 顺序错误 | 版本不符预期 | ★ **先导入的 BOM 优先**，把重要的放前面 |
-| 4 | `src/main/java` 下的 XML 未打包 | MyBatis 找不到 Mapper XML | 配置 `<resources>` 包含 `**/*.xml` |
+| 4 | `src/main/java` 下的 XML 未打包 | MyBatis 找不到 Mapper XML | 配置 `&lt;resources&gt;` 包含 `**/*.xml` |
 | 5 | 资源过滤损坏二进制文件 | 图片/字体损坏 | 二进制文件 `filtering=false` |
-| 6 | Spring 占位符与 Maven 冲突 | `${xxx}` 被 Maven 提前替换 | Spring Boot 中用 `@xxx@` 作为分隔符 |
+| 6 | Spring 占位符与 Maven 冲突 | `$&#123;xxx&#125;` 被 Maven 提前替换 | Spring Boot 中用 `@xxx@` 作为分隔符 |
 | 7 | Servlet API 打进 war | `LinkageError`、`ClassCastException` | scope 设为 `provided` |
 | 8 | Lombok 打进 jar | 无谓增大包体积 | `optional=true` + 在 boot 插件中 exclude |
 | 9 | 生产依赖 SNAPSHOT | **构建不可重现** | 发布前全部改 RELEASE + enforcer 检查 |
 | 10 | SNAPSHOT 更新不及时 | 拿到旧代码 | `mvn -U` 或删除本地仓库缓存 |
 | 11 | 本地仓库损坏 | 各种诡异的解析错误 | `dependency:purge-local-repository` 或删 `~/.m2/repository` 中对应目录 |
-| 12 | `${revision}` 未被替换 | install 出去的 pom 中还是变量 | 必须加 `flatten-maven-plugin` |
-| 13 | 未配 `-parameters` 编译参数 | Spring MVC/MyBatis 拿不到参数名 | `<compilerArgs><arg>-parameters</arg>` |
+| 12 | `$&#123;revision&#125;` 未被替换 | install 出去的 pom 中还是变量 | 必须加 `flatten-maven-plugin` |
+| 13 | 未配 `-parameters` 编译参数 | Spring MVC/MyBatis 拿不到参数名 | `<compilerArgs>&lt;arg&gt;-parameters</arg>` |
 | 14 | 编码未统一 | 中文乱码、`编码 GBK 的不可映射字符` | `project.build.sourceEncoding=UTF-8` |
 | 15 | 忘记 `spring-boot-maven-plugin` | jar 无法执行（`no main manifest attribute`） | 添加插件 + `repackage` goal |
 | 16 | 多个模块都加了 boot 插件 | 库模块被打成可执行 jar，无法被依赖 | ★ 只在「启动模块」加 |
 | 17 | shade 打包后 SPI 失效 | `ServiceConfigurationError` | 加 `ServicesResourceTransformer` |
 | 18 | shade 后签名校验失败 | `SecurityException: Invalid signature file` | 排除 `META-INF/*.SF/*.DSA/*.RSA` |
 | 19 | 循环依赖的模块 | Maven 无法确定构建顺序 | 重新设计模块边界，抽取公共模块 |
-| 20 | 子模块硬编码 version | 升级版本要改 N 处 | 用 `${revision}` 或继承父 version |
+| 20 | 子模块硬编码 version | 升级版本要改 N 处 | 用 `$&#123;revision&#125;` 或继承父 version |
 | 21 | `dependency:analyze` 报「用了未声明」 | 传递依赖被直接使用（脆弱） | 显式声明所用依赖 |
-| 22 | Nexus 认证失败 401 | 无法 deploy | settings.xml 的 `<server>` id 必须与 pom 一致 |
+| 22 | Nexus 认证失败 401 | 无法 deploy | settings.xml 的 `&lt;server&gt;` id 必须与 pom 一致 |
 | 23 | RELEASE 重复发布被拒 | 400 Repository does not allow updating | 升版本号，或配置允许 redeploy（不推荐） |
 | 24 | 插件版本未锁定 | 不同时间构建行为不同 | ★ 所有插件都写明确的 version |
 | 25 | 未配 Maven Wrapper | 团队 Maven 版本不一致导致构建差异 | `mvn wrapper:wrapper` |

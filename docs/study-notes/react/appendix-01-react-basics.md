@@ -42,22 +42,22 @@ updated: 2026-04-04
 
 2、自定义组件如果不希望设定最外层的标签，那么可以使用react(16+版本)提供的占位符Fragment来充当最外层标签；  
 
-    import React,{Component,Fragment} from 'react';  
-    类组件：render(){return <Fragment>xxxxxxx</Fragment>}  
-    函数组件：return <Fragment>xxxxxxx</Fragment>
+    import React,&#123;Component,Fragment&#125; from 'react';  
+    类组件：render()&#123;return &lt;Fragment&gt;xxxxxxx</Fragment>&#125;  
+    函数组件：return &lt;Fragment&gt;xxxxxxx</Fragment>
 
 在最新的react版本中，也可以直接使用<></>来代替Fragment。其中<>唯一可以拥有的属性为key。即< key='xxx'></>  
 
 3、使用数组map循环更新li，一定要给li添加对应的key值，否则虽然正常运行，但是会报错误警告。不建议直接使用index作为key值。  
 
-4、在最新的react版本中，为了提高更新性能，推荐采用异步的方式更新数据。具体使用方式为：setXxx((prevData) => {return xxx})。其中参数prevData指之前的变量值，return的对象指修改之后的数据值。
+4、在最新的react版本中，为了提高更新性能，推荐采用异步的方式更新数据。具体使用方式为：setXxx((prevData) => &#123;return xxx&#125;)。其中参数prevData指之前的变量值，return的对象指修改之后的数据值。
 
 可以将上面代码简写为：setXxx(prevData => xxx)
 若没有用到prevData参数，还可以省略，即 setXxx(() => xxx);  
 
 异步的目的是为了优化更新性能，react短期内发现多条数据变量发生修改，那么他会将所有修改合并成一次修改再最终执行。  
 
-5、在JSX中写注释，格式为：{/* xxxxx */}或{//xxxx}，注意如果使用单行注释，最外的大括号必须单独占一行。注释尽在开发源代码中显示，在导出的网页中不会有该注释。 
+5、在JSX中写注释，格式为：&#123;/* xxxxx */&#125;或&#123;//xxxx&#125;，注意如果使用单行注释，最外的大括号必须单独占一行。注释尽在开发源代码中显示，在导出的网页中不会有该注释。 
  
 6、给标签添加样式时，推荐使用className，不推荐使用class。如果使用class虽然运行没问题，但是会报错误警告，因为样式class这个关键词和js中声明类的class冲突。类似的还有标签中for关键词，推荐改为htmlFor。  
 
@@ -75,9 +75,9 @@ updated: 2026-04-04
 
 JS中定义的所有函数都可以增加参数，所谓"纯函数"是指函数内部并未修改过该参数的函数。  
 
-例如以下函数：function myFun(a){let c=a }，该函数内部从未更改过参数a，那么这个函数就是纯函数。  
+例如以下函数：function myFun(a)&#123;let c=a &#125;，该函数内部从未更改过参数a，那么这个函数就是纯函数。  
 
-反例，非纯函数 例如：function myFun(a){a=a+2; let c=a}，该函数内部修改过参数a，那么这个函数就不再是纯函数了。  
+反例，非纯函数 例如：function myFun(a)&#123;a=a+2; let c=a&#125;，该函数内部修改过参数a，那么这个函数就不再是纯函数了。  
 
 纯函数的特殊意义是什么？  
 因为纯函数内部从不会直接修改参数，那么无论运行多少次，执行结果永远是一致的。  
@@ -148,13 +148,13 @@ react自定义组件的各种交互都在内部定义不同的函数(js语法规
 
     //虚拟DOM数据格式(JS数组对象)
     //虚拟DOM数组对象格式为：标签名+属性集合+值
-    ['div',{id:'mydiv'},'hell react']
+    ['div',对象(id属性),'hell react']
     
     //在JSX的创建模板代码中，通常代码格式为
-    render(){return <div id='mydiv'>hello react</>}
+    render()&#123;return <div id='mydiv'>hello react</div>&#125;
 
     //还可以使用react提供的，更加底层的方法来实现
-    render(){return React.createElement('div',{id:'mydiv'},'hello react')}
+    render()&#123;return React.createElement('div', 属性对象, 'hello react')&#125;
 
 
 虚拟DOM更新性能快的原因并不是因为在内存中(理论上任何软件都是运行在内存中)，而是因为虚拟DOM储存的数据格式为JS对象，用JS来操作(生成/查询/对比/更新)JS对象很容易。用JS操作(生成/查询/对比/更新)真实DOM则需要调用Web Action层的API，性能相对就慢。  
@@ -250,10 +250,10 @@ componentWillUnmount(即将被卸载)
 2、防止子组件不必要的重新渲染  
 如果是类组件，父组件发生变量改变，那么会调用render()，会重新渲染所有子组件。但是如果变量改变的某个值与某子组件并不相关，如果此时也重新渲染该子组件会造成性能上的浪费。为了解决这个情况，可以在子组件中的shouldComponentUpdate生命周期函数中，做以下操作:  
 
-    shouldComponentUpdate(nextProps,nextStates){
+    shouldComponentUpdate(nextProps,nextStates)&#123;
       //判断xxx值是否相同，如果相同则不进行重新渲染
       return (nextProps.xxx !== this.props.xxx); //注意是 !== 而不是 !=
-    }
+    &#125;
 
 还可以让组件继承由React.Component改为React.PureComponent，react会自动帮我们在shouldComponentUpdate生命周期函数中做浅对比。 
 
@@ -274,12 +274,12 @@ return <div className='xxx' /\>
 ##### 第二种：内部样式  
 
 伪代码示例：  
-return <div style={{backgroundColor:'green',width:'100px'}} /\>  
+return <div style=&#123;对象(backgroundColor属性)&#125; /\>  
 
 注意：内联样式值为一个对象，对象属性之间用","分割而不是原生html中的";"。  
 因为是一个对象，因此下面代码也是可行的：  
-const mystyle = {backgroundColor:'green',width:'100px'};
-return <div style={mystyle} /\>
+const mystyle = 对象(backgroundColor属性);
+return <div style=&#123;mystyle&#125; /\>
 
 
 # Hook用法

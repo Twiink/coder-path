@@ -881,7 +881,7 @@ java -XX:+UseContainerSupport \
 | 4 | 堆设 31~40GB | 压缩指针失效，可用内存反而变少 | ≤31GB 或 ≥48GB |
 | 5 | `-Xss` 过大 | 线程数上不去 | 512k~1m，按递归深度调整 |
 | 6 | 静态集合当缓存无淘汰 | 堆持续增长，Full GC 无效 | Caffeine + 过期策略 |
-| 7 | ThreadLocal 未 remove | 内存泄漏 + 数据串号 | `finally { remove(); }` |
+| 7 | ThreadLocal 未 remove | 内存泄漏 + 数据串号 | `finally &#123; remove(); &#125;` |
 | 8 | 匿名内部类持有大对象 | 大对象无法回收 | 改 static 内部类 |
 | 9 | DirectByteBuffer 未释放 | `Direct buffer memory` OOM | Netty 引用计数 / 显式 clean |
 | 10 | 未开 `HeapDumpOnOutOfMemoryError` | OOM 后无现场，无法排查 | **生产必配** |

@@ -72,7 +72,7 @@ OBJECT ENCODING mykey
 
 > **性能影响:** 小数据量用紧凑编码(listpack/intset)时,内存节省 3~10 倍,但部分命令时间复杂度退化(如 HGET 在 listpack 上是 O(N) 而非 O(1))。Redis 权衡"小数据用空间换少量 CPU、大数据用 CPU 换空间",对业务基本无感。**只有当你刻意让 key 长期停留在"小数据编码"以省内存时,才需要关注阈值**(可调整)。
 
-```conf
+```ini
 # redis.conf:调整编码切换阈值(一般不改)
 hash-max-listpack-entries 128       # Hash 用 listpack 的最大条目数
 hash-max-listpack-value 64          # Hash 单个值最大字节数
@@ -153,7 +153,7 @@ SET lock:order:1001 "request_id" NX EX 30
 
 | 场景 | 用法 | 备注 |
 | --- | --- | --- |
-| 缓存(对象序列化) | `SET user:1 '{"id":1,...}' EX 600` | JSON / Protobuf 序列化 |
+| 缓存(对象序列化) | (SET user:1 '&#123;"id":1,...&#125;' EX 600) | JSON / Protobuf 序列化 |
 | 计数器(阅读数/点赞) | `INCR article:1:view_count` | 高并发场景,原子性由单线程保证 |
 | 分布式锁 | `SET lock val NX EX 30` | 详见 [[后端/数据库/Redis/Redis应用场景与实战]] |
 | Session | `SET session:token userdata EX 1800` | 多节点共享 Session |

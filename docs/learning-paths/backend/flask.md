@@ -6,15 +6,19 @@ Flask 是 Python 界的极简主义者:核心只有几千行,**给你自由,让�
 
 ## 第一站:路由与请求-响应
 
-**最小应用**:`app = Flask(__name__)` + `@app.route('/')` 装饰器函数 + `app.run(debug=True)`(开发热重载);**路由**:动态参数 `<username>` 与**转换器**(`<int:post_id>`/`<float:>`/`<path:>`(含斜杠)/`<uuid:>`)、`methods=['GET', 'POST']` 限制方法、`url_for('函数名', id=1)` **反向构建 URL**(模板里也用——改路由不用改引用)、`strict_slashes`/`redirect_to`。**请求对象 request**(视图里直接用——Flask 用**上下文局部变量**(werkzeug Local)把 request 绑定到当前请求线程/协程,这也是"为什么 Flask 视图不传 request 参数"的原理):`request.args`(查询串)/`request.form`(表单)/`request.get_json()`(JSON 体)/`request.files`/`request.cookies`/`request.headers`/`request.method`。**响应三姿势**:直接 return 字符串(默认 text/html)、**return dict 自动转 JSON**(Flask 2.x 起)/`jsonify()`(老写法)、`make_response()` 精细控制(状态码/响应头);辅助:`redirect(url_for(...))`、`abort(404)`(**抛错交给错误处理器**,别自己 return 404 页面)、`render_template` 见下;文件下载 send_file、流式响应(return 生成器,SSE/大文件)。**请求-响应生命周期**:WSGI 服务器(Gunicorn)→ wsgi_app → 请求钩子 → 视图 → 响应钩子 → 返回——理解这一条链,后面所有"钩子"都好懂。
+**最小应用**:`app = Flask(__name__)` + `@app.route('/')` 装饰器函数 + `app.run(debug=True)`(开发热重载);**路由**:动态参数 `&lt;username&gt;` 与**转换器**(`<int:post_id>`/`<float:>`/`<path:>`(含斜杠)/`<uuid:>`)、`methods=['GET', 'POST']` 限制方法、`url_for('函数名', id=1)` **反向构建 URL**(模板里也用——改路由不用改引用)、`strict_slashes`/`redirect_to`。
+**请求对象 request**(视图里直接用——Flask 用**上下文局部变量**(werkzeug Local)把 request 绑定到当前请求线程/协程,这也是"为什么 Flask 视图不传 request 参数"的原理):`request.args`(查询串)/`request.form`(表单)/`request.get_json()`(JSON 体)/`request.files`/`request.cookies`/`request.headers`/`request.method`。
+**响应三姿势**:直接 return 字符串(默认 text/html)、**return dict 自动转 JSON**(Flask 2.x 起)/`jsonify()`(老写法)、`make_response()` 精细控制(状态码/响应头);辅助:`redirect(url_for(...))`、`abort(404)`(**抛错交给错误处理器**,别自己 return 404 页面)、`render_template` 见下;文件下载 send_file、流式响应(return 生成器,SSE/大文件)。
+**请求-响应生命周期**:WSGI 服务器(Gunicorn)→ wsgi_app → 请求钩子 → 视图 → 响应钩子 → 返回——理解这一条链,后面所有"钩子"都好懂。
 
 ## 第二站:Jinja2 模板与静态文件
 
-**模板引擎 Jinja2**:`{{ 变量 }}`/`{% 标签 %}`(if/for/url_for/csrf_token)/过滤器(`{{ x|default('无') }}`、日期、自定义 `@app.template_filter()`);**自动转义默认开**(XSS 防线,`|safe`/`Markup` 三思);模板继承:`{% extends "base.html" %}` + `{% block content %}`;`include` 局部;静态:`url_for('static', filename='css/app.css')`(Flask 自动服务 static 目录);**上下文处理器** `@app.context_processor`(注入所有模板的公共变量:站点名/当前用户/版本号);宏 macro(可复用模板片段);模板里别写业务逻辑。
+**模板引擎 Jinja2**:`&#123;&#123; 变量 &#125;&#125;`/`&#123;% 标签 %&#125;`(if/for/url_for/csrf_token)/过滤器(`&#123;&#123; x|default('无') &#125;&#125;`、日期、自定义 `@app.template_filter()`);**自动转义默认开**(XSS 防线,`|safe`/`Markup` 三思);模板继承:`&#123;% extends "base.html" %&#125;` + `&#123;% block content %&#125;`;`include` 局部;静态:`url_for('static', filename='css/app.css')`(Flask 自动服务 static 目录);**上下文处理器** `@app.context_processor`(注入所有模板的公共变量:站点名/当前用户/版本号);宏 macro(可复用模板片段);模板里别写业务逻辑。
 
 ## 第三站:蓝图与应用工厂——大型应用的骨架
 
-**蓝图 Blueprint**(模块化路由的官方方案):`auth = Blueprint('auth', __name__, url_prefix='/auth')`——蓝图里定义路由/模板目录/静态目录,主应用 `app.register_blueprint(auth)`;蓝图内 `url_for('auth.login')`(带蓝图名前缀);**用途**:按功能域拆分(auth/blog/admin)、可插拔、蓝图的模板/静态相互隔离。**应用工厂 create_app()**(Flask 大型项目的事实标准):`def create_app(config_name): app = Flask(__name__); app.config.from_object(配置类); db.init_app(app); 注册蓝图; 注册错误处理; return app`——**为什么需要工厂**:不同环境不同配置(开发/测试/生产)、测试时能造独立 app、避免模块级单例的坑;**项目结构模板**:app/__init__.py(工厂)+ app/models.py + app/views/蓝图目录 + instance/ 配置;配置管理:`from_object`/`from_envvar('APP_SETTINGS')`/`from_prefixed_env`(环境变量,**密钥不进代码库**)。
+**蓝图 Blueprint**(模块化路由的官方方案):`auth = Blueprint('auth', __name__, url_prefix='/auth')`——蓝图里定义路由/模板目录/静态目录,主应用 `app.register_blueprint(auth)`;蓝图内 `url_for('auth.login')`(带蓝图名前缀);**用途**:按功能域拆分(auth/blog/admin)、可插拔、蓝图的模板/静态相互隔离。
+**应用工厂 create_app()**(Flask 大型项目的事实标准):`def create_app(config_name): app = Flask(__name__); app.config.from_object(配置类); db.init_app(app); 注册蓝图; 注册错误处理; return app`——**为什么需要工厂**:不同环境不同配置(开发/测试/生产)、测试时能造独立 app、避免模块级单例的坑;**项目结构模板**:app/__init__.py(工厂)+ app/models.py + app/views/蓝图目录 + instance/ 配置;配置管理:`from_object`/`from_envvar('APP_SETTINGS')`/`from_prefixed_env`(环境变量,**密钥不进代码库**)。
 
 ## 第四站:扩展生态
 
@@ -26,15 +30,17 @@ Flask 哲学是"**核心只做路由与请求,其余靠扩展**",官方扩展注
 
 ## 第六站:表单与认证
 
-**Flask-WTF**:继承 FlaskForm 的表单类(字段 StringField/PasswordField/SubmitField + 验证器 DataRequired/Length/Email/EqualTo) + `CSRFProtect(app)`(**Flask 默认没有 CSRF 防护,WTF 补上——表单与 AJAX 都要带 token**,模板 `{{ form.csrf_token }}`);视图:`form.validate_on_submit()`(POST + 校验通过)→ 用 form.xxx.data。**Flask-Login**(会话登录的标准):`LoginManager` + `login_manager.user_loader` 回调(按 id 载用户)+ 用户模型混入 `UserMixin`;`login_user(user, remember=True)`/`logout_user()`;`@login_required` 保护视图(未登录跳 login,带 next 回跳);模板 `current_user.is_authenticated`;**密码**:Werkzeug 的 `generate_password_hash`/`check_password_hash`(**永远别自己写哈希**,见 [Web 安全](/learning-paths/security/web-security));**Session**:Flask 默认 session 是**客户端签名 Cookie**(itsdangerous 签名,数据可见不可篡改——别放敏感信息,大小受限);要服务端会话/共享会话用 Flask-Session(Redis 后端)。**API 认证**(无状态):Flask-JWT-Extended(JWT 签发/校验/装饰器)或简单 Token——见 [认证授权路线](/learning-paths/security/auth)。
+**Flask-WTF**:继承 FlaskForm 的表单类(字段 StringField/PasswordField/SubmitField + 验证器 DataRequired/Length/Email/EqualTo) + `CSRFProtect(app)`(**Flask 默认没有 CSRF 防护,WTF 补上——表单与 AJAX 都要带 token**,模板 `&#123;&#123; form.csrf_token &#125;&#125;`);视图:`form.validate_on_submit()`(POST + 校验通过)→ 用 form.xxx.data。
+**Flask-Login**(会话登录的标准):`LoginManager` + `login_manager.user_loader` 回调(按 id 载用户)+ 用户模型混入 `UserMixin`;`login_user(user, remember=True)`/`logout_user()`;`@login_required` 保护视图(未登录跳 login,带 next 回跳);模板 `current_user.is_authenticated`;**密码**:Werkzeug 的 `generate_password_hash`/`check_password_hash`(**永远别自己写哈希**,见 [Web 安全](/learning-paths/security/web-security));**Session**:Flask 默认 session 是**客户端签名 Cookie**(itsdangerous 签名,数据可见不可篡改——别放敏感信息,大小受限);要服务端会话/共享会话用 Flask-Session(Redis 后端)。
+**API 认证**(无状态):Flask-JWT-Extended(JWT 签发/校验/装饰器)或简单 Token——见 [认证授权路线](/learning-paths/security/auth)。
 
 ## 第七站:钩子、错误处理与中间件
 
-**请求钩子**(Flask 的"中间件",按需用):`@app.before_request`(每个请求前:登录校验、请求 ID、打开资源)、`@app.after_request`(每个响应后:加安全头 CORS、压缩)、`@app.teardown_request`(请求结束清理);**错误处理**:`@app.errorhandler(404)`(页面与 JSON 两种)——**API 项目统一注册 errorhandler(Exception) 返回 `{error: {code, message}}`**,`abort(403)`/`raise ApiError(...)` 交给它;**自定义异常 + 错误码映射**是 API 统一错误格式的标准做法;**WSGI 中间件**(更低层:app.wsgi_app 外包一层,少用)。
+**请求钩子**(Flask 的"中间件",按需用):`@app.before_request`(每个请求前:登录校验、请求 ID、打开资源)、`@app.after_request`(每个响应后:加安全头 CORS、压缩)、`@app.teardown_request`(请求结束清理);**错误处理**:`@app.errorhandler(404)`(页面与 JSON 两种)——**API 项目统一注册 errorhandler(Exception) 返回 (对象(error属性)&#125;)**,`abort(403)`/`raise ApiError(...)` 交给它;**自定义异常 + 错误码映射**是 API 统一错误格式的标准做法;**WSGI 中间件**(更低层:app.wsgi_app 外包一层,少用)。
 
 ## 第八站:API 实践
 
-**输出**:return dict/jsonify(统一 envelope `{data: ...}` 或裸资源,团队定);**输入校验**:轻量手动(request.get_json + 字段判断)/**pydantic(现代推荐**:模型声明 + 自动校验 + 类型转换 + 文档——与 FastAPI 同理念,Flask 里也能用)/marshmallow(老牌,序列化+校验);**认证**:API Key / JWT(见上);**分页**:page/per_page + 总数 + Link 头;**版本化**:url_prefix '/api/v1' 蓝图;**错误与状态码语义**(201/204/400/401/403/404/409/422/500);**文档**:flasgger(Swagger UI)或 APIFairy/Spectree(基于类型);**RESTful 设计原则**见 [全栈路线](/learning-paths/fullstack/overview)。
+**输出**:return dict/jsonify(统一 envelope (对象(data属性)) 或裸资源,团队定);**输入校验**:轻量手动(request.get_json + 字段判断)/**pydantic(现代推荐**:模型声明 + 自动校验 + 类型转换 + 文档——与 FastAPI 同理念,Flask 里也能用)/marshmallow(老牌,序列化+校验);**认证**:API Key / JWT(见上);**分页**:page/per_page + 总数 + Link 头;**版本化**:url_prefix '/api/v1' 蓝图;**错误与状态码语义**(201/204/400/401/403/404/409/422/500);**文档**:flasgger(Swagger UI)或 APIFairy/Spectree(基于类型);**RESTful 设计原则**见 [全栈路线](/learning-paths/fullstack/overview)。
 
 ## 第九站:异步任务、实时与文件缓存
 
@@ -44,7 +50,8 @@ Flask 哲学是"**核心只做路由与请求,其余靠扩展**",官方扩展注
 
 ## 第十站:测试与安全
 
-**测试**(Flask 的 test_client 是好文明):工厂创建测试 app(独立配置:SQLite 内存 + 每测试建表)→ `client = app.test_client()` → `client.get('/')`/`client.post('/login', data=...)` 断言状态码与内容;登录态测试(login_user 或直接操作 session_transaction);**pytest 集成**:fixture 提供 app/client/db,覆盖率 coverage;测三层:路由行为(状态码/重定向/JSON 结构)、模型逻辑、权限边界(未登录 302)。**安全清单**(Flask 默认裸奔,全靠自觉——与 Django 相反):CSRF(Flask-WTF)、XSS(模板转义 + 别拼 HTML)、SQL 注入(ORM 参数化,原生 SQL 禁用拼接)、安全头(Talisman 扩展或 after_request 手写:CSP/X-Frame-Options/HSTS)、HTTPS(生产代理后 SECURE 类配置)、限流(Flask-Limiter 防爆破)、密码哈希(Werkzeug)、依赖审计(pip-audit);**日志**:logging 配置(级别/格式/文件轮转/JSON),生产接 Sentry 错误上报。
+**测试**(Flask 的 test_client 是好文明):工厂创建测试 app(独立配置:SQLite 内存 + 每测试建表)→ `client = app.test_client()` → `client.get('/')`/`client.post('/login', data=...)` 断言状态码与内容;登录态测试(login_user 或直接操作 session_transaction);**pytest 集成**:fixture 提供 app/client/db,覆盖率 coverage;测三层:路由行为(状态码/重定向/JSON 结构)、模型逻辑、权限边界(未登录 302)。
+**安全清单**(Flask 默认裸奔,全靠自觉——与 Django 相反):CSRF(Flask-WTF)、XSS(模板转义 + 别拼 HTML)、SQL 注入(ORM 参数化,原生 SQL 禁用拼接)、安全头(Talisman 扩展或 after_request 手写:CSP/X-Frame-Options/HSTS)、HTTPS(生产代理后 SECURE 类配置)、限流(Flask-Limiter 防爆破)、密码哈希(Werkzeug)、依赖审计(pip-audit);**日志**:logging 配置(级别/格式/文件轮转/JSON),生产接 Sentry 错误上报。
 
 ## 第十一站:部署与生产
 

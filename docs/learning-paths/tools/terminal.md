@@ -6,7 +6,8 @@
 
 ## 第一站:Shell、配置文件与终端模拟器
 
-**Shell(Bash vs Zsh)**:Bash 是默认(几乎所有 Linux 都有);**Zsh 是增强版(自动补全更聪明、主题插件生态——macOS 与开发者的主流)**;查看当前 `echo $SHELL`,切换 `chsh -s /bin/zsh`;**配置文件才是"你的终端人格"**:`.bashrc`/`.zshrc`(每次开 shell 加载:别名、函数、环境变量、提示符)——**本页 80% 的个性化都写在这一个文件里**;Oh My Zsh(主题与插件管理器:推荐插件 zsh-autosuggestions(历史灰字建议,→ 补全)/zsh-syntax-highlighting(命令合法就变绿——**拼错命令当场发现**);提示符主题 Powerlevel10k(显示 git 分支/目录/退出码——**一眼知道自己在哪个分支**))。**终端模拟器选型**:系统自带够用;iTerm2(macOS 经典)/kitty 或 Alacritty(GPU 加速快)/Warp(现代 AI 辅助)/Windows Terminal(Windows 标配)——**选一个顺手的用熟,别频繁换**。
+**Shell(Bash vs Zsh)**:Bash 是默认(几乎所有 Linux 都有);**Zsh 是增强版(自动补全更聪明、主题插件生态——macOS 与开发者的主流)**;查看当前 `echo $SHELL`,切换 `chsh -s /bin/zsh`;**配置文件才是"你的终端人格"**:`.bashrc`/`.zshrc`(每次开 shell 加载:别名、函数、环境变量、提示符)——**本页 80% 的个性化都写在这一个文件里**;Oh My Zsh(主题与插件管理器:推荐插件 zsh-autosuggestions(历史灰字建议,→ 补全)/zsh-syntax-highlighting(命令合法就变绿——**拼错命令当场发现**);提示符主题 Powerlevel10k(显示 git 分支/目录/退出码——**一眼知道自己在哪个分支**))。
+**终端模拟器选型**:系统自带够用;iTerm2(macOS 经典)/kitty 或 Alacritty(GPU 加速快)/Warp(现代 AI 辅助)/Windows Terminal(Windows 标配)——**选一个顺手的用熟,别频繁换**。
 
 ## 第二站:快捷键——效率的第一桶金
 
@@ -14,7 +15,7 @@
 
 ## 第三站:导航与文件——少敲几个字
 
-**基础回顾(细节见 Linux 页)**:cd/pwd、`ls -lah`(看隐藏与权限)、cp -r/mv/rm -rf(带 -rf 先确认)、mkdir -p、`ln -s`(软链接)。**跳转进化(高频操作,值得投资)**:`zoxide`(智能 cd:记忆你常去的目录,`z blog` 直接跳到 ~/work/blog——**替代一长串 cd 路径**;或 autojump/z 同类);cd - (回上一个目录)、`cd ~`(回家)。**文件管理**:fzf(模糊搜索一切——**文件/历史/进程**;`Ctrl+t` 选文件路径、`**<Tab>` 补全;与 fd/rg 组合:rg 搜到的文件直接 fzf 打开);tree(目录树)。
+**基础回顾(细节见 Linux 页)**:cd/pwd、`ls -lah`(看隐藏与权限)、cp -r/mv/rm -rf(带 -rf 先确认)、mkdir -p、`ln -s`(软链接)。**跳转进化(高频操作,值得投资)**:`zoxide`(智能 cd:记忆你常去的目录,`z blog` 直接跳到 ~/work/blog——**替代一长串 cd 路径**;或 autojump/z 同类);cd - (回上一个目录)、`cd ~`(回家)。**文件管理**:fzf(模糊搜索一切——**文件/历史/进程**;`Ctrl+t` 选文件路径、`**&lt;Tab&gt;` 补全;与 fd/rg 组合:rg 搜到的文件直接 fzf 打开);tree(目录树)。
 
 ## 第四站:搜索与查看——开发者日常的 60%
 
@@ -22,7 +23,8 @@
 
 ## 第五站:别名、函数与环境变量——把常用命令变短
 
-**别名(alias)**:`alias ll='ls -lah'`、`alias gs='git status'`、`alias gp='git push'`、`alias dps='docker ps'`——**写进 .zshrc,越用越爽**(示例清单见下文);**函数(alias 不够用时)**:`mkcd() { mkdir -p "$1" && cd "$1"; }`、`take()`、`glog() { git log --oneline --graph; }`——**"用两次以上的命令就固化"是效率原则**。**环境变量**:`export PATH="$HOME/bin:$PATH"`(PATH 决定命令去哪找——装好工具"command not found"先查它);**坑:export 只对当前终端生效,要持久化必须写配置文件**;`echo $PATH` 查看;**敏感信息别写进 .zshrc**(token/密钥——用系统钥匙串或加载器,见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 密钥章);**dotfiles 进 git**(.zshrc/.gitconfig/tmux.conf 放仓库——**换机/换电脑五分钟恢复全部配置**)。
+**别名(alias)**:`alias ll='ls -lah'`、`alias gs='git status'`、`alias gp='git push'`、`alias dps='docker ps'`——**写进 .zshrc,越用越爽**(示例清单见下文);**函数(alias 不够用时)**:`mkcd() &#123; mkdir -p "$1" && cd "$1"; &#125;`、`take()`、`glog() &#123; git log --oneline --graph; &#125;`——**"用两次以上的命令就固化"是效率原则**。
+**环境变量**:`export PATH="$HOME/bin:$PATH"`(PATH 决定命令去哪找——装好工具"command not found"先查它);**坑:export 只对当前终端生效,要持久化必须写配置文件**;`echo $PATH` 查看;**敏感信息别写进 .zshrc**(token/密钥——用系统钥匙串或加载器,见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 密钥章);**dotfiles 进 git**(.zshrc/.gitconfig/tmux.conf 放仓库——**换机/换电脑五分钟恢复全部配置**)。
 
 ## 第六站:tmux——会话管理,SSH 的保险
 
@@ -30,11 +32,13 @@
 
 ## 第七站:脚本自动化——让终端替你干活
 
-**脚本基础**(条件/循环/函数/参数,详见 [Linux](/learning-paths/devops/linux) 的 Shell 脚本章)——本页补"终端日常脚本"场景:**批量处理**:`for f in *.png; do convert "$f" "${f%.png}.jpg"; done`(重命名/转格式/批量压缩——**一句话顶手工一百次**);**一键启动开发环境**(起数据库+后端+前端+开浏览器:三五行的 start.sh——**新同事 clone 后 ./start.sh 就跑起来**);**日志/文件清理**(按日期删除旧备份,配合 cron);**判断标准:同一件事做过两次,就写进脚本或函数**。**调试三件套**:`set -x`(跟踪执行)/echo 打点/`shellcheck 脚本.sh`(语法与常见坑检查——**写脚本必跑**)。
+**脚本基础**(条件/循环/函数/参数,详见 [Linux](/learning-paths/devops/linux) 的 Shell 脚本章)——本页补"终端日常脚本"场景:**批量处理**:`for f in *.png; do convert "$f" "$&#123;f%.png&#125;.jpg"; done`(重命名/转格式/批量压缩——**一句话顶手工一百次**);**一键启动开发环境**(起数据库+后端+前端+开浏览器:三五行的 start.sh——**新同事 clone 后 ./start.sh 就跑起来**);**日志/文件清理**(按日期删除旧备份,配合 cron);**判断标准:同一件事做过两次,就写进脚本或函数**。**调试三件套**:`set -x`(跟踪执行)/echo 打点/`shellcheck 脚本.sh`(语法与常见坑检查——**写脚本必跑**)。
 
 ## 第八站:现代工具与完整工作流
 
-**开发者工具清单(按需装,别贪多)**:direnv(进目录自动加载 .envrc 环境变量——**项目环境隔离,不用手动 export**)、httpie 或 `curl -s`(API 调试)、watch(`watch -n 1 'docker ps'` 定时刷新命令)、ncdu(磁盘分析)、**vim/Neovim(终端里的编辑器:至少会打开/编辑/保存——服务器上没有 IDE 时它是最后的编辑器)**、文件管理器 ranger/lf(可选,目录浏览党用)。**一次典型的"终端工作流"(把本页串起来)**:`z project`(秒到项目)→ `gs`(git 状态)→ `rg "TODO"`(找代码)→ `Ctrl+r`(找回上次的测试命令)→ `tmux` 分屏(左跑 dev server 右写代码)→ 日志 `tail -f | jq`(结构化排查)→ 发现问题改完 `gp` 推送——**全程手不离键盘,每一步都有"少敲一点"的工具**。**推荐别名清单起步**(抄进 .zshrc 就能用):导航 `..='cd ..'`;查看 `ll='ls -lah'`;Git `gs/ga/gc/gp/glog`;Docker `dps='docker ps'`、`dc='docker compose'`;编辑 `zrc='vim ~/.zshrc'`;快捷 `mkcd` 函数。
+**开发者工具清单(按需装,别贪多)**:direnv(进目录自动加载 .envrc 环境变量——**项目环境隔离,不用手动 export**)、httpie 或 `curl -s`(API 调试)、watch(`watch -n 1 'docker ps'` 定时刷新命令)、ncdu(磁盘分析)、**vim/Neovim(终端里的编辑器:至少会打开/编辑/保存——服务器上没有 IDE 时它是最后的编辑器)**、文件管理器 ranger/lf(可选,目录浏览党用)。
+**一次典型的"终端工作流"(把本页串起来)**:`z project`(秒到项目)→ `gs`(git 状态)→ `rg "TODO"`(找代码)→ `Ctrl+r`(找回上次的测试命令)→ `tmux` 分屏(左跑 dev server 右写代码)→ 日志 `tail -f | jq`(结构化排查)→ 发现问题改完 `gp` 推送——**全程手不离键盘,每一步都有"少敲一点"的工具**。
+**推荐别名清单起步**(抄进 .zshrc 就能用):导航 `..='cd ..'`;查看 `ll='ls -lah'`;Git `gs/ga/gc/gp/glog`;Docker `dps='docker ps'`、`dc='docker compose'`;编辑 `zrc='vim ~/.zshrc'`;快捷 `mkcd` 函数。
 
 ## 通关标准
 

@@ -83,15 +83,15 @@ updated: 2026-09-07
 | 工具 | 用途 | 命令示例 |
 | --- | --- | --- |
 | **`jps`** | 列出所有 Java 进程 | `jps -lvm` |
-| **`jstat`** | GC / 类加载 / JIT 的实时统计（★ 最轻量，生产首选） | `jstat -gcutil <pid> 1000 10` |
-| **`jmap`** | 堆内存快照、直方图 | `jmap -dump:live,format=b,file=heap.hprof <pid>` |
-| **`jstack`** | 线程栈快照（死锁、CPU 高） | `jstack <pid> > thread.txt` |
-| **`jinfo`** | 查看/动态修改 JVM 参数 | `jinfo -flags <pid>` |
-| **`jcmd`** | ★ 综合工具（推荐，替代 jmap/jstack 部分功能） | `jcmd <pid> help` |
+| **`jstat`** | GC / 类加载 / JIT 的实时统计（★ 最轻量，生产首选） | `jstat -gcutil &lt;pid&gt; 1000 10` |
+| **`jmap`** | 堆内存快照、直方图 | `jmap -dump:live,format=b,file=heap.hprof &lt;pid&gt;` |
+| **`jstack`** | 线程栈快照（死锁、CPU 高） | `jstack &lt;pid&gt; > thread.txt` |
+| **`jinfo`** | 查看/动态修改 JVM 参数 | `jinfo -flags &lt;pid&gt;` |
+| **`jcmd`** | ★ 综合工具（推荐，替代 jmap/jstack 部分功能） | `jcmd &lt;pid&gt; help` |
 | **`jhat`** | 分析 heap dump（已被 MAT 取代，JDK 9 移除） | — |
 | **`jconsole` / `jvisualvm`** | 图形化监控（本地） | GUI |
 | **`Arthas`** | ★★ 阿里开源，线上诊断神器 | `java -jar arthas-boot.jar` |
-| **`async-profiler`** | CPU/内存火焰图（低开销） | `./profiler.sh -d 30 <pid>` |
+| **`async-profiler`** | CPU/内存火焰图（低开销） | `./profiler.sh -d 30 &lt;pid&gt;` |
 | **`MAT`** | 堆转储分析（Eclipse Memory Analyzer） | GUI |
 | **`JProfiler` / `YourKit`** | 商业性能分析 | GUI |
 
@@ -641,7 +641,7 @@ jmap -dump:live,format=b,file=/logs/heap.hprof 12345
 | # | 泄漏场景 | 表现 | 解决 |
 | --- | --- | --- | --- |
 | 1 | **静态集合无限增长** | `static Map/List` 的 Retained Heap 巨大 | 加淘汰策略（Caffeine）、定期清理 |
-| 2 | **ThreadLocal 未 remove** | `ThreadLocalMap$Entry` 数量 = 线程数 × N | `finally { remove(); }` |
+| 2 | **ThreadLocal 未 remove** | `ThreadLocalMap$Entry` 数量 = 线程数 × N | `finally &#123; remove(); &#125;` |
 | 3 | **缓存无过期/无上限** | 缓存 Map 巨大 | Caffeine + maximumSize + expireAfter |
 | 4 | **未关闭的资源** | Connection/InputStream/Socket 实例多 | try-with-resources；连接池配 maxLifetime |
 | 5 | **监听器/回调未注销** | Listener 列表巨大 | 生命周期结束时 unregister |
@@ -849,7 +849,7 @@ app.run(args);
 | 原因 | 优化 |
 | --- | --- |
 | 组件扫描范围过大 | `@ComponentScan` 缩小 basePackages；避免扫到无关包 |
-| 自动配置过多 | 排除不用的：`@SpringBootApplication(exclude = {...})` |
+| 自动配置过多 | 排除不用的：`@SpringBootApplication(exclude = &#123;...&#125;)` |
 | 数据库连接池初始化慢 | `minimum-idle` 调小、异步预热、连接池懒初始化 |
 | Bean 太多且都饿汉式加载 | `@Lazy` 延迟非关键 Bean；`spring.main.lazy-initialization=true`（全局懒加载，注意首次请求变慢） |
 | 类加载多（大 jar） | 精简依赖；AppCDS（类数据共享） |
@@ -1099,14 +1099,14 @@ executor_active_threads                       # 线程池活跃线程
 
 | 告警 | 条件 | 级别 |
 | --- | --- | --- |
-| Full GC 频繁 | `rate(jvm_gc_pause_seconds_count{action="end of major GC"}[5m]) > 0.1` | P1 |
+| Full GC 频繁 | `rate(jvm_gc_pause_seconds_count&#123;action="end of major GC"&#125;[5m]) > 0.1` | P1 |
 | GC 停顿过长 | `histogram_quantile(0.99, jvm_gc_pause_seconds) > 1` | P1 |
-| 堆使用率过高 | `jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes > 0.9` 持续 10 分钟 | P2 |
-| 元空间接近上限 | `jvm_memory_used_bytes{id="Metaspace"} / max > 0.9` | P2 |
-| BLOCKED 线程多 | `jvm_threads_states_threads{state="blocked"} > 20` | P2 |
+| 堆使用率过高 | `jvm_memory_used_bytes&#123;area="heap"&#125; / jvm_memory_max_bytes > 0.9` 持续 10 分钟 | P2 |
+| 元空间接近上限 | `jvm_memory_used_bytes&#123;id="Metaspace"&#125; / max > 0.9` | P2 |
+| BLOCKED 线程多 | `jvm_threads_states_threads&#123;state="blocked"&#125; > 20` | P2 |
 | 线程数暴涨 | `jvm_threads_live_threads > 500` | P2 |
 | 线程池队列积压 | `executor_queued_tasks > 阈值 × 0.8` | P1 |
-| 直接内存增长 | `jvm_buffer_memory_used_bytes{id="direct"}` 持续上升 | P2 |
+| 直接内存增长 | `jvm_buffer_memory_used_bytes&#123;id="direct"&#125;` 持续上升 | P2 |
 
 ## 7. 面试高频问答速查
 

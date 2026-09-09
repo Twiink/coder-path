@@ -41,7 +41,7 @@ LASTSAVE          # 返回上次成功保存的 Unix 时间戳
 
 ### 3.1.3 RDB 配置
 
-```conf
+```ini
 # redis.conf
 save 900 1
 save 300 10
@@ -91,7 +91,7 @@ AOF 文件示例：
 
 ### 3.2.2 AOF 刷盘策略
 
-```conf
+```ini
 appendonly yes              # 开启 AOF
 appendfilename "appendonly.aof"
 
@@ -154,7 +154,7 @@ AOF 重写流程：
 
 Redis 4.0+ 支持**同时开启 RDB 和 AOF**，结合两者优势：
 
-```conf
+```ini
 # redis.conf
 save 900 1
 save 300 10
@@ -182,7 +182,7 @@ aof-use-rdb-preamble yes   # AOF 重写时，前半段用 RDB 格式，后半段
 
 ### 3.4.1 生产配置建议
 
-```conf
+```ini
 # 必须开启 AOF
 appendonly yes
 appendfsync everysec

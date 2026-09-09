@@ -658,15 +658,15 @@ public class Vector<E> extends AbstractList<E> implements List<E>, RandomAccess,
 
 > **Vector 的「线程安全」是假的**：单个方法安全，但**复合操作不安全**。
 > ```java
-> Vector<Integer> v = new Vector<>();
+> Vector&lt;Integer&gt; v = new Vector<>();
 > // 线程不安全的复合操作
-> if (v.size() > 0) {                    // 检查
+> if (v.size() > 0) &#123;                    // 检查
 >     v.remove(v.size() - 1);            // 执行 —— 两步之间可能被其他线程修改！
-> }
+> &#125;
 > // 正确做法：外部加锁
-> synchronized (v) {
+> synchronized (v) &#123;
 >     if (v.size() > 0) v.remove(v.size() - 0);
-> }
+> &#125;
 > ```
 
 #### CopyOnWriteArrayList（并发场景推荐）★
@@ -1433,13 +1433,13 @@ listA.removeAll(listB);      // 差集
 
 > 【坑】`Collections.synchronizedList` 返回的同步 List，**迭代时仍需手动加锁**：
 > ```java
-> List<String> sync = Collections.synchronizedList(new ArrayList<>());
+> List&lt;String&gt; sync = Collections.synchronizedList(new ArrayList<>());
 > // ❌ 不安全
-> for (String s : sync) { }     // 可能抛 ConcurrentModificationException
+> for (String s : sync) &#123; &#125;     // 可能抛 ConcurrentModificationException
 > // ✅ 正确
-> synchronized (sync) {
->     for (String s : sync) { }
-> }
+> synchronized (sync) &#123;
+>     for (String s : sync) &#123; &#125;
+> &#125;
 > ```
 > 因为迭代是**多次调用**的组合操作，同步包装只保证单个方法的原子性。
 
@@ -1463,7 +1463,7 @@ listA.removeAll(listB);      // 差集
 | 14 | `PriorityQueue` 迭代以为有序 | 顺序混乱 | 只有 poll 才有序 |
 | 15 | `Executors.newFixedThreadPool` | 无界队列导致 OOM | 手动 `ThreadPoolExecutor` |
 | 16 | `Collections.copy` dest 太短 | `IndexOutOfBoundsException` | dest 长度 ≥ src |
-| 17 | 同步 List 迭代不加锁 | `ConcurrentModificationException` | `synchronized(list){}` |
+| 17 | 同步 List 迭代不加锁 | `ConcurrentModificationException` | `synchronized(list)&#123;&#125;` |
 | 18 | Vector 的复合操作 | 线程不安全 | 外部加锁或换并发集合 |
 | 19 | `Stack` 类的使用 | 性能差、语义漏洞 | 用 `ArrayDeque` |
 | 20 | 不可变集合传 null | `List.of(null)` NPE | JDK 9 工厂方法不接受 null |

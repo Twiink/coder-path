@@ -8,7 +8,8 @@
 
 ## 第二站:后端部署——容器化是标准答案
 
-**①Docker 化(后端部署的地基)**:多阶段 Dockerfile(构建阶段装依赖编译 → 运行阶段只拷产物,镜像尽量精简——见 [Docker](/learning-paths/devops/docker) 章);本地 `docker build` + `docker run -p 端口 --env-file .env` 验证;**②进程与守护**:容器里直接跑应用(exec 形式收信号),宿主机用 systemd 或 Docker restart 策略守护(见 [Linux](/learning-paths/devops/linux) systemd 章);**③托管平台(省心选项)**:Railway/Render/Fly.io/云厂商 App 服务——Git 推送即部署,适合小团队;**④自建服务器**:云服务器(阿里云/腾讯云/AWS ECS)+ Nginx 反代(HTTPS 证书 certbot——见 [Nginx](/learning-paths/middleware/nginx) HTTPS 章);**⑤规模演进**:容器编排(K8s,见 [Kubernetes](/learning-paths/devops/kubernetes))或 Serverless(见 [Serverless](/learning-paths/cloud-native/serverless))——**先单机跑稳,再谈集群**。**环境与密钥**:生产环境变量与密钥用平台 Secret/环境变量注入,绝不进代码库(见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 配置章)。
+**①Docker 化(后端部署的地基)**:多阶段 Dockerfile(构建阶段装依赖编译 → 运行阶段只拷产物,镜像尽量精简——见 [Docker](/learning-paths/devops/docker) 章);本地 `docker build` + `docker run -p 端口 --env-file .env` 验证;**②进程与守护**:容器里直接跑应用(exec 形式收信号),宿主机用 systemd 或 Docker restart 策略守护(见 [Linux](/learning-paths/devops/linux) systemd 章);**③托管平台(省心选项)**:Railway/Render/Fly.io/云厂商 App 服务——Git 推送即部署,适合小团队;**④自建服务器**:云服务器(阿里云/腾讯云/AWS ECS)+ Nginx 反代(HTTPS 证书 certbot——见 [Nginx](/learning-paths/middleware/nginx) HTTPS 章);**⑤规模演进**:容器编排(K8s,见 [Kubernetes](/learning-paths/devops/kubernetes))或 Serverless(见 [Serverless](/learning-paths/cloud-native/serverless))——**先单机跑稳,再谈集群**。
+**环境与密钥**:生产环境变量与密钥用平台 Secret/环境变量注入,绝不进代码库(见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 配置章)。
 
 ## 第三站:数据库迁移——上线最容易翻车的环节
 

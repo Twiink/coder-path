@@ -697,7 +697,7 @@ public class AppConfig { }
 | required 属性 | ✅ `@Autowired(required = false)` | ❌ 没有（找不到就报错） |
 | 可用位置 | 构造器、字段、setter、方法参数 | 字段、setter（**不能用于构造器**） |
 | 与 Spring 耦合 | 是 | 否（换框架更容易） |
-| 支持多个 Bean 注入 | ✅ 配合 `List<T>`/`Map<String,T>` | ❌ |
+| 支持多个 Bean 注入 | ✅ 配合 `List&lt;T&gt;`/`Map&lt;String,T&gt;` | ❌ |
 | 阿里手册建议 | — | ★ **推荐用 @Resource**（减少对 Spring 的耦合） |
 
 ```java
@@ -1400,7 +1400,7 @@ public void init() {
 | 9 | 构造器循环依赖 | `BeanCurrentlyInCreationException` | 拆分类 / `@Lazy` / setter 注入（见 [[后端/Spring/循环依赖与三级缓存]]） |
 | 10 | `@Value` 在静态字段上 | 注入失败（null） | 静态字段不能注入，改用实例字段或 setter |
 | 11 | `@Value` 用在 `@Configuration` 的静态 @Bean | 拿不到值 | 同上 |
-| 12 | XML 中 `${}` 未配 property-placeholder | 值是字面量 `${jdbc.url}` | 加 `<context:property-placeholder/>` |
+| 12 | XML 中 `$&#123;&#125;` 未配 property-placeholder | 值是字面量 `$&#123;jdbc.url&#125;` | 加 `<context:property-placeholder/>` |
 | 13 | 同一属性被多处配置 | 值不确定 | 明确优先级（`PropertySource` 顺序） |
 | 14 | `@Service` 加了但没被扫到 | Bean 不存在 | 检查包路径、`excludeFilters`、是否被 `@ComponentScan` 覆盖 |
 | 15 | 内部类/嵌套类的 Bean | 扫描不到 | 静态内部类才能被扫描（非静态内部类需外部实例） |

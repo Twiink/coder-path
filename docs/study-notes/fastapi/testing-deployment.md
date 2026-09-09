@@ -784,7 +784,7 @@ wrk -t4 -c100 -d30s http://api.example.com/items
 # locust:Python 编写场景,分布式压测
 ```
 
-**性能排查工具:** `py-spy top -p <pid>` 看 CPU 热点;`py-spy dump` 看卡在哪;数据库侧 `EXPLAIN ANALYZE`(04 章)。
+**性能排查工具:** `py-spy top -p &lt;pid&gt;` 看 CPU 热点;`py-spy dump` 看卡在哪;数据库侧 `EXPLAIN ANALYZE`(04 章)。
 
 ## 7.11 性能调优清单
 

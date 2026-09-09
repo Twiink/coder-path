@@ -286,7 +286,7 @@ public class Product implements Serializable {
 > 【坑】**boolean 字段命名 `isDeleted` 的序列化灾难**：
 > ```java
 > private Boolean isDeleted;
-> public Boolean getIsDeleted() { ... }      // IDEA 生成 getIsDeleted
+> public Boolean getIsDeleted() &#123; ... &#125;      // IDEA 生成 getIsDeleted
 > // 或 Lombok 生成 getDeleted()（因为去掉 is 前缀）
 > ```
 > Jackson/Fastjson 会把属性名解析为 `deleted`，而前端期望 `isDeleted`，导致字段丢失。
@@ -406,7 +406,7 @@ public class User {
 | 不能在**静态方法**中使用 | 静态方法属于类，没有「当前对象」概念 |
 | 不能在**静态代码块**中使用 | 同上 |
 | 调用构造器 `this(...)` 必须是**第一条语句** | 且不能与 `super(...)` 同时出现在一个构造器中 |
-| 不能递归调用自身构造器 | `public A() { this(); }` 编译错误 |
+| 不能递归调用自身构造器 | `public A() &#123; this(); &#125;` 编译错误 |
 
 ```java
 // ❌ 静态方法中不能用 this
@@ -606,7 +606,7 @@ B.构造器             ← 6. 子类构造器体
 2. **分配内存**：在堆中为对象划分内存（指针碰撞 / 空闲列表，取决于堆是否规整）。
 3. **内存初始化为零值**：所有字段设为默认值（int → 0，引用 → null）。**所以字段不赋值也能直接用**。
 4. **设置对象头**：Mark Word（哈希码、GC 分代年龄、锁标志）+ 类型指针（指向 Class 元数据）。
-5. **执行 `<init>()`**：按代码顺序执行实例变量赋值、实例代码块、构造器体（先 `super()`）。
+5. **执行 `&lt;init&gt;()`**：按代码顺序执行实例变量赋值、实例代码块、构造器体（先 `super()`）。
 
 **内存分配的两种方式：**
 
@@ -916,7 +916,7 @@ if (a1 instanceof Dog dog) {  // JDK 16+ 模式匹配
 | 指令 | 调用的方法类型 | 绑定时机 |
 | --- | --- | --- |
 | `invokestatic` | 静态方法 | **编译期**（静态绑定） |
-| `invokespecial` | 构造器 `<init>`、私有方法、`super.method()` | **编译期** |
+| `invokespecial` | 构造器 `&lt;init&gt;`、私有方法、`super.method()` | **编译期** |
 | `invokevirtual` | 普通实例方法（**虚方法**） | **运行期**（动态绑定） |
 | `invokeinterface` | 接口方法 | **运行期** |
 | `invokedynamic` | Lambda、动态语言、字符串拼接（JDK 9+） | 运行期，由用户代码决定 |
@@ -1058,12 +1058,12 @@ if (a instanceof Dog) {
 ```
 
 > 【坑】**ClassCastException 常见来源**：
-> 1. 集合中混装类型后强转：`List<Object>` 里放不同类型，遍历时强转单一类型。
-> 2. 泛型擦除后强转：`(List<String>) someList` 编译不报错但运行时可能异常。
+> 1. 集合中混装类型后强转：`List&lt;Object&gt;` 里放不同类型，遍历时强转单一类型。
+> 2. 泛型擦除后强转：`(List&lt;String&gt;) someList` 编译不报错但运行时可能异常。
 > 3. Spring 中注入的代理对象：CGLIB 代理能转成目标类，JDK 动态代理只能转成接口（详见 [[后端/Spring/动态代理-JDK与CGLIB]]）。
 >    ```java
 >    @Service
->    public class UserServiceImpl implements UserService { }
+>    public class UserServiceImpl implements UserService &#123; &#125;
 >    // JDK 代理下：(UserServiceImpl) applicationContext.getBean("userServiceImpl")  → ClassCastException
 >    ```
 
@@ -1167,7 +1167,7 @@ new StaticDemo().printInfo();        // ⚠️ 不推荐，IDEA 会警告（误�
 | 归属 | 属于**类** | 属于**对象** |
 | 内存 | JDK 7 及以前在方法区，**JDK 8+ 静态变量随 Class 对象存在堆中** | 堆中对象内 |
 | 份数 | 全局唯一一份 | 每个对象一份 |
-| 加载时机 | 类初始化时（`<clinit>`） | 对象创建时（`<init>`） |
+| 加载时机 | 类初始化时（`&lt;clinit&gt;`） | 对象创建时（`&lt;init&gt;`） |
 | 访问方式 | 类名.成员（推荐）或对象.成员 | 必须通过对象 |
 | 能否访问实例成员 | ❌ 不能（静态方法中没有 this） | ✅ 能访问静态和实例成员 |
 | this / super | ❌ 不可用 | ✅ 可用 |
@@ -1259,10 +1259,10 @@ public enum Singleton3 {
 
 | 代码块类型 | 语法 | 执行时机 | 执行次数 |
 | --- | --- | --- | --- |
-| 静态代码块 | `static { }` | **类初始化**时（首次主动使用该类） | **仅 1 次** |
-| 实例代码块 | `{ }` | 每次创建对象时，在构造器体之前 | 每次 new |
-| 普通代码块 | 方法内 `{ }` | 执行到该语句时 | 每次执行 |
-| 同步代码块 | `synchronized(obj) { }` | 获得锁后执行 | — |
+| 静态代码块 | `static &#123; &#125;` | **类初始化**时（首次主动使用该类） | **仅 1 次** |
+| 实例代码块 | `&#123; &#125;` | 每次创建对象时，在构造器体之前 | 每次 new |
+| 普通代码块 | 方法内 `&#123; &#125;` | 执行到该语句时 | 每次执行 |
+| 同步代码块 | `synchronized(obj) &#123; &#125;` | 获得锁后执行 | — |
 
 **类初始化的触发条件（主动引用，JVM 规范定义）：**
 
@@ -1524,7 +1524,7 @@ public class OrderDemo {
 | 原则 | 体现 |
 | --- | --- |
 | 封装 | 字段全 private，只读暴露用 `unmodifiableList`，无危险 setter |
-| 组合 | `Order` 持有 `List<OrderItem>`，`OrderItem` 持有 `Product`（has-a） |
+| 组合 | `Order` 持有 `List&lt;OrderItem&gt;`，`OrderItem` 持有 `Product`（has-a） |
 | 多态 | `OrderStatus` 每个枚举值实现自己的 `canCancel()` |
 | 不变性 | `orderNo`、`createTime`、`Product` 字段都是 final |
 | 卫语句 | `addItem` 中提前抛异常，无嵌套 |
@@ -1557,14 +1557,14 @@ public class OrderDemo {
 
 > 【坑 16 详解】**构造器中调用可被重写的方法**是隐蔽 bug：
 > ```java
-> class Parent {
->     Parent() { init(); }                 // 构造器调用可重写方法
->     void init() { }
-> }
-> class Child extends Parent {
+> class Parent &#123;
+>     Parent() &#123; init(); &#125;                 // 构造器调用可重写方法
+>     void init() &#123; &#125;
+> &#125;
+> class Child extends Parent &#123;
 >     private String name = "Tom";
->     @Override void init() { System.out.println(name.length()); }   // NPE！
-> }
+>     @Override void init() &#123; System.out.println(name.length()); &#125;   // NPE！
+> &#125;
 > new Child();
 > // 执行顺序：Parent() → init()（动态分派到 Child.init）→ 此时 Child 的字段还没赋值 → name 为 null → NPE
 > ```

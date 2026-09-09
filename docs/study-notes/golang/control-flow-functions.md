@@ -18,17 +18,17 @@ updated: 2026-09-06
 
 ## 流程控制
 ~~~go
-if a < 10 {
+if a < 10 &#123;
 
-}
+&#125;
 //if语句判断不需要小括号
-if b := 1; b < 10 {  
+if b := 1; b < 10 &#123;  
 
-}
+&#125;
 //if判断中可以直接定义变量
 ~~~
 ~~~go
-switch score := 30; {
+switch score := 30; &#123;
     case "a":
     fmt.Println("a")
     case "b":
@@ -42,47 +42,47 @@ switch score := 30; {
     fmt.Println("0")
     default:
     fmt,Println("以上都不匹配,默认输出")
-}
+&#125;
 //不需要break, case后面可以带多个表达式用逗号分隔
 //case后面也可不带表达式, 也可以直接定义变量, 不推荐
 //fallthrough穿透: 当前case成立,仍执行后面的case,只穿透一层
 ~~~
 ~~~go
-for i := 1; i <= 10;i++ {
+for i := 1; i <= 10;i++ &#123;
 
-}
+&#125;
 //传统循环,不需要小括号
 //如果字符串含中文循环出来会乱码,按字节来遍历的,转为切片可解决
-for index, value := range str {
+for index, value := range str &#123;
     
-}
+&#125;
 //for-range默认按字符方式遍历
 ~~~
 ~~~go
 lable2:
-for i := 0;i < 4;i++ {
+for i := 0;i < 4;i++ &#123;
     label1:
-    for j := 0;j < 10;j++ {
-        if j == 2 {
+    for j := 0;j < 10;j++ &#123;
+        if j == 2 &#123;
             break label1
-        }
+        &#125;
         fmt.Println("123")
-    }
-}
+    &#125;
+&#125;
 //break默认会跳出最近的循环
 //当指定跳出的标签时,会跳出标签层对应的for循环
 ~~~
 ~~~go
 lable2:
-for i := 0;i < 4;i++ {
+for i := 0;i < 4;i++ &#123;
     label1:
-    for j := 0;j < 10;j++ {
-        if j == 2 {
+    for j := 0;j < 10;j++ &#123;
+        if j == 2 &#123;
             continue label1
-        }
+        &#125;
         fmt.Println("123")
-    }
-}
+    &#125;
+&#125;
 //continue默认结束当前最近的循环,执行下次循环
 //当指定跳出的标签时,会结束标签层对应的当前循环,执行下次循环
 ~~~
@@ -105,39 +105,39 @@ fmt.Println("6")
 //定义函数类型
 type myFunc func(int, int ) int
 //定义函数
-func getSun(num1 int, num2 int) int {
+func getSun(num1 int, num2 int) int &#123;
 	return num1 + num2
-}
+&#125;
 //定义传函数参数的函数
-func myFunc2(funvar myFunc, num1 int, num2 int) int  {
+func myFunc2(funvar myFunc, num1 int, num2 int) int  &#123;
 	return funvar(num1, num2)
-}
+&#125;
 //在main中使用
-func main() {
+func main() &#123;
 	res3 := myFunc2(getSun, 500, 500)
 	fmt.Println(res3)
-}
+&#125;
 ~~~
 ~~~go
-func myfunc(args... int) (i int, o int) {
+func myfunc(args... int) (i int, o int) &#123;
     num := 1
-    for a :=0; a<len(args); a++{
+    for a :=0; a<len(args); a++&#123;
        num += args[a]
-    } 
+    &#125; 
     return num, a
-}
+&#125;
 //args...代表传进来的多个参数,类型是切片
 ~~~
 ~~~go
 var abc int = 567
-func init(){
+func init()&#123;
     res := 123
     defer fmt.Println(res)	//123
     res++
-}
-func main(){
+&#125;
+func main()&#123;
     
-}
+&#125;
 //defer后面的代码会推入栈中等待函数执行完后再执行,并拷贝引用的值
 //在全局中,go语言会依次解析全局变量->init初始化函数->main主函数
 ~~~
@@ -167,7 +167,7 @@ strconv.Itoa(123)
 //字符串转byte切片并返回ascll码值
 ~~~
 ~~~go
-string([]byte{97,98,99})
+string([]byte&#123;97,98,99&#125;)
 //将byte切片转为字符串并返回, 内置函数
 ~~~
 ~~~go

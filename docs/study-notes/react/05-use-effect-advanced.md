@@ -34,25 +34,25 @@ updated: 2026-04-04
 
 这样就可以实现只在第一次挂载后和卸载前调用此useEffect的目的。    
 
-    import React, { useState,useEffect} from 'react';
+    import React, &#123; useState,useEffect&#125; from 'react';
 
-    function Component() {
+    function Component() &#123;
       const [a, setA] = useState(0);//定义变量a，并且默认值为0
 
       //定义第1个useEffect，专门用来处理自动累加器
-      useEffect(() => {
-        let timer = setInterval(() => {setA(a+1)},1000);// <-- 请注意这行代码，暗藏玄机
-        return () => {
+      useEffect(() => &#123;
+        let timer = setInterval(() => &#123;setA(a+1)&#125;,1000);// <-- 请注意这行代码，暗藏玄机
+        return () => &#123;
             clearInterval(timer);
-        }
-      }, []);//此处第2个参数为[]，告知React以后该组件任何更新引发的重新渲染都与此useEffect无关
+        &#125;
+      &#125;, []);//此处第2个参数为[]，告知React以后该组件任何更新引发的重新渲染都与此useEffect无关
 
       //定义第2个useEffect，专门用来处理网页标题更新
-      useEffect(() => {
-        document.title = `${a} - ${Math.floor(Math.random()*100)}`;
-      },[a])
-      return <div> {a} </div>
-    }
+      useEffect(() => &#123;
+        document.title = `$&#123;a&#125; - $&#123;Math.floor(Math.random()*100)&#125;`;
+      &#125;,[a])
+      return &lt;div&gt; &#123;a&#125; </div>
+    &#125;
 
     export default Component;
 
@@ -71,7 +71,7 @@ updated: 2026-04-04
 
 让我们再看看那行有玄机的代码：  
 
-    let timer = setInterval(() => {setA(a+1)},1000);  
+    let timer = setInterval(() => &#123;setA(a+1)&#125;,1000);  
 
 再看看 react 给我们的错误警告提示：You can also do a functional update 'setA(a => ...)' if you only need 'a' in the 'setA' call.  你可能会用到 setA(a => ...) 这种方式来更新a的值。
 
@@ -79,7 +79,7 @@ setA(a => ...)  这是在 “03 useState高级用法”中，解决数据异步 
 
 那我们就按照提示，将那行代码修改为：  
 
-    let timer = setInterval(() => {setA(a => a+1)},1000);  
+    let timer = setInterval(() => &#123;setA(a => a+1)&#125;,1000);  
 
 再次执行，错误提示警告没有了，组件也完全按照我们的预期来执行了。react自带的语法检查真的好智能。    
 
@@ -113,20 +113,20 @@ setA(a => ...)  这是在 “03 useState高级用法”中，解决数据异步 
 
 我们首先看以下代码：  
 
-    import React, { useState,useEffect} from 'react';
-    function Component() {
-      const [obj,setObj] = useState({a:0,b:0});
-      useEffect(() => {
-        document.title = `${obj.a} - ${Math.floor(Math.random()*50)}`;
-      }); //注意此时我们并未设置useEffect函数的第2个参数
+    import React, &#123; useState,useEffect&#125; from 'react';
+    function Component() &#123;
+      const [obj,setObj] = useState(对象(a属性));
+      useEffect(() => &#123;
+        document.title = `$&#123;obj.a&#125; - $&#123;Math.floor(Math.random()*50)&#125;`;
+      &#125;); //注意此时我们并未设置useEffect函数的第2个参数
 
       //如果下面代码看不懂，你需要重新去温习useState高级用法中的“数据类型为Objcet，修改方法”
-      return <div>
-        {JSON.stringify(obj)}
-        <button onClick={() => {setObj({...obj,a:obj.a+1})}}>a+1</button> 
-        <button onClick={() => {setObj({...obj,b:obj.b+1})}}>b+1</button>
+      return &lt;div&gt;
+        &#123;JSON.stringify(obj)&#125;
+        <button onClick=&#123;() => &#123;setObj(&#123;...obj,a:obj.a+1&#125;)&#125;&#125;>a+1</button> 
+        <button onClick=&#123;() => &#123;setObj(&#123;...obj,b:obj.b+1&#125;)&#125;&#125;>b+1</button>
       </div>
-    }
+    &#125;
     export default Component;
 
 由于我们在网页标题中添加了随机数，因此实际运行你会发现即使修改b的值，也会引发网页标题重新“变更一次”。  
@@ -135,9 +135,9 @@ setA(a => ...)  这是在 “03 useState高级用法”中，解决数据异步 
 
 正确的做法应该是我们给useEffect添加上第2个参数：[obj.a]，明确告诉React，只有当obj.a变更引发的重新渲染才执行本条useEffect。
 
-    useEffect(() => {
-       document.title = `${obj.a} - ${Math.floor(Math.random()*50)}`;
-     },[obj.a]); //第2个参数为数组，该数组中可以包含多个变量
+    useEffect(() => &#123;
+       document.title = `$&#123;obj.a&#125; - $&#123;Math.floor(Math.random()*50)&#125;`;
+     &#125;,[obj.a]); //第2个参数为数组，该数组中可以包含多个变量
 
 添加过[obj.a]之后，再次运行，无论obj.b或者其他数据变量引发的组件重新渲染，都不会执行该useEffect。
 

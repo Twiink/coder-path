@@ -170,7 +170,7 @@ public class LifecycleConfig {
 >
 > 【坑】`@PostConstruct`/`@PreDestroy` 在 JDK 11 被移出 JDK（属 Java EE），Spring Boot 3 中由 `jakarta.annotation-api` 提供（spring-boot-starter 已传递依赖，一般无需手动加）。若报找不到，加：
 > ```xml
-> <dependency><groupId>jakarta.annotation</groupId><artifactId>jakarta.annotation-api</artifactId></dependency>
+> &lt;dependency&gt;<groupId>jakarta.annotation</groupId><artifactId>jakarta.annotation-api</artifactId></dependency>
 > ```
 
 ### 1.3 BeanPostProcessor（★ Spring 扩展性的核心）
@@ -284,7 +284,7 @@ public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProc
 | 执行时机 | 实例化**之前**（refresh 步骤 ⑤） | 每个 Bean 初始化前后（步骤 ⑦⑩） |
 | 执行次数 | **整个容器一次** | **每个 Bean 一次** |
 | 典型用途 | 修改属性、注册新 Bean 定义、占位符替换 | 依赖注入、AOP 代理、Aware 回调 |
-| 内置实现 | `ConfigurationClassPostProcessor`（解析注解）、`PropertySourcesPlaceholderConfigurer`（`${}`）、`MapperScannerConfigurer`（MyBatis） | `AutowiredAnnotationBeanPostProcessor`、`AnnotationAwareAspectJAutoProxyCreator` |
+| 内置实现 | `ConfigurationClassPostProcessor`（解析注解）、`PropertySourcesPlaceholderConfigurer`（`$&#123;&#125;`）、`MapperScannerConfigurer`（MyBatis） | `AutowiredAnnotationBeanPostProcessor`、`AnnotationAwareAspectJAutoProxyCreator` |
 
 ```java
 // ─── BFPP 示例：修改所有 Bean 的作用域 / 属性 ───
@@ -328,7 +328,7 @@ public class DynamicBeanRegistrar implements BeanDefinitionRegistryPostProcessor
 > 【坑】**BFPP 的 @Bean 方法必须声明为 `static`**：
 > ```java
 > @Bean
-> public static PropertySourcesPlaceholderConfigurer configurer() { ... }   // ★ static
+> public static PropertySourcesPlaceholderConfigurer configurer() &#123; ... &#125;   // ★ static
 > ```
 > 因为 BFPP 在容器极早期执行，此时配置类本身还没被实例化。如果 BFPP 的 @Bean 是非静态方法，Spring 为了调用它必须提前实例化配置类，导致配置类的 `@Autowired`/`@Value` 失效，并打印警告：
 > `@Bean method XxxConfigurer is non-static and returns an object assignable to BeanFactoryPostProcessor... will not be processed for @Autowired`。

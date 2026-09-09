@@ -21,34 +21,42 @@ Webpack 的一切都围绕四个词:**Entry(入口)、Output(出口)、Loader(�
 
 Loader 按链工作,记住"**从右到左、从下到上**"的执行顺序。常用链:
 
-- **样式链**:`css-loader`(解析 CSS 中的 import/url)→ `style-loader`(把 CSS 以 `<style>` 注入 DOM,开发用)或 **`MiniCssExtractPlugin.loader`**(生产:提取成独立 .css 文件,配插件用);链路再加 `postcss-loader`(Autoprefixer/Tailwind 都在这层)、`sass-loader`/`less-loader`(预处理器,放最右先执行)。
+- **样式链**:`css-loader`(解析 CSS 中的 import/url)→ `style-loader`(把 CSS 以 `&lt;style&gt;` 注入 DOM,开发用)或 **`MiniCssExtractPlugin.loader`**(生产:提取成独立 .css 文件,配插件用);链路再加 `postcss-loader`(Autoprefixer/Tailwind 都在这层)、`sass-loader`/`less-loader`(预处理器,放最右先执行)。
 - **JS 链**:`babel-loader`(ES6+ → 兼容语法,配 `@babel/preset-env` + `preset-react`/`preset-typescript`;`cacheDirectory` 开缓存)、`ts-loader`(TS 检查 + 转译,慢;新项目用 babel 转译 + `fork-ts-checker` 单独检查)。
 - **资源模块(Webpack 5 内置)**:`asset/resource`(文件拷出给 URL,替代旧 file-loader)、`asset/inline`(转 base64 内联,替代 url-loader)、`asset`(自动:小文件内联,超阈值(`parser.dataUrlCondition.maxSize`)转文件)、`asset/source`(拿原文);规则里 `type` 字段配置。
-- **框架与杂项**:`vue-loader`(Vue SFC,必须配 VueLoaderPlugin)、`html-loader`(HTML 里引资源)、`markdown-loader`、`svg-sprite-loader`(SVG 雪碧图);loader 可以带 options(`{ loader: 'babel-loader', options: {...} }`)。
+- **框架与杂项**:`vue-loader`(Vue SFC,必须配 VueLoaderPlugin)、`html-loader`(HTML 里引资源)、`markdown-loader`、`svg-sprite-loader`(SVG 雪碧图);loader 可以带 options((&#123; loader: 'babel-loader', options: &#123;...&#125; &#125;))。
 
 ## 第三站:Plugin 体系——全家桶地图
 
-**必备插件**:`HtmlWebpackPlugin`(自动生成 HTML 并注入打包后的 script/link——template 传自己的 HTML 模板,`title`/`meta`/`minify` 选项)、`MiniCssExtractPlugin`(配上面样式链)、`CopyWebpackPlugin`(public 静态资源拷进 dist)、`DefinePlugin`(构建期注入全局常量,`process.env.NODE_ENV` 的值替换——**注意值要 JSON.stringify**,否则变成变量引用)。**开发插件**:`HotModuleReplacementPlugin`(webpack-dev-server 的 `hot: true` 会自动开,一般不用手写)。**优化插件**:`TerserWebpackPlugin`(压缩 JS,production 默认启用,可配 `parallel`)、`CssMinimizerWebpackPlugin`(压缩提取出的 CSS)、`CompressionWebpackPlugin`(预生成 .gz/.br,配 Nginx gzip_static)、`BundleAnalyzerPlugin`(打包体积可视化,**找"谁把包撑大"的第一工具**)、`SpeedMeasurePlugin`(各 loader/plugin 耗时,构建慢定位)。插件的本质:带 `apply(compiler)` 方法的类,在 compiler 生命周期钩子上挂逻辑——理解这个,后面自定义插件就不难。
+**必备插件**:`HtmlWebpackPlugin`(自动生成 HTML 并注入打包后的 script/link——template 传自己的 HTML 模板,`title`/`meta`/`minify` 选项)、`MiniCssExtractPlugin`(配上面样式链)、`CopyWebpackPlugin`(public 静态资源拷进 dist)、`DefinePlugin`(构建期注入全局常量,`process.env.NODE_ENV` 的值替换——**注意值要 JSON.stringify**,否则变成变量引用)。
+**开发插件**:`HotModuleReplacementPlugin`(webpack-dev-server 的 `hot: true` 会自动开,一般不用手写)。**优化插件**:`TerserWebpackPlugin`(压缩 JS,production 默认启用,可配 `parallel`)、`CssMinimizerWebpackPlugin`(压缩提取出的 CSS)、`CompressionWebpackPlugin`(预生成 .gz/.br,配 Nginx gzip_static)、`BundleAnalyzerPlugin`(打包体积可视化,**找"谁把包撑大"的第一工具**)、`SpeedMeasurePlugin`(各 loader/plugin 耗时,构建慢定位)。
+插件的本质:带 `apply(compiler)` 方法的类,在 compiler 生命周期钩子上挂逻辑——理解这个,后面自定义插件就不难。
 
 ## 第四站:开发体验——DevServer、Source Map 与 HMR
 
-**webpack-dev-server**:`devServer` 配置——`hot: true`(HMR)、`port`/`open`、**`proxy`**(`'/api': { target: 'http://localhost:3000', changeOrigin: true }`,跨域开发标准解)、**`historyApiFallback: true`**(SPA 路由刷新 404 的解:所有路径返回 index.html)、`static`(托管静态目录)、`overlay`(编译错误全屏提示)、`client` 配置。**Source Map**:`devtool` 选项是"速度 vs 质量"的权衡谱——`eval`(最快,只有行)、`source-map`(最慢最全)、`cheap-module-source-map`(开发推荐:够用且快)、`hidden-source-map`(生产:报错映射但源码不暴露给用户,配错误监控用)、`nosources-source-map`(线上排错安全版)。**HMR 原理**:模块更新时,dev server 推送更新 → 运行时**热替换模块而不刷新页面**(状态不丢)——框架集成:React Fast Refresh、Vue SFC 天然支持、样式由 style-loader 自动热更;自己写模块时用 `module.hot.accept('./dep', cb)` 声明接受热更新;HMR 失败会自动降级整页刷新。
+**webpack-dev-server**:`devServer` 配置——`hot: true`(HMR)、`port`/`open`、**`proxy`**(('/api': &#123; target: 'http://localhost:3000', changeOrigin: true &#125;),跨域开发标准解)、**`historyApiFallback: true`**(SPA 路由刷新 404 的解:所有路径返回 index.html)、`static`(托管静态目录)、`overlay`(编译错误全屏提示)、`client` 配置。
+**Source Map**:`devtool` 选项是"速度 vs 质量"的权衡谱——`eval`(最快,只有行)、`source-map`(最慢最全)、`cheap-module-source-map`(开发推荐:够用且快)、`hidden-source-map`(生产:报错映射但源码不暴露给用户,配错误监控用)、`nosources-source-map`(线上排错安全版)。
+**HMR 原理**:模块更新时,dev server 推送更新 → 运行时**热替换模块而不刷新页面**(状态不丢)——框架集成:React Fast Refresh、Vue SFC 天然支持、样式由 style-loader 自动热更;自己写模块时用 `module.hot.accept('./dep', cb)` 声明接受热更新;HMR 失败会自动降级整页刷新。
 
 ## 第五站:性能优化——构建快 + 包小
 
-**构建性能(开发体验)**:loader 缩小范围(`include: path.resolve(__dirname, 'src')`,别让 babel 遍历 node_modules)、`cache: { type: 'filesystem' }`(Webpack 5 默认持久化缓存,二次构建飞起)、`thread-loader`(多线程跑重 loader,项目够大再用,有线程启动开销)、`externals`(把 react/vue 这类用 CDN 引入的库排除出打包,`externals: { react: 'React' }`——**注意与 tree-shaking/版本管理的权衡,现在不常用**);DLL 方案已过时(缓存替代了它)。**体积优化**:①**Tree Shaking**:ESM 静态分析删死代码——条件:代码必须 ESM(不能 CommonJS)、production 模式自动开、`package.json` 标 `"sideEffects": false`(或数组列出有副作用的文件,如全局 CSS——**sideEffects 配置错了会把样式摇没**,经典事故);②**代码分割**:动态 `import()` 自动拆 chunk + 路由级懒加载;③**SplitChunksPlugin**(Webpack 4+ 内置,替代老 CommonsChunkPlugin):`chunks: 'all'`(抽同步+异步公共代码)/`minSize`/`maxSize`/`minChunks`(最少被引用几次)/**`cacheGroups`**(自定义分组:把 react/vue 打成 vendor chunk、把 node_modules 大库单独拆——缓存策略的基础);④**Scope Hoisting**(production 自动,`ModuleConcatenationPlugin` 的效果):把能合并的模块提升成一个大函数,减少闭包开销——前提同样要 ESM;⑤压缩(Terser/CSS Minimizer)与 gzip/brotli。**运行性能(加载体验)**:`contenthash` 文件名(内容变 hash 变 → 配合强缓存,`filename: '[name].[contenthash].js'`;**runtime chunk 单独拆**避免业务代码一变 vendor 缓存全失效)、`preload`/`prefetch`(魔法注释 `import(/* webpackPreload: true */ ...)` 控制加载时机)、小资源内联(asset/inline 或 `data URI`)、关键 CSS 内联、CDN(publicPath 指到 CDN 域名)。
+**构建性能(开发体验)**:loader 缩小范围(`include: path.resolve(__dirname, 'src')`,别让 babel 遍历 node_modules)、(cache: &#123; type: 'filesystem' &#125;)(Webpack 5 默认持久化缓存,二次构建飞起)、`thread-loader`(多线程跑重 loader,项目够大再用,有线程启动开销)、`externals`(把 react/vue 这类用 CDN 引入的库排除出打包,(externals: &#123; react: 'React' &#125;)——**注意与 tree-shaking/版本管理的权衡,现在不常用**);DLL 方案已过时(缓存替代了它)。
+**体积优化**:①**Tree Shaking**:ESM 静态分析删死代码——条件:代码必须 ESM(不能 CommonJS)、production 模式自动开、`package.json` 标 `"sideEffects": false`(或数组列出有副作用的文件,如全局 CSS——**sideEffects 配置错了会把样式摇没**,经典事故);②**代码分割**:动态 `import()` 自动拆 chunk + 路由级懒加载;③**SplitChunksPlugin**(Webpack 4+ 内置,替代老 CommonsChunkPlugin):`chunks: 'all'`(抽同步+异步公共代码)/`minSize`/`maxSize`/`minChunks`(最少被引用几次)/**`cacheGroups`**(自定义分组:把 react/vue 打成 vendor chunk、把 node_modules 大库单独拆——缓存策略的基础);④**Scope Hoisting**(production 自动,`ModuleConcatenationPlugin` 的效果):把能合并的模块提升成一个大函数,减少闭包开销——前提同样要 ESM;⑤压缩(Terser/CSS Minimizer)与 gzip/brotli。
+**运行性能(加载体验)**:`contenthash` 文件名(内容变 hash 变 → 配合强缓存,`filename: '[name].[contenthash].js'`;**runtime chunk 单独拆**避免业务代码一变 vendor 缓存全失效)、`preload`/`prefetch`(魔法注释 `import(/* webpackPreload: true */ ...)` 控制加载时机)、小资源内联(asset/inline 或 `data URI`)、关键 CSS 内联、CDN(publicPath 指到 CDN 域名)。
 
 ## 第六站:代码分割实战
 
-三招组合:①**入口分割**(多页应用天然多入口,`entry: { home: ..., admin: ... }` + 多 HtmlWebpackPlugin);②**动态导入**(`import()` 返回 Promise,路由懒加载/按需加载的语法基础;webpack 会为每个动态导入自动产出 chunk);③**SplitChunks 自动分割**(配 cacheGroups,如 `react: { test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/, name: 'react-vendor', chunks: 'all' }`——把框架代码锁进独立 chunk,业务更新不重新下载框架,这是"首屏优化 + 缓存命中"的经典组合)。验证成果:`npx webpack --profile` + BundleAnalyzerPlugin 看产物构成。
+三招组合:①**入口分割**(多页应用天然多入口,(entry: &#123; home: ..., admin: ... &#125;) + 多 HtmlWebpackPlugin);②**动态导入**(`import()` 返回 Promise,路由懒加载/按需加载的语法基础;webpack 会为每个动态导入自动产出 chunk);③**SplitChunks 自动分割**(配 cacheGroups,如 (react: &#123; test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/, name: 'react-vendor', chunks: 'all' &#125;)——把框架代码锁进独立 chunk,业务更新不重新下载框架,这是"首屏优化 + 缓存命中"的经典组合)。验证成果:`npx webpack --profile` + BundleAnalyzerPlugin 看产物构成。
 
 ## 第七站:多环境配置
 
-一套配置走天下不现实:拆三份——`webpack.common.js`(公共:entry/output/loader/resolve)+ `webpack.dev.js`(devServer/sourcemap/HMR,`mode: 'development'`)+ `webpack.prod.js`(压缩/提取 CSS/contenthash/`mode: 'production'`),用 **`webpack-merge`**(`merge(common, {...})`)合并;npm scripts 里 `webpack --config webpack.dev.js`;环境变量:`DefinePlugin` 注入 `process.env.NODE_ENV`(webpack 自身会按 mode 设置,业务代码里 `if (process.env.NODE_ENV !== 'production')` 会被编译期替换并摇掉死分支)、`dotenv` 加载 .env 文件;跨平台设置变量用 `cross-env`(Windows 兼容)。
+一套配置走天下不现实:拆三份——`webpack.common.js`(公共:entry/output/loader/resolve)+ `webpack.dev.js`(devServer/sourcemap/HMR,`mode: 'development'`)+ `webpack.prod.js`(压缩/提取 CSS/contenthash/`mode: 'production'`),用 **`webpack-merge`**(`merge(common, &#123;...&#125;)`)合并;npm scripts 里 `webpack --config webpack.dev.js`;环境变量:`DefinePlugin` 注入 `process.env.NODE_ENV`(webpack 自身会按 mode 设置,业务代码里 `if (process.env.NODE_ENV !== 'production')` 会被编译期替换并摇掉死分支)、`dotenv` 加载 .env 文件;跨平台设置变量用 `cross-env`(Windows 兼容)。
 
 ## 第八站:自定义 Loader 与 Plugin
 
-**自定义 Loader**:本质是"导出一个函数的 Node 模块",入参是源码字符串,返回处理后的代码:`module.exports = function(source) { return source.replace(...) }`;需要异步/多返回值时用 `this.callback(null, code, map)` 或 `this.async()`;**loader 之间传数据**用 `this` 上下文(webpack 注入的 loader API:this.query/this.resourcePath/this.emitFile……);**pitching 阶段**(loader.pitch,从左到右先跑,可短路)是高级玩法。场景:自定义模板语法、i18n 文案抽取、markdown 增强。**自定义 Plugin**:类 + `apply(compiler)`,核心对象 **Compiler**(整个构建周期,`compiler.hooks.emit/done` 等)与 **Compilation**(单次构建的模块图);事件系统基于 **Tapable**(同步/异步钩子);场景:产物处理、版权头注入、自动化部署前检查。写之前先看 Tapable 钩子类型(SyncHook/AsyncSeriesHook……),这是 webpack 插件面试的深水区。
+**自定义 Loader**:本质是"导出一个函数的 Node 模块",入参是源码字符串,返回处理后的代码:`module.exports = function(source) &#123; return source.replace(...) &#125;`;需要异步/多返回值时用 `this.callback(null, code, map)` 或 `this.async()`;**loader 之间传数据**用 `this` 上下文(webpack 注入的 loader API:this.query/this.resourcePath/this.emitFile……);**pitching 阶段**(loader.pitch,从左到右先跑,可短路)是高级玩法。
+场景:自定义模板语法、i18n 文案抽取、markdown 增强。**自定义 Plugin**:类 + `apply(compiler)`,核心对象 **Compiler**(整个构建周期,`compiler.hooks.emit/done` 等)与 **Compilation**(单次构建的模块图);事件系统基于 **Tapable**(同步/异步钩子);场景:产物处理、版权头注入、自动化部署前检查。
+写之前先看 Tapable 钩子类型(SyncHook/AsyncSeriesHook……),这是 webpack 插件面试的深水区。
 
 ## 第九站:Module Federation(微前端)
 

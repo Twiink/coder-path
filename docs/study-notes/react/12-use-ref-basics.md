@@ -46,14 +46,14 @@ updated: 2026-04-04
 **第2：在useEffect中创建的变量**：  
 举例，请看以下代码：  
 
-    useEffect(() => {
-        let timer = setInterval(() => {
+    useEffect(() => &#123;
+        let timer = setInterval(() => &#123;
             setCount(prevData => prevData +1);
-        }, 1000);
-        return () => {
+        &#125;, 1000);
+        return () => &#123;
             clearInterval(timer);
-        }
-    },[]);
+        &#125;
+    &#125;,[]);
 
 上述代码中，请注意这个timer是在useEffect中才定义的。  
 
@@ -101,7 +101,7 @@ updated: 2026-04-04
 
 
 
-<br>
+&lt;br&gt;
 
 > 以下内容更新于 2022.04.06
 
@@ -137,13 +137,13 @@ export default function MyButton() {
 
 
 
-<br>
+&lt;br&gt;
 
 > 以上内容更新于 2022.04.06
 
 
 
-<br>
+&lt;br&gt;
 
 
 ## useRef函数源码：  
@@ -151,10 +151,10 @@ export default function MyButton() {
 回到useRef的学习中，首先看一下React源码中的[ReactHooks.js](https://github.com/facebook/react/blob/master/packages/react/src/ReactHooks.js)。  
 
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
-    export function useRef<T>(initialValue: T): {|current: T|} {
+    export function useRef&lt;T&gt;(initialValue: T): &#123;|current: T|&#125; &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useRef(initialValue);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。^_^
 
@@ -199,7 +199,7 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
 第2遍强调：本文提到的组件，默认都是指小写开头的类似原生标签的组件，不可以是自定义组件。  
 
 接下来具体说说useRef关联对象的2种用法：  
-1、针对 JSX组件，通过属性 ref={xxxRef} 进行关联。  
+1、针对 JSX组件，通过属性 ref=&#123;xxxRef&#125; 进行关联。  
 2、针对 useEffect中的变量，通过 xxxRef.current 进行关联。  
 
 
@@ -208,13 +208,13 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
     //先定义一个xxRef引用变量，用于“勾住”某些组件挂载完成或重新渲染完成后才拥有的某些对象
     const xxRef = useRef(null);
     
-    //针对 JSX组件，通过属性 ref={xxxRef} 进行关联
-    <xxx ref={xxRef} />
+    //针对 JSX组件，通过属性 ref=&#123;xxxRef&#125; 进行关联
+    <xxx ref=&#123;xxRef&#125; />
     
     //针对 useEffect中的变量，通过 xxxRef.current 进行关联
-    useEffect(() => {
+    useEffect(() => &#123;
        xxRef.current = xxxxxx;
-    },[]);
+    &#125;,[]);
 
 
 ##### 拆解说明：  
@@ -245,22 +245,22 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
 
 完整代码如下：  
 
-    import React,{useEffect,useRef} from 'react'
+    import React,&#123;useEffect,useRef&#125; from 'react'
     
-    function Component() {
+    function Component() &#123;
       //先定义一个inputRef引用变量，用于“勾住”挂载网页后的输入框
       const inputRef = useRef(null);
     
-      useEffect(() => {
+      useEffect(() => &#123;
         //inputRef.current就是挂载到网页后的那个输入框，一个真实DOM，因此可以调用html中的方法focus()
         inputRef.current.focus();
-      },[]);
+      &#125;,[]);
     
-      return <div>
-          {/* 通过 ref 属性将 inputRef与该输入框进行“挂钩” */}
-          <input type='text' ref={inputRef} />
+      return &lt;div&gt;
+          &#123;/* 通过 ref 属性将 inputRef与该输入框进行“挂钩” */&#125;
+          <input type='text' ref=&#123;inputRef&#125; />
         </div>
-    }
+    &#125;
     export default Component
 
 注意：  
@@ -287,35 +287,35 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
 为了确保timer可以被useEffect以外地方也能访问，我们通常做法是将timer声明提升到useEffect以外。  
 代码如下：  
 
-    import React,{useState,useEffect} from 'react'
+    import React,&#123;useState,useEffect&#125; from 'react'
     
-    function Component() {
+    function Component() &#123;
       const [count,setCount] = useState(0);
       const [timer,setTimer] = useState(null); //单独声明定义timer，目的是为了让组件内所有地方都可以访问到timer
     
-      useEffect(() => {
+      useEffect(() => &#123;
         //需要用setTimer()包裹住 setInterval()
-        setTimer(setInterval(() => {
-            setCount((prevData) => {return prevData +1});
-        }, 1000));
-        return () => {
+        setTimer(setInterval(() => &#123;
+            setCount((prevData) => &#123;return prevData +1&#125;);
+        &#125;, 1000));
+        return () => &#123;
           //清除掉timer
           clearInterval(timer);
-        }
-      },[]);
+        &#125;
+      &#125;,[]);
     
-      const clickHandler = () => {
+      const clickHandler = () => &#123;
         //清除掉timer
         clearInterval(timer);
-      };
+      &#125;;
     
       return (
-        <div>
-            {count}
-            <button onClick={clickHandler} >stop</button>
+        &lt;div&gt;
+            &#123;count&#125;
+            <button onClick=&#123;clickHandler&#125; >stop</button>
         </div>
       )
-    }
+    &#125;
     
     export default Component
 
@@ -323,35 +323,35 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
 如果使用useRef，该如何实现？
 代码如下：  
 
-    import React,{useState,useEffect,useRef} from 'react'
+    import React,&#123;useState,useEffect,useRef&#125; from 'react'
     
-    function Component() {
+    function Component() &#123;
       const [count,setCount] =  useState(0);
       const timerRef = useRef(null);//先定义一个timerRef引用变量，用于“勾住”useEffect中通过setIntervale创建的计时器
     
-      useEffect(() => {
+      useEffect(() => &#123;
         //将timerRef.current与setIntervale创建的计时器进行“挂钩”
-        timerRef.current = setInterval(() => {
-            setCount((prevData) => { return prevData +1});
-        }, 1000);
-        return () => {
+        timerRef.current = setInterval(() => &#123;
+            setCount((prevData) => &#123; return prevData +1&#125;);
+        &#125;, 1000);
+        return () => &#123;
             //通过timerRef.current，清除掉计时器
             clearInterval(timerRef.current);
-        }
-      },[]);
+        &#125;
+      &#125;,[]);
     
-      const clickHandler = () => {
+      const clickHandler = () => &#123;
         //通过timerRef.current，清除掉计时器
         clearInterval(timerRef.current);
-      };
+      &#125;;
     
       return (
-        <div>
-            {count}
-            <button onClick={clickHandler} >stop</button>
+        &lt;div&gt;
+            &#123;count&#125;
+            <button onClick=&#123;clickHandler&#125; >stop</button>
         </div>
       )
-    }
+    &#125;
     
     export default Component
 
@@ -373,7 +373,7 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
 
 
 
-<br>
+&lt;br&gt;
 
 > 以下内容更新于 2022.05.20
 
@@ -383,7 +383,7 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
 
 
 
-<br>
+&lt;br&gt;
 
 **使用 useRef 实现父组件调用子组件中的函数 实现思路：**
 
@@ -403,7 +403,7 @@ const canvasRef2 = useRef<HTMLCanvasElement>()
 
 
 
-<br>
+&lt;br&gt;
 
 具体示例代码：
 
@@ -433,7 +433,7 @@ export default ParentComponent;
 
 
 
-<br>
+&lt;br&gt;
 
 **ChildComponent**
 
@@ -456,7 +456,7 @@ export default ChildComponent;
 
 
 
-<br>
+&lt;br&gt;
 
 **特别说明：**
 
@@ -472,7 +472,7 @@ export default ChildComponent;
 
 
 
-<br>
+&lt;br&gt;
 
 ---
 
@@ -658,27 +658,27 @@ React.forwardRef()包裹住要输出的组件，且将第2个参数设置为 ref
 
     import React from 'react'
     
-    const ChildComponent = React.forwardRef((props,ref) => {
+    const ChildComponent = React.forwardRef((props,ref) => &#123;
       //子组件通过将第2个参数ref 添加到内部真正的“小写开头的类似原生标签的组件”中 
-      return <button ref={ref}>{props.label}</button>
-    });
+      return <button ref=&#123;ref&#125;>&#123;props.label&#125;</button>
+    &#125;);
     
     /* 上面的子组件直接在父组件内定义了，如果子组件是单独的.js文件，则可以通过
        export default React.forwardRef(ChildComponent) 这种形式  */
     
-    function Forward() {
+    function Forward() &#123;
       const ref = React.useRef();//父组件定义一个ref
-      const clickHandle = () =>{
+      const clickHandle = () =>&#123;
         console.log(ref.current);//父组件获得渲染后子组件中对应的DOM节点引用
-      }
+      &#125;
       return (
-        <div>
-            {/* 父组件通过给子组件添加属性 ref={ref} 将ref作为参数传递给子组件 */}
-            <ChildComponent label='child bt' ref={ref} />
-            <button onClick={clickHandle} >get child bt ref</button>
+        &lt;div&gt;
+            &#123;/* 父组件通过给子组件添加属性 ref=&#123;ref&#125; 将ref作为参数传递给子组件 */&#125;
+            <ChildComponent label='child bt' ref=&#123;ref&#125; />
+            <button onClick=&#123;clickHandle&#125; >get child bt ref</button>
         </div>
       )
-    }
+    &#125;
     export default Forward;
 
 ---

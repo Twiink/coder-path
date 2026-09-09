@@ -391,6 +391,6 @@ sudo certbot --nginx -d api.example.com
 | 请求间歇性变慢 | workers 不足排队 / 慢 SQL:压测 + debug-toolbar 查 SQL(03 章) |
 | 内存缓慢增长 | 进程泄漏:gunicorn `--max-requests` 定期重启;排查信号/缓存 |
 | 静态文件 404 | 忘 collectstatic 或 Nginx alias 路径不对(05 章) |
-| CSRF 403(生产) | 忘 `{% csrf_token %}` 或 HTTPS 下 cookie secure 与 Nginx 配置不匹配 |
+| CSRF 403(生产) | 忘 `&#123;% csrf_token %&#125;` 或 HTTPS 下 cookie secure 与 Nginx 配置不匹配 |
 | 数据库连接断开 | 加 `CONN_MAX_AGE`、驱动重试;检查数据库 wait_timeout |
 | 定时任务不跑 | beat 没起 / 时区不一致(10 章排查清单) |

@@ -50,14 +50,14 @@ react属于单向数据流，父组件可以通过属性传值，将父组件内
 回到useImperativeHandle的学习中，首先看一下React源码中的[ReactHooks.js](https://github.com/facebook/react/blob/master/packages/react/src/ReactHooks.js)。  
 
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
-    export function useImperativeHandle<T>(
-      ref: {|current: T | null|} | ((inst: T | null) => mixed) | null | void,
+    export function useImperativeHandle&lt;T&gt;(
+      ref: &#123;|current: T | null|&#125; | ((inst: T | null) => mixed) | null | void,
       create: () => T,
-      deps: Array<mixed> | void | null,
-    ): void {
+      deps: Array&lt;mixed&gt; | void | null,
+    ): void &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useImperativeHandle(ref, create, deps);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。^_^  
 
@@ -75,17 +75,17 @@ useImperativeHandle(ref,create,[deps])函数前2个参数为必填项，第3个�
 
 ##### 代码形式：  
 
-    const xxx = () => {
+    const xxx = () => &#123;
         //do smoting...
-    }
-    useImperativeHandle(ref,() => ({xxx}));
+    &#125;
+    useImperativeHandle(ref,() => (&#123;xxx&#125;));
 
-上述代码中，useImperativeHandle(ref,() => ({xxx})) 其实是 useImperativeHandle(ref,() => {return {xxx:xxx}})的简写。  
+上述代码中，useImperativeHandle(ref,() => (&#123;xxx&#125;)) 其实是 useImperativeHandle(ref,() => &#123;return 对象(xxx属性)&#125;)的简写。  
 
-特别注意：() => ({xxx}) 不可以再简写成 () => {xxx}，如果这样写会直接react报错。  
+特别注意：() => (&#123;xxx&#125;) 不可以再简写成 () => &#123;xxx&#125;，如果这样写会直接react报错。  
 因为这两种写法意思完全不一样：  
-1、() => ({xxx}) 表示 返回一个object对象，该对象为{xxx}  
-2、() => {xxx} 表示 执行 xxx 语句代码  
+1、() => (&#123;xxx&#125;) 表示 返回一个object对象，该对象为&#123;xxx&#125;  
+2、() => &#123;xxx&#125; 表示 执行 xxx 语句代码  
 
 
 ##### 拆解说明：  
@@ -110,23 +110,23 @@ useImperativeHandle(ref,create,[deps])函数前2个参数为必填项，第3个�
 
 子组件的代码为：  
 
-    import React,{useState,useImperativeHandle} from 'react'
+    import React,&#123;useState,useImperativeHandle&#125; from 'react'
 
-    function ChildComponent(props,ref) {
+    function ChildComponent(props,ref) &#123;
       const [count,setCount] =  useState(0); //子组件定义内部变量count
       //子组件定义内部函数 addCount
-      const addCount = () => {
+      const addCount = () => &#123;
         setCount(count + 1);
-      }
+      &#125;
       //子组件通过useImperativeHandle函数，将addCount函数添加到父组件中的ref.current中
-      useImperativeHandle(ref,() => ({addCount}));
+      useImperativeHandle(ref,() => (&#123;addCount&#125;));
       return (
-        <div>
-            {count}
-            <button onClick={addCount}>child</button>
+        &lt;div&gt;
+            &#123;count&#125;
+            <button onClick=&#123;addCount&#125;>child</button>
         </div>
       )
-    }
+    &#125;
 
     //子组件导出时需要被React.forwardRef包裹，否则无法接收 ref这个参数
     export default React.forwardRef(ChildComponent);
@@ -134,25 +134,25 @@ useImperativeHandle(ref,create,[deps])函数前2个参数为必填项，第3个�
 
 父组件的代码为：  
 
-    import React,{useRef} from 'react'
+    import React,&#123;useRef&#125; from 'react'
     import ChildComponent from './childComponent'
 
-    function Imperative() {
+    function Imperative() &#123;
       const childRef = useRef(null); //父组件定义一个对子组件的引用
 
-      const clickHandle = () => {
+      const clickHandle = () => &#123;
         childRef.current.addCount(); //父组件调用子组件内部 addCount函数
-      }
+      &#125;
 
       return (
-        <div>
-            {/* 父组件通过给子组件添加 ref 属性，将childRef传递给子组件，
-                子组件获得该引用即可将内部函数添加到childRef中 */}
-            <ChildComponent ref={childRef} />
-            <button onClick={clickHandle}>child component do somting</button>
+        &lt;div&gt;
+            &#123;/* 父组件通过给子组件添加 ref 属性，将childRef传递给子组件，
+                子组件获得该引用即可将内部函数添加到childRef中 */&#125;
+            <ChildComponent ref=&#123;childRef&#125; />
+            <button onClick=&#123;clickHandle&#125;>child component do somting</button>
         </div>
       )
-    }
+    &#125;
 
     export default Imperative;
 

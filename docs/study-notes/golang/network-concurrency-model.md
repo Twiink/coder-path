@@ -27,24 +27,24 @@ conn, err := listen.Accpet()
 //conn下有大量方法使用
 conn.RemoteAddr().String()
 //获取连接上的客户端地址及端口号
-func process(conn net.Conn)  {
+func process(conn net.Conn)  &#123;
 	//循环接收客户端发送的数据
 	//结束后需关闭连接
 	defer conn.Close()
-	for {
+	for &#123;
 		//创建接收数据的切片
 		buf := make([]byte, 1024)
 		//获取客户端的数据
 		n, err :=conn.Read(buf)
-		if err != nil {
+		if err != nil &#123;
 			fmt.Println("客户端退出了")
 			return
-		}
+		&#125;
 		//输入获取到的数据
 		//需要将切片强转为字符串,n是真实获取到的内容
 		fmt.Print(string(buf[:n]))
-	}
-}
+	&#125;
+&#125;
 ~~~
 ~~~go
 conn, err := net.Dial("tcp", "127.0.0.1:8888")

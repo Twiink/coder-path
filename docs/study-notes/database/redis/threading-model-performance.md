@@ -305,7 +305,7 @@ Redis 6.0 的线程分工:
 
 ### 4.5.3 开启多线程 IO
 
-```conf
+```ini
 # redis.conf(6.0+)
 io-threads-do-reads yes    # 读也用多线程(默认 no)
 io-threads 4               # IO 线程数
@@ -535,7 +535,7 @@ r.unlink('bigkey')
 
 ### 4.9.2 配置层
 
-```conf
+```ini
 # 启用异步删除(推荐)
 lazyfree-lazy-eviction yes      # 淘汰时异步
 lazyfree-lazy-expire yes        # 过期时异步

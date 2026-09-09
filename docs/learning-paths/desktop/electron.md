@@ -8,7 +8,9 @@ Electron = **Chromium(渲染 UI)+ Node.js(系统能力)**:用 HTML/CSS/JS 写桌
 
 ## 基础篇:三进程架构(第一课,必须吃透)
 
-Electron 应用由三类进程组成:**①主进程(Main,Node 环境)**:应用入口、创建窗口、系统能力(文件/菜单/托盘/对话框)——**有全部系统权限**;②**渲染进程(Renderer,Chromium)**:每个 BrowserWindow 一个——**跑 UI(就是 Web 页面)**;③**预加载脚本(Preload)**:在主/渲染之间的"桥"——**安全通信的唯一通道**。**进程通信(IPC)**:渲染进程不能直接调 Node——`ipcRenderer.invoke`(渲染→主,拿 Promise 结果)与 `ipcMain.handle`(主进程响应)——**"点按钮 → 主进程读文件 → 返回结果给页面"是第一个里程碑**。**安全基线(桌面应用的红线,比 Web 更硬)**:渲染进程是"不可信区域"(可能被 XSS)——必须:**`contextIsolation: true`(默认)、`nodeIntegration: false`(禁 Node,默认)、preload 里用 `contextBridge.exposeInMainWorld` 只暴露最小 API**——**否则页面里一个 XSS 就能读你电脑文件**(见 [Web 安全](/learning-paths/security/web-security) 与 Electron 安全文档)。**窗口管理**:BrowserWindow(尺寸/无边框/置顶/事件:close/minimize)。
+Electron 应用由三类进程组成:**①主进程(Main,Node 环境)**:应用入口、创建窗口、系统能力(文件/菜单/托盘/对话框)——**有全部系统权限**;②**渲染进程(Renderer,Chromium)**:每个 BrowserWindow 一个——**跑 UI(就是 Web 页面)**;③**预加载脚本(Preload)**:在主/渲染之间的"桥"——**安全通信的唯一通道**。
+**进程通信(IPC)**:渲染进程不能直接调 Node——`ipcRenderer.invoke`(渲染→主,拿 Promise 结果)与 `ipcMain.handle`(主进程响应)——**"点按钮 → 主进程读文件 → 返回结果给页面"是第一个里程碑**。**安全基线(桌面应用的红线,比 Web 更硬)**:渲染进程是"不可信区域"(可能被 XSS)——必须:**`contextIsolation: true`(默认)、`nodeIntegration: false`(禁 Node,默认)、preload 里用 `contextBridge.exposeInMainWorld` 只暴露最小 API**——**否则页面里一个 XSS 就能读你电脑文件**(见 [Web 安全](/learning-paths/security/web-security) 与 Electron 安全文档)。
+**窗口管理**:BrowserWindow(尺寸/无边框/置顶/事件:close/minimize)。
 
 ## 进阶篇:系统能力与功能集成
 

@@ -12,7 +12,8 @@
 
 ## 配方三:Next.js 全栈(前后端同仓的现代默认)
 
-**Next.js 让"前后端住进同一个应用"**:React 组件里直接写服务端逻辑(Server Components),一套代码同时搞定页面、API 与 SSR——**不需要再单独维护一个 Express 后端**(见 [Next.js](/learning-paths/frontend/nextjs)):**App Router + React Server Components**(页面即服务端渲染)、Route Handlers/Server Actions 写接口(表单直调,免手写 API 层)、**Prisma + PostgreSQL 数据层**(服务端组件里直接查库)、部署 Vercel 一键上线(静态资源 CDN + Serverless 自动扩缩)。**适配场景**:内容站/官网(SEO)、全栈应用、个人项目与创业产品的现代默认;**代价**:框架约定多、与 Vercel 生态耦合(自托管要配 Node 服务器)。**Vue 生态对应物**:Nuxt 3(内置 Nitro,`server/api` 目录写接口——见 [Nuxt](/learning-paths/frontend/nuxtjs)),配方完全同构。
+**Next.js 让"前后端住进同一个应用"**:React 组件里直接写服务端逻辑(Server Components),一套代码同时搞定页面、API 与 SSR——**不需要再单独维护一个 Express 后端**(见 [Next.js](/learning-paths/frontend/nextjs)):**App Router + React Server Components**(页面即服务端渲染)、Route Handlers/Server Actions 写接口(表单直调,免手写 API 层)、**Prisma + PostgreSQL 数据层**(服务端组件里直接查库)、部署 Vercel 一键上线(静态资源 CDN + Serverless 自动扩缩)。
+**适配场景**:内容站/官网(SEO)、全栈应用、个人项目与创业产品的现代默认;**代价**:框架约定多、与 Vercel 生态耦合(自托管要配 Node 服务器)。**Vue 生态对应物**:Nuxt 3(内置 Nitro,`server/api` 目录写接口——见 [Nuxt](/learning-paths/frontend/nuxtjs)),配方完全同构。
 
 ## 跨层工程要点(JS 全栈特有)
 
@@ -20,7 +21,8 @@
 
 ## 学习路径建议(从 demo 到产品)
 
-**第一步**:React 或 Vue 选一个学透(能独立做 CRUD 界面);**第二步**:Node + Express + 数据库(Mongo 或 Postgres)写 REST API,用 Postman/curl 调通;**第三步**:**前后端联调**——JWT 登录打通、前端调自己写的接口渲染数据(此时你完成了"全栈最小闭环");**第四步**:上 Next.js(或 Nuxt)把前后端合并,体验 Server Components 与现代全栈的省事;**第五步**:补工程化——Prisma 类型贯通、React Query 缓存、CI 自动部署、监控日志——**从"能跑"到"能交付"**。**每步对应页面**:前端见 [React](/learning-paths/frontend/react)/[Vue](/learning-paths/frontend/vue),后端见 [Node.js](/learning-paths/backend/nodejs)/[NestJS](/learning-paths/backend/nestjs)(要企业级架构换 Nest),数据见 [PostgreSQL](/learning-paths/database/postgresql)/[MongoDB](/learning-paths/database/mongodb)。
+**第一步**:React 或 Vue 选一个学透(能独立做 CRUD 界面);**第二步**:Node + Express + 数据库(Mongo 或 Postgres)写 REST API,用 Postman/curl 调通;**第三步**:**前后端联调**——JWT 登录打通、前端调自己写的接口渲染数据(此时你完成了"全栈最小闭环");**第四步**:上 Next.js(或 Nuxt)把前后端合并,体验 Server Components 与现代全栈的省事;**第五步**:补工程化——Prisma 类型贯通、React Query 缓存、CI 自动部署、监控日志——**从"能跑"到"能交付"**。
+**每步对应页面**:前端见 [React](/learning-paths/frontend/react)/[Vue](/learning-paths/frontend/vue),后端见 [Node.js](/learning-paths/backend/nodejs)/[NestJS](/learning-paths/backend/nestjs)(要企业级架构换 Nest),数据见 [PostgreSQL](/learning-paths/database/postgresql)/[MongoDB](/learning-paths/database/mongodb)。
 
 ## 通关标准
 

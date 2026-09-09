@@ -258,7 +258,7 @@ jdk-17/
 └── release           # 版本信息
 ```
 
-> 【版本差异】JDK 8 及以前有 `rt.jar`（Runtime，含所有核心类库）、`tools.jar`（含 javac），JDK 9 模块化后这两个 jar 被拆分进 `jmods/` 下的各个模块，`lib` 目录不再有 `rt.jar`。这也是为什么老项目 `pom.xml` 里 `<systemPath>${java.home}/../lib/tools.jar</systemPath>` 这种写法在 JDK 9+ 会失败。
+> 【版本差异】JDK 8 及以前有 `rt.jar`（Runtime，含所有核心类库）、`tools.jar`（含 javac），JDK 9 模块化后这两个 jar 被拆分进 `jmods/` 下的各个模块，`lib` 目录不再有 `rt.jar`。这也是为什么老项目 `pom.xml` 里 `<systemPath>$&#123;java.home&#125;/../lib/tools.jar</systemPath>` 这种写法在 JDK 9+ 会失败。
 
 ## 8. 第一个 Java 程序
 
@@ -382,7 +382,7 @@ public String build(String name, int age) {
 4. **字节码生成**：AST → `.class` 文件。此阶段还会做少量优化：
    - 字符串常量池合并（`"a" + "b"` 直接优化为 `"ab"`）
    - 自动装箱/拆箱语法糖展开（`Integer i = 1` → `Integer.valueOf(1)`）
-   - 泛型类型擦除（`List<String>` → `List`）
+   - 泛型类型擦除（`List&lt;String&gt;` → `List`）
    - `try-with-resources` 展开为 try-finally
    - 增强 for 循环展开为 Iterator
    - `switch` 支持 String 展开为 hashCode + equals
@@ -411,7 +411,7 @@ javac @sources.txt                          # 从文件读取待编译列表
    - **验证 Verification**：校验字节码格式、语义、操作数栈合法性，防止恶意代码。
    - **准备 Preparation**：为静态变量分配内存并赋**零值**（`static int a = 10` 此阶段 a=0）。
    - **解析 Resolution**：符号引用 → 直接引用（常量池中类名字符串 → 内存地址）。
-   - **初始化 Initialization**：执行 `<clinit>()`，给静态变量赋真正的值、执行静态代码块。
+   - **初始化 Initialization**：执行 `&lt;clinit&gt;()`，给静态变量赋真正的值、执行静态代码块。
 3. **执行引擎运行**：
    - **解释器**：逐条把字节码翻译成机器码执行，启动快但运行慢。
    - **JIT（Just-In-Time）编译器**：把「热点代码」（多次执行的方法/循环）整体编译成本地机器码并缓存，运行快。HotSpot 默认开启**混合模式（Mixed Mode）**：先解释执行，热点后 JIT。
@@ -497,7 +497,7 @@ public static void main(java.lang.String[]);
 | 53 | 9 | 65 | **21** |
 | 54 | 10 | 66 | 22 |
 
-> 【坑】**`UnsupportedClassVersionError`**：用高版本 JDK 编译的 class 在低版本 JVM 上运行会报这个错。例如 `class file version 61.0, this version of the Java Runtime only recognizes class file versions up to 52.0`，意思是 class 是 JDK 17 编的，但运行时是 JDK 8。**解决**：要么升级运行时 JDK，要么在 Maven 里用 `<source>8</source><target>8</target>` 或 `maven.compiler.release` 降级编译。
+> 【坑】**`UnsupportedClassVersionError`**：用高版本 JDK 编译的 class 在低版本 JVM 上运行会报这个错。例如 `class file version 61.0, this version of the Java Runtime only recognizes class file versions up to 52.0`，意思是 class 是 JDK 17 编的，但运行时是 JDK 8。**解决**：要么升级运行时 JDK，要么在 Maven 里用 `&lt;source&gt;8</source>&lt;target&gt;8</target>` 或 `maven.compiler.release` 降级编译。
 
 ## 11. 包（package）与导入（import）
 

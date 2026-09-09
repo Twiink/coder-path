@@ -49,26 +49,26 @@ Go（又称 Golang）是由 Google 设计和创建的一种开源编程语言。
 ### 同步编程模式
 **Go 语言借助协程提供了一种非常直观的同步编程模式**。如下为一个典型的网络服务器，`main` 函数中监听新的连接，每一个新建立的连接都会新建一个协程执行 `Handle` 函数。而这个处理函数，完全是阻塞模式的，无需使用复杂的回调或信号处理机制，让代码的阅读和编写都变得更直观、简单。
 ~~~go
-func main() {
+func main() &#123;
    listen, err := net.Listen("tcp", ":8888")
-   for {
+   for &#123;
       conn, err := listen.Accept()
       // 开启新的Groutine，处理新的连接
       go Handle(conn)
-   }
-}
+   &#125;
+&#125;
 
 
-func Handle(conn net.Conn) {
+func Handle(conn net.Conn) &#123;
    defer conn.Close()
    packet := make([]byte, 1024)
-   for {
+   for &#123;
       // 阻塞直到读取数据
       n, err := conn.Read(packet)
       // 阻塞直到写入数据
       _, _ = conn.Write(packet[:n])
-   }
-}
+   &#125;
+&#125;
 ~~~
 ### 非阻塞 I/O
 **Go 表面上实现了同步编程模式，但背后在处理 Socket 时使用的是非堵塞模式。**

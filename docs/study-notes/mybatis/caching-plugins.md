@@ -65,7 +65,7 @@ try (SqlSession session = factory.openSession()) {
 | 2 | **执行了 insert/update/delete** | ★ 任何写操作都会 `clearLocalCache()`（不管改的是不是同一张表） |
 | 3 | **调用 `sqlSession.clearCache()`** | 手动清空 |
 | 4 | **`localCacheScope=STATEMENT`** | 每条语句执行完就清空（相当于禁用） |
-| 5 | **`flushCache=true`** | 在 `<select>` 上显式配置 |
+| 5 | **`flushCache=true`** | 在 `&lt;select&gt;` 上显式配置 |
 | 6 | **SqlSession 关闭或提交** | `close()` / `commit()` 都会清缓存 |
 | 7 | **查询条件不同** | CacheKey 不同（SQL、参数、分页任一不同） |
 | 8 | **不同的 namespace** | CacheKey 含 statementId（含 namespace） |

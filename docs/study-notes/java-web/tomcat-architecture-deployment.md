@@ -506,7 +506,7 @@ server:
 | 位置 | 说明 | 推荐度 |
 | --- | --- | --- |
 | `$CATALINA_BASE/conf/[EngineName]/[HostName]/[appName].xml` | ★ **推荐**（独立文件，改动不影响 server.xml） | ⭐⭐⭐⭐⭐ |
-| `server.xml` 中的 `<Context>` | 改动需重启，且 server.xml 不支持热加载 | ⭐⭐ |
+| `server.xml` 中的 `&lt;Context&gt;` | 改动需重启，且 server.xml 不支持热加载 | ⭐⭐ |
 | 应用内 `META-INF/context.xml` | 随应用打包，多环境不便 | ⭐⭐⭐ |
 
 ```xml

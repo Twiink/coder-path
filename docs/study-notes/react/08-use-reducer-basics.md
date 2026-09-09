@@ -37,14 +37,14 @@ updated: 2026-04-04
 回到useReducer的学习中，首先看一下React源码中的[ReactHooks.js](https://github.com/facebook/react/blob/master/packages/react/src/ReactHooks.js)。  
 
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
-    export function useReducer<S, I, A>(
+    export function useReducer&lt;S, I, A&gt;(
       reducer: (S, A) => S,
       initialArg: I,
       init?: I => S,
-    ): [S, Dispatch<A>] {
+    ): [S, Dispatch&lt;A&gt;] &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useReducer(reducer, initialArg, init);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。之所以贴出源码只是想让你重点看一下useReducer函数的第3个参数。一般我们只传2个参数，如果有一天你看到有人为了某些不常用的目的传了3个参数，你应该理解，第3个参数其实只是第1和第2个参数的某种转化。事实上你可以完全忽略这个问题，每次值传2个参数即可。^_^  
 
@@ -62,21 +62,21 @@ useReducer(reducer,initialValue)函数通常传入2个参数，第1个参数为�
 
 ##### 代码形式：  
 
-    import React, { useReducer } from 'react'; //引入useReducer
+    import React, &#123; useReducer &#125; from 'react'; //引入useReducer
     
     //定义好“事件处理函数” reducer
-    function reducer(state, action) {
-      switch (action) {
+    function reducer(state, action) &#123;
+      switch (action) &#123;
         case 'xx':
             return xxxx;
         case 'xx':
             return xxxx;
         default:
             return xxxx;
-      }
-    }
+      &#125;
+    &#125;
 
-    function Component(){
+    function Component()&#123;
       //声明一个变量xxx，以及对应修改xxx的dispatch
       //将事件处理函数reducer和默认值initialValue作为参数传递给useReducer
       const [xxx, dispatch] = useReducer(reducer, initialValue); 
@@ -85,10 +85,10 @@ useReducer(reducer,initialValue)函数通常传入2个参数，第1个参数为�
       
       //若想修改xxx的值，通过dispatch来修改
       dispatch('xx');
-    }
+    &#125;
 
     //请注意，上述代码中的action只是最基础的字符串形式，事实上action可以是多属性的object，这样可以自定义更多属性和更多参数值
-    //例如 action 可以是 {type:'xx',param:xxx}
+    //例如 action 可以是 对象(type属性)
 
 
 ##### 拆解说明：  
@@ -119,10 +119,10 @@ initialValue是我们自定义变量的默认值，该值可以是简单类型(n
 
 若使用useReducer来实现相同功能，代码示例如下：
 
-    import React, { useReducer } from 'react';
+    import React, &#123; useReducer &#125; from 'react';
 
-    function reducer(state,action){
-      switch(action){
+    function reducer(state,action)&#123;
+      switch(action)&#123;
         case 'add':
             return state + 1;
         case 'sub':
@@ -132,19 +132,19 @@ initialValue是我们自定义变量的默认值，该值可以是简单类型(n
         default:
             console.log('what?');
             return state;
-      }
-    }
+      &#125;
+    &#125;
 
-    function CountComponent() {
+    function CountComponent() &#123;
       const [count, dispatch] = useReducer(reducer,0);
 
-      return <div>
-        {count}
-        <button onClick={() => {dispatch('add')}} >add</button>
-        <button onClick={() => {dispatch('sub')}} >sub</button>
-        <button onClick={() => {dispatch('mul')}} >mul</button>
+      return &lt;div&gt;
+        &#123;count&#125;
+        <button onClick=&#123;() => &#123;dispatch('add')&#125;&#125; >add</button>
+        <button onClick=&#123;() => &#123;dispatch('sub')&#125;&#125; >sub</button>
+        <button onClick=&#123;() => &#123;dispatch('mul')&#125;&#125; >mul</button>
       </div>;
-    }
+    &#125;
 
     export default CountComponent;
 
@@ -164,17 +164,17 @@ initialValue是我们自定义变量的默认值，该值可以是简单类型(n
 
 举例：在示例1中对count 执行的修改，数值变动都是固定的，即 +1、-1、x 2。假设我们希望按钮点击之后，能够自主控制增加多少、减多少、或乘以几，这个效果该怎么实现呢？
 
-很简单，我们将dispatch('xxx')中的xxx由字符串改为obj，obj可以携带更多属性作为参数传给reducer。 比如之前对 "加"的命令 dispatch('add')，修改为 dispatch({type:'add',param:2})。 reducer可以通过action.type来区分是哪种命令、通过action.param来获取对应的参数。  
+很简单，我们将dispatch('xxx')中的xxx由字符串改为obj，obj可以携带更多属性作为参数传给reducer。 比如之前对 "加"的命令 dispatch('add')，修改为 dispatch(对象(type属性))。 reducer可以通过action.type来区分是哪种命令、通过action.param来获取对应的参数。  
 
 为了简化代码，我们将在点击按钮后，随机产生一个数字，并将该数字作为 param 的值，传递给reducer。  
 
 修改后的代码为：  
 
-    import React, { useReducer } from 'react';
+    import React, &#123; useReducer &#125; from 'react';
 
-    function reducer(state,action){
+    function reducer(state,action)&#123;
       //根据action.type来判断该执行哪种修改
-      switch(action.type){
+      switch(action.type)&#123;
         case 'add':
           //count 最终加多少，取决于 action.param 的值
           return state + action.param;
@@ -185,23 +185,23 @@ initialValue是我们自定义变量的默认值，该值可以是简单类型(n
         default:
           console.log('what?');
           return state;
-      }
-    }
+      &#125;
+    &#125;
 
-    function getRandom(){
+    function getRandom()&#123;
       return Math.floor(Math.random()*10);
-    }
+    &#125;
 
-    function CountComponent() {
+    function CountComponent() &#123;
       const [count, dispatch] = useReducer(reducer,0);
 
-      return <div>
-        {count}
-        <button onClick={() => {dispatch({type:'add',param:getRandom()})}} >add</button>
-        <button onClick={() => {dispatch({type:'sub',param:getRandom()})}} >sub</button>
-        <button onClick={() => {dispatch({type:'mul',param:getRandom()})}} >mul</button>
+      return &lt;div&gt;
+        &#123;count&#125;
+        <button onClick=&#123;() => &#123;dispatch(对象(type属性))&#125;&#125; >add</button>
+        <button onClick=&#123;() => &#123;dispatch(对象(type属性))&#125;&#125; >sub</button>
+        <button onClick=&#123;() => &#123;dispatch(对象(type属性))&#125;&#125; >mul</button>
       </div>;
-    }
+    &#125;
 
     export default CountComponent;
 

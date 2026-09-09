@@ -1580,7 +1580,7 @@ spring:
 
 | # | 坑 | 现象 | 解决 |
 | --- | --- | --- | --- |
-| 1 | ★ 未统一响应格式 | 前端难处理、错误响应五花八门 | 全局 `Result<T>` + `@RestControllerAdvice` |
+| 1 | ★ 未统一响应格式 | 前端难处理、错误响应五花八门 | 全局 `Result&lt;T&gt;` + `@RestControllerAdvice` |
 | 2 | 全局异常只处理了 1 种校验异常 | 部分校验错误返回 500 | ★ 覆盖三种：MethodArgumentNotValid / Bind / ConstraintViolation |
 | 3 | 兜底异常返回了栈信息 | ★ 安全风险（泄漏技术栈、SQL、路径） | 对外通用提示 + traceId，详情只记日志 |
 | 4 | 业务异常打了完整栈 | 日志爆炸 | 业务异常 WARN + 只打消息；`fillInStackTrace` 可跳过栈 |

@@ -49,13 +49,13 @@ useMemo可以将某些函数的计算结果(返回值)挂载到react底层原型
 回到useMemo的学习中，首先看一下React源码中的[ReactHooks.js](https://github.com/facebook/react/blob/master/packages/react/src/ReactHooks.js)。  
 
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
-    export function useMemo<T>(
+    export function useMemo&lt;T&gt;(
       create: () => T,
-      deps: Array<mixed> | void | null,
-    ): T {
+      deps: Array&lt;mixed&gt; | void | null,
+    ): T &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useMemo(create, deps);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。^_^  
 
@@ -71,11 +71,11 @@ useMemo(create,deps)函数通常传入2个参数，第1个参数为我们定义�
 
 ##### 代码形式：  
 
-    const xxxValue = useMemo(() => {
+    const xxxValue = useMemo(() => &#123;
         let result = xxxxx;
         //经过复杂的计算后
         return result;
-    }, [xx]);
+    &#125;, [xx]);
 
 
 ##### 拆解说明：  
@@ -99,59 +99,59 @@ useMemo(create,deps)函数通常传入2个参数，第1个参数为我们定义�
 
 使用useMemo，代码示例如下：
 
-    import React,{useState,useMemo} from 'react'
+    import React,&#123;useState,useMemo&#125; from 'react'
 
-    function UseMemo() {
+    function UseMemo() &#123;
       const [num,setNum] = useState(2020);
       const [random,setRandom] = useState(0);
 
       //通过useMemo将函数内的计算结果(返回值)保存到react底层原型链上
       //totalPrimes为react底层原型链上该函数计算结果的引用
-      const totalPrimes = useMemo(() => {
+      const totalPrimes = useMemo(() => &#123;
         console.log('begin....'); //这里添加一个console.log，方便验证在重新渲染时是否重新执行了一遍计算
 
         let total = 0; //声明质数总和对应的变量
 
         //以下为计算num范围内所有质数个数总和的计算代码，不需要认真阅读，只需要知道这是一段“比较复杂的计算代码”即可
-        for(let i = 1; i<=num; i++){
+        for(let i = 1; i<=num; i++)&#123;
             let boo = true;
-            for(let j = 2; j<i; j++){
-                if(i % j === 0){
+            for(let j = 2; j<i; j++)&#123;
+                if(i % j === 0)&#123;
                     boo = false;
                     break;
-                }
-            }
-            if(boo && i!==1){
+                &#125;
+            &#125;
+            if(boo && i!==1)&#123;
                 total ++;
-            }
-        }
+            &#125;
+        &#125;
         //复杂的计算代码到此结束
 
         return total;//将质数总和作为返回值return出去
-      }, [num]);
+      &#125;, [num]);
 
-      const clickHandler01 = () => {
+      const clickHandler01 = () => &#123;
         setNum(num+1);
-      }
+      &#125;
 
-      const clickHandler02 = () => {
+      const clickHandler02 = () => &#123;
         setRandom(Math.floor(Math.random()*100)); //修改random的值导致整个组件重新渲染
-      }
+      &#125;
 
       return (
-        <div>
-            {num} - {totalPrimes} - {random}
-            <button onClick={clickHandler01}>num + 1</button>
-            <button onClick={clickHandler02}>random</button>
+        &lt;div&gt;
+            &#123;num&#125; - &#123;totalPrimes&#125; - &#123;random&#125;
+            <button onClick=&#123;clickHandler01&#125;>num + 1</button>
+            <button onClick=&#123;clickHandler02&#125;>random</button>
         </div>
       )
-    }
+    &#125;
 
     export default UseMemo;
 
 实际运行就会发现：  
-1、点击修改random的值会引发组件重新渲染，但是{totalPrimes}对应的计算函数却不需要重新计算一遍。  
-2、点击修改num的值，{totalPrimes}对应的计算函数肯定会重新执行一遍，因为num是该计算函数的依赖。  
+1、点击修改random的值会引发组件重新渲染，但是&#123;totalPrimes&#125;对应的计算函数却不需要重新计算一遍。  
+2、点击修改num的值，&#123;totalPrimes&#125;对应的计算函数肯定会重新执行一遍，因为num是该计算函数的依赖。  
 
 通过这个案例，相信你对useMemo的机制和用法一定有所掌握。
 

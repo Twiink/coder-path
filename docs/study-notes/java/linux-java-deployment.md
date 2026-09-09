@@ -253,15 +253,15 @@ kill $(jps | grep mall | awk '{print $1}') # 组合
 > 【重要】**优雅停机的正确姿势**：
 > ```bash
 > # ① 先发 SIGTERM，让应用自己关闭（Spring Boot 会等待请求处理完）
-> kill <pid>
+> kill &lt;pid&gt;
 > # ② 等待最多 N 秒
 > for i in $(seq 1 30); do
->     if ! kill -0 <pid> 2>/dev/null; then echo "已停止"; break; fi
->     echo "等待停止... ${i}s"
+>     if ! kill -0 &lt;pid&gt; 2>/dev/null; then echo "已停止"; break; fi
+>     echo "等待停止... $&#123;i&#125;s"
 >     sleep 1
 > done
 > # ③ 还没停则强杀
-> kill -0 <pid> 2>/dev/null && { echo "强制杀死"; kill -9 <pid>; }
+> kill -0 &lt;pid&gt; 2>/dev/null && &#123; echo "强制杀死"; kill -9 &lt;pid&gt;; &#125;
 > ```
 > **`kill -9` 的危害**：不执行 shutdown hook → 线程池不关闭、缓冲区不刷盘、数据库连接不归还、注册中心不注销（导致流量继续打到已死的实例）→ **数据丢失、请求 502**。
 

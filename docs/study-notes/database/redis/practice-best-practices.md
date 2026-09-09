@@ -977,7 +977,7 @@ def get_compressed(key):
 
 ### 8.8.3 高可用配置
 
-```conf
+```ini
 # redis.conf（生产环境）
 
 # 内存

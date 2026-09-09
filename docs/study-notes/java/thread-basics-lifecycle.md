@@ -208,7 +208,7 @@ long total = forkJoinPool.invoke(new SumTask(array, 0, array.length));
 | 方法 | `void run()` | `V call()` | 包装 Callable/Runnable |
 | 返回值 | ❌ 无 | ✅ **有** | ✅ `get()` 获取 |
 | 抛受检异常 | ❌ 不能 | ✅ **能** | ✅ 包装为 ExecutionException |
-| 泛型 | ❌ | ✅ `Callable<V>` | ✅ |
+| 泛型 | ❌ | ✅ `Callable&lt;V&gt;` | ✅ |
 | 取消 | ❌ | ❌ | ✅ `cancel()` |
 | 状态查询 | ❌ | ❌ | ✅ `isDone()`、`isCancelled()` |
 | 配合线程池 | `execute()` | `submit()` | 可提交给 Thread |
@@ -410,9 +410,9 @@ public enum State {
 | --- | --- | --- |
 | **NEW** | `new Thread()` | 调用 `start()` |
 | **RUNNABLE** | `start()` 后；从阻塞/等待中恢复 | 获得锁、被唤醒、超时；或运行结束 |
-| **BLOCKED** | ① 进入 `synchronized` 块/方法时抢锁失败<br>② 等待重新进入（reenter） | 获取到 monitor 锁 |
-| **WAITING** | ① `Object.wait()`（无参）<br>② `Thread.join()`（无参）<br>③ `LockSupport.park()`<br>④ `BlockingQueue.take()/put()`<br>⑤ `Condition.await()` | ① `notify()`/`notifyAll()`<br>② 被 join 的线程结束<br>③ `LockSupport.unpark()`<br>④ 队列有数据/有空位<br>⑤ `signal()`/`signalAll()` |
-| **TIMED_WAITING** | ① `Thread.sleep(ms)`<br>② `Object.wait(ms)`<br>③ `Thread.join(ms)`<br>④ `LockSupport.parkNanos/parkUntil`<br>⑤ `Lock.tryLock(timeout)`<br>⑥ `BlockingQueue.poll(timeout)`<br>⑦ `Condition.await(time, unit)` | 超时自动返回，或被提前唤醒 |
+| **BLOCKED** | ① 进入 `synchronized` 块/方法时抢锁失败&lt;br&gt;② 等待重新进入（reenter） | 获取到 monitor 锁 |
+| **WAITING** | ① `Object.wait()`（无参）&lt;br&gt;② `Thread.join()`（无参）&lt;br&gt;③ `LockSupport.park()`&lt;br&gt;④ `BlockingQueue.take()/put()`&lt;br&gt;⑤ `Condition.await()` | ① `notify()`/`notifyAll()`&lt;br&gt;② 被 join 的线程结束&lt;br&gt;③ `LockSupport.unpark()`&lt;br&gt;④ 队列有数据/有空位&lt;br&gt;⑤ `signal()`/`signalAll()` |
+| **TIMED_WAITING** | ① `Thread.sleep(ms)`&lt;br&gt;② `Object.wait(ms)`&lt;br&gt;③ `Thread.join(ms)`&lt;br&gt;④ `LockSupport.parkNanos/parkUntil`&lt;br&gt;⑤ `Lock.tryLock(timeout)`&lt;br&gt;⑥ `BlockingQueue.poll(timeout)`&lt;br&gt;⑦ `Condition.await(time, unit)` | 超时自动返回，或被提前唤醒 |
 | **TERMINATED** | `run()` 正常结束或抛出未捕获异常 | — |
 
 ```java
@@ -845,9 +845,9 @@ protected void afterExecute(Runnable r, Throwable t) {
 
 | 特性 | 含义 | 破坏原因 | 保障手段 |
 | --- | --- | --- | --- |
-| **原子性（Atomicity）** | 操作不可分割，要么全做要么全不做 | ① `i++` 是「读-改-写」三步<br>② 线程切换可能发生在任意指令间 | `synchronized`、`Lock`、CAS 原子类 |
-| **可见性（Visibility）** | 一个线程的修改对其他线程立即可见 | ① CPU 多级缓存（L1/L2/L3）<br>② 工作内存副本<br>③ 编译器/CPU 优化 | `volatile`、`synchronized`、`final`、CAS |
-| **有序性（Ordering）** | 程序执行顺序符合预期 | ① 编译器指令重排<br>② CPU 乱序执行<br>③ 内存系统重排 | `volatile`（内存屏障）、`synchronized`（临界区串行）、happens-before |
+| **原子性（Atomicity）** | 操作不可分割，要么全做要么全不做 | ① `i++` 是「读-改-写」三步&lt;br&gt;② 线程切换可能发生在任意指令间 | `synchronized`、`Lock`、CAS 原子类 |
+| **可见性（Visibility）** | 一个线程的修改对其他线程立即可见 | ① CPU 多级缓存（L1/L2/L3）&lt;br&gt;② 工作内存副本&lt;br&gt;③ 编译器/CPU 优化 | `volatile`、`synchronized`、`final`、CAS |
+| **有序性（Ordering）** | 程序执行顺序符合预期 | ① 编译器指令重排&lt;br&gt;② CPU 乱序执行&lt;br&gt;③ 内存系统重排 | `volatile`（内存屏障）、`synchronized`（临界区串行）、happens-before |
 
 ### 5.2 经典问题演示
 

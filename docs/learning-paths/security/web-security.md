@@ -6,7 +6,8 @@ Web 安全的心法只有一句:**永远不要相信用户输入**(以及一切�
 
 ## 第一站:XSS(跨站脚本)——最流行的 Web 漏洞
 
-**原理**:把攻击者的脚本注入到别人的浏览器里执行。**三类(面试必答)**:①**反射型**:恶意脚本藏在 URL 参数里,服务端未编码直接输出(一次性,靠诱导点击);②**存储型(危害最大)**:脚本存进数据库,所有看页面的用户都中招(评论区/昵称)——**一次存储,万人受害**;③**DOM 型**:纯前端漏洞——`innerHTML`/`document.write` 把不可信数据当 HTML 插入(框架都防不住,因为根本没到服务端)。**危害**:窃取 Cookie(会话劫持→登录他人账号)、钓鱼、篡改页面、蠕虫传播。**防御(按层)**:①**输出编码(主战场)**:按输出上下文编码——HTML 上下文转义 `<>"'`,JS/URL/CSS 各有各的编码;**现代框架默认自动转义(React/Vue 模板),漏洞常出在逃生舱**:`v-html`/`dangerouslySetInnerHTML`/`innerHTML`——**用它们处理用户内容 = 手动打开 XSS 之门**;②输入校验(白名单,富文本用 **DOMPurify 白名单清洗**);③**HttpOnly Cookie**(JS 读不到,会话劫持的杀伤减半);④**CSP(内容安全策略,纵深兜底)**:限制脚本来源——即使注入成功,外部脚本也加载不了(见第六站)。
+**原理**:把攻击者的脚本注入到别人的浏览器里执行。**三类(面试必答)**:①**反射型**:恶意脚本藏在 URL 参数里,服务端未编码直接输出(一次性,靠诱导点击);②**存储型(危害最大)**:脚本存进数据库,所有看页面的用户都中招(评论区/昵称)——**一次存储,万人受害**;③**DOM 型**:纯前端漏洞——`innerHTML`/`document.write` 把不可信数据当 HTML 插入(框架都防不住,因为根本没到服务端)。
+**危害**:窃取 Cookie(会话劫持→登录他人账号)、钓鱼、篡改页面、蠕虫传播。**防御(按层)**:①**输出编码(主战场)**:按输出上下文编码——HTML 上下文转义 `<>"'`,JS/URL/CSS 各有各的编码;**现代框架默认自动转义(React/Vue 模板),漏洞常出在逃生舱**:`v-html`/`dangerouslySetInnerHTML`/`innerHTML`——**用它们处理用户内容 = 手动打开 XSS 之门**;②输入校验(白名单,富文本用 **DOMPurify 白名单清洗**);③**HttpOnly Cookie**(JS 读不到,会话劫持的杀伤减半);④**CSP(内容安全策略,纵深兜底)**:限制脚本来源——即使注入成功,外部脚本也加载不了(见第六站)。
 
 ## 第二站:CSRF(跨站请求伪造)——借刀杀人
 
@@ -18,7 +19,8 @@ Web 安全的心法只有一句:**永远不要相信用户输入**(以及一切�
 
 ## 第四站:文件上传与 SSRF——两类"服务器被利用"
 
-**文件上传漏洞**:上传点成了"投递恶意可执行文件(WebShell)的通道"——**"能上传且能执行"的目录是雷区**。防御:**白名单扩展名 + MIME + 内容检测(图片重新渲染/二次压缩,剥掉夹带的脚本)**、**随机文件名(防路径可控)**、**存储与执行分离(上传目录不可执行脚本/独立域名/对象存储)**、大小限制;**.htaccess/解析漏洞(老 Apache)了解**。**SSRF(服务端请求伪造)**:服务器端发起的请求被攻击者引导到内网——`url=http://169.254.169.254/latest/meta-data/`(**云厂商元数据端点:一步 SSRF = 偷云 IAM 凭证,云上变提权**)、内网扫描、访问未授权内部服务(Redis)。防御:**URL 白名单(只允许固定域名)/内网 IP 黑名单(127.0.0.1/10.x/172.16.x/192.168.x/169.254.169.254)**、**禁危险协议(file/gopher/dict)**、**重定向防护(DNS rebinding/跟随重定向后再校验——校验一次不够,重定向会带你去别处)**、出网限制。
+**文件上传漏洞**:上传点成了"投递恶意可执行文件(WebShell)的通道"——**"能上传且能执行"的目录是雷区**。防御:**白名单扩展名 + MIME + 内容检测(图片重新渲染/二次压缩,剥掉夹带的脚本)**、**随机文件名(防路径可控)**、**存储与执行分离(上传目录不可执行脚本/独立域名/对象存储)**、大小限制;**.htaccess/解析漏洞(老 Apache)了解**。
+**SSRF(服务端请求伪造)**:服务器端发起的请求被攻击者引导到内网——`url=http://169.254.169.254/latest/meta-data/`(**云厂商元数据端点:一步 SSRF = 偷云 IAM 凭证,云上变提权**)、内网扫描、访问未授权内部服务(Redis)。防御:**URL 白名单(只允许固定域名)/内网 IP 黑名单(127.0.0.1/10.x/172.16.x/192.168.x/169.254.169.254)**、**禁危险协议(file/gopher/dict)**、**重定向防护(DNS rebinding/跟随重定向后再校验——校验一次不够,重定向会带你去别处)**、出网限制。
 
 ## 第五站:越权与逻辑漏洞——"代码没漏洞但有破绽"
 
@@ -26,11 +28,16 @@ Web 安全的心法只有一句:**永远不要相信用户输入**(以及一切�
 
 ## 第六站:现代安全机制——浏览器的防御工事
 
-**①CSP(内容安全策略,防 XSS 的纵深王牌)**:响应头声明"页面只能加载哪些来源的脚本/样式/图片"——`Content-Security-Policy: default-src 'self'; script-src 'self'`(只信自己);**现代姿势:script-src 'self' + nonce(每次响应随机 nonce,合法脚本才带)**——注入的脚本没有 nonce 直接不执行;**别开 'unsafe-inline'/'unsafe-eval'(等于没设)**;上线先 `Content-Security-Policy-Report-Only` 灰度,收违规报告再收紧。**②CORS 配置(同源策略的闸门)**:同源 = 协议+域名+端口;跨域请求默认被浏览器拦,服务端用 `Access-Control-Allow-Origin` 放行;**红线:带凭证(withCredentials)时不能 `*`,必须精确白名单 + `Vary: Origin`**;别用"允许所有来源"图省事——那是把用户数据开放给任意网站读(配置细解见 [Nginx](/learning-paths/middleware/nginx) CORS 与 [网络](/learning-paths/cs-basics/computer-networks))。**③Cookie 属性全家(HttpOnly(JS 不可读,防 XSS 窃取)/Secure(仅 HTTPS)/SameSite(防 CSRF,见第二站)/Domain 收敛)**;**④HTTPS 与 HSTS**(全站 HTTPS + `Strict-Transport-Security` 强制浏览器只走 HTTPS——防 SSL Strip;证书链校验见 [密码学](/learning-paths/security/cryptography));**⑤SRI**:CDN 上的第三方脚本加 `integrity` 哈希——CDN 被黑脚本不执行。**安全头八件套(抄进项目的响应头中间件)**:CSP、X-Content-Type-Options: nosniff、X-Frame-Options: DENY(防点击劫持,配 CSP frame-ancestors)、Referrer-Policy、Permissions-Policy、HSTS——框架/网关一层配好全局生效(见各框架安全章)。
+**①CSP(内容安全策略,防 XSS 的纵深王牌)**:响应头声明"页面只能加载哪些来源的脚本/样式/图片"——`Content-Security-Policy: default-src 'self'; script-src 'self'`(只信自己);**现代姿势:script-src 'self' + nonce(每次响应随机 nonce,合法脚本才带)**——注入的脚本没有 nonce 直接不执行;**别开 'unsafe-inline'/'unsafe-eval'(等于没设)**;上线先 `Content-Security-Policy-Report-Only` 灰度,收违规报告再收紧。
+**②CORS 配置(同源策略的闸门)**:同源 = 协议+域名+端口;跨域请求默认被浏览器拦,服务端用 `Access-Control-Allow-Origin` 放行;**红线:带凭证(withCredentials)时不能 `*`,必须精确白名单 + `Vary: Origin`**;别用"允许所有来源"图省事——那是把用户数据开放给任意网站读(配置细解见 [Nginx](/learning-paths/middleware/nginx) CORS 与 [网络](/learning-paths/cs-basics/computer-networks))。
+**③Cookie 属性全家(HttpOnly(JS 不可读,防 XSS 窃取)/Secure(仅 HTTPS)/SameSite(防 CSRF,见第二站)/Domain 收敛)**;**④HTTPS 与 HSTS**(全站 HTTPS + `Strict-Transport-Security` 强制浏览器只走 HTTPS——防 SSL Strip;证书链校验见 [密码学](/learning-paths/security/cryptography));**⑤SRI**:CDN 上的第三方脚本加 `integrity` 哈希——CDN 被黑脚本不执行。
+**安全头八件套(抄进项目的响应头中间件)**:CSP、X-Content-Type-Options: nosniff、X-Frame-Options: DENY(防点击劫持,配 CSP frame-ancestors)、Referrer-Policy、Permissions-Policy、HSTS——框架/网关一层配好全局生效(见各框架安全章)。
 
 ## 第七站:安全开发实践(SDL)
 
-**把安全左移进开发流程(不是上线后补)**:需求/设计阶段做**威胁建模**(这功能会被怎么攻击?);编码阶段守**安全编码规范**(见各语言页安全节:参数化/转义/最小权限);**测试阶段自动化**:SAST(静态扫描,CI 里跑——见 [GitLab](/learning-paths/devops/gitlab-ci) 安全模板)、DAST(动态扫描)、依赖漏洞扫描(你的依赖库有 CVE 吗——Dependabot/composer audit/npm audit);发布与运维:安全配置 + 监控告警 + 应急响应预案(隔离→取证→修复→复盘)。**日常开发自查清单**:①输入:白名单校验(服务端!)、类型与长度;②输出:按上下文编码;**③正则防 ReDoS(灾难性回溯:嵌套量词 + 长输入卡死服务——写正则用超时/简化)**;④错误处理:**不向用户泄露堆栈/数据库错误**(统一错误页,细节进日志);日志**脱敏**(不记密码/token/身份证);⑤配置:默认口令必改、DEBUG 生产关、**目录列表关、.git/.env/备份文件不能静态可达**、版本信息隐藏、最小化暴露端口/服务。**认证授权与密码存储的完整话题**→ [认证授权](/learning-paths/security/auth);加密算法与 TLS 细节 → [密码学](/learning-paths/security/cryptography)。
+**把安全左移进开发流程(不是上线后补)**:需求/设计阶段做**威胁建模**(这功能会被怎么攻击?);编码阶段守**安全编码规范**(见各语言页安全节:参数化/转义/最小权限);**测试阶段自动化**:SAST(静态扫描,CI 里跑——见 [GitLab](/learning-paths/devops/gitlab-ci) 安全模板)、DAST(动态扫描)、依赖漏洞扫描(你的依赖库有 CVE 吗——Dependabot/composer audit/npm audit);发布与运维:安全配置 + 监控告警 + 应急响应预案(隔离→取证→修复→复盘)。
+**日常开发自查清单**:①输入:白名单校验(服务端!)、类型与长度;②输出:按上下文编码;**③正则防 ReDoS(灾难性回溯:嵌套量词 + 长输入卡死服务——写正则用超时/简化)**;④错误处理:**不向用户泄露堆栈/数据库错误**(统一错误页,细节进日志);日志**脱敏**(不记密码/token/身份证);⑤配置:默认口令必改、DEBUG 生产关、**目录列表关、.git/.env/备份文件不能静态可达**、版本信息隐藏、最小化暴露端口/服务。
+**认证授权与密码存储的完整话题**→ [认证授权](/learning-paths/security/auth);加密算法与 TLS 细节 → [密码学](/learning-paths/security/cryptography)。
 
 ## 第八站:安全测试与工具——会攻才更会防
 

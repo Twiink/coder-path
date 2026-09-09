@@ -12,7 +12,8 @@ Flutter(Google 出品)是跨平台方案中**性能最强、UI 一致性最好**
 
 ## 进阶篇:状态、导航与数据
 
-**状态管理(Flutter 的"必选题",生态比 RN 更需要自己选)**:入门用 **setState + 状态提升**,进阶按规模选:**Provider**(官方推荐入门:ChangeNotifier + 依赖注入)、**Riverpod**(Provider 的现代进化,编译期安全,当前主流推荐)、Bloc(事件驱动,大型项目/团队规范严选)、GetX(轻量全家桶:状态+路由+依赖,快速但规范争议)——**先 setState 理解原理,再上 Riverpod 或 Bloc**(选型原则同 [React](/learning-paths/frontend/react) 状态章:别为小应用上重武器)。**导航**:Navigator(推入/弹出/传参/返回值;命名路由与 onGenerateRoute 进阶)、go_router(声明式路由,现代推荐);**表单**:Form + TextFormField + 验证器;**网络**:http(简单)/dio(拦截器/超时/上传下载——生产推荐);**本地存储**:shared_preferences(键值)/sqflite(SQLite)/Hive(轻量 NoSQL 本地库);**图片**:Image.network + 缓存(cached_network_image)。
+**状态管理(Flutter 的"必选题",生态比 RN 更需要自己选)**:入门用 **setState + 状态提升**,进阶按规模选:**Provider**(官方推荐入门:ChangeNotifier + 依赖注入)、**Riverpod**(Provider 的现代进化,编译期安全,当前主流推荐)、Bloc(事件驱动,大型项目/团队规范严选)、GetX(轻量全家桶:状态+路由+依赖,快速但规范争议)——**先 setState 理解原理,再上 Riverpod 或 Bloc**(选型原则同 [React](/learning-paths/frontend/react) 状态章:别为小应用上重武器)。
+**导航**:Navigator(推入/弹出/传参/返回值;命名路由与 onGenerateRoute 进阶)、go_router(声明式路由,现代推荐);**表单**:Form + TextFormField + 验证器;**网络**:http(简单)/dio(拦截器/超时/上传下载——生产推荐);**本地存储**:shared_preferences(键值)/sqflite(SQLite)/Hive(轻量 NoSQL 本地库);**图片**:Image.network + 缓存(cached_network_image)。
 
 ## 实战篇:功能、性能与发布
 

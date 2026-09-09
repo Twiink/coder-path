@@ -22,51 +22,51 @@ updated: 2026-09-06
 - 若要修改结构体变量的值, 可以通过结构体指针的方式去处理
 
 ~~~go
-type Circle struct {
+type Circle struct &#123;
 	raduis float64
-}
+&#125;
 
-func (c Circle) area() float64 {
+func (c Circle) area() float64 &#123;
 	return 3.14 * c.raduis * c.raduis
-}
-func (c *Circle) area2() float64 {
+&#125;
+func (c *Circle) area2() float64 &#123;
 	c.raduis = 10.0
 	return 3.14 * c.raduis * c.raduis
-} 
-func main()  {
+&#125; 
+func main()  &#123;
 	var name Circle
 	name.raduis = 5.0
 	res := name.area2()
 	fmt.Println(res)	//输出314
-}
+&#125;
 //在方法area2中通过指针改变了结构体中radius的值, 指针指向的结构体本身.
 ~~~
 结构体类型相互转换时: 元素的名字, 个数, 类型必须完全相同
 ~~~go
-type A struct {
+type A struct &#123;
 	number int
-}
-type B struct {
+&#125;
+type B struct &#123;
 	number int
-}
-func main()  {
+&#125;
+func main()  &#123;
 	var a A
 	var b B
 	a = A(b)
 	fmt.Println(a,b)
-}
+&#125;
 //当元素的名字, 个数, 类型完全相同, 可以进行类型强转
 ~~~
 公共结构体元素首字母大写转json格式时, 可以通过tag标签标记转换时为小写
 ~~~go
-type Circle struct {
+type Circle struct &#123;
 	Radius float64 `json:"radius"`
-}
-func main()  {
+&#125;
+func main()  &#123;
 	var name Circle
 	a,_ := json.Marshal(name)
-	fmt.Println(string(a))	//{"radius":0}
-}
+	fmt.Println(string(a))	//&#123;"radius":0&#125;
+&#125;
 //json.Marshal()将结构体转换为字节码, 通过string()内置函数转换为字符串
 ~~~
 **方法与函数总结**
@@ -76,19 +76,19 @@ func main()  {
 工厂模式解决私有结构体跨包使用
 ~~~go
 //主包
-type a struct {
+type a struct &#123;
 	number int
-}
-func News(b int) *a {
-	return &a{
+&#125;
+func News(b int) *a &#123;
+	return &a&#123;
 		number: b,
-	}
-}
+	&#125;
+&#125;
 //跨包(model包)
-func main()  {
+func main()  &#123;
 	var stu = model.News(10)
 	fmt.Println(*stu)
-}
+&#125;
 ~~~
 
 ## Map
@@ -114,10 +114,10 @@ scoreMap["张三"] = 90	// 向map变量中插入数据
 ~~~
 ~~~go
 // 声明时填充元素
-userInfo := map[string]string{
+userInfo := map[string]string&#123;
 	"username": "pprof.cn",
 	"password": "123456",
-}
+&#125;
 ~~~
 判断`map`中键是否存在：
 ~~~go
@@ -132,9 +132,9 @@ scoreMap["张三"] = 90
 scoreMap["小明"] = 100
 scoreMap["王五"] = 60
 // 需要使用 for range 遍历
-for k, v := range scoreMap {
+for k, v := range scoreMap &#123;
 	fmt.Println(k, v)
-}
+&#125;
 ~~~
 使用 `delete()` 删除 `map` 中的键值对：
 ~~~go
@@ -146,38 +146,38 @@ rand.Seed(time.Now().UnixNano()) //初始化随机数种子
 
 var scoreMap = make(map[string]int, 200)
 
-for i := 0; i < 100; i++ {
+for i := 0; i < 100; i++ &#123;
 	key := fmt.Sprintf("stu%02d", i) //生成stu开头的字符串
 	value := rand.Intn(100)          //生成0~99的随机整数
 	scoreMap[key] = value
-}
+&#125;
 //取出map中的所有key存入切片keys
 var keys = make([]string, 0, 200)
-for key := range scoreMap {
+for key := range scoreMap &#123;
 	keys = append(keys, key)
-}
+&#125;
 //对切片进行排序
 sort.Strings(keys)
 //按照排序后的key遍历map
-for _, key := range keys {
+for _, key := range keys &#123;
 	fmt.Println(key, scoreMap[key])
-}
+&#125;
 ~~~
 元素为`map`类型的切片：
 ~~~go
 var mapSlice = make([]map[string]string, 3)
-for index, value := range mapSlice {
+for index, value := range mapSlice &#123;
 	fmt.Printf("index:%d value:%v\n", index, value)
-}
+&#125;
 fmt.Println("after init")
 // 对切片中的map元素进行初始化
 mapSlice[0] = make(map[string]string, 10)
 mapSlice[0]["name"] = "王五"
 mapSlice[0]["password"] = "123456"
 mapSlice[0]["address"] = "红旗大街"
-for index, value := range mapSlice {
+for index, value := range mapSlice &#123;
 	fmt.Printf("index:%d value:%v\n", index, value)
-}
+&#125;
 ~~~
 值为切片类型的`map`:
 ~~~go
@@ -186,9 +186,9 @@ fmt.Println(sliceMap)
 fmt.Println("after init")
 key := "中国"
 value, ok := sliceMap[key]
-if !ok {
+if !ok &#123;
 	value = make([]string, 0, 2)
-}
+&#125;
 value = append(value, "北京", "上海")
 sliceMap[key] = value
 fmt.Println(sliceMap)

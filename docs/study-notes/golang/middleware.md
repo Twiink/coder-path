@@ -49,8 +49,8 @@ r.Use(gin.Recovery())
 
 ~~~go
 // 定义一个计时中间件
-func Timing() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func Timing() gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		start := time.Now()
 
 		// 处理请求前
@@ -62,15 +62,15 @@ func Timing() gin.HandlerFunc {
 		// 处理请求后（响应已生成）
 		duration := time.Since(start)
 		log.Printf("%s %s 耗时: %v", c.Request.Method, c.Request.URL.Path, duration)
-	}
-}
+	&#125;
+&#125;
 
-func main() {
+func main() &#123;
 	r := gin.Default()
 	r.Use(Timing())
-	r.GET("/", func(c *gin.Context) { c.String(200, "ok") })
+	r.GET("/", func(c *gin.Context) &#123; c.String(200, "ok") &#125;)
 	r.Run()
-}
+&#125;
 ~~~
 
 ## 中间件的作用域
@@ -89,10 +89,10 @@ r.Use(Timing(), CORS()) // 所有请求都会经过
 ~~~go
 api := r.Group("/api")
 api.Use(AuthMiddleware()) // 仅 /api 下路由经过鉴权
-{
+&#123;
 	api.GET("/users", getUsers)
 	api.POST("/users", createUser)
-}
+&#125;
 
 // 公开路由不需要鉴权
 r.GET("/public", getPublic)
@@ -101,9 +101,9 @@ r.GET("/public", getPublic)
 ### 单个路由中间件
 
 ~~~go
-r.GET("/secret", AuthMiddleware(), func(c *gin.Context) {
-	c.JSON(200, gin.H{"msg": "机密数据"})
-})
+r.GET("/secret", AuthMiddleware(), func(c *gin.Context) &#123;
+	c.JSON(200, gin.H&#123;"msg": "机密数据"&#125;)
+&#125;)
 ~~~
 
 ## 中断请求
@@ -111,24 +111,24 @@ r.GET("/secret", AuthMiddleware(), func(c *gin.Context) {
 在中间件中可以直接终止请求，不再调用 `c.Next()`：
 
 ~~~go
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func AuthMiddleware() gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		token := c.GetHeader("Authorization")
-		if token == "" {
-			c.AbortWithStatusJSON(401, gin.H{"error": "未授权"})
+		if token == "" &#123;
+			c.AbortWithStatusJSON(401, gin.H&#123;"error": "未授权"&#125;)
 			return // 必须 return，停止后续处理
-		}
+		&#125;
 		// 校验 token ...
 		c.Set("user_id", 1001) // 设置上下文数据，供后续使用
 		c.Next()
-	}
-}
+	&#125;
+&#125;
 
 // 后续处理函数中获取上下文数据
-r.GET("/profile", AuthMiddleware(), func(c *gin.Context) {
+r.GET("/profile", AuthMiddleware(), func(c *gin.Context) &#123;
 	uid, _ := c.Get("user_id")
-	c.JSON(200, gin.H{"user_id": uid})
-})
+	c.JSON(200, gin.H&#123;"user_id": uid&#125;)
+&#125;)
 ~~~
 
 ::: tip
@@ -147,18 +147,18 @@ Gin 内部维护一个 `HandlersChain`（处理函数切片）和一个 `index`�
 ### CORS 跨域
 
 ~~~go
-func CORS() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func CORS() gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type,Authorization")
-		if c.Request.Method == "OPTIONS" {
+		if c.Request.Method == "OPTIONS" &#123;
 			c.AbortWithStatus(204)
 			return
-		}
+		&#125;
 		c.Next()
-	}
-}
+	&#125;
+&#125;
 ~~~
 
 也可直接使用官方库 `github.com/gin-contrib/cors`。
@@ -166,8 +166,8 @@ func CORS() gin.HandlerFunc {
 ### 请求日志
 
 ~~~go
-func Logger() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func Logger() gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		start := time.Now()
 		path := c.Request.URL.Path
 
@@ -181,23 +181,23 @@ func Logger() gin.HandlerFunc {
 			c.Request.Method,
 			path,
 		)
-	}
-}
+	&#125;
+&#125;
 ~~~
 
 ### 限流中间件（简单令牌桶）
 
 ~~~go
-func RateLimit(maxRequests int) gin.HandlerFunc {
+func RateLimit(maxRequests int) gin.HandlerFunc &#123;
 	limiter := rate.NewLimiter(rate.Limit(maxRequests), maxRequests)
-	return func(c *gin.Context) {
-		if !limiter.Allow() {
-			c.AbortWithStatusJSON(429, gin.H{"error": "请求过于频繁"})
+	return func(c *gin.Context) &#123;
+		if !limiter.Allow() &#123;
+			c.AbortWithStatusJSON(429, gin.H&#123;"error": "请求过于频繁"&#125;)
 			return
-		}
+		&#125;
 		c.Next()
-	}
-}
+	&#125;
+&#125;
 ~~~
 
 ## 中间件复用 goroutine
@@ -205,13 +205,13 @@ func RateLimit(maxRequests int) gin.HandlerFunc {
 在中间件中若要启动新 goroutine 处理异步任务，必须使用 `c.Copy()` 复制上下文，因为 `gin.Context` 非并发安全：
 
 ~~~go
-func AsyncLog() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func AsyncLog() gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		c.Next()
 		cc := c.Copy() // 复制一份在 goroutine 中使用
-		go func() {
+		go func() &#123;
 			log.Printf("异步记录: %s %s", cc.Request.Method, cc.Request.URL.Path)
-		}()
-	}
-}
+		&#125;()
+	&#125;
+&#125;
 ~~~

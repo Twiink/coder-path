@@ -6,19 +6,23 @@ PostgreSQL 是"世界上最先进的开源关系数据库":SQL 标准兼容性�
 
 ## 第一站:安装、结构与基础
 
-**上手**:安装(或 Docker `postgres:16`);`psql -U postgres` 命令行;**psql 元命令**:`\l`(库列表)/`\c dbname`(切换)/`\dt`(表)/`\d users`(表结构)/`\x`(竖排显示——宽表神器)/`\?`(帮助);GUI:pgAdmin(官方)/DBeaver。**三层命名空间(与 MySQL 的关键差异)**:实例(集群)→ 数据库 → **模式 schema(库内的命名空间,默认 public)** → 表——跨库查询不方便(靠 dblink/foreign data wrapper),**一个应用通常一个库 + 多个 schema 组织**。**数据类型特色**:自增 `GENERATED ALWAYS AS IDENTITY`(SQL 标准;serial 是老写法)、`UUID`(原生)、数组 `int[]`(原生!)、范围类型(int4range/daterange)、网络类型(inet)、枚举(create type)、**JSON/JSONB**(见第三站)、货币与几何类型;`CREATE TYPE` 自定义;**约束**:check 支持任意表达式(比 MySQL 实用)、外键、唯一、排他约束(Exclusion,高级);`ON CONFLICT DO UPDATE/NOTHING`(**upsert:比 MySQL 的 ON DUPLICATE KEY 语义清晰**,可指定冲突列);**RETURNING 子句(PG 特色)**:`INSERT ... RETURNING id`/`UPDATE ... RETURNING *`——**一步拿回刚写的行(含默认值),省一次查询**,后端 CRUD 的幸福感来源;事务/隔离级别与 MySQL 概念相同(见 MySQL 课),但实现不同(见 MVCC 站)。**大小写陷阱**:未加引号的标识符一律折叠成小写——`Users` 表实际叫 `users`;从 MySQL 迁来的人第一周必踩。
+**上手**:安装(或 Docker `postgres:16`);`psql -U postgres` 命令行;**psql 元命令**:`\l`(库列表)/`\c dbname`(切换)/`\dt`(表)/`\d users`(表结构)/`\x`(竖排显示——宽表神器)/`\?`(帮助);GUI:pgAdmin(官方)/DBeaver。
+**三层命名空间(与 MySQL 的关键差异)**:实例(集群)→ 数据库 → **模式 schema(库内的命名空间,默认 public)** → 表——跨库查询不方便(靠 dblink/foreign data wrapper),**一个应用通常一个库 + 多个 schema 组织**。**数据类型特色**:自增 `GENERATED ALWAYS AS IDENTITY`(SQL 标准;serial 是老写法)、`UUID`(原生)、数组 `int[]`(原生!)、范围类型(int4range/daterange)、网络类型(inet)、枚举(create type)、**JSON/JSONB**(见第三站)、货币与几何类型;`CREATE TYPE` 自定义;**约束**:check 支持任意表达式(比 MySQL 实用)、外键、唯一、排他约束(Exclusion,高级);`ON CONFLICT DO UPDATE/NOTHING`(**upsert:比 MySQL 的 ON DUPLICATE KEY 语义清晰**,可指定冲突列);**RETURNING 子句(PG 特色)**:`INSERT ... RETURNING id`/`UPDATE ... RETURNING *`——**一步拿回刚写的行(含默认值),省一次查询**,后端 CRUD 的幸福感来源;事务/隔离级别与 MySQL 概念相同(见 MySQL 课),但实现不同(见 MVCC 站)。
+**大小写陷阱**:未加引号的标识符一律折叠成小写——`Users` 表实际叫 `users`;从 MySQL 迁来的人第一周必踩。
 
 ## 第二站:查询能力——SQL 标准的高地
 
-PG 对 SQL 标准的支持让它在"复杂查询"上几乎没有对手:**CTE(WITH 子句)**:把复杂查询拆成有名字的中间步骤(可读性革命);**递归 CTE(`WITH RECURSIVE`)**:树形结构(组织架构/评论楼中楼/菜单)遍历的标准解法——**MySQL 8 也有但 PG 是主场**;**窗口函数**(完整支持:ROW_NUMBER/RANK/DENSE_RANK/LAG/LEAD/NTILE + 自定义 frame);**LATERAL 横向连接**:子查询里引用外层每一行(每行关联计算,替代部分相关子查询/实现"取每用户最近一单");**GROUPING SETS/ROLLUP/CUBE**(多维小计:报表一键出总计/小计/明细);**FILTER 子句**:`count(*) FILTER (WHERE status='paid')`——**一个聚合内做条件计数**,免去 sum(case when) 的绕路;**DISTINCT ON(特色语法)**:`SELECT DISTINCT ON (user_id) * FROM orders ORDER BY user_id, created_at DESC`——**直接取"每组最新一条"**,其他数据库要窗口函数或子查询;**聚合特色**:string_agg(拼接,替代 MySQL group_concat)/array_agg(聚成数组);`ILIKE`(不区分大小写模糊)。**EXPLAIN**:PG 的执行计划可读性公认最好(见查询优化站)。
+PG 对 SQL 标准的支持让它在"复杂查询"上几乎没有对手:**CTE(WITH 子句)**:把复杂查询拆成有名字的中间步骤(可读性革命);**递归 CTE(`WITH RECURSIVE`)**:树形结构(组织架构/评论楼中楼/菜单)遍历的标准解法——**MySQL 8 也有但 PG 是主场**;**窗口函数**(完整支持:ROW_NUMBER/RANK/DENSE_RANK/LAG/LEAD/NTILE + 自定义 frame);**LATERAL 横向连接**:子查询里引用外层每一行(每行关联计算,替代部分相关子查询/实现"取每用户最近一单");**GROUPING SETS/ROLLUP/CUBE**(多维小计:报表一键出总计/小计/明细);**FILTER 子句**:`count(*) FILTER (WHERE status='paid')`——**一个聚合内做条件计数**,免去 sum(case when) 的绕路;**DISTINCT ON(特色语法)**:`SELECT DISTINCT ON (user_id) * FROM orders ORDER BY user_id, created_at DESC`——**直接取"每组最新一条"**,其他数据库要窗口函数或子查询;**聚合特色**:string_agg(拼接,替代 MySQL group_concat)/array_agg(聚成数组);`ILIKE`(不区分大小写模糊)。
+**EXPLAIN**:PG 的执行计划可读性公认最好(见查询优化站)。
 
 ## 第三站:JSONB——关系与文档的桥
 
-PG 的 JSON 能力让它能同时当文档库用:**JSON vs JSONB**:JSON(原样存文本,保留键序与重复键,写入快)vs **JSONB(二进制解析存储:键无序、去重、可索引、查询快——生产选 JSONB)**;操作符: `->`(取 JSON,返回 json)、`->>`(取文本)、`#>`/`#>>`(路径取:`data #>> '{a,b}'`)、`@>`(**包含:data @> '{"tags": ["x"]}'——查数组含某元素/对象含子结构的表达**)、`?`/`?|`/`?&`(键存在);修改:`jsonb_set(data, '{a}', '"v"')`、`data || '{"k":1}'` 合并、`jsonb_build_object` 构造;索引:**GIN 索引(jsonb_ops)** 加速 @> 与 ? 查询——**无 schema 的灵活字段(配置/元数据/事件 payload/第三方数据)存 JSONB + GIN,是 PG 项目的日常模式**;JSONB 列还能建表达式索引/生成列再索引;场景:需要"关系为主 + 少量弹性结构"时,PG 让你不必上 MongoDB。
+PG 的 JSON 能力让它能同时当文档库用:**JSON vs JSONB**:JSON(原样存文本,保留键序与重复键,写入快)vs **JSONB(二进制解析存储:键无序、去重、可索引、查询快——生产选 JSONB)**;操作符: `->`(取 JSON,返回 json)、`->>`(取文本)、`#>`/`#>>`(路径取:`data #>> '&#123;a,b&#125;'`)、`@>((**包含:data @> '&#123;"tags": ["x"]&#125;'——查数组含某元素/对象含子结构的表达**)、)?`/`?|`/`?&`(键存在);修改:`jsonb_set(data, '&#123;a&#125;', '"v"')`、(data || '&#123;"k":1&#125;') 合并、`jsonb_build_object` 构造;索引:**GIN 索引(jsonb_ops)** 加速 @> 与 ? 查询——**无 schema 的灵活字段(配置/元数据/事件 payload/第三方数据)存 JSONB + GIN,是 PG 项目的日常模式**;JSONB 列还能建表达式索引/生成列再索引;场景:需要"关系为主 + 少量弹性结构"时,PG 让你不必上 MongoDB。
 
 ## 第四站:全文搜索
 
-内置全文检索(中小项目替代 Elasticsearch 的方案):概念:**tsvector**(文档的"词向量":`to_tsvector('english', body)`——分词+词干化)与 **tsquery**(查询:`to_tsquery('english', 'cat & dog')`);匹配用 **`@@`**:`WHERE to_tsvector(body) @@ to_tsquery('数据库')`;**GIN 索引**加速;**排序**:`ts_rank`/`ts_rank_cd`(相关性排序,配 `websearch_to_tsquery`(类 Google 语法));中文:默认分词对中文不友好,装 **zhparser/pg_jieba 扩展**后配中文分词配置;高亮 ts_headline;**pg_trgm 扩展**(三元组模糊搜索:加速 LIKE '%xx%' 与相似度排序——轻量"搜名字"神器)。重度全文/聚合搜索仍建议 ES(见 [Elasticsearch 路线](/learning-paths/middleware/elasticsearch)),但"文章/商品标题搜索"级别 PG 自带够用。
+内置全文检索(中小项目替代 Elasticsearch 的方案):概念:**tsvector**(文档的"词向量":`to_tsvector('english', body)`——分词+词干化)与 **tsquery**(查询:`to_tsquery('english', 'cat & dog')`);匹配用 **`@@`**:`WHERE to_tsvector(body) @@ to_tsquery('数据库')`;**GIN 索引**加速;**排序**:`ts_rank`/`ts_rank_cd`(相关性排序,配 `websearch_to_tsquery`(类 Google 语法));中文:默认分词对中文不友好,装 **zhparser/pg_jieba 扩展**后配中文分词配置;高亮 ts_headline;**pg_trgm 扩展**(三元组模糊搜索:加速 LIKE '%xx%' 与相似度排序——轻量"搜名字"神器)。
+重度全文/聚合搜索仍建议 ES(见 [Elasticsearch 路线](/learning-paths/middleware/elasticsearch)),但"文章/商品标题搜索"级别 PG 自带够用。
 
 ## 第五站:索引家族——方法比 MySQL 多
 
@@ -96,11 +100,13 @@ pg_blocking_pids(pid):返回阻塞该 pid 的 pid 数组(9.6+,快捷函数);
 
 ## 第九站:复制与高可用
 
-**流复制(物理复制,主流)**:主库把 WAL 实时传给备库重放——备库只读;**同步/异步**(同步:主库等备库确认才提交——`synchronous_standby_names` + 级别 remote_apply/on/remote_write——同步保证不丢但拖慢主库;异步性能好有丢失窗口);级联复制(备库再挂备库,减轻主库);**延迟备库**(recovery_min_apply_delay:备库故意落后 1 小时——**防"误操作立刻同步到备库"的保险**);**逻辑复制(11+,特色)**:发布/订阅模型——**按表选择性复制**(只同步订单表到分析库)、跨大版本迁移(14→16 在线)、异构消费(逻辑解码到 Kafka);双向复制(高级,冲突自理)。**高可用(HA)**:主备自动故障切换用 **Patroni**(基于 etcd/consul 选主——PG HA 的事实标准,云上 RDS 也是这个思路)或 repmgr;切换后:IP 漂移或连接串指向新主(应用配多主机);**连接池 PgBouncer**:PG 每连接是独立进程(内存开销大)——**连接池不是可选项,是标配**(事务级池:几千连接复用几十个后端);读写分离:应用层/中间件(PgBouncer 只池化;路由交给应用或 Proxy 层)。
+**流复制(物理复制,主流)**:主库把 WAL 实时传给备库重放——备库只读;**同步/异步**(同步:主库等备库确认才提交——`synchronous_standby_names` + 级别 remote_apply/on/remote_write——同步保证不丢但拖慢主库;异步性能好有丢失窗口);级联复制(备库再挂备库,减轻主库);**延迟备库**(recovery_min_apply_delay:备库故意落后 1 小时——**防"误操作立刻同步到备库"的保险**);**逻辑复制(11+,特色)**:发布/订阅模型——**按表选择性复制**(只同步订单表到分析库)、跨大版本迁移(14→16 在线)、异构消费(逻辑解码到 Kafka);双向复制(高级,冲突自理)。
+**高可用(HA)**:主备自动故障切换用 **Patroni**(基于 etcd/consul 选主——PG HA 的事实标准,云上 RDS 也是这个思路)或 repmgr;切换后:IP 漂移或连接串指向新主(应用配多主机);**连接池 PgBouncer**:PG 每连接是独立进程(内存开销大)——**连接池不是可选项,是标配**(事务级池:几千连接复用几十个后端);读写分离:应用层/中间件(PgBouncer 只池化;路由交给应用或 Proxy 层)。
 
 ## 第十站:查询优化与配置调优
 
-**EXPLAIN 与 EXPLAIN ANALYZE**(PG 排障体验最好:ANALYZE 真执行并输出**实际行数与耗时**——对比估算找偏差):计划节点读法:Seq Scan(全表)/Index Scan/Bitmap Index+Heap Scan(位图扫描:多条件组合索引的 PG 特色)/Nested Loop(小表驱动)/Hash Join(无索引大 join 建哈希)/Merge Join(排序流合并);**看什么**:actual time、rows 估算 vs actual 偏差(统计信息旧了 → ANALYZE)、排序/哈希内存溢出。**统计信息**:VACUUM ANALYZE 更新 pg_statistic,优化器基于成本(CBO)选计划;**并行查询**:大表 Seq Scan/Hash Join 自动并行(多核,配 max_parallel_workers);JIT(LLVM 编译加速复杂表达式,大查询有感)。**配置调优**(postgresql.conf,别乱抄):`shared_buffers`(≈内存 25%)、`work_mem`(单次排序/哈希内存——**过大有 OOM 风险,因为每连接每操作都可能用**)、`maintenance_work_mem`(vacuum/索引)、`effective_cache_size`(告诉优化器 OS 缓存多大,影响是否选索引)、`max_connections`(配合 PgBouncer 收紧)、`wal_buffers/synchronous_commit`(追求吞吐可 off,丢数据的窗口换);**pg_stat_statements**(标准扩展:累计 SQL 统计——**找慢查询/高频查询的第一工具**,配 pg_stat_activity(看正在跑的));**分区表(声明式,10+)**:RANGE(按时间:日志/订单——**配分区裁剪:查询只扫对应分区**)/LIST(按地区/状态)/HASH(均摊);老方案"表继承 + 触发器"了解即可;pg_partman 自动建新分区;注意:分区键要进查询条件,否则全分区扫。
+**EXPLAIN 与 EXPLAIN ANALYZE**(PG 排障体验最好:ANALYZE 真执行并输出**实际行数与耗时**——对比估算找偏差):计划节点读法:Seq Scan(全表)/Index Scan/Bitmap Index+Heap Scan(位图扫描:多条件组合索引的 PG 特色)/Nested Loop(小表驱动)/Hash Join(无索引大 join 建哈希)/Merge Join(排序流合并);**看什么**:actual time、rows 估算 vs actual 偏差(统计信息旧了 → ANALYZE)、排序/哈希内存溢出。
+**统计信息**:VACUUM ANALYZE 更新 pg_statistic,优化器基于成本(CBO)选计划;**并行查询**:大表 Seq Scan/Hash Join 自动并行(多核,配 max_parallel_workers);JIT(LLVM 编译加速复杂表达式,大查询有感)。**配置调优**(postgresql.conf,别乱抄):`shared_buffers`(≈内存 25%)、`work_mem`(单次排序/哈希内存——**过大有 OOM 风险,因为每连接每操作都可能用**)、`maintenance_work_mem`(vacuum/索引)、`effective_cache_size`(告诉优化器 OS 缓存多大,影响是否选索引)、`max_connections`(配合 PgBouncer 收紧)、`wal_buffers/synchronous_commit`(追求吞吐可 off,丢数据的窗口换);**pg_stat_statements**(标准扩展:累计 SQL 统计——**找慢查询/高频查询的第一工具**,配 pg_stat_activity(看正在跑的));**分区表(声明式,10+)**:RANGE(按时间:日志/订单——**配分区裁剪:查询只扫对应分区**)/LIST(按地区/状态)/HASH(均摊);老方案"表继承 + 触发器"了解即可;pg_partman 自动建新分区;注意:分区键要进查询条件,否则全分区扫。
 
 ## 第十一站:扩展生态——PG 的护城河
 

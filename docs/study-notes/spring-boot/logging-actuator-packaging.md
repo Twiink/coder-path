@@ -597,10 +597,10 @@ management:
 | `/actuator/health/readiness` ★ | GET | ★ 就绪探针（K8s：能否接收流量） | 内部 |
 | **`/actuator/info`** | GET | 应用信息（版本、构建时间、Git 提交） | 可暴露 |
 | **`/actuator/metrics`** ★ | GET | 所有指标列表 | 内部 |
-| `/actuator/metrics/{name}` | GET | ★ 单个指标详情（如 `http.server.requests`） | 内部 |
+| `/actuator/metrics/&#123;name&#125;` | GET | ★ 单个指标详情（如 `http.server.requests`） | 内部 |
 | **`/actuator/prometheus`** ★ | GET | ★ Prometheus 格式的所有指标 | 内部 |
 | `/actuator/env` | GET | ★ 所有配置源及值（**含敏感信息！**） | ★ 必须限制 |
-| `/actuator/env/{name}` | GET | 单个配置项 | ★ 必须限制 |
+| `/actuator/env/&#123;name&#125;` | GET | 单个配置项 | ★ 必须限制 |
 | **`/actuator/loggers`** ★ | GET/POST | ★★ **动态修改日志级别**（排查神器） | 内部 |
 | `/actuator/threaddump` ★ | GET | ★ 线程快照（排查死锁、CPU 高） | 内部 |
 | **`/actuator/heapdump`** | GET | ★★ **下载堆转储（能提取内存中的密码！）** | ★★ **生产必须禁用** |
@@ -1810,8 +1810,8 @@ spec:
 | # | 坑 | 现象 | 解决 |
 | --- | --- | --- | --- |
 | 1 | ★ 用 `System.out.println` | 无级别、无法关闭、性能差、日志丢失 | 一律用 SLF4J |
-| 2 | ★ 日志字符串拼接 | 性能浪费（即使不输出也拼接） | 用 `{}` 占位符 |
-| 3 | ★ `log.error("msg: {}", e)` | 丢失栈信息 | `log.error("msg", e)`（异常作最后参数） |
+| 2 | ★ 日志字符串拼接 | 性能浪费（即使不输出也拼接） | 用 `&#123;&#125;` 占位符 |
+| 3 | ★ `log.error("msg: &#123;&#125;", e)` | 丢失栈信息 | `log.error("msg", e)`（异常作最后参数） |
 | 4 | `e.printStackTrace()` | 输出到 stderr，日志系统收集不到 | 用 logger |
 | 5 | Logger 名写错（复制粘贴） | 日志来源混乱 | 用 Lombok `@Slf4j` |
 | 6 | 日志记录敏感信息 | ★ 密码/Token/手机号泄漏 | 脱敏工具类 |
@@ -1821,7 +1821,7 @@ spec:
 | 10 | 用 `logback.xml` 而非 `logback-spring.xml` | `<springProfile>` 不生效 | ★ 用 `logback-spring.xml` |
 | 11 | 生产开着 DEBUG | 磁盘写满、性能差 | 生产 root=WARN，业务 INFO |
 | 12 | 未配日志轮转 | 单个日志文件几十 GB | `SizeAndTimeBasedRollingPolicy` + `totalSizeCap` |
-| 13 | 未配 MDC 清理 | traceId 串号（线程池复用） | `finally { MDC.clear(); }` |
+| 13 | 未配 MDC 清理 | traceId 串号（线程池复用） | `finally &#123; MDC.clear(); &#125;` |
 | 14 | ★ `/actuator` 全暴露 | heapdump 被下载 → 数据泄漏 | 端点白名单 + 禁用 heapdump/shutdown |
 | 15 | 管理端口未隔离 | 外网能访问 Actuator | `management.server.port` + `address: 127.0.0.1` |
 | 16 | `/actuator/env` 显示明文密码 | 配置泄漏 | `show-values: never` |
@@ -1836,7 +1836,7 @@ spec:
 | 25 | `kill -9` 停服务 | 数据丢失、连接泄漏、无法优雅停机 | ★ `kill -15` |
 | 26 | systemd 未配 `SuccessExitStatus=143` | 优雅停机被记为失败并触发重启 | 配置该项 |
 | 27 | `LimitNOFILE` 未调 | 高并发下 `Too many open files` | 设 65536 |
-| 28 | Fat jar 未分层 | Docker 每次构建都要重传全部依赖 | `<layers><enabled>true</enabled>` |
+| 28 | Fat jar 未分层 | Docker 每次构建都要重传全部依赖 | `&lt;layers&gt;&lt;enabled&gt;true</enabled>` |
 | 29 | war 部署到外部 Tomcat | 需继承 `SpringBootServletInitializer` | 现代项目一律用 jar |
 | 30 | 未配 `spring.main.register-shutdown-hook` | 无法优雅停机 | 默认 true，别改成 false |
 | 31 | 静态资源打进 jar | 改前端要重新发布 | 前端独立部署（Nginx / CDN） |

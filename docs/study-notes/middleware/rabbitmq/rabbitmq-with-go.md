@@ -36,19 +36,19 @@ import (
     "github.com/streadway/amqp"
 )
 
-func main() {
+func main() &#123;
     // 连接 RabbitMQ 服务器
     conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
     defer conn.Close()
 
     // 创建一个通道
     ch, err := conn.Channel()
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
     defer ch.Close()
 
     // 声明一个队列
@@ -61,9 +61,9 @@ func main() {
         false,     // 不阻塞
         nil,       // 额外参数
     )
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
 
     // 发送消息到队列
     message := "Hello, RabbitMQ!"
@@ -72,17 +72,17 @@ func main() {
         queueName, // 队列名称
         false,     // 强制
         false,     // 立即
-        amqp.Publishing{
+        amqp.Publishing&#123;
             ContentType: "text/plain",
             Body:        []byte(message),
-        },
+        &#125;,
     )
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
 
     fmt.Printf("Sent message: %s\n", message)
-}
+&#125;
 ~~~
 
 ## 发送延时消息
@@ -97,19 +97,19 @@ import (
     "github.com/streadway/amqp"
 )
 
-func main() {
+func main() &#123;
     // 连接 RabbitMQ 服务器
     conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
     defer conn.Close()
 
     // 创建一个通道
     ch, err := conn.Channel()
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
     defer ch.Close()
 
     // 声明一个交换机
@@ -121,13 +121,13 @@ func main() {
         false, // 自动删除
         false, // 内部
         false, // 不阻塞
-        map[string]interface{}{
+        map[string]interface&#123;&#125;&#123;
             "x-delayed-type": "direct", // 声明交换机的类型，direct、topic、fanout 等
-        },
+        &#125;,
     )
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
 
     // 声明一个队列
     queueName := "delayed-queue"
@@ -137,15 +137,15 @@ func main() {
         false,     // 自动删除
         false,     // 排他性
         false,     // 不阻塞
-        map[string]interface{}{
+        map[string]interface&#123;&#125;&#123;
             "x-message-ttl":    5000, // 消息的 TTL，以毫秒为单位
             "x-dead-letter-exchange":    "",
             "x-dead-letter-routing-key": "myqueue", // 死信消息发送的目标队列
-        },
+        &#125;,
     )
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
 
     // 发送消息到队列
     message := "Hello, Delayed RabbitMQ!"
@@ -154,17 +154,17 @@ func main() {
         "",           // 队列名称
         false,        // 强制
         false,        // 立即
-        amqp.Publishing{
+        amqp.Publishing&#123;
             ContentType: "text/plain",
             Body:        []byte(message),
-        },
+        &#125;,
     )
-    if err != nil {
+    if err != nil &#123;
         log.Fatal(err)
-    }
+    &#125;
 
     fmt.Printf("Sent delayed message: %s\n", message)
-}
+&#125;
 ~~~
 在上述代码中，我们创建了一个交换机类型为 "`x-delayed-message`" 的交换机，并设置了消息的 `TTL（Time-To-Live）` 为 5 秒。这会导致消息被延时发送到队列，然后通过死信队列机制发送到目标队列（"`myqueue`"）。
 ::: tip

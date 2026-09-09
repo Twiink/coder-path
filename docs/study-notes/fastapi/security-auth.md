@@ -61,7 +61,7 @@ eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NSIsImV4cCI6MTczNTc0NzIwMH0.签名
 └────── header ──────┘└────────── payload ──────────┘└── signature ──┘
 ```
 
-- **header**:`{"alg": "HS256", "typ": "JWT"}`,声明签名算法
+- **header**:(&#123;"alg": "HS256", "typ": "JWT"&#125;),声明签名算法
 - **payload**:自定义数据(用户 id、过期时间)。Base64 编码,**不是加密,任何人可解码读取 —— 不要放敏感信息!**
 - **signature**:`HMAC-SHA256(header + "." + payload, SECRET_KEY)`。密钥只有服务端知道,任何人篡改 payload 都会导致验签失败
 
@@ -542,7 +542,7 @@ async def security_headers(request: Request, call_next):
 
 | 攻击 | 原理 | 防护 |
 | --- | --- | --- |
-| SQL 注入 | 拼接 SQL 字符串 | 全部参数化查询/ORM(默认安全);杜绝 `f"SELECT ... {user_input}"` |
+| SQL 注入 | 拼接 SQL 字符串 | 全部参数化查询/ORM(默认安全);杜绝 `f"SELECT ... &#123;user_input&#125;"` |
 | XSS | 注入脚本到页面 | API 返回 JSON 时不直接执行;HTML 页面严格转义 + CSP |
 | CSRF | 诱导用户浏览器跨站发起请求 | token 放 Header 天然免疫;Cookie 认证必须 CSRF token + SameSite |
 | 点击劫持 | iframe 套壳诱导点击 | `X-Frame-Options: DENY` |

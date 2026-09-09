@@ -55,11 +55,11 @@ useLayoutEffect永远要比useEffect先触发完成。
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
     export function useLayoutEffect(
       create: () => (() => void) | void,
-      deps: Array<mixed> | void | null,
-    ): void {
+      deps: Array&lt;mixed&gt; | void | null,
+    ): void &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useLayoutEffect(create, deps);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。^_^  你只需知道useLayoutEffect的用法和useEffect一模一样即可。  
 
@@ -77,26 +77,26 @@ useLayoutEffect的用法和useEffect的用法相同，所以不再阐述。
 
 代码示例如下：
 
-    import React,{useState,useEffect,useLayoutEffect} from 'react'
+    import React,&#123;useState,useEffect,useLayoutEffect&#125; from 'react'
 
-    function LayoutEffect() {
+    function LayoutEffect() &#123;
       const [count,setCount] = useState(0);
 
-      useEffect(() => {
+      useEffect(() => &#123;
         console.log('useEffect...');
-      },[count]);
+      &#125;,[count]);
 
-      useLayoutEffect(() => {
+      useLayoutEffect(() => &#123;
         console.log('useLayoutEffect...');
-      },[count]);
+      &#125;,[count]);
 
       return (
-        <div>
-            {count}
-            <button onClick={() => {setCount(count+1)}}>Click</button>
+        &lt;div&gt;
+            &#123;count&#125;
+            <button onClick=&#123;() => &#123;setCount(count+1)&#125;&#125;>Click</button>
         </div>
       )
-    }
+    &#125;
     export default LayoutEffect
 
 

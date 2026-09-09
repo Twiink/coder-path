@@ -159,8 +159,8 @@ CompletableFuture<Integer> chain = CompletableFuture
 
 | 方法 | 参数类型 | 能否拿到上一步结果 | 有无返回值 | 典型用途 |
 | --- | --- | --- | --- | --- |
-| `thenApply` | `Function<T,U>` | ✅ | ✅ U | 数据转换、映射 |
-| `thenAccept` | `Consumer<T>` | ✅ | ❌ Void | 消费结果（存库、发消息） |
+| `thenApply` | `Function&lt;T,U&gt;` | ✅ | ✅ U | 数据转换、映射 |
+| `thenAccept` | `Consumer&lt;T&gt;` | ✅ | ❌ Void | 消费结果（存库、发消息） |
 | `thenRun` | `Runnable` | ❌ | ❌ Void | 收尾动作（清理、日志） |
 
 **同步版 vs Async 版的执行线程（重要）：**
@@ -228,8 +228,8 @@ public CompletableFuture<OrderDetailVO> loadOrderDetail(Long orderId) {
 
 | | thenApply | thenCompose |
 | --- | --- | --- |
-| 函数返回 | 普通值 `U` | **`CompletionStage<U>`** |
-| 结果类型 | `CompletableFuture<U>` | `CompletableFuture<U>`（扁平） |
+| 函数返回 | 普通值 `U` | **`CompletionStage&lt;U&gt;`** |
+| 结果类型 | `CompletableFuture&lt;U&gt;` | `CompletableFuture&lt;U&gt;`（扁平） |
 | 类比 | Stream 的 `map` | Stream 的 `flatMap` |
 | 用途 | 同步转换 | **异步调用有依赖的下一个任务** |
 
@@ -482,9 +482,9 @@ public CompletableFuture<OrderVO> loadOrder(Long id) {
 
 | 方法 | 执行时机 | 能否改变结果 | 能否吞掉异常 | 参数类型 |
 | --- | --- | --- | --- | --- |
-| `exceptionally` | **仅异常时** | ✅ 返回降级值 | ✅ 吞掉（返回正常值） | `Function<Throwable,T>` |
-| `handle` | **总是** | ✅ 返回新值 | ✅ 可吞掉或重新抛 | `BiFunction<T,Throwable,U>` |
-| `whenComplete` | **总是** | ❌ 不能 | ❌ 异常继续传播 | `BiConsumer<T,Throwable>` |
+| `exceptionally` | **仅异常时** | ✅ 返回降级值 | ✅ 吞掉（返回正常值） | `Function&lt;Throwable,T&gt;` |
+| `handle` | **总是** | ✅ 返回新值 | ✅ 可吞掉或重新抛 | `BiFunction&lt;T,Throwable,U&gt;` |
+| `whenComplete` | **总是** | ❌ 不能 | ❌ 异常继续传播 | `BiConsumer&lt;T,Throwable&gt;` |
 
 ## 6. 超时控制
 
@@ -906,8 +906,8 @@ CompletableFuture<User> future = mono.toFuture();                 // Mono → Fu
 | 4 | `thenApply` 误当异步 | 上一步已完成时在**当前线程**同步执行 | 耗时操作用 `thenApplyAsync(fn, executor)` |
 | 5 | 异常被静默吞掉 | 链路中某步失败，无人知晓 | 链尾加 `whenComplete` 记录日志 + 监控埋点 |
 | 6 | `orTimeout` 不取消底层任务 | 超时后线程仍在跑，池被耗尽 | 底层调用自带超时（HTTP/JDBC timeout） |
-| 7 | 嵌套 Future 未扁平化 | `CompletableFuture<CompletableFuture<T>>` | 用 `thenCompose` 而非 `thenApply` |
-| 8 | `allOf` 期望拿到结果 | 返回 `CompletableFuture<Void>` | 完成后从各 future `join()`，或封装 `allOfList` |
+| 7 | 嵌套 Future 未扁平化 | `CompletableFuture<CompletableFuture&lt;T&gt;>` | 用 `thenCompose` 而非 `thenApply` |
+| 8 | `allOf` 期望拿到结果 | 返回 `CompletableFuture&lt;Void&gt;` | 完成后从各 future `join()`，或封装 `allOfList` |
 | 9 | `anyOf` 类型是 Object | 需要强转 | 统一泛型类型，或用 `applyToEither` |
 | 10 | `anyOf` 中最快的失败 | 整体失败（不等其他成功的） | 每个 future 先 `exceptionally` 兜底再 anyOf |
 | 11 | 线程池嵌套 + join 等待 | **死锁**（父任务占满线程等子任务） | 拆分线程池，或用 `ManagedBlocker` |

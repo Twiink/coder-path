@@ -32,7 +32,7 @@ updated: 2026-04-04
 | `constructor()` | `useState()` 初始化 | `beforeCreate` | `setup()` 开始 | 初始化状态 |
 | - | - | `created` | `setup()` 中 | 实例创建完成 |
 | `render()` | 函数体执行 | `beforeMount` | `onBeforeMount()` | 渲染前 |
-| `componentDidMount()` | `useEffect(() => {}, [])` | `mounted` | `onMounted()` | 挂载完成,可访问 DOM |
+| `componentDidMount()` | `useEffect(() => &#123;&#125;, [])` | `mounted` | `onMounted()` | 挂载完成,可访问 DOM |
 
 **使用场景:**
 - 数据请求通常在 `componentDidMount` / `useEffect` / `mounted` / `onMounted` 中执行
@@ -47,7 +47,7 @@ updated: 2026-04-04
 | `shouldComponentUpdate()` | `useMemo()` / `React.memo()` | - | - | 性能优化,决定是否更新 |
 | `render()` | 函数体重新执行 | `beforeUpdate` | `onBeforeUpdate()` | 更新前 |
 | `getSnapshotBeforeUpdate()` | `useLayoutEffect()` | - | - | 更新前获取 DOM 快照 |
-| `componentDidUpdate()` | `useEffect(() => {})` | `updated` | `onUpdated()` | 更新完成 |
+| `componentDidUpdate()` | `useEffect(() => &#123;&#125;)` | `updated` | `onUpdated()` | 更新完成 |
 
 **使用场景:**
 - 响应 props 变化执行副作用
@@ -60,7 +60,7 @@ updated: 2026-04-04
 
 | React (类组件) | React (Hooks) | Vue 2 | Vue 3 | 说明 |
 |---------------|---------------|-------|-------|------|
-| `componentWillUnmount()` | `useEffect(() => { return () => {} })` | `beforeDestroy` | `onBeforeUnmount()` | 卸载前 |
+| `componentWillUnmount()` | `useEffect(() => &#123; return () => &#123;&#125; &#125;)` | `beforeDestroy` | `onBeforeUnmount()` | 卸载前 |
 | - | - | `destroyed` | `onUnmounted()` | 卸载完成 |
 
 **使用场景:**

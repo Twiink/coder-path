@@ -302,7 +302,7 @@ MEMORY USAGE key        # 某个 key 占用的字节数
 
 ## 1.7 redis.conf 配置详解
 
-```conf
+```ini
 ########## 网络 ##########
 bind 127.0.0.1 -::1          # 监听的 IP;生产内网填内网 IP;0.0.0.0 监听所有(危险)
 port 6379                     # 端口,0 表示禁用 TCP(只用 unix socket)
@@ -559,7 +559,7 @@ const val = await redis.get('name');
 | **不要太长** | key 也占内存,百万级 key 时超长 key 浪费显著;`user_session_token_for_xxx` 太长 |
 | **不要太短** | `u1n` 可读性差,排查困难 |
 | **统一大小写与风格** | 全小写 + 下划线/冒号,团队一致 |
-| **不含特殊字符** | 空格、换行、`{}`(Cluster 里 `{}` 是 hash tag,有特殊含义) |
+| **不含特殊字符** | 空格、换行、`&#123;&#125;`(Cluster 里 `&#123;&#125;` 是 hash tag,有特殊含义) |
 | **控制 key 总数** | 避免无限增长(如无 TTL 的日志类 key),防内存打满 |
 
 ```bash

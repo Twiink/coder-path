@@ -28,35 +28,35 @@ package response
 import "github.com/gin-gonic/gin"
 
 // Response 统一响应结构
-type Response struct {
+type Response struct &#123;
 	Code    int         `json:"code"`    // 业务状态码：0 成功，非 0 失败
 	Message string      `json:"message"` // 提示信息
-	Data    interface{} `json:"data"`    // 数据
-}
+	Data    interface&#123;&#125; `json:"data"`    // 数据
+&#125;
 
-func Success(c *gin.Context, data interface{}) {
-	c.JSON(200, Response{Code: 0, Message: "success", Data: data})
-}
+func Success(c *gin.Context, data interface&#123;&#125;) &#123;
+	c.JSON(200, Response对象(Code属性))
+&#125;
 
-func Fail(c *gin.Context, code int, msg string) {
-	c.JSON(200, Response{Code: code, Message: msg, Data: nil})
-}
+func Fail(c *gin.Context, code int, msg string) &#123;
+	c.JSON(200, Response对象(Code属性))
+&#125;
 
-func FailWithData(c *gin.Context, code int, msg string, data interface{}) {
-	c.JSON(200, Response{Code: code, Message: msg, Data: data})
-}
+func FailWithData(c *gin.Context, code int, msg string, data interface&#123;&#125;) &#123;
+	c.JSON(200, Response对象(Code属性))
+&#125;
 ~~~
 
 使用：
 ~~~go
-r.GET("/user/:id", func(c *gin.Context) {
+r.GET("/user/:id", func(c *gin.Context) &#123;
 	var u User
-	if err := db.First(&u, c.Param("id")).Error; err != nil {
+	if err := db.First(&u, c.Param("id")).Error; err != nil &#123;
 		response.Fail(c, 1001, "用户不存在")
 		return
-	}
+	&#125;
 	response.Success(c, u)
-})
+&#125;)
 ~~~
 
 ## 自定义业务错误码
@@ -69,18 +69,18 @@ package apperr
 import "fmt"
 
 // BizError 业务错误
-type BizError struct {
+type BizError struct &#123;
 	Code int    // 业务码
 	Msg  string // 错误信息
-}
+&#125;
 
-func (e *BizError) Error() string {
+func (e *BizError) Error() string &#123;
 	return fmt.Sprintf("[%d] %s", e.Code, e.Msg)
-}
+&#125;
 
-func New(code int, msg string) *BizError {
-	return &BizError{Code: code, Msg: msg}
-}
+func New(code int, msg string) *BizError &#123;
+	return &BizError对象(Code属性)
+&#125;
 
 // 预定义错误
 var (
@@ -95,23 +95,23 @@ var (
 通过 `Recovery` 中间件捕获 panic，并返回统一格式。可自定义 Recovery：
 
 ~~~go
-func Recovery() gin.HandlerFunc {
-	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
+func Recovery() gin.HandlerFunc &#123;
+	return gin.CustomRecovery(func(c *gin.Context, recovered interface&#123;&#125;) &#123;
 		// 记录错误日志
 		log.Printf("panic recovered: %v\n%s", recovered, debug.Stack())
-		c.AbortWithStatusJSON(500, response.Response{
+		c.AbortWithStatusJSON(500, response.Response&#123;
 			Code:    5000,
 			Message: "服务器内部错误",
 			Data:    nil,
-		})
-	})
-}
+		&#125;)
+	&#125;)
+&#125;
 
-func main() {
+func main() &#123;
 	r := gin.New()
 	r.Use(gin.Logger(), Recovery())
 	// ...
-}
+&#125;
 ~~~
 
 ## 统一捕获绑定错误
@@ -119,30 +119,30 @@ func main() {
 封装一个绑定函数，统一处理参数校验错误：
 
 ~~~go
-func BindAndValidate(c *gin.Context, obj interface{}) error {
-	if err := c.ShouldBind(obj); err != nil {
+func BindAndValidate(c *gin.Context, obj interface&#123;&#125;) error &#123;
+	if err := c.ShouldBind(obj); err != nil &#123;
 		var valErrs validator.ValidationErrors
-		if errors.As(err, &valErrs) {
+		if errors.As(err, &valErrs) &#123;
 			// 转换校验错误为友好提示
 			msgs := translateErrs(valErrs)
 			return apperr.New(1003, strings.Join(msgs, "; "))
-		}
+		&#125;
 		return apperr.New(1003, "参数格式错误: "+err.Error())
-	}
+	&#125;
 	return nil
-}
+&#125;
 
 // 使用
-r.POST("/user", func(c *gin.Context) {
+r.POST("/user", func(c *gin.Context) &#123;
 	var req CreateUserReq
-	if err := BindAndValidate(c, &req); err != nil {
-		if be, ok := err.(*apperr.BizError); ok {
+	if err := BindAndValidate(c, &req); err != nil &#123;
+		if be, ok := err.(*apperr.BizError); ok &#123;
 			response.Fail(c, be.Code, be.Msg)
-		}
+		&#125;
 		return
-	}
+	&#125;
 	// ...
-})
+&#125;)
 ~~~
 
 ## 日志记录
@@ -161,8 +161,8 @@ f, _ := os.Create("gin.log")
 ~~~go
 import "go.uber.org/zap"
 
-func LoggerMiddleware(logger *zap.Logger) gin.HandlerFunc {
-	return func(c *gin.Context) {
+func LoggerMiddleware(logger *zap.Logger) gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		start := time.Now()
 		c.Next()
 		logger.Info("request",
@@ -172,24 +172,24 @@ func LoggerMiddleware(logger *zap.Logger) gin.HandlerFunc {
 			zap.Duration("latency", time.Since(start)),
 			zap.String("ip", c.ClientIP()),
 		)
-	}
-}
+	&#125;
+&#125;
 ~~~
 
 ### 带请求 ID 的日志链路追踪
 
 ~~~go
-func RequestID() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func RequestID() gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		rid := c.GetHeader("X-Request-Id")
-		if rid == "" {
+		if rid == "" &#123;
 			rid = uuid.New().String()
-		}
+		&#125;
 		c.Set("request_id", rid)
 		c.Header("X-Request-Id", rid)
 		c.Next()
-	}
-}
+	&#125;
+&#125;
 
 // 日志中间件中带上 request_id
 rid, _ := c.Get("request_id")
@@ -215,22 +215,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
+func main() &#123;
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) { c.String(200, "ok") })
+	r.GET("/", func(c *gin.Context) &#123; c.String(200, "ok") &#125;)
 
 	// 用 http.Server 包装，方便控制
-	srv := &http.Server{
+	srv := &http.Server&#123;
 		Addr:    ":8080",
 		Handler: r,
-	}
+	&#125;
 
 	// 启动服务（非阻塞）
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	go func() &#123;
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed &#123;
 			log.Fatalf("启动失败: %v", err)
-		}
-	}()
+		&#125;
+	&#125;()
 	log.Println("服务启动，监听 :8080")
 
 	// 监听中断信号
@@ -242,16 +242,16 @@ func main() {
 	// 给在处理的请求最多 5 秒完成
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(ctx); err != nil &#123;
 		log.Printf("强制关闭: %v", err)
-	}
+	&#125;
 
 	// 关闭数据库等资源
 	// sqlDB, _ := db.DB()
 	// sqlDB.Close()
 
 	log.Println("服务已优雅退出")
-}
+&#125;
 ~~~
 
 ::: tip
@@ -267,16 +267,16 @@ func main() {
 配合容器编排（K8s）做存活与就绪探针：
 
 ~~~go
-r.GET("/health", func(c *gin.Context) {
-	c.JSON(200, gin.H{"status": "ok"})
-})
+r.GET("/health", func(c *gin.Context) &#123;
+	c.JSON(200, gin.H&#123;"status": "ok"&#125;)
+&#125;)
 
-r.GET("/ready", func(c *gin.Context) {
+r.GET("/ready", func(c *gin.Context) &#123;
 	// 检查依赖（数据库等）是否就绪
-	if err := db.Ping(); err != nil {
-		c.JSON(503, gin.H{"status": "not ready"})
+	if err := db.Ping(); err != nil &#123;
+		c.JSON(503, gin.H&#123;"status": "not ready"&#125;)
 		return
-	}
-	c.JSON(200, gin.H{"status": "ready"})
-})
+	&#125;
+	c.JSON(200, gin.H&#123;"status": "ready"&#125;)
+&#125;)
 ~~~

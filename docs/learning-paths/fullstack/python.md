@@ -4,7 +4,9 @@
 
 ## 路线一:Django 全栈——一个框架走天下
 
-**Django 是 Python 全栈的"全家桶"**(见 [Django](/learning-paths/backend/django)):自带 ORM(模型即表)、Admin(运营后台白送)、认证(登录/权限内置)、模板(服务端渲染)——**一个小团队用 Django 能撑起内容站/后台系统/电商的完整后端**。前端两条路:**①Django Templates + HTMX(服务端渲染派)**:模板里写 HTML + HTMX 属性实现局部刷新,几乎不写 JavaScript——**内容型网站(博客/文档/官网)的开发效率极高**(前后端一体,无跨域无联调);**②Django REST Framework + React/Vue(前后端分离派)**:Django 只做 API(DRF 序列化/权限/视图集,见 [Django](/learning-paths/backend/django) 的 DRF 章),前端框架消费——**交互复杂的中后台应用选这条**。**选择**:内容为主选①,交互为主选②;同一条 Django 后端,两条路可并存(部分页面 SSR、部分 API)。
+**Django 是 Python 全栈的"全家桶"**(见 [Django](/learning-paths/backend/django)):自带 ORM(模型即表)、Admin(运营后台白送)、认证(登录/权限内置)、模板(服务端渲染)——**一个小团队用 Django 能撑起内容站/后台系统/电商的完整后端**。
+前端两条路:**①Django Templates + HTMX(服务端渲染派)**:模板里写 HTML + HTMX 属性实现局部刷新,几乎不写 JavaScript——**内容型网站(博客/文档/官网)的开发效率极高**(前后端一体,无跨域无联调);**②Django REST Framework + React/Vue(前后端分离派)**:Django 只做 API(DRF 序列化/权限/视图集,见 [Django](/learning-paths/backend/django) 的 DRF 章),前端框架消费——**交互复杂的中后台应用选这条**。
+**选择**:内容为主选①,交互为主选②;同一条 Django 后端,两条路可并存(部分页面 SSR、部分 API)。
 
 ## 路线二:FastAPI + 前端分离——现代轻量 API 线
 

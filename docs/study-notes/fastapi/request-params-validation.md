@@ -4,7 +4,7 @@ FastAPI 中客户端传参的位置共有五类:路径参数、查询参数、�
 
 ## 2.1 路径参数(Path Parameters)
 
-路径参数写在 URL 路径中,用 `{}` 占位,函数参数同名接收。
+路径参数写在 URL 路径中,用 `&#123;&#125;` 占位,函数参数同名接收。
 
 ```python
 from fastapi import FastAPI
@@ -54,7 +54,7 @@ def get_item(
 | `le` / `lt` | 小于等于 / 小于 | `le=100` |
 | `multiple_of` | 必须是某数的倍数 | `multiple_of=5` |
 | `min_length` / `max_length` | 字符串长度范围 | `min_length=3` |
-| `pattern` | 正则匹配(旧名 regex 已废弃) | `pattern=r"^\d{4}-\d{2}$"` |
+| `pattern` | 正则匹配(旧名 regex 已废弃) | `pattern=r"^\d&#123;4&#125;-\d&#123;2&#125;$"` |
 | `min_items` / `max_items` | 列表元素个数 | `max_items=10` |
 | `title` / `description` | 文档中的名称/说明 | — |
 | `examples` | 文档示例值 | `examples=["A", "B"]` |

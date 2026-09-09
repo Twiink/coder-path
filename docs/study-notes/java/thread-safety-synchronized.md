@@ -88,9 +88,9 @@ Service s = new Service();
 
 > 【坑】**用 `String` 字面量或包装类当锁对象**：
 > ```java
-> synchronized ("LOCK") { }              // ❌ 字符串常量池全局共享，
+> synchronized ("LOCK") &#123; &#125;              // ❌ 字符串常量池全局共享，
 >                                        //    其他毫不相关的代码也用 "LOCK" 就会互相阻塞
-> synchronized (Integer.valueOf(1)) { }  // ❌ -128~127 是缓存的同一对象
+> synchronized (Integer.valueOf(1)) &#123; &#125;  // ❌ -128~127 是缓存的同一对象
 > // ✅ 用 private final Object lock = new Object();（不可被外部访问和修改）
 > ```
 
@@ -653,10 +653,10 @@ ReentrantLock fairLock = new ReentrantLock(true);      // 严格 FIFO
 
 > 【坑】**synchronized 不保证临界区内部的有序性**：
 > ```java
-> synchronized (lock) {
+> synchronized (lock) &#123;
 >     a = 1;          // ①
 >     b = 2;          // ② 可能被重排为 ②①（单线程语义不变，JIT 允许）
-> }
+> &#125;
 > // 但对其他线程来说，因为解锁会插入 StoreStore/StoreLoad 屏障，
 > // ①② 的结果对外部线程是可见且有序的（在同步块外部读取时）
 > ```
@@ -1093,7 +1093,7 @@ public static Singleton getInstance() {
 | 4 | 临界区内做 IO/RPC | 锁持有时间长，吞吐骤降 | 缩小临界区，锁外做 IO |
 | 5 | 加锁顺序不一致 | 死锁 | 固定全局加锁顺序（按 ID 排序） |
 | 6 | `Lock.lock()` 写在 try 内 | `unlock` 抛 IllegalMonitorState | `lock()` 在 try 之前 |
-| 7 | 忘记 `finally { unlock() }` | 异常后锁永不释放 | 必须 finally |
+| 7 | 忘记 `finally &#123; unlock() &#125;` | 异常后锁永不释放 | 必须 finally |
 | 8 | 期望 `synchronized` 可中断 | 无法响应中断 | 用 `lockInterruptibly()` |
 | 9 | 单核 CPU 上依赖自旋 | CPU 100% 无进展 | 自旋只在多核有效 |
 | 10 | 偏向锁 + `hashCode()` | 锁直接升级，性能下降 | 了解即可（JDK 15 已废弃偏向锁） |

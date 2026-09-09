@@ -38,12 +38,12 @@ updated: 2026-04-04
 那么在类组件里，我们需要写的代码是：
 
     //为了更加清楚看到每次渲染，我们在网页标题中 a 的后面再增加一个随机数字
-    componentDidMount(){
-        document.title = `${this.state.a} - ${Math.floor(Math.random()*100)}`;
-    }
-    componentDidUpdate(){
-        document.title = `${this.state.a} - ${Math.floor(Math.random()*100)}`;
-    }
+    componentDidMount()&#123;
+        document.title = `$&#123;this.state.a&#125; - $&#123;Math.floor(Math.random()*100)&#125;`;
+    &#125;
+    componentDidUpdate()&#123;
+        document.title = `$&#123;this.state.a&#125; - $&#123;Math.floor(Math.random()*100)&#125;`;
+    &#125;
 
 从上面这种代码里你会看到，为了保证第一次被挂载、组件重新渲染后都执行修改网页标题的行为，相同的代码我们需要分别在componentDidMount、componentDidUpdate中写2次。  
 
@@ -51,16 +51,16 @@ updated: 2026-04-04
 那么在类组件里，我们需要写的代码是：  
 
     timer = null;//新增一个可内部访问的累加器变量(注：类组件定义属性时前面无法使用 var/let/const)
-    componentDidMount(){
-        document.title = `${this.state.a} - ${Math.floor(Math.random()*100)}`;
-        this.timer = setInterval(() => {this.setState({a:this.state.a+1})}, 1000);//添加累加器
-    }
-    componentDidUpdate(){
-        document.title = `${this.state.a} - ${Math.floor(Math.random()*100)}`; 
-    }
-    componentWillUnmount(){
+    componentDidMount()&#123;
+        document.title = `$&#123;this.state.a&#125; - $&#123;Math.floor(Math.random()*100)&#125;`;
+        this.timer = setInterval(() => &#123;this.setState(对象(a属性))&#125;, 1000);//添加累加器
+    &#125;
+    componentDidUpdate()&#123;
+        document.title = `$&#123;this.state.a&#125; - $&#123;Math.floor(Math.random()*100)&#125;`; 
+    &#125;
+    componentWillUnmount()&#123;
         clearInterval(this.timer);//清除累加器
-    }
+    &#125;
 
 从上面代码可以看到，增加累加器和清除累加器这2个相关的执行代码被分别定义在componentDidMount、componentWillUnmount这两个生命周期函数中。  
 
@@ -82,11 +82,11 @@ updated: 2026-04-04
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
     export function useEffect(
       create: () => (() => void) | void,
-      deps: Array<mixed> | void | null,
-    ): void {
+      deps: Array&lt;mixed&gt; | void | null,
+    ): void &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useEffect(create, deps);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。之所以贴出源码只是为了让你以后也可以给面试官吹嘘你读过React源码。^_^  
 
@@ -107,15 +107,15 @@ componentDidMount、componentDidUpdate、componentWillUnmount ，当上述3个�
 
 ##### 代码形式：  
 
-    useEffect(() => {
+    useEffect(() => &#123;
         //此处编写 组件挂载之后和组件重新渲染之后执行的代码
         ...
 
-        return () => {
+        return () => &#123;
             //此处编写 组件即将被卸载前执行的代码
             ...
-        }
-    },[deps])
+        &#125;
+    &#125;,[deps])
 
 
 之前说过useEffect第1个参数 effect 是个 function，只是这个 function 稍显复杂。
@@ -145,22 +145,22 @@ componentDidMount、componentDidUpdate、componentWillUnmount ，当上述3个�
 1、为了让 a 的值可以发生变化，我们在组件中添加一个按钮，每次点击 a 的值 +1  
 2、为了更加清楚看到每次渲染，我们在网页标题中 a 的后面再增加一个随机数字
 
-    import React, { useState,useEffect} from 'react';
+    import React, &#123; useState,useEffect&#125; from 'react';
 
-    function Component() {
+    function Component() &#123;
       const [a, setA] = useState(0);//定义变量a，并且默认值为0
-      useEffect(() => {
+      useEffect(() => &#123;
           //无论是第一次挂载还是以后每次组件更新，修改网页标题的执行代码只需要在这里写一次即可
-          document.title = `${a} - ${Math.floor(Math.random()*100)}`;
-      })
-      const clickAbtHandler = (eve) =>{
+          document.title = `$&#123;a&#125; - $&#123;Math.floor(Math.random()*100)&#125;`;
+      &#125;)
+      const clickAbtHandler = (eve) =>&#123;
           setA(a+1);
-      }
-      return <div>
-          {a}
-          <button onClick={clickAbtHandler}>a+1</button>
+      &#125;
+      return &lt;div&gt;
+          &#123;a&#125;
+          <button onClick=&#123;clickAbtHandler&#125;>a+1</button>
         </div>
-    }
+    &#125;
 
     export default Component;
 

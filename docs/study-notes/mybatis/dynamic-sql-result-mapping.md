@@ -29,16 +29,16 @@ updated: 2026-09-07
 
 | 标签 | 作用 | 类比 |
 | --- | --- | --- |
-| **`<if>`** | 条件判断 | if |
-| **`<where>`** | ★ 智能 WHERE（自动去除开头多余的 AND/OR） | — |
-| **`<set>`** | ★ 智能 SET（自动去除末尾多余的逗号） | — |
-| **`<trim>`** | 通用前后缀处理（where/set 的底层） | — |
-| **`<choose>/<when>/<otherwise>`** | 多选一 | switch-case-default |
-| **`<foreach>`** | ★ 集合遍历（IN、批量插入） | for |
-| **`<sql>` + `<include>`** | SQL 片段复用 | 函数/宏 |
-| **`<bind>`** | 创建变量（OGNL 表达式） | 局部变量 |
+| **`&lt;if&gt;`** | 条件判断 | if |
+| **`&lt;where&gt;`** | ★ 智能 WHERE（自动去除开头多余的 AND/OR） | — |
+| **`&lt;set&gt;`** | ★ 智能 SET（自动去除末尾多余的逗号） | — |
+| **`&lt;trim&gt;`** | 通用前后缀处理（where/set 的底层） | — |
+| **`&lt;choose&gt;/&lt;when&gt;/&lt;otherwise&gt;`** | 多选一 | switch-case-default |
+| **`&lt;foreach&gt;`** | ★ 集合遍历（IN、批量插入） | for |
+| **`&lt;sql&gt;` + `&lt;include&gt;`** | SQL 片段复用 | 函数/宏 |
+| **`&lt;bind&gt;`** | 创建变量（OGNL 表达式） | 局部变量 |
 
-### 1.1 `<if>` 与 `<where>` ★★★★★
+### 1.1 `&lt;if&gt;` 与 `&lt;where&gt;` ★★★★★
 
 ```xml
 <!-- ─── ❌ 不用 where 标签的坑 ─── -->
@@ -90,7 +90,7 @@ updated: 2026-09-07
      prefixOverrides="AND |OR " → ★ 去掉开头的 AND 或 OR（注意 AND 后面有空格） -->
 ```
 
-**`<if>` 的 test 表达式（OGNL）：**
+**`&lt;if&gt;` 的 test 表达式（OGNL）：**
 
 ```xml
 <!-- ─── 基本判断 ─── -->
@@ -138,7 +138,7 @@ List<User> select(Long[] ids);           → foreach collection="array"
 List<User> select(@Param("ids") List<Long> ids);  → foreach collection="ids"  ★ 推荐
 ```
 
-### 1.2 `<set>` 与动态更新 ★★★★★
+### 1.2 `&lt;set&gt;` 与动态更新 ★★★★★
 
 ```xml
 <!-- ─── ❌ 手写 SET 的坑 ─── -->
@@ -257,7 +257,7 @@ public class UserServiceImpl {
 <!-- 方式 4：REPLACE INTO（★ 慎用！会先 DELETE 再 INSERT，触发外键级联删除、自增 ID 变化） -->
 ```
 
-### 1.3 `<choose>` / `<when>` / `<otherwise>`
+### 1.3 `&lt;choose&gt;` / `&lt;when&gt;` / `&lt;otherwise&gt;`
 
 ```xml
 <!-- 相当于 switch-case-default：★ 只会命中一个分支 -->
@@ -293,7 +293,7 @@ public class UserServiceImpl {
 <!-- choose：★ 只拼接第一个满足的（互斥关系） -->
 ```
 
-### 1.4 `<foreach>` ★★★★★（最常用）
+### 1.4 `&lt;foreach&gt;` ★★★★★（最常用）
 
 ```xml
 <!-- ─── 属性说明 ─── -->
@@ -454,7 +454,7 @@ IntStream.iterate(0, i -> i + 500).limit((ids.size() + 499) / 500)
     .forEach(userMapper::selectByIds);
 ```
 
-### 1.5 `<sql>` 与 `<include>`（SQL 片段复用）
+### 1.5 `&lt;sql&gt;` 与 `&lt;include&gt;`（SQL 片段复用）
 
 ```xml
 <!-- ─── 定义片段 ─── -->
@@ -519,7 +519,7 @@ IntStream.iterate(0, i -> i + 500).limit((ids.size() + 499) / 500)
 >
 > **用 `<sql id="Base_Column_List">` 统一维护列清单**，改动时只改一处。
 
-### 1.6 `<trim>` 与 `<bind>`
+### 1.6 `&lt;trim&gt;` 与 `&lt;bind&gt;`
 
 ```xml
 <!-- ─── <trim>：万能的前后缀处理（where/set 都是它的特例）─── -->
@@ -865,10 +865,10 @@ public class Dept {
 > 2. **开启延迟加载**（`lazyLoadingEnabled=true` + `fetchType="lazy"`），不用 dept 就不查。
 > 3. **手动批量查询 + Map 组装**（★ 最可控）：
 >    ```java
->    List<User> users = userMapper.selectAll();
->    Set<Long> deptIds = users.stream().map(User::getDeptId).filter(Objects::nonNull)
+>    List&lt;User&gt; users = userMapper.selectAll();
+>    Set&lt;Long&gt; deptIds = users.stream().map(User::getDeptId).filter(Objects::nonNull)
 >                             .collect(Collectors.toSet());
->    Map<Long, Dept> deptMap = deptMapper.selectByIds(deptIds).stream()
+>    Map&lt;Long, Dept&gt; deptMap = deptMapper.selectByIds(deptIds).stream()
 >            .collect(Collectors.toMap(Dept::getId, Function.identity()));
 >    users.forEach(u -> u.setDept(deptMap.get(u.getDeptId())));    // ★ 共 2 次 SQL
 >    ```
@@ -909,8 +909,8 @@ public class Dept {
      ★ MyBatis 根据 <id> 去重合并为一个 User 对象，roles 集合有 3 个元素 -->
 ```
 
-> 【★ 关键】**没有 `<id>` 会导致重复对象和性能问题**：
-> MyBatis 用 `<id>` 列的值判断「是否是同一个对象」。如果不配 `<id>`（全用 `<result>`），MyBatis 会比较**所有列的值**来判断，性能差且可能产生重复对象。
+> 【★ 关键】**没有 `&lt;id&gt;` 会导致重复对象和性能问题**：
+> MyBatis 用 `&lt;id&gt;` 列的值判断「是否是同一个对象」。如果不配 `&lt;id&gt;`（全用 `&lt;result&gt;`），MyBatis 会比较**所有列的值**来判断，性能差且可能产生重复对象。
 
 #### 方式 2：嵌套查询
 
@@ -1333,22 +1333,22 @@ public void processAll() {
 
 | # | 坑 | 现象 | 解决 |
 | --- | --- | --- | --- |
-| 1 | 不用 `<where>` 手写 WHERE + if | `WHERE AND xxx` 语法错误 | 用 `<where>` 标签 |
-| 2 | 不用 `<set>` 手写 SET + if | `SET , xxx` 或 `SET WHERE` 语法错误 | 用 `<set>` 标签 |
+| 1 | 不用 `&lt;where&gt;` 手写 WHERE + if | `WHERE AND xxx` 语法错误 | 用 `&lt;where&gt;` 标签 |
+| 2 | 不用 `&lt;set&gt;` 手写 SET + if | `SET , xxx` 或 `SET WHERE` 语法错误 | 用 `&lt;set&gt;` 标签 |
 | 3 | `<if test="type == 'A'">` | 条件恒不成立 | 单引号包 test，双引号包字符串：`test='type == "A"'` |
 | 4 | 字符串只判 null 不判空串 | `LIKE '%%'` 全表扫描 | `name != null and name != ''` |
 | 5 | 集合判空用 `size` 而非 `size()` | OGNL 报错 | `list != null and list.size() > 0` |
 | 6 | 数组判空用 `size()` | 报错 | 数组用 `arr.length` |
 | 7 | foreach 未加 @Param | `Parameter 'ids' not found` | 加 `@Param("ids")`，或用 `list`/`array` |
 | 8 | Set 类型参数 | foreach 找不到 | Set 不支持，转 List |
-| 9 | foreach 内嵌 `<if>` 跳过元素 | 多余逗号，SQL 语法错误 | Java 层先过滤 |
+| 9 | foreach 内嵌 `&lt;if&gt;` 跳过元素 | 多余逗号，SQL 语法错误 | Java 层先过滤 |
 | 10 | IN 的元素过多 | SQL 过长、解析慢、Oracle 超 1000 限制 | ★ 分批（500~1000） |
 | 11 | 批量插入单条 SQL 过大 | `PacketTooBigException` | 分批 + 调 `max_allowed_packet` |
 | 12 | 未开 `rewriteBatchedStatements` | 批量插入性能提升不明显 | JDBC URL 加该参数 |
 | 13 | `SELECT *` | 无法用覆盖索引、传输浪费 | 用 `<sql id="Base_Column_List">` |
 | 14 | `<` 未转义 | XML 解析错误 | `&lt;` 或 `<![CDATA[ ]]>` |
 | 15 | CDATA 内用动态标签 | 标签被当文本输出 | CDATA 外写标签，内写纯 SQL |
-| 16 | resultMap 缺少 `<id>` | 嵌套映射产生重复对象、性能差 | ★ 主键必须用 `<id>` |
+| 16 | resultMap 缺少 `&lt;id&gt;` | 嵌套映射产生重复对象、性能差 | ★ 主键必须用 `&lt;id&gt;` |
 | 17 | `collection` 用 `javaType` 而非 `ofType` | 映射错误 | `ofType` 指定元素类型 |
 | 18 | JOIN 后同名列未加别名 | 值互相覆盖 | 用 `AS u_id`、`AS d_id` 区分 |
 | 19 | 嵌套查询导致 N+1 | 列表查询性能极差 | 改用 JOIN，或批量查询 + Map 组装 |
@@ -1357,7 +1357,7 @@ public void processAll() {
 | 22 | `RowBounds` 做分页 | 内存分页，大数据量 OOM | PageHelper 或 SQL LIMIT |
 | 23 | TypeHandler 只在 resultMap 配了 | WHERE 条件中的加密字段查询失效 | 参数处也要指定 typeHandler |
 | 24 | 乐观锁更新未检查影响行数 | 并发覆盖无感知 | `if (rows == 0) throw` |
-| 25 | `${}` 用于排序未白名单 | **SQL 注入** | 列名/方向都用白名单映射 |
+| 25 | `$&#123;&#125;` 用于排序未白名单 | **SQL 注入** | 列名/方向都用白名单映射 |
 | 26 | 动态表名未校验 | SQL 注入 | 正则/白名单校验 |
 | 27 | `selectOne` 返回多条 | `TooManyResultsException` | 加 LIMIT 1 或用 selectList |
 | 28 | 多参数未加 @Param 用 arg0 | 可读性差、易错 | ★ 一律加 `@Param` |

@@ -25,19 +25,19 @@ updated: 2026-04-04
 
 实现代码：
 
-    import React, { useState } from 'react';
+    import React, &#123; useState &#125; from 'react';
     
-    function Component() {
+    function Component() &#123;
       const initCount = 0;
       const [count, setCount] = useState(initCount);
     
-      return <div>
-        {count}
-        <button onClick={() => {setCount(initCount)}}>init</button>
-        <button onClick={() => {setCount(count+1)}}>+1</button>
-        <button onClick={() => {setCount(count-1)}}>-1</button>
+      return &lt;div&gt;
+        &#123;count&#125;
+        <button onClick=&#123;() => &#123;setCount(initCount)&#125;&#125;>init</button>
+        <button onClick=&#123;() => &#123;setCount(count+1)&#125;&#125;>+1</button>
+        <button onClick=&#123;() => &#123;setCount(count-1)&#125;&#125;>-1</button>
       </div>
-    }
+    &#125;
     
     export default Component;
 
@@ -49,9 +49,9 @@ updated: 2026-04-04
 
 还是基于上面那个示例，假设现在新增1个按钮，点击该按钮后执行以下代码：  
 
-    for(let i=0; i<3; i++){
+    for(let i=0; i<3; i++)&#123;
       setCount(count+1);
-    }
+    &#125;
 
 通过for循环，执行了3次setCount(count+1)，那么你觉得count会 +3 吗？  
 答案是：肯定不会
@@ -68,9 +68,9 @@ updated: 2026-04-04
 你肯定第一时间想到的是这样解决方式：  
 
     let num = count;
-    for(let i=0; i<3; i++){
+    for(let i=0; i<3; i++)&#123;
       num +=1;
-    }
+    &#125;
     setCount(num);
 
 这样做肯定没问题，只不过有更简便、性能更高的方式。  
@@ -79,14 +79,14 @@ updated: 2026-04-04
 
 把代码修改为：  
 
-    for(let i=0; i<3; i++){
-      setCount(prevData => {return prevData+1});
+    for(let i=0; i<3; i++)&#123;
+      setCount(prevData => &#123;return prevData+1&#125;);
       //可以简化为 setCount(prevData => prevData+1);
-    }
+    &#125;
 
 代码分析：  
 1、prevData为我们定义的一个形参，指当前count应该的值；  
-2、{return prevData+1} 中，将 prevData+1，并将运算结果return出去。当然也非常推荐使用更加简化的写法：setCount(prevData => prevData+1)；  
+2、&#123;return prevData+1&#125; 中，将 prevData+1，并将运算结果return出去。当然也非常推荐使用更加简化的写法：setCount(prevData => prevData+1)；  
 3、最终将prevData赋值给count；
 
 补充说明：你可以将prevData修改成任意你喜欢的变量名称，比如prev，只需要确保和后面return里的一致即可。  
@@ -98,13 +98,13 @@ updated: 2026-04-04
 
 例如：  
 
-    const [person, setPerson] = useState({name:'puxiao',age:34});
+    const [person, setPerson] = useState(对象(name属性));
 
 若想将age的值修改为18，该怎么写？
 
 如果你有类组件编程经验，你肯定第一时间想是这样的：
 
-    setPerson({age:18});
+    setPerson(对象(age属性));
 
 在类组件中，setState是执行的是“异步对比累加赋值”，何为“对比”？  就是先对比之前数据属性中是否有age，如果有则修改age值，同时不会影响到其他属性的值。我猜测react是使用ES6中新增加的Object.assign()这个函数来实现这一步的。  
 
@@ -112,24 +112,24 @@ updated: 2026-04-04
 
 请看实际执行的结果：  
 
-    console.log(person);//{name:'puxiao',age:34}
-    setPerson({age:18});
-    console.log(person);//{age:18}
+    console.log(person);//对象(name属性)
+    setPerson(对象(age属性));
+    console.log(person);//对象(age属性)
 
-没错，虽然只是希望修改age的值，但是由于是“直接赋值”，导致{age:18}替换了整个{name:'puxiao',age:34}  
+没错，虽然只是希望修改age的值，但是由于是“直接赋值”，导致对象(age属性)替换了整个对象(name属性)  
 
 
 ##### 正确的做法：  
 
 我们需要先将person拷贝一份，修改之后再进行赋值。
 
-    let newData = {...person};
+    let newData = &#123;...person&#125;;
     newData.age = 18;
     setPerson(newData);
 
 以上代码还有一种简写形式：  
 
-    setPerson({...person,age:18}); //这种简写是解构赋值带来的，并不是React提供的
+    setPerson(&#123;...person,age:18&#125;); //这种简写是解构赋值带来的，并不是React提供的
 
 代码分析：  
 1、先通过...person，将原有person做一次解构，得到一份复制品(浅拷贝)；  
@@ -138,26 +138,26 @@ updated: 2026-04-04
 
 完整示例：  
 
-    import React, { useState } from 'react';
+    import React, &#123; useState &#125; from 'react';
 
-    function Component() {
+    function Component() &#123;
 
-      const [person, setPerson] = useState({name:'puxiao',age:34});
+      const [person, setPerson] = useState(对象(name属性));
 
-      const nameChangeHandler = (eve) => {
-        setPerson({...person,name:eve.target.value});
-      }
+      const nameChangeHandler = (eve) => &#123;
+        setPerson(&#123;...person,name:eve.target.value&#125;);
+      &#125;
 
-      const ageChangeHandler = (eve) => {
-        setPerson({...person,age:eve.target.value});
-      }
+      const ageChangeHandler = (eve) => &#123;
+        setPerson(&#123;...person,age:eve.target.value&#125;);
+      &#125;
 
-      return <div>
-        <input type='text' value={person.name} onChange={nameChangeHandler} />
-        <input type='number' value={person.age} onChange={ageChangeHandler} />
-        {JSON.stringify(person)}
+      return &lt;div&gt;
+        <input type='text' value=&#123;person.name&#125; onChange=&#123;nameChangeHandler&#125; />
+        <input type='number' value=&#123;person.age&#125; onChange=&#123;ageChangeHandler&#125; />
+        &#123;JSON.stringify(person)&#125;
       </div>
-    }
+    &#125;
     export default Component;
 
 
@@ -167,63 +167,63 @@ updated: 2026-04-04
 
 这里举一个简单的小例子，以下代码实现了一个类似学习计划列表的功能组件。  
 
-    import React, { useState } from 'react';
+    import React, &#123; useState &#125; from 'react';
 
-    function Component() {
+    function Component() &#123;
 
       const [str, setStr] = useState('');
       const [arr, setArr] = useState(['react', 'Koa']);
 
-      const inputChangeHandler = (eve) => {
+      const inputChangeHandler = (eve) => &#123;
         setStr(eve.target.value);
-      }
+      &#125;
 
-      const addHeadHandler = (eve) => {
+      const addHeadHandler = (eve) => &#123;
         setArr([str,...arr]);//添加至头
         setStr('');
-      }
+      &#125;
 
-      const addEndHandler = (eve) => {
+      const addEndHandler = (eve) => &#123;
         setArr([...arr, str]);//添加至尾
         setStr('');
-      }
+      &#125;
 
-      const delHeadHandler = (eve) => {
+      const delHeadHandler = (eve) => &#123;
         let new_arr = [...arr];
         new_arr.shift();//从头删除1项目
         setArr(new_arr);
-      }
+      &#125;
 
-      const delEndHandler = (eve) => {
+      const delEndHandler = (eve) => &#123;
         let new_arr = [...arr];
         new_arr.pop();//从尾删除1项目
         setArr(new_arr);
-      }
+      &#125;
 
-      const delByIndex = (eve) => {
+      const delByIndex = (eve) => &#123;
         let index = eve.target.attributes.index.value;
         let new_arr = [...arr];
         new_arr.splice(index,1);//删除当前项
         setArr(new_arr);
-      }
+      &#125;
 
-      return <div>
-        <input type='text' value={str} onChange={inputChangeHandler} />
-        <button onClick={addHeadHandler} >添加至头</button>
-        <button onClick={addEndHandler} >添加至尾</button>
-        <button onClick={delHeadHandler} >从头删除1项</button>
-        <button onClick={delEndHandler} >从尾删除1项</button>
-        <ul>
-            {arr.map(
-                (item, index) => {
-                    return <li key={`item${index}`}>学习{index} -  {item}
-                        <span index={index} onClick={delByIndex} style={{ cursor: 'pointer' }}>删除</span>
+      return &lt;div&gt;
+        <input type='text' value=&#123;str&#125; onChange=&#123;inputChangeHandler&#125; />
+        <button onClick=&#123;addHeadHandler&#125; >添加至头</button>
+        <button onClick=&#123;addEndHandler&#125; >添加至尾</button>
+        <button onClick=&#123;delHeadHandler&#125; >从头删除1项</button>
+        <button onClick=&#123;delEndHandler&#125; >从尾删除1项</button>
+        &lt;ul&gt;
+            &#123;arr.map(
+                (item, index) => &#123;
+                    return <li key=&#123;`item$&#123;index&#125;`&#125;>学习&#123;index&#125; -  &#123;item&#125;
+                        <span index=&#123;index&#125; onClick=&#123;delByIndex&#125; style=&#123;&#123; cursor: 'pointer' &#125;&#125;>删除</span>
                     </li>
-                }
-            )}
+                &#125;
+            )&#125;
         </ul>
       </div>
-    }
+    &#125;
 
     export default Component;
 
@@ -240,12 +240,12 @@ updated: 2026-04-04
     let str='18';
     Object.is(str,18); //str为String类型，18为Number类型，因此结果为false
     
-    let obj={name:'a'};
-    Object.is(obj,{name:'a'}); //false
-    //虽然obj和{name:'a'}字面上相同，但是obj==={name:'a'}为false，并且在Object.is()运算下认为两者不是同一个对象
+    let obj=对象(name属性);
+    Object.is(obj,对象(name属性)); //false
+    //虽然obj和对象(name属性)字面上相同，但是obj===对象(name属性)为false，并且在Object.is()运算下认为两者不是同一个对象
     //事实上他们确实不是同一个对象，他们各自占用了一份内存
 
-    let obj={name:'a'};
+    let obj=对象(name属性);
     let a=obj;
     let b=obj;
     Object.is(a,b); //因为a和b都指向obj，因此结果为true

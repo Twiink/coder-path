@@ -917,7 +917,7 @@ static String classify(Integer i) {
 | 等值判断且分支 ≥ 4 个 | switch（可读性好，可能有跳转表优化） |
 | 枚举映射 | switch（穷尽性检查是巨大优势） |
 | 类型分发 | JDK 21 switch 模式匹配 |
-| 分支极多（> 10）且是等值 | 考虑用 `Map<K, Handler>` 策略模式替代 |
+| 分支极多（> 10）且是等值 | 考虑用 `Map&lt;K, Handler&gt;` 策略模式替代 |
 
 ## 11. for 循环
 
@@ -1091,7 +1091,7 @@ while (true) {
 | 循环次数已知 | `for` |
 | 循环次数未知（依赖条件） | `while` |
 | 至少要执行一次 | `do-while` |
-| 无限循环 + 退出条件 | `while(true) { if(...) break; }` |
+| 无限循环 + 退出条件 | `while(true) &#123; if(...) break; &#125;` |
 
 ## 13. break、continue、return 与标签
 

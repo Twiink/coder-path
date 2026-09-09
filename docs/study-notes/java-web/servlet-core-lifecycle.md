@@ -1458,7 +1458,7 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 | Servlet 概念 | Spring MVC 对应 |
 | --- | --- |
 | `HttpServlet` | **`DispatcherServlet`**（唯一的 Servlet） |
-| `web.xml` 的 `<servlet-mapping>` | `DispatcherServletAutoConfiguration`（自动注册，映射 `/`） |
+| `web.xml` 的 `&lt;servlet-mapping&gt;` | `DispatcherServletAutoConfiguration`（自动注册，映射 `/`） |
 | `doGet`/`doPost` | `@GetMapping`/`@PostMapping` 标注的 Controller 方法 |
 | `request.getParameter()` | `@RequestParam` |
 | `request.getInputStream()` + JSON 解析 | `@RequestBody`（`HttpMessageConverter`） |

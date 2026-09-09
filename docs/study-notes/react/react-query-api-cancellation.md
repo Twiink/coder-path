@@ -446,9 +446,9 @@ onMounted(() => {
 
 | 方案 | 优点 | 缺点 | 适用场景 |
 |------|------|------|---------|
-| **TanStack Query** | • 功能最强大<br>• 和 React Query 一致<br>• 官方维护 | • 需要学习新 API<br>• 包体积稍大 | 中大型项目 |
-| **VueUse** | • 轻量级<br>• 开箱即用<br>• 符合 Vue 习惯 | • 缓存功能弱<br>• 无跨组件共享 | 简单数据获取 |
-| **Pinia + Composable** | • 完全可控<br>• 符合 Vue 传统 | • 需要手写大量逻辑<br>• 维护成本高 | 需要深度定制 |
+| **TanStack Query** | • 功能最强大&lt;br&gt;• 和 React Query 一致&lt;br&gt;• 官方维护 | • 需要学习新 API&lt;br&gt;• 包体积稍大 | 中大型项目 |
+| **VueUse** | • 轻量级&lt;br&gt;• 开箱即用&lt;br&gt;• 符合 Vue 习惯 | • 缓存功能弱&lt;br&gt;• 无跨组件共享 | 简单数据获取 |
+| **Pinia + Composable** | • 完全可控&lt;br&gt;• 符合 Vue 传统 | • 需要手写大量逻辑&lt;br&gt;• 维护成本高 | 需要深度定制 |
 
 ---
 

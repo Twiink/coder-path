@@ -8,11 +8,14 @@ Jest 是 JavaScript 测试框架的事实标准:零配置、开箱即用(内置�
 
 **上手**:`npm i -D jest` + package.json 的 `"test": "jest"`;测试文件约定:`xxx.test.js`/`xxx.spec.js` 或 `__tests__/` 目录(默认自动发现)。**第一个测试的结构(背下来)**:
 
-`test('描述行为', () => { 准备 → 执行 → 断言 })`——it 是 test 别名,**describe('分组', ...) 组织相关用例**;运行:`npm test`、`jest --watch`(监听模式:开发时实时跑——**a 全跑/f 只跑失败/p 按文件名/t 按测试名过滤**)。**配置要点(jest.config.js)**:`testEnvironment: 'node'`(默认)/`'jsdom'`(测 DOM/组件要浏览器环境);`testMatch`(文件匹配);`moduleNameMapper`(路径别名 @/);`setupFilesAfterEnv`(每个测试文件跑前加载扩展:testing-library/jest-dom);`transform`(TS 用 ts-jest 或 babel;新项目也可 jest.config.ts 写配置);**TS 项目**:ts-jest(慢但带类型)或 babel-jest + 单独类型检查;**提醒**:Vite 项目用 Vitest 配置更顺(见 [Vite](/learning-paths/frontend/vite)),Jest 心智完全复用。
+`test('描述行为', () => &#123; 准备 → 执行 → 断言 &#125;)`——it 是 test 别名,**describe('分组', ...) 组织相关用例**;运行:`npm test`、`jest --watch`(监听模式:开发时实时跑——**a 全跑/f 只跑失败/p 按文件名/t 按测试名过滤**)。
+**配置要点(jest.config.js)**:`testEnvironment: 'node'`(默认)/`'jsdom'`(测 DOM/组件要浏览器环境);`testMatch`(文件匹配);`moduleNameMapper`(路径别名 @/);`setupFilesAfterEnv`(每个测试文件跑前加载扩展:testing-library/jest-dom);`transform`(TS 用 ts-jest 或 babel;新项目也可 jest.config.ts 写配置);**TS 项目**:ts-jest(慢但带类型)或 babel-jest + 单独类型检查;**提醒**:Vite 项目用 Vitest 配置更顺(见 [Vite](/learning-paths/frontend/vite)),Jest 心智完全复用。
 
 ## 第二站:匹配器——断言的词汇表
 
-**基础三兄弟(最高频)**:`toBe`(严格相等 ===——**原始值用它**)、`toEqual`(递归深比较——**对象/数组用它,别用 toBe**)、`toBeTruthy/toBeFalsy`(真假值);`toBeNull/toBeUndefined`。**数值**:`toBeGreaterThan/toBeLessThan`、**`toBeCloseTo`(浮点比较:0.1+0.2 的精度问题——**比浮点别用 toBe**)**。**字符串**:`toMatch(/正则/)`。**数组与对象**:`toContain`(数组含元素)、**`toMatchObject`(对象部分匹配:只断言关心的字段——接口返回断言神器,不怕多余字段)**、`toHaveProperty`。**异常**:**`expect(() => fn()).toThrow('错误信息')`——要点:必须传函数,不能 `expect(fn())`(那会在断言前就执行抛错)**;`not` 取反(`expect(x).not.toBeNull()`)。**心法:断言"行为"而不是"实现细节"**——测返回值/抛错/调用参数,别测"调用了第几个内部函数"(重构会碎)。
+**基础三兄弟(最高频)**:`toBe`(严格相等 ===——**原始值用它**)、`toEqual`(递归深比较——**对象/数组用它,别用 toBe**)、`toBeTruthy/toBeFalsy`(真假值);`toBeNull/toBeUndefined`。**数值**:`toBeGreaterThan/toBeLessThan`、**`toBeCloseTo`(浮点比较:0.1+0.2 的精度问题——**比浮点别用 toBe**)**。
+**字符串**:`toMatch(/正则/)`。**数组与对象**:`toContain`(数组含元素)、**`toMatchObject`(对象部分匹配:只断言关心的字段——接口返回断言神器,不怕多余字段)**、`toHaveProperty`。**异常**:**`expect(() => fn()).toThrow('错误信息')`——要点:必须传函数,不能 `expect(fn())`(那会在断言前就执行抛错)**;`not` 取反(`expect(x).not.toBeNull()`)。
+**心法:断言"行为"而不是"实现细节"**——测返回值/抛错/调用参数,别测"调用了第几个内部函数"(重构会碎)。
 
 ## 第三站:生命周期与测试组织
 
@@ -20,11 +23,16 @@ Jest 是 JavaScript 测试框架的事实标准:零配置、开箱即用(内置�
 
 ## 第四站:异步测试
 
-**三种写法(按时代)**:done 回调(老:手动调用 done()/done.fail()——忘调用会超时)、返回 Promise(Jest 自动等它 resolve——**reject 会算失败**)、**async/await(现代首选,最清晰)**。**异步断言利器**:`await expect(promise).resolves.toBe(...)` / `.rejects.toThrow(...)`——**比 try/catch 包裹干净得多**;测并发 `Promise.all`。**假定时器(测时间逻辑的关键)**:`jest.useFakeTimers()` → `jest.advanceTimersByTime(5000)`(快进 5 秒)/`runAllTimers`(跑完所有)→ **测 setTimeout/防抖/轮询/超时重试不用真等**;**记得 afterEach 里 `useRealTimers()` 还原**,否则影响其他测试;**注意**:假定时器下 Promise 微任务要 `await Promise.resolve()` 冲刷。**超时**:慢操作 `jest.setTimeout(10000)` 调大(默认 5s)。
+**三种写法(按时代)**:done 回调(老:手动调用 done()/done.fail()——忘调用会超时)、返回 Promise(Jest 自动等它 resolve——**reject 会算失败**)、**async/await(现代首选,最清晰)**。**异步断言利器**:`await expect(promise).resolves.toBe(...)` / `.rejects.toThrow(...)`——**比 try/catch 包裹干净得多**;测并发 `Promise.all`。
+**假定时器(测时间逻辑的关键)**:`jest.useFakeTimers()` → `jest.advanceTimersByTime(5000)`(快进 5 秒)/`runAllTimers`(跑完所有)→ **测 setTimeout/防抖/轮询/超时重试不用真等**;**记得 afterEach 里 `useRealTimers()` 还原**,否则影响其他测试;**注意**:假定时器下 Promise 微任务要 `await Promise.resolve()` 冲刷。
+**超时**:慢操作 `jest.setTimeout(10000)` 调大(默认 5s)。
 
 ## 第五站:Mock——单元测试的替身术
 
-**单元测试只测"自己的代码"**:网络请求、数据库、第三方库、时间——全是替身。**jest.fn()(函数替身)**:`mockReturnValue(固定返回)/mockReturnValueOnce(单次)/mockResolvedValue(异步成功)/mockRejectedValue(异步失败)/mockImplementation(自定义实现)`——**用法:把 mock 函数传给被测函数,断言"它被怎么调用了"**。**调用断言(单元测试最核心的断言)**:`expect(mockFn).toHaveBeenCalled()`/`toHaveBeenCalledTimes(n)`/`toHaveBeenCalledWith(参数)`/`toHaveBeenLastCalledWith`——**"依赖被正确调用(参数对、次数对)"比"返回了什么"更能锁定行为**;原始记录:`mock.calls`/`mock.results`。**jest.spyOn(监听真实对象方法)**:不换实现只记录调用(或配 mockImplementation)——测"方法有没有被调";**清理三兄弟(必懂,防跨测试污染)**:mockClear(清调用记录)/mockReset(记录+实现一起清)/mockRestore(还原被 spyOn 的原始实现)——**beforeEach 统一清 mock**。**模块 Mock(第三方依赖的标准姿势)**:`jest.mock('axios')` 整个模块自动替换成 mock(再配 mockResolvedValue 返回假响应);部分 mock:`requireActual` 拿真实模块再覆盖个别导出;**__mocks__ 目录**(手动 mock,复用);**进阶推荐 MSW(Mock Service Worker)**:在网络层拦截(不 mock 模块)——集成测试更接近真实(见 [React](/learning-paths/frontend/react) 测试章)。
+**单元测试只测"自己的代码"**:网络请求、数据库、第三方库、时间——全是替身。**jest.fn()(函数替身)**:`mockReturnValue(固定返回)/mockReturnValueOnce(单次)/mockResolvedValue(异步成功)/mockRejectedValue(异步失败)/mockImplementation(自定义实现)`——**用法:把 mock 函数传给被测函数,断言"它被怎么调用了"**。
+**调用断言(单元测试最核心的断言)**:`expect(mockFn).toHaveBeenCalled()`/`toHaveBeenCalledTimes(n)`/`toHaveBeenCalledWith(参数)`/`toHaveBeenLastCalledWith`——**"依赖被正确调用(参数对、次数对)"比"返回了什么"更能锁定行为**;原始记录:`mock.calls`/`mock.results`。
+**jest.spyOn(监听真实对象方法)**:不换实现只记录调用(或配 mockImplementation)——测"方法有没有被调";**清理三兄弟(必懂,防跨测试污染)**:mockClear(清调用记录)/mockReset(记录+实现一起清)/mockRestore(还原被 spyOn 的原始实现)——**beforeEach 统一清 mock**。
+**模块 Mock(第三方依赖的标准姿势)**:`jest.mock('axios')` 整个模块自动替换成 mock(再配 mockResolvedValue 返回假响应);部分 mock:`requireActual` 拿真实模块再覆盖个别导出;**__mocks__ 目录**(手动 mock,复用);**进阶推荐 MSW(Mock Service Worker)**:在网络层拦截(不 mock 模块)——集成测试更接近真实(见 [React](/learning-paths/frontend/react) 测试章)。
 
 ## 第六站:快照测试——变更提醒器
 

@@ -107,12 +107,12 @@ public interface Map.Entry<K, V> { }
 
 | 字母 | 含义 | 示例 |
 | --- | --- | --- |
-| `T` | Type（类型） | `Result<T>` |
-| `E` | Element（集合元素） | `List<E>` |
-| `K` | Key（键） | `Map<K,V>` |
-| `V` | Value（值） | `Map<K,V>` |
-| `R` | Result / Return | `Function<T,R>` |
-| `N` | Number | `Comparable<N>` |
+| `T` | Type（类型） | `Result&lt;T&gt;` |
+| `E` | Element（集合元素） | `List&lt;E&gt;` |
+| `K` | Key（键） | `Map&lt;K,V&gt;` |
+| `V` | Value（值） | `Map&lt;K,V&gt;` |
+| `R` | Result / Return | `Function&lt;T,R&gt;` |
+| `N` | Number | `Comparable&lt;N&gt;` |
 | `S`, `U`, `V` | 第 2、3、4 个类型 | `<S extends T>` |
 
 **泛型类的限制：**
@@ -217,7 +217,7 @@ List<String> empty = Collections.<String>emptyList();   // 常见于 JDK 8 前�
 
 | | 泛型类 | 泛型方法 |
 | --- | --- | --- |
-| 类型参数位置 | 类名后 `class Foo<T>` | 返回值前 `public <T> T bar()` |
+| 类型参数位置 | 类名后 `class Foo&lt;T&gt;` | 返回值前 `public &lt;T&gt; T bar()` |
 | 作用范围 | 整个类（除静态成员） | 仅该方法 |
 | 确定时机 | **实例化时**确定 | **调用时**确定（每次调用可不同） |
 | 静态成员 | ❌ 不能用类的 T | ✅ 静态方法可以有自己的 T |
@@ -300,7 +300,7 @@ numList.add(3.14);                       // 加入 Double（对 List<Number> 合
 Integer i = intList.get(1);              // 但 intList 里现在是 Double → ClassCastException！
 ```
 
-> 【面试】这叫**泛型的不变性（invariance）**。Java 泛型是「不变的」，`List<Integer>` 与 `List<Number>` 没有继承关系。这是为了类型安全（避免上面的「堆污染 heap pollution」）。
+> 【面试】这叫**泛型的不变性（invariance）**。Java 泛型是「不变的」，`List&lt;Integer&gt;` 与 `List&lt;Number&gt;` 没有继承关系。这是为了类型安全（避免上面的「堆污染 heap pollution」）。
 >
 > 对比：数组是**协变的**（`Integer[]` 是 `Number[]` 的子类型），但这带来了运行时错误：
 > ```java
@@ -332,12 +332,12 @@ Optional<?> opt = ...;
 Map<?, ?> map = ...;
 ```
 
-**`List<?>` 与 `List<Object>` 的区别（易混）：**
+**`List<?>` 与 `List&lt;Object&gt;` 的区别（易混）：**
 
-| | `List<?>` | `List<Object>` |
+| | `List<?>` | `List&lt;Object&gt;` |
 | --- | --- | --- |
 | 含义 | 某种**未知但确定**的类型 | 明确是 Object 类型 |
-| 能接受 `List<String>` | ✅ | ❌（`List<String>` 不是 `List<Object>` 的子类型） |
+| 能接受 `List&lt;String&gt;` | ✅ | ❌（`List&lt;String&gt;` 不是 `List&lt;Object&gt;` 的子类型） |
 | 能 add 元素 | ❌（除 null） | ✅（任何对象） |
 | get 的类型 | `Object` | `Object` |
 | 用途 | 只读操作、类型无关的方法 | 需要存任意类型 |
@@ -401,7 +401,7 @@ Comparator<? super User> comparator = ...;
 | --- | --- | --- | --- |
 | **只读取**集合（集合是数据的生产者） | `<? extends T>` | 读取时能确定上界类型，安全 | **P**roducer **E**xtends |
 | **只写入**集合（集合是数据的消费者） | `<? super T>` | 写入 T 及其子类都安全 | **C**onsumer **S**uper |
-| 既读又写 | `<T>`（精确类型） | 通配符无法同时满足 | — |
+| 既读又写 | `&lt;T&gt;`（精确类型） | 通配符无法同时满足 | — |
 
 ```java
 // JDK 源码中的 PECS 典范：Collections.copy
@@ -438,11 +438,11 @@ public static <T> List<T> filter(List<? extends T> source,       // 读 source �
 
 | 写法 | 含义 | 能读 | 能写 | 用途 |
 | --- | --- | --- | --- | --- |
-| `List<T>` | 精确类型 T | ✅ T | ✅ T | 既读又写 |
+| `List&lt;T&gt;` | 精确类型 T | ✅ T | ✅ T | 既读又写 |
 | `List<?>` | 未知类型 | 只能当 Object | ❌（除 null） | 完全类型无关的操作 |
 | `List<? extends T>` | T 或其子类 | ✅ T | ❌（除 null） | **只读**（生产者） |
 | `List<? super T>` | T 或其父类 | 只能当 Object | ✅ T 及其子类 | **只写**（消费者） |
-| `List<Object>` | 明确 Object | ✅ Object | ✅ 任意对象 | 存异构数据 |
+| `List&lt;Object&gt;` | 明确 Object | ✅ Object | ✅ 任意对象 | 存异构数据 |
 | `List`（原始类型） | 无泛型 | ✅ Object | ✅ 任意 | ❌ **禁用**，丢失类型检查 |
 
 #### 3.6 类型边界（Bounded Type Parameter）
@@ -578,7 +578,7 @@ newList.add("y");
 // 擦除后两者字节码相同，可以互相调用（老库和新代码无缝互操作）
 ```
 
-> 【对比】C# 的泛型是**运行时具化（reification）**，`List<int>` 和 `List<string>` 在 CLR 中是不同类型，能保留泛型信息、支持 `new T()`、性能更好。Java 选择了擦除，换来兼容性但牺牲了很多能力。
+> 【对比】C# 的泛型是**运行时具化（reification）**，`List&lt;int&gt;` 和 `List&lt;string&gt;` 在 CLR 中是不同类型，能保留泛型信息、支持 `new T()`、性能更好。Java 选择了擦除，换来兼容性但牺牲了很多能力。
 
 #### 4.3 类型擦除带来的限制（面试高频）
 
@@ -1583,7 +1583,7 @@ public @interface Retry {
 | 属性名 | 不能是关键字，通常小驼峰 |
 | 不能有参数 | 注解方法不能有参数 |
 | 不能有 throws | 注解方法不能声明异常 |
-| 数组默认值 | `default {}` 表示空数组 |
+| 数组默认值 | `default &#123;&#125;` 表示空数组 |
 
 ```java
 // 使用示例
@@ -1672,10 +1672,10 @@ public class AnnotationReader {
 
 > 【坑】**反射获取注解要过滤合成方法和桥接方法**：
 > ```java
-> for (Method m : clazz.getDeclaredMethods()) {
+> for (Method m : clazz.getDeclaredMethods()) &#123;
 >     if (m.isSynthetic() || m.isBridge()) continue;   // ★ 跳过编译器生成的方法
 >     // 处理注解
-> }
+> &#125;
 > ```
 > 否则会重复处理（泛型桥接方法上可能没有注解，导致误判）。
 
@@ -1937,7 +1937,7 @@ public class UserController {
 | 要点 | 说明 |
 | --- | --- |
 | `@Around` + `@annotation(x)` | 直接拿到注解实例，无需反射 |
-| SpEL 表达式 | 日志描述可以引用方法参数（`#{#dto.username}`） |
+| SpEL 表达式 | 日志描述可以引用方法参数（`#&#123;#dto.username&#125;`） |
 | 异步落库 | 日志写入不阻塞业务，用独立线程池 |
 | 异常继续抛出 | `catch` 后必须 `throw e`，不能吞掉（否则事务不回滚、调用方无感知） |
 | 参数过滤 | Servlet 对象、文件流不能序列化 |
@@ -2065,14 +2065,14 @@ public interface UserConverter {
 
 | # | 坑 | 现象 | 解决 |
 | --- | --- | --- | --- |
-| 1 | 以为 `List<Integer>` 是 `List<Number>` 子类 | 编译错误 | 用 `List<? extends Number>` |
+| 1 | 以为 `List&lt;Integer&gt;` 是 `List&lt;Number&gt;` 子类 | 编译错误 | 用 `List<? extends Number>` |
 | 2 | 上界通配符想 add | 编译错误 | extends 只读（PECS） |
 | 3 | 下界通配符想按具体类型读 | 编译错误 | super 只能当 Object 读 |
 | 4 | `new T()` | 编译错误 | 传 Class 或 Supplier |
 | 5 | `new T[10]` | 编译错误 | `Array.newInstance` 或 `List` |
-| 6 | `instanceof List<String>` | 编译错误 | `instanceof List<?>` |
-| 7 | `List<int>` | 编译错误 | 装箱 `List<Integer>` |
-| 8 | 重载 `f(List<String>)` 和 `f(List<Integer>)` | 擦除后签名冲突 | 改方法名或参数 |
+| 6 | `instanceof List&lt;String&gt;` | 编译错误 | `instanceof List<?>` |
+| 7 | `List&lt;int&gt;` | 编译错误 | 装箱 `List&lt;Integer&gt;` |
+| 8 | 重载 `f(List&lt;String&gt;)` 和 `f(List&lt;Integer&gt;)` | 擦除后签名冲突 | 改方法名或参数 |
 | 9 | 静态成员用类的 T | 编译错误 | 静态方法声明自己的 T |
 | 10 | 用原始类型 `List` | 丢失类型检查，unchecked 警告 | 一律用参数化类型 |
 | 11 | 桥接方法导致反射重复处理 | 注解被处理两次 | 过滤 `isBridge()`/`isSynthetic()` |

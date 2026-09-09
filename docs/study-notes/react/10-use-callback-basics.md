@@ -35,7 +35,7 @@ updated: 2026-04-04
 > console.log(arr.__proto__.__proto__ === Object.prototype) // true
 > console.log(Object.prototype.__proto__ === null) // true
 > 
-> function MyFun() { this.name = 'puxiao' }
+> function MyFun() &#123; this.name = 'puxiao' &#125;
 > const myFun = new MyFun()
 > console.log(myFun.__proto__ === MyFun.prototype) // true
 > console.log(MyFun.__proto__ === Function.prototype) // true
@@ -44,7 +44,7 @@ updated: 2026-04-04
 > console.log(Object.prototype.__proto__) // null
 > ```
 
-> 要想更加容易理解上面代码，就需要明白，所谓 object 是指 { }，而 Object 其实是 JS 内置的对象函数。同理 所谓 array 是指 []，而 Array 其实是 JS 内置的 数组函数
+> 要想更加容易理解上面代码，就需要明白，所谓 object 是指 &#123; &#125;，而 Object 其实是 JS 内置的对象函数。同理 所谓 array 是指 []，而 Array 其实是 JS 内置的 数组函数
 
 > 正是 JS 中 `__prototype__(隐式原型)` `prototype(显式原型)` `constructor(原型对象所在的构造函数本身)` 这 3个概念，最终组合成了 庞大的 JS 功能。我们平时定义的任何 类、对象、函数 都出在这种 链条 中，以及对 这个链条中某个环节属性功能的扩展，这种组织形式就叫 JS 原型链。
 
@@ -54,9 +54,9 @@ updated: 2026-04-04
 
 请重点留意“修改”这个词，因为“修改”牵扯到react最为隐秘却极其重要的一层概念。  
 “修改”有3种情况：  
-1、用完全不一样的新值去替换之前的旧值 ——> 这会触发react重新渲染 ——> 例如{age:34}去替换{age:18}  
-2、用和旧值看似一模一样的新值去替换之前的旧值 ——> 这依然会触发react重新渲染，因为react底层对新旧值做对比时使用的是 Object.is判断，字面上看似一模一样没有用，react依然会认为这是2个对象，依然会触发react重新渲染 ——> 例如{age:18}去替换{age:18}  
-3、用旧值的引用去替换旧值 ——> 这次就不会触发重新渲染 ——> 例如let obj={age:18}; let obj2=obj，用obj2去替换obj  
+1、用完全不一样的新值去替换之前的旧值 ——> 这会触发react重新渲染 ——> 例如对象(age属性)去替换对象(age属性)  
+2、用和旧值看似一模一样的新值去替换之前的旧值 ——> 这依然会触发react重新渲染，因为react底层对新旧值做对比时使用的是 Object.is判断，字面上看似一模一样没有用，react依然会认为这是2个对象，依然会触发react重新渲染 ——> 例如对象(age属性)去替换对象(age属性)  
+3、用旧值的引用去替换旧值 ——> 这次就不会触发重新渲染 ——> 例如let obj=对象(age属性); let obj2=obj，用obj2去替换obj  
 
 为了提高react性能，就需要用旧值的引用去替换旧值，从而阻止本次无谓的渲染。
 
@@ -80,10 +80,10 @@ updated: 2026-04-04
 
 伪代码如下：  
 
-    shouldComponentUpdate(nextProps,nextStates){
+    shouldComponentUpdate(nextProps,nextStates)&#123;
       //判断xxx值是否相同，如果相同则不进行重新渲染
       return (nextProps.xxx !== this.props.xxx); //注意是 !== 而不是 !=
-    }
+    &#125;
 
 为了简化我们这一步操作，可以将类组件由默认继承自React.Component改为React.PureComponent。React.PureComponent默认会帮我们完成上面的浅层对比，以跳过本次重新渲染。 
 
@@ -96,13 +96,13 @@ React.memo()的使用方法很简单，就是把要导出的函数组件包裹�
 伪代码如下：  
 
     import React from 'react'
-    function Xxxx() {
-      return <div>xx</div>;
-    }
+    function Xxxx() &#123;
+      return &lt;div&gt;xx</div>;
+    &#125;
     export default React.memo(Xxxx); //使用React.memo包裹住要导出的函数组件
 
 请记住以下2点：  
-1、React.memo()只会帮我们做浅层对比，例如props.name='puxiao'或props.list=[1,2,3]，如果是props中包含复杂的数据结构，例如props.obj.list=[{age:34}]，那么有可能达不到你的预期，因为不会做到深层次对比。  
+1、React.memo()只会帮我们做浅层对比，例如props.name='puxiao'或props.list=[1,2,3]，如果是props中包含复杂的数据结构，例如props.obj.list=[对象(age属性)]，那么有可能达不到你的预期，因为不会做到深层次对比。  
 2、使用React.memo仅仅是让该函数组件具备了可以跳过本次渲染的基础，若组件在使用的时候属性值中有某些处理函数，那么还需要配合useCallback才可以做到跳过本次重新渲染。  
 
 呵，话题又回到useCallback上面了。
@@ -111,8 +111,8 @@ React.memo()的使用方法很简单，就是把要导出的函数组件包裹�
 ##### 第2个知识点：=== 等比运算
 
 在原生JS中，你认为  
-1、{}==={} 为true还是false？  
-2、{a:2}==={a:2} 为true还是false？  
+1、&#123;&#125;===&#123;&#125; 为true还是false？  
+2、对象(a属性)===对象(a属性) 为true还是false？  
 
 这是一道很简单却很容易迷惑人的题目，若你对原生JS中 === 等比运算不够深入了解，你很容易会认为结果是true。  
 
@@ -121,11 +121,11 @@ React.memo()的使用方法很简单，就是把要导出的函数组件包裹�
 
 答案是2者均是false。  
 
-以{}==={}为例，虽然从字面上 === 左右两侧完全相同的，但是实际上在JS中 左右两侧分别为独立的{}对象，各自占有各自的内存空间，因此他们对比的结果是false。
+以&#123;&#125;===&#123;&#125;为例，虽然从字面上 === 左右两侧完全相同的，但是实际上在JS中 左右两侧分别为独立的&#123;&#125;对象，各自占有各自的内存空间，因此他们对比的结果是false。
 
 相反，看下面的代码：  
 
-    let obj = {};
+    let obj = &#123;&#125;;
     let obj2 = obj;
     obj2.name='react';
     console.log(obj===obj2); //true
@@ -152,32 +152,32 @@ useCallback可以将组件的某些处理函数挂载到react底层原型链上�
 
 默认不使用useCallback，其实组件执行了以下伪代码：  
 
-    let obj = {}; //上一次渲染时创建的props
-    obj.myfun={xxx}; //props中的myfun属性值，实为独立创建的{xxx}
+    let obj = &#123;&#125;; //上一次渲染时创建的props
+    obj.myfun=&#123;xxx&#125;; //props中的myfun属性值，实为独立创建的&#123;xxx&#125;
     
-    let obj2 = {}; //本次渲染时创建的props
-    obj2.myfun={xxx}; //props中的myfun属性值，实为独立创建的{xxx}
+    let obj2 = &#123;&#125;; //本次渲染时创建的props
+    obj2.myfun=&#123;xxx&#125;; //props中的myfun属性值，实为独立创建的&#123;xxx&#125;
     
-    if(obj.myfun === obj2.myfun){
+    if(obj.myfun === obj2.myfun)&#123;
       //跳过本次重新渲染，改为使用上一次渲染结果即可
-    }
+    &#125;
     
-由于obj.myfun 和 obj2.myfun 为分别独立创建的函数{xxx}，所以对比结果为false，也就意味着无法跳过本次重新渲染，尽管函数{xxx}字面相同。  
+由于obj.myfun 和 obj2.myfun 为分别独立创建的函数&#123;xxx&#125;，所以对比结果为false，也就意味着无法跳过本次重新渲染，尽管函数&#123;xxx&#125;字面相同。  
 
 
 相反，如果使用useCallback，其实组件执行了以下伪代码：  
 
-    let myfun = {xxx}; //独立定义处理函数myfun
+    let myfun = &#123;xxx&#125;; //独立定义处理函数myfun
     
-    let obj = {}; //上一次渲染时创建的props
+    let obj = &#123;&#125;; //上一次渲染时创建的props
     obj.myfun = myfun; //props中的myfun属性值，实为myfun的引用
     
-    let obj2 = {}; //本次渲染时创建的props
+    let obj2 = &#123;&#125;; //本次渲染时创建的props
     obj2.myfun = myfun; //props中的myfun属性值，实为myfun的引用
 
-    if(obj.myfun === obj2.myfun){
+    if(obj.myfun === obj2.myfun)&#123;
       //跳过本次重新渲染，改为使用上一次渲染结果即可
-    }
+    &#125;
 
 此时 obj.myfun 和 obj2.myfun 均为myfun的引用，因此该对比结果为true，也就意味着可以顺利跳过本次渲染，达到提高组件性能的目的。  
 
@@ -192,16 +192,16 @@ useCallback可以将组件的某些处理函数挂载到react底层原型链上�
 回到useCallback的学习中，首先看一下React源码中的[ReactHooks.js](https://github.com/facebook/react/blob/master/packages/react/src/ReactHooks.js)。  
 
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
-    export function useCallback<T>(
+    export function useCallback&lt;T&gt;(
       callback: T,
-      deps: Array<mixed> | void | null,
-    ): T {
+      deps: Array&lt;mixed&gt; | void | null,
+    ): T &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useCallback(callback, deps);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。^_^  
-不过请注意第2个参数，deps为该函数依赖的数据变量，值为Array<mixed> 或 void 或 null。 意味着如果该函数没有依赖的情况下，可以传入空数组[]或void或null。个人建议是传入空数组。  
+不过请注意第2个参数，deps为该函数依赖的数据变量，值为Array&lt;mixed&gt; 或 void 或 null。 意味着如果该函数没有依赖的情况下，可以传入空数组[]或void或null。个人建议是传入空数组。  
 
 补充一点TypeScript知识(因为我最近刚学了TypeScript)：  
 像 <T\>(callback:T):T 这种类型定义称为“泛型”，里面 T 的含义为“一模一样的同类型”。  
@@ -228,19 +228,19 @@ useEffect中第2个依赖变量数组是真正起作用的，是具有关键性�
 
 ##### 代码形式：  
 
-    import Button from './button'; //引入我们自定义的一个组件<Button>
+    import Button from './button'; //引入我们自定义的一个组件&lt;Button&gt;
 
     //组件内部声明一个age变量
     const [age,setAge] = useState(34);
 
     //通过useCallback，将鼠标点击处理函数保存到React底层原型链中，并获取该函数的引用，将引用赋值给clickHandler
-    const clickHandler = useCallback(() => {
+    const clickHandler = useCallback(() => &#123;
         setAge(age+1);
-      },[age]);
+      &#125;,[age]);
     //由于该处理函数中使用到了age这个变量，因此useCallback的第2个参数中，需要将age添加进去
 
     //使用该处理函数，实为使用该处理函数的在React底层原型链上的引用
-    return <Button clickHandler={clickHandler}></Button>
+    return <Button clickHandler=&#123;clickHandler&#125;></Button>
 
 
 ##### 拆解说明：  
@@ -265,11 +265,11 @@ useEffect中第2个依赖变量数组是真正起作用的，是具有关键性�
 若我们有一个自定组件<Button\>，代码如下：  
 
     import React from 'react'
-    function Button({label,clickHandler}) {
+    function Button(&#123;label,clickHandler&#125;) &#123;
         //为了方便我们查看该子组件是否被重新渲染，这里增加一行console.log代码
-        console.log(`rendering ... ${label}`);
-        return <button onClick={clickHandler}>{label}</button>;
-    }
+        console.log(`rendering ... $&#123;label&#125;`);
+        return <button onClick=&#123;clickHandler&#125;>&#123;label&#125;</button>;
+    &#125;
     export default React.memo(Button); //使用React.memo()包裹住要导出的组件
 
 
@@ -279,33 +279,33 @@ useEffect中第2个依赖变量数组是真正起作用的，是具有关键性�
 
 若我们不使用useCallback，代码示例如下：
 
-    import React,{useState,useCallback,useEffect} from 'react';
+    import React,&#123;useState,useCallback,useEffect&#125; from 'react';
     import Button from './button';
 
-    function Mybutton() {
+    function Mybutton() &#123;
       const [age,setAge] = useState(34);
       const [salary,setSalary] = useState(7000);
 
-      useEffect(() => {
-        document.title = `Hooks - ${Math.floor(Math.random()*100)}`;
-      });
+      useEffect(() => &#123;
+        document.title = `Hooks - $&#123;Math.floor(Math.random()*100)&#125;`;
+      &#125;);
 
-      const clickHandler01 = () => {
+      const clickHandler01 = () => &#123;
         setAge(age+1);
-      };
+      &#125;;
 
-      const clickHandler02 = () => {
+      const clickHandler02 = () => &#123;
         setSalary(salary+1);
-      };
+      &#125;;
 
       return (
-        <div>
-            {age} - {salary}
-            <Button label='Bt01' clickHandler={clickHandler01}></Button>
-            <Button label='Bt02' clickHandler={clickHandler02}></Button>
+        &lt;div&gt;
+            &#123;age&#125; - &#123;salary&#125;
+            <Button label='Bt01' clickHandler=&#123;clickHandler01&#125;></Button>
+            <Button label='Bt02' clickHandler=&#123;clickHandler02&#125;></Button>
         </div>
       )
-    }
+    &#125;
 
 实际运行中你会发现，无论点击哪个按钮，都会收到：   
 rendering ... Bt01  
@@ -315,35 +315,35 @@ rendering ... Bt02
 
 我们再看一下如果使用useCallback，代码示例如下：  
 
-    import React,{useState,useCallback,useEffect} from 'react';
+    import React,&#123;useState,useCallback,useEffect&#125; from 'react';
     import Button from './button';
 
-    function Mybutton() {
+    function Mybutton() &#123;
       const [age,setAge] = useState(34);
       const [salary,setSalary] = useState(7000);
 
-      useEffect(() => {
-        document.title = `Hooks - ${Math.floor(Math.random()*100)}`;
-      });
+      useEffect(() => &#123;
+        document.title = `Hooks - $&#123;Math.floor(Math.random()*100)&#125;`;
+      &#125;);
 
       //使用useCallback()包裹住原来的处理函数
-      const clickHandler01 = useCallback(() => {
+      const clickHandler01 = useCallback(() => &#123;
         setAge(age+1);
-      },[age]);
+      &#125;,[age]);
 
       //使用useCallback()包裹住原来的处理函数
-      const clickHandler02 = useCallback(() => {
+      const clickHandler02 = useCallback(() => &#123;
         setSalary(salary+1);
-      },[salary]);
+      &#125;,[salary]);
 
       return (
-        <div>
-            {age} - {salary}
-            <Button label='Bt01' clickHandler={clickHandler01}></Button>
-            <Button label='Bt02' clickHandler={clickHandler02}></Button>
+        &lt;div&gt;
+            &#123;age&#125; - &#123;salary&#125;
+            <Button label='Bt01' clickHandler=&#123;clickHandler01&#125;></Button>
+            <Button label='Bt02' clickHandler=&#123;clickHandler02&#125;></Button>
         </div>
       )
-    }
+    &#125;
 
 修改后的代码，实际运行就会发现，当点击某个按钮时，仅仅是当前按钮重新做了一次渲染，另外一个按钮则没有重新渲染，而是直接使用上一次渲染结果。
 
@@ -354,13 +354,13 @@ useCallback用法很简单，就是包裹住原本的处理函数。关键点在
 
 ## 思考题
 
-假设上面示例代码中，做以下修改：每个按钮上新增一个属性：random={Math.floor(Math.random()*100)}  
+假设上面示例代码中，做以下修改：每个按钮上新增一个属性：random=&#123;Math.floor(Math.random()*100)&#125;  
 
-    <Button label='Bt01' clickHandler={clickHandler01}></Button>
-    <Button label='Bt02' clickHandler={clickHandler02}></Button>
+    <Button label='Bt01' clickHandler=&#123;clickHandler01&#125;></Button>
+    <Button label='Bt02' clickHandler=&#123;clickHandler02&#125;></Button>
     修改为
-    <Button label='Bt01' clickHandler={clickHandler01} random={Math.floor(Math.random()*100)}></Button>
-    <Button label='Bt02' clickHandler={clickHandler02} random={Math.floor(Math.random()*100)}></Button>
+    <Button label='Bt01' clickHandler=&#123;clickHandler01&#125; random=&#123;Math.floor(Math.random()*100)&#125;></Button>
+    <Button label='Bt02' clickHandler=&#123;clickHandler02&#125; random=&#123;Math.floor(Math.random()*100)&#125;></Button>
 
 那么请问，此时我们针对性能优化而使用的useCallback还有意义吗？  
 

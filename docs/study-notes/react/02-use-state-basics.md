@@ -34,13 +34,13 @@ updated: 2026-04-04
 
 举例：若某组件需要有2个自定义变量name和age，那么在类组件中只能如下定义
 
-    constructor(props) {
+    constructor(props) &#123;
         super(props);
-        this.state = {
+        this.state = &#123;
           name:'puxiao',
           age:34
-        }
-    }
+        &#125;
+    &#125;
 
 name和age只能作为this.state的一个属性。
 
@@ -61,12 +61,12 @@ name和age只能作为this.state的一个属性。
 首先看一下React源码中的[ReactHooks.js](https://github.com/facebook/react/blob/master/packages/react/src/ReactHooks.js)。
 
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
-    export function useState<S>(
+    export function useState&lt;S&gt;(
       initialState: (() => S) | S,
-    ): [S, Dispatch<BasicStateAction<S>>] {
+    ): [S, Dispatch<BasicStateAction&lt;S&gt;>] &#123;
       const dispatcher = resolveDispatcher();
       return dispatcher.useState(initialState);
-    }
+    &#125;
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。之所以贴出源码只是为了显得本文比较有深度。^_^  
 
@@ -139,11 +139,11 @@ setVariable采用 “异步直接赋值” 的形式，并不会像类组件中�
     const [name,setName] = useState('nodejs'); //name默认值为nodejs
     
     //在函数组件内，某些事件交互处理函数中修改name的值，例如某次鼠标点击的处理函数handleClick
-    const handleClick = () => {
+    const handleClick = () => &#123;
       setName('koa');
       //请注意，setName('koa')是异步修改的，如果此时执行console.log(name) 输出的值依然是nodejs
       //请留意下一篇文章 “03 useState高级用法” 中 “解决数据异步” 相关部分
-    }
+    &#125;
 
 
 上述代码中，我们进行了以下操作：  
@@ -163,20 +163,20 @@ setVariable采用 “异步直接赋值” 的形式，并不会像类组件中�
 
 ##### 完整示例：
 
-    import React, { useState } from 'react';
+    import React, &#123; useState &#125; from 'react';
     
-    function Component() {
+    function Component() &#123;
     
       const [count, setCount] = useState(0);
     
-      function clickHandler(){
+      function clickHandler()&#123;
         setCount(count+1);
-      }
+      &#125;
     
-      return <div onClick={clickHandler}>
-        {count}
+      return <div onClick=&#123;clickHandler&#125;>
+        &#123;count&#125;
       </div>
-    }
+    &#125;
     
     export default Component;
 
@@ -184,9 +184,9 @@ setVariable采用 “异步直接赋值” 的形式，并不会像类组件中�
 
 实际代码中，本人更加倾向于使用箭头函数来定义方法，所以上述 function clickHandler() 会写成：  
 
-    const clickHandler = () => {
+    const clickHandler = () => &#123;
       setCount(count+1);
-    }
+    &#125;
 
 ---
 

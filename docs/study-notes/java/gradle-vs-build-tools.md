@@ -763,21 +763,21 @@ jbang app install hello.java    # 安装为命令
 | 概念 | Maven | Gradle |
 | --- | --- | --- |
 | 构建文件 | `pom.xml` | `build.gradle(.kts)` |
-| 多模块声明 | `<modules>` | `settings.gradle` 的 `include` |
-| 父项目 | `<parent>` | `plugins` / `subprojects` / buildSrc 约定 |
+| 多模块声明 | `&lt;modules&gt;` | `settings.gradle` 的 `include` |
+| 父项目 | `&lt;parent&gt;` | `plugins` / `subprojects` / buildSrc 约定 |
 | 坐标 | `groupId:artifactId:version` | `group:name:version` |
-| 打包类型 | `<packaging>jar/war/pom</packaging>` | 插件（`java`/`war`） |
-| 属性 | `<properties>` | `gradle.properties` / `ext` |
-| 仓库 | `<repositories>` | `repositories { }` |
+| 打包类型 | `&lt;packaging&gt;jar/war/pom</packaging>` | 插件（`java`/`war`） |
+| 属性 | `&lt;properties&gt;` | `gradle.properties` / `ext` |
+| 仓库 | `&lt;repositories&gt;` | `repositories &#123; &#125;` |
 | 依赖版本管理 | `<dependencyManagement>` + BOM | `platform()` / `dependency-management` 插件 / `resolutionStrategy.force` |
 | 编译依赖 | `compile` scope | `implementation` / `api` |
 | 运行期依赖 | `runtime` | `runtimeOnly` |
 | 编译期依赖 | `provided` | `compileOnly` |
 | 测试依赖 | `test` | `testImplementation` |
 | 注解处理器 | 直接在 classpath | ★ `annotationProcessor`（必须显式） |
-| 排除依赖 | `<exclusions>` | `exclude group:, module:` |
+| 排除依赖 | `&lt;exclusions&gt;` | `exclude group:, module:` |
 | 生命周期 | `clean/compile/test/package/install/deploy` | **任务（Task）** + 依赖图（`build` 依赖 `assemble`+`check`） |
-| 插件 | `<plugin>` + `<executions>` | `plugins { }` + `tasks` |
+| 插件 | `&lt;plugin&gt;` + `&lt;executions&gt;` | `plugins &#123; &#125;` + `tasks` |
 | 本地安装 | `mvn install` | `gradle publishToMavenLocal` |
 | 部署 | `mvn deploy` | `gradle publish` |
 | 跳过测试 | `-DskipTests` / `-Dmaven.test.skip` | `-x test` |
@@ -867,7 +867,7 @@ tasks.named('test') { useJUnitPlatform() }
 | # | 坑 | 现象 | 解决 |
 | --- | --- | --- | --- |
 | 1 | 忘记 `annotationProcessor` | Lombok/MapStruct 不生效（找不到 getter） | ★ Gradle 中注解处理器必须单独声明 |
-| 2 | 忘记 `useJUnitPlatform()` | JUnit 5 测试不执行（0 个测试） | `test { useJUnitPlatform() }` |
+| 2 | 忘记 `useJUnitPlatform()` | JUnit 5 测试不执行（0 个测试） | `test &#123; useJUnitPlatform() &#125;` |
 | 3 | 库模块也应用了 boot 插件 | 生成的 jar 无法被其他模块依赖 | 只在启动模块应用；其他模块 `bootJar.enabled=false` |
 | 4 | 用 `api` 声明所有依赖 | 增量构建变慢（编译隔离失效） | 默认用 `implementation`，只在公开 API 暴露时用 `api` |
 | 5 | 依赖冲突时静默选择 | 运行时 `NoSuchMethodError` | `resolutionStrategy.force` 或 `failOnVersionConflict()` |
@@ -882,7 +882,7 @@ tasks.named('test') { useJUnitPlatform() }
 | 14 | 未加 `-parameters` | Spring MVC/MyBatis 拿不到参数名 | `options.compilerArgs << '-parameters'` |
 | 15 | 依赖 `mavenLocal()` 优先级过高 | 拿到本地过期版本 | 把 `mavenLocal()` 放最后或去掉 |
 | 16 | 私服认证信息硬编码 | 密码泄漏到 Git | 用 `gradle.properties`（不提交）或环境变量 |
-| 17 | 多模块公共配置重复 | 每个 build.gradle 都写一遍 | `subprojects {}` 或 buildSrc 约定插件 |
+| 17 | 多模块公共配置重复 | 每个 build.gradle 都写一遍 | `subprojects &#123;&#125;` 或 buildSrc 约定插件 |
 | 18 | `jar` 与 `bootJar` 都生成 | 产物混乱 | 禁用 `jar`（应用模块）或禁用 `bootJar`（库模块） |
 | 19 | 自定义任务未声明依赖顺序 | 任务在错误时机执行 | `dependsOn` / `finalizedBy` / `mustRunAfter` |
 | 20 | 忽略 `--scan` 的性能诊断价值 | 构建慢但找不到原因 | 用 `gradle build --scan` 在线分析 |

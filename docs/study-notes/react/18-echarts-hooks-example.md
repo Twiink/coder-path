@@ -45,11 +45,11 @@ Echarts 是百度公司推出的，基于原生 JS 的图表库，免费开源 �
 
 1、使用 useRef 来勾住 jsx 中的某个 DOM
 
-2、使用 useEffect( () => {}, [] ) 来勾住 React 第一次挂载，并通过 echarts.init(xxx-dom) 创建出真正的图表
+2、使用 useEffect( () => &#123;&#125;, [] ) 来勾住 React 第一次挂载，并通过 echarts.init(xxx-dom) 创建出真正的图表
 
 3、使用 useState 来勾住 创建出的真正图表，以便以后做各种更新操作
 
-4、使用 useEffect( () => {}, [xxx-echart,option] ) 来不断监听组件传递过来的数据变化，并更新图表数据
+4、使用 useEffect( () => &#123;&#125;, [xxx-echart,option] ) 来不断监听组件传递过来的数据变化，并更新图表数据
 
 
 

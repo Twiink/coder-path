@@ -93,7 +93,7 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9 . eyJ1aWQiOjEwMDEsIm5hbWUiOiJUb20ifQ . 4v6m
 > ```java
 > // 任何人拿到 Token 都能解码
 > String payload = new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]));
-> // → {"uid":1001,"username":"tom","roles":["ADMIN"],...}
+> // → &#123;"uid":1001,"username":"tom","roles":["ADMIN"],...&#125;
 > ```
 > **绝对不要在 Payload 中放：密码、身份证、手机号、银行卡、密钥、任何敏感信息。**
 > JWT 的安全性来自**签名防篡改**，不是**加密防窥探**。需要加密用 **JWE**（JSON Web Encryption）。
@@ -1022,10 +1022,10 @@ http.interceptors.response.use(
 
 | 类型 | 原理 | 示例 |
 | --- | --- | --- |
-| **存储型（Stored）** ★ 最危险 | 恶意脚本**存入数据库**，所有访问者都中招 | 评论区提交 `<script>窃取cookie</script>`，其他用户查看该评论时执行 |
-| **反射型（Reflected）** | 恶意脚本在 **URL 参数**中，服务端直接回显 | `search?q=<script>...</script>`，搜索结果页回显 q |
+| **存储型（Stored）** ★ 最危险 | 恶意脚本**存入数据库**，所有访问者都中招 | 评论区提交 `&lt;script&gt;窃取cookie</script>`，其他用户查看该评论时执行 |
+| **反射型（Reflected）** | 恶意脚本在 **URL 参数**中，服务端直接回显 | `search?q=&lt;script&gt;...</script>`，搜索结果页回显 q |
 | **DOM 型** | 前端 JS 直接把不可信数据插入 DOM | `innerHTML = location.hash` |
-| **mXSS（变异型）** | 浏览器解析 HTML 时「变异」出脚本，绕过过滤 | `<svg onload=...>`、`<noscript><p title="</noscript><img src=x onerror=...>">` |
+| **mXSS（变异型）** | 浏览器解析 HTML 时「变异」出脚本，绕过过滤 | `<svg onload=...>`、`&lt;noscript&gt;<p title="</noscript><img src=x onerror=...>">` |
 
 ```javascript
 // 攻击代码示例
@@ -1660,7 +1660,7 @@ public Result<List<Order>> listOrders() { }
 | 19 | 只靠输入过滤防 XSS | 被各种编码绕过 | ★ 输出编码 + CSP（纵深防御） |
 | 20 | Session 架构未开 CSRF 防护 | CSRF 转账 | SameSite + CSRF Token |
 | 21 | JWT 存 Cookie 却关闭 CSRF 防护 | 仍有 CSRF 风险 | JWT 放 Header，或开启 CSRF |
-| 22 | SQL 用 `${}` 拼接 | **SQL 注入** | ★ 一律 `#{}`；ORDER BY 用白名单 |
+| 22 | SQL 用 `$&#123;&#125;` 拼接 | **SQL 注入** | ★ 一律 `#&#123;&#125;`；ORDER BY 用白名单 |
 | 23 | 数据库账号权限过大 | 注入后可删表/拖库 | 最小权限（只给 DML） |
 | 24 | 密码用 MD5/SHA | 彩虹表秒破 | **BCrypt / Argon2id** |
 | 25 | 文件上传只校验扩展名 | 上传 webshell | 魔数校验 + 二次渲染 + 随机重命名 + 禁执行目录 |
@@ -1678,5 +1678,5 @@ public Result<List<Order>> listOrders() { }
 - 相关：[[后端/JavaWeb/Web基础与HTTP协议]]（Cookie/Session/CORS/HTTPS）、[[后端/Java基础/网络编程]]（TLS 编程）
 - 框架整合：[[后端/SpringBoot/整合Web开发]]（Spring Security、全局异常）、[[后端/微服务/Gateway网关]]（网关统一鉴权）
 - 缓存：[[后端/中间件/Redis在Java项目中的整合]]（Token 黑名单、限流）
-- 数据库安全：[[后端/MyBatis/动态SQL与结果映射]]（`#{}` vs `${}`）
+- 数据库安全：[[后端/MyBatis/动态SQL与结果映射]]（`#&#123;&#125;` vs `$&#123;&#125;`）
 - 返回索引：[[后端/Java/Java学习笔记总索引]]

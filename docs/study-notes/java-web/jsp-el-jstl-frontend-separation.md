@@ -44,7 +44,7 @@ updated: 2026-09-07
 每次请求调用 _jspService() 方法（★ 不是 service，也不是 doGet/doPost）
 ```
 
-```jsp
+```html
 <%-- hello.jsp --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
@@ -135,7 +135,7 @@ Controller（控制器）→ Servlet（或 Spring MVC 的 Controller）  接收�
 | `<%-- 注释 --%>` | JSP 注释 | **不编译到 Servlet**（客户端看不到） | ★ 推荐（隐藏敏感注释） |
 | `<!-- 注释 -->` | HTML 注释 | 输出到 HTML（**客户端可见**） | 前端调试用 |
 
-```jsp
+```html
 <%!
     // ★ 成员变量：单例 JSP 中被所有请求共享 → 线程不安全！禁用！
     private int visitCount = 0;
@@ -164,7 +164,7 @@ Controller（控制器）→ Servlet（或 Spring MVC 的 Controller）  接收�
 
 ### 2.2 指令（Directive）
 
-```jsp
+```html
 <%-- ① page 指令：定义页面属性（最常用，可出现多次但属性不能重复） --%>
 <%@ page
     language="java"                          <%-- 脚本语言（只能是 java） --%>
@@ -208,7 +208,7 @@ Controller（控制器）→ Servlet（或 Spring MVC 的 Controller）  接收�
 | 内容变化 | 被包含文件改了，**主页可能不重新编译**（依赖容器） | ✅ **总是最新** |
 | 适用 | 静态不变的内容（头尾、导航） | 动态内容（实时数据、不同用户不同内容） |
 
-```jsp
+```html
 <%-- 动态包含（可传参） --%>
 <jsp:include page="/common/userInfo.jsp">
     <jsp:param name="showAvatar" value="true"/>
@@ -218,7 +218,7 @@ Controller（控制器）→ Servlet（或 Spring MVC 的 Controller）  接收�
 
 ### 2.3 JSP 动作标签（Action）
 
-```jsp
+```html
 <%-- ① 转发（等价 request.getRequestDispatcher().forward()） --%>
 <jsp:forward page="/result.jsp">
     <jsp:param name="msg" value="成功"/>
@@ -250,7 +250,7 @@ Controller（控制器）→ Servlet（或 Spring MVC 的 Controller）  接收�
 
 ## 3. JSP 九大隐式对象 ★★★★★（必背）
 
-```jsp
+```html
 <%-- 全部是 _jspService() 的局部变量，无需声明直接用 --%>
 ```
 
@@ -266,7 +266,7 @@ Controller（控制器）→ Servlet（或 Spring MVC 的 Controller）  接收�
 | 8 | **`page`** | `Object`（= this） | page | 当前 JSP 生成的 Servlet 实例（= `this`） |
 | 9 | **`exception`** | `Throwable` | — | ★ **仅 `isErrorPage="true"` 的页面可用**，其他页面用会编译错误 |
 
-```jsp
+```html
 <%-- pageContext 的强大之处：统一管理四大作用域 --%>
 <%
     pageContext.setAttribute("k", "v");                            // page 作用域
@@ -317,11 +317,11 @@ application：整个应用（从启动到关闭）
 
 ## 4. EL 表达式（Expression Language）★★★★★
 
-**EL（JSP 2.0 引入）用 `${}` 语法简洁地输出数据，替代 `<%= %>` 和 Java 代码，是现代 JSP/模板的核心。**
+**EL（JSP 2.0 引入）用 `$&#123;&#125;` 语法简洁地输出数据，替代 `<%= %>` 和 Java 代码，是现代 JSP/模板的核心。**
 
 ### 4.1 基本语法
 
-```jsp
+```html
 <%-- ① 输出值（自动调用 toString，null 输出为空字符串而非 "null"！） --%>
 ${name}                    <%-- 等价 <%= request.getAttribute("name") %> 但更智能 --%>
 ${user.name}               <%-- 属性导航（调用 getName()） --%>
@@ -382,7 +382,7 @@ ${emptyStr + 0}                         <%-- 空串/null 参与算术运算视�
 // ④ 如果是 List/数组且 "name" 是数字，调用 get(index)
 ```
 
-```jsp
+```html
 <%-- JavaBean：调用 getter --%>
 ${user.name}          → user.getName()
 ${user.address.city}  → user.getAddress().getCity()   ★ 链式导航（中间为 null 会怎样？）
@@ -410,14 +410,14 @@ ${users.size()}        ❌ EL 不能直接调方法！要用 ${fn:length(users)}
 | `requestScope` | `Map` | request 作用域的属性 |
 | `sessionScope` | `Map` | session 作用域的属性 |
 | `applicationScope` | `Map` | application 作用域的属性 |
-| `param` | `Map<String,String>` | 请求参数（单值） |
+| `param` | `Map&lt;String,String&gt;` | 请求参数（单值） |
 | `paramValues` | `Map<String,String[]>` | 请求参数（多值） |
-| `header` | `Map<String,String>` | 请求头（单值） |
+| `header` | `Map&lt;String,String&gt;` | 请求头（单值） |
 | `headerValues` | `Map<String,String[]>` | 请求头（多值） |
-| `cookie` | `Map<String,Cookie>` | Cookie |
-| `initParam` | `Map<String,String>` | context-param |
+| `cookie` | `Map&lt;String,Cookie&gt;` | Cookie |
+| `initParam` | `Map&lt;String,String&gt;` | context-param |
 
-```jsp
+```html
 <%-- ★ 最常见的实战用法：动态获取 contextPath（避免硬编码） --%>
 <%-- ❌ 硬编码：部署到不同 contextPath 就失效 --%>
 <link rel="stylesheet" href="/myapp/css/style.css">
@@ -440,7 +440,7 @@ ${users.size()}        ❌ EL 不能直接调方法！要用 ${fn:length(users)}
 
 ### 4.3 EL 函数库（fn）
 
-```jsp
+```html
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <%-- 字符串处理 --%>
@@ -495,7 +495,7 @@ ${fn:escapeXml(str)}                <%-- ★★ 转义 XML/HTML 特殊字符（�
 </dependency>
 ```
 
-```jsp
+```html
 <%-- 引入标签库（★ Jakarta 版的 URI） --%>
 <%@ taglib prefix="c"   uri="jakarta.tags.core" %>       <%-- 核心库（最常用） --%>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>        <%-- 格式化 --%>
@@ -505,7 +505,7 @@ ${fn:escapeXml(str)}                <%-- ★★ 转义 XML/HTML 特殊字符（�
 
 ### 5.1 核心标签库（c:）
 
-```jsp
+```html
 <%-- ─── 输出 ─── --%>
 <c:out value="${user.name}"/>                          <%-- ★ 默认转义 HTML（防 XSS） --%>
 <c:out value="${userInput}" escapeXml="false"/>        <%-- 不转义（危险） --%>
@@ -594,7 +594,7 @@ ${user.name}                                            <%-- EL 直接输出【�
 
 ### 5.2 格式化标签库（fmt:）
 
-```jsp
+```html
 <%-- ─── 日期时间格式化 ★★★★★ ─── --%>
 <fmt:formatDate value="${order.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
 <fmt:formatDate value="${date}" pattern="yyyy年MM月dd日"/>
@@ -726,7 +726,7 @@ private String name;
 | SQL | `sql` | 在 JSP 中直接执行 SQL | ❌ **禁用**（严重违反分层，性能差，SQL 注入风险） |
 | XML | `x` | XML 解析与 XPath | 少用（改用 JSON） |
 
-```jsp
+```html
 <%-- sql 标签库（★ 反面教材，绝对不要在生产使用） --%>
 <%@ taglib prefix="sql" uri="jakarta.tags.sql" %>
 <sql:setDataSource driver="com.mysql.cj.jdbc.Driver"
@@ -830,7 +830,7 @@ private String name;
 | 不用 sql 标签库 | 违反分层 + 安全风险 |
 | JSP 中不写业务逻辑 | 只做展示，逻辑在 Controller/Service |
 
-```jsp
+```html
 <%-- ★ XSS 防护示例 --%>
 <%-- ❌ 危险：用户输入直接输出，可注入 <script> --%>
 <p>${param.comment}</p>
@@ -1021,7 +1021,7 @@ spring:
 | --- | --- | --- |
 | 模板类型 | 只能 HTML（且含 Java 代码后不合法） | **HTML/XML/TEXT/JS，模板本身合法** |
 | 静态预览 | ❌ 必须部署到容器 | ✅ **浏览器直接打开**（Natural Templating） |
-| 语法 | `<% %>`、`${}`、标签库 | `th:xxx` 属性 + `${}` SpEL |
+| 语法 | `<% %>`、`$&#123;&#125;`、标签库 | `th:xxx` 属性 + `$&#123;&#125;` SpEL |
 | Spring Boot 支持 | ⚠️ **不推荐**（jar 打包时 JSP 有已知限制） | ✅ **官方推荐** |
 | jar 部署 | ❌ **有问题**（嵌入式容器不支持 JSP 的部分特性） | ✅ 完美支持 |
 | 性能 | 编译成 Servlet，运行快 | 解析模板，稍慢（可缓存 + SpEL 编译优化） |
@@ -1137,7 +1137,7 @@ spring:
 | 模板合法性 | ❌ | ✅ **天然 HTML** | ❌（自有语法） | ❌ | ❌ |
 | 性能 | 高（编译成 Servlet） | 中 | **高** | 高 | **最高** |
 | Spring Boot 支持 | ⚠️ 不推荐 | ✅ **官方推荐** | ✅ starter | ✅ starter | ✅ starter |
-| 语法风格 | 标签库 + EL | **HTML 属性** | `#`/`${}`/`<#>` | `#`/`$` | 类 JS |
+| 语法风格 | 标签库 + EL | **HTML 属性** | `#`/`$&#123;&#125;`/`<#>` | `#`/`$` | 类 JS |
 | 学习成本 | 中 | **低** | 中 | 低 | 低 |
 | 适用 | 老项目维护 | **Web 页面** | **代码生成、邮件、报表** | 代码生成 | 高性能渲染 |
 | 现状 | 淘汰 | **主流** | 活跃（代码生成器常用） | 维护中 | 国内活跃 |
@@ -1406,8 +1406,8 @@ public class UserController {
 | **查询用查询串** | 过滤/排序/分页 | `/users?status=1&sort=age,desc&page=1` | `/users/status/1` |
 | **非 CRUD 动作用子资源** | 特殊操作用动词子路径 | `POST /users/1/disable` | `POST /disableUser` |
 | **状态码语义正确** | 200/201/204/400/401/403/404/409/429/500 | — | 全部返回 200 |
-| **统一响应结构** | 前端好处理 | `{code,message,data}` | 各接口格式不一 |
-| **字段用 camelCase** | JSON 惯例 | `{"userName":"x"}` | `{"user_name":"x"}` |
+| **统一响应结构** | 前端好处理 | `&#123;code,message,data&#125;` | 各接口格式不一 |
+| **字段用 camelCase** | JSON 惯例 | (&#123;"userName":"x"&#125;) | (&#123;"user_name":"x"&#125;) |
 | **时间用 ISO-8601** | 无歧义 | `"2026-09-07T10:30:00+08:00"` | `"2026/9/7 10:30"` |
 | **不返回敏感字段** | 安全 | VO 中无 password | 直接返回实体 |
 | **分页参数统一** | `pageNum/pageSize` 或 `page/size` | — | 各接口不同 |
@@ -1533,9 +1533,9 @@ public class UserCreateDTO {
 | 1 | Spring Boot jar 部署用 JSP | 页面 404 / 无法编译 | 改用 Thymeleaf，或打 war 部署 |
 | 2 | JSP 用 `<%! %>` 声明成员变量 | 数据串号（单例共享） | 只用局部变量 |
 | 3 | JSP 中的 HTML 注释泄漏信息 | F12 看到敏感注释 | 用 `<%-- --%>` |
-| 4 | `${}` 直接输出用户输入 | **XSS 漏洞** | `<c:out>` 或 `fn:escapeXml` / `?html` |
+| 4 | `$&#123;&#125;` 直接输出用户输入 | **XSS 漏洞** | `<c:out>` 或 `fn:escapeXml` / `?html` |
 | 5 | `fmt:formatDate` 处理 LocalDateTime | 报错或不生效 | 后端格式化，或用 Thymeleaf 的 `#temporals` |
-| 6 | JSP 中硬编码 contextPath | 换部署路径就 404 | `${pageContext.request.contextPath}` 或 `c:url` |
+| 6 | JSP 中硬编码 contextPath | 换部署路径就 404 | `$&#123;pageContext.request.contextPath&#125;` 或 `c:url` |
 | 7 | JSP 放在 webapps 根目录 | 可被直接访问，绕过 Controller | 放 **WEB-INF** 下 |
 | 8 | `sql` 标签库上生产 | 凭证泄漏、SQL 注入、性能差 | 禁用，逻辑移到 Service/DAO |
 | 9 | `development=true` 上生产 | 每次请求检查文件修改，性能差 | 设 false |

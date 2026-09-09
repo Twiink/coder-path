@@ -57,15 +57,15 @@ updated: 2026-04-04
 回到useDebugValue的学习中，首先看一下React源码中的[ReactHooks.js](https://github.com/facebook/react/blob/master/packages/react/src/ReactHooks.js)。  
 
     //备注：源码采用TypeScript编写，如果不懂TS代码，阅读起来稍显困难
-    export function useDebugValue<T>(
+    export function useDebugValue&lt;T&gt;(
       value: T,
       formatterFn: ?(value: T) => mixed,
-    ): void {
-        if (__DEV__) {
+    ): void &#123;
+        if (__DEV__) &#123;
         const dispatcher = resolveDispatcher();
         return dispatcher.useDebugValue(value, formatterFn);
-      }
-    }
+      &#125;
+    &#125;
 
 
 上述代码看不懂没关系，本系列教程只是讲述“如何使用Hook”，并不是“Hook源码分析”。^_^  
@@ -88,7 +88,7 @@ useDebugValue(value,formatterFn)函数第1个参数为我们要额外显示的�
 ##### 拆解说明：  
 
 1、xxx 为我们要重点关注的变量。  
-2、xxx => xxxxx 是 (xxx) => {return xxxxx} 的简写。表明如何格式化变量xxx。  
+2、xxx => xxxxx 是 (xxx) => &#123;return xxxxx&#125; 的简写。表明如何格式化变量xxx。  
 
 ## 如何在react调试工具中查看useDebugValue表现形式  
 
@@ -111,11 +111,11 @@ useDebugValue(value,formatterFn)函数第1个参数为我们要额外显示的�
 代码示例如下：
 
     //自定义hook：useTime
-    function useTime(date){
+    function useTime(date)&#123;
       const [time,setTime] = useState(date);
       useDebugValue(time,time => new Date(time));//请注意这一行代码
       return [time,setTime];
-    }
+    &#125;
 
     //组件中使用useTime，伪代码片段
     const [time,setTime] = useTime(Date.now());//请注意此处使用的是自定义hook：useTime
@@ -141,7 +141,7 @@ useDebugValue(value,formatterFn)函数第1个参数为我们要额外显示的�
 
 “Mon May 11 2020 14:27:39 GMT+0800 (中国标准时间)  ”就是useDebugValue额外展示出的信息。  
 
-你甚至还可以使用模板字符串，对格式化数据进行修改，比如将原本的第2个参数 time => new Date(time) 修改为：time => \`看这里 ${new Date(time)}\`  
+你甚至还可以使用模板字符串，对格式化数据进行修改，比如将原本的第2个参数 time => new Date(time) 修改为：time => \`看这里 $&#123;new Date(time)&#125;\`  
 
 在谷歌浏览器调试面板的“Component”右侧，你会看到：  
 

@@ -506,8 +506,8 @@ def server_error(request):
 
 1. **主路由只 include,不写业务路径**;每个应用一个 urls.py
 2. **路由必须命名** + `app_name` 命名空间,硬编码 URL 是重构噩梦
-3. **模板里一律 `{% url %}`**,视图里 `reverse()`
+3. **模板里一律 `&#123;% url %&#125;`**,视图里 `reverse()`
 4. `request.GET/POST` 永远用 `.get()` 而非下标;值永远是字符串,记得类型转换
-5. 敏感数据不进查询串;POST 表单必须带 `{% csrf_token %}`
+5. 敏感数据不进查询串;POST 表单必须带 `&#123;% csrf_token %&#125;`
 6. 查单个对象用 `get_object_or_404`;判断方法用 `request.method == ...` 骨架
 7. API 项目直接上 DRF(11 章),不要用 HttpResponse 手拼 JSON

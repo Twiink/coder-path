@@ -150,25 +150,25 @@ public class FinalizeEscapeGC {
 >
 > ```java
 > // Cleaner 示例（JDK 9+）
-> public class Resource implements AutoCloseable {
+> public class Resource implements AutoCloseable &#123;
 >     private static final Cleaner CLEANER = Cleaner.create();
 >     private final Cleaner.Cleanable cleanable;
 >     private final NativeHandle handle;
 >
->     public Resource() {
+>     public Resource() &#123;
 >         this.handle = openNative();
 >         // ★ 清理逻辑放在独立的静态类中（不能引用 Resource 实例，否则永不回收！）
 >         this.cleanable = CLEANER.register(this, new CleanupAction(handle));
->     }
+>     &#125;
 >
->     private static class CleanupAction implements Runnable {      // ★ 必须 static
+>     private static class CleanupAction implements Runnable &#123;      // ★ 必须 static
 >         private final NativeHandle h;
->         CleanupAction(NativeHandle h) { this.h = h; }
->         @Override public void run() { closeNative(h); }           // 兜底清理
->     }
+>         CleanupAction(NativeHandle h) &#123; this.h = h; &#125;
+>         @Override public void run() &#123; closeNative(h); &#125;           // 兜底清理
+>     &#125;
 >
->     @Override public void close() { cleanable.clean(); }           // 主动清理（推荐路径）
-> }
+>     @Override public void close() &#123; cleanable.clean(); &#125;           // 主动清理（推荐路径）
+> &#125;
 > // DirectByteBuffer 的堆外内存释放就是用 Cleaner（JDK 8 是 sun.misc.Cleaner）
 > ```
 
@@ -177,9 +177,9 @@ public class FinalizeEscapeGC {
 | 引用类型 | 类 | 回收时机 | 用途 | 典型应用 |
 | --- | --- | --- | --- | --- |
 | **强引用（Strong）** | 普通赋值 `Object o = new Object()` | **永不回收**（只要可达，宁可 OOM） | 常规对象引用 | 几乎所有代码 |
-| **软引用（Soft）** | `SoftReference<T>` | **内存不足时**才回收（OOM 之前） | **内存敏感的缓存** | 图片缓存、Guava `softValues()` |
-| **弱引用（Weak）** | `WeakReference<T>` | **下次 GC 就回收**（不管内存够不够） | 不希望影响对象生命周期的引用 | **`ThreadLocalMap.Entry` 的 key**、`WeakHashMap` |
-| **虚引用（Phantom）** | `PhantomReference<T>` | 随时回收，**无法通过它获取对象**（get() 永远返回 null） | **跟踪对象被回收的时机**，做资源清理 | `DirectByteBuffer` 的 `Cleaner`（堆外内存释放） |
+| **软引用（Soft）** | `SoftReference&lt;T&gt;` | **内存不足时**才回收（OOM 之前） | **内存敏感的缓存** | 图片缓存、Guava `softValues()` |
+| **弱引用（Weak）** | `WeakReference&lt;T&gt;` | **下次 GC 就回收**（不管内存够不够） | 不希望影响对象生命周期的引用 | **`ThreadLocalMap.Entry` 的 key**、`WeakHashMap` |
+| **虚引用（Phantom）** | `PhantomReference&lt;T&gt;` | 随时回收，**无法通过它获取对象**（get() 永远返回 null） | **跟踪对象被回收的时机**，做资源清理 | `DirectByteBuffer` 的 `Cleaner`（堆外内存释放） |
 
 ```java
 import java.lang.ref.*;
@@ -967,7 +967,7 @@ memory.getNonHeapMemoryUsage().getUsed();    // 非堆（元空间等）
 
 **轮询页（Polling Page）机制：**
 
-```assembly
+```asm
 ; HotSpot 的安全点检查（在方法返回、循环回边处插入）
 test polling_page, %eax      ; ★ 读一个「轮询页」的地址
 ; 当需要 STW 时，JVM 把这个页设为「不可读」

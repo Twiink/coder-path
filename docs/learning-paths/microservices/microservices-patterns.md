@@ -8,27 +8,35 @@
 
 ## 第二站:API 与通信模式——服务怎么对话
 
-**对外入口:API 网关模式**(统一入口:路由转发到后端服务、聚合多服务响应、统一认证鉴权、限流熔断、协议转换——**客户端只认识网关,不直连服务**;实现见 [API 网关](/learning-paths/microservices/api-gateway));**BFF(Backend for Frontend)**:为不同客户端(Web/移动)定制专属后端——聚合裁剪转换,**避免"一个通用 API 服务所有端"的错配**(移动端要瘦接口,Web 要富接口);GraphQL 网关(按需查询——客户端要什么给什么,减少请求数)。**服务间通信两大派**:①**同步(HTTP REST/gRPC)**:简单直观,但**调用链耦合、级联失败**(慢服务拖垮上游)——必须配超时/熔断(见可靠性);②**异步(消息队列/事件驱动:RabbitMQ/Kafka——见 [消息中间件](/learning-paths/middleware/rabbitmq))**:生产者消费者解耦、削峰、发布订阅一对多——**事件驱动的服务不互相等,靠事件协作**。**选型心法**:查询类用同步(直接要结果),业务流转/解耦/削峰用异步(发事件不等待)——**"能异步就别同步"是微服务的进阶心法,但别教条(异步的调试与一致性成本也高)**。
+**对外入口:API 网关模式**(统一入口:路由转发到后端服务、聚合多服务响应、统一认证鉴权、限流熔断、协议转换——**客户端只认识网关,不直连服务**;实现见 [API 网关](/learning-paths/microservices/api-gateway));**BFF(Backend for Frontend)**:为不同客户端(Web/移动)定制专属后端——聚合裁剪转换,**避免"一个通用 API 服务所有端"的错配**(移动端要瘦接口,Web 要富接口);GraphQL 网关(按需查询——客户端要什么给什么,减少请求数)。
+**服务间通信两大派**:①**同步(HTTP REST/gRPC)**:简单直观,但**调用链耦合、级联失败**(慢服务拖垮上游)——必须配超时/熔断(见可靠性);②**异步(消息队列/事件驱动:RabbitMQ/Kafka——见 [消息中间件](/learning-paths/middleware/rabbitmq))**:生产者消费者解耦、削峰、发布订阅一对多——**事件驱动的服务不互相等,靠事件协作**。
+**选型心法**:查询类用同步(直接要结果),业务流转/解耦/削峰用异步(发事件不等待)——**"能异步就别同步"是微服务的进阶心法,但别教条(异步的调试与一致性成本也高)**。
 
 ## 第三站:数据模式——每个服务的数据自治与一致性
 
-**铁律:每服务一个数据库(数据自治)**——服务只通过 API 访问别人的数据,**绝不跨服务直连数据库**(否则共享库一改,牵一发动全身);代价:跨服务查询与一致性变难。**跨服务查询三解**:API 组合(网关/聚合层串并行调多个服务——简单但性能与失败处理要设计);**CQRS(命令查询职责分离)**:读写模型分离(写走服务 API,读走专门优化的读库/物化视图)——复杂查询场景;事件溯源(Event Sourcing:只存"事件流"不存状态,重放即得任意时刻状态——审计与回溯强,但实现与查询复杂,慎用)。**分布式事务(微服务最大的痛,模式核心)**:强一致方案 **2PC(两阶段提交)**:性能差、阻塞、协调器单点——**微服务里基本不用**;现实答案是 **Saga(最终一致性)**:把大事务拆成**一串本地事务**,每步失败执行**补偿操作**(退款/撤销)——两种编排:**编排式 Saga(中央协调器显式定义步骤:流程清晰但协调器耦合单点)** 与**事件驱动 Saga(每服务发布事件触发下一步:松耦合但流程隐晦难跟踪)**——**Saga 的代价是"没有强一致":中间状态外部可见,业务要接受最终一致**(下单-扣库存-扣款 的经典 Saga;落地工具:Seata,见 [Spring Cloud](/learning-paths/microservices/spring-cloud))。
+**铁律:每服务一个数据库(数据自治)**——服务只通过 API 访问别人的数据,**绝不跨服务直连数据库**(否则共享库一改,牵一发动全身);代价:跨服务查询与一致性变难。**跨服务查询三解**:API 组合(网关/聚合层串并行调多个服务——简单但性能与失败处理要设计);**CQRS(命令查询职责分离)**:读写模型分离(写走服务 API,读走专门优化的读库/物化视图)——复杂查询场景;事件溯源(Event Sourcing:只存"事件流"不存状态,重放即得任意时刻状态——审计与回溯强,但实现与查询复杂,慎用)。
+**分布式事务(微服务最大的痛,模式核心)**:强一致方案 **2PC(两阶段提交)**:性能差、阻塞、协调器单点——**微服务里基本不用**;现实答案是 **Saga(最终一致性)**:把大事务拆成**一串本地事务**,每步失败执行**补偿操作**(退款/撤销)——两种编排:**编排式 Saga(中央协调器显式定义步骤:流程清晰但协调器耦合单点)** 与**事件驱动 Saga(每服务发布事件触发下一步:松耦合但流程隐晦难跟踪)**——**Saga 的代价是"没有强一致":中间状态外部可见,业务要接受最终一致**(下单-扣库存-扣款 的经典 Saga;落地工具:Seata,见 [Spring Cloud](/learning-paths/microservices/spring-cloud))。
 
 ## 第四站:可靠性模式——让故障不扩散(与云原生弹性同源)
 
-微服务多,故障概率就高——**可靠性模式的目标是"一个挂不拖垮一片"**(理论细讲见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 弹性章,此处列模式清单):①**超时**(每个调用都要有,防无限等待);②**重试 + 指数退避**(治瞬时故障,只对幂等操作);③**断路器**(错误率超阈值 → 打开直接快速失败 → 半开试探恢复——治"持续故障",避免无谓重试放大;实现 Hystrix(已停)/Resilience4j/Sentinel);④**舱壁 Bulkhead**(线程池/连接池按依赖隔离——慢依赖不占光全局资源);⑤**限流**(令牌桶/漏桶,防过载;实现 Sentinel/Nginx/网关);⑥**降级 Fallback**(依赖挂了给默认值/缓存——优雅降级优于硬失败);⑦**负载均衡**(轮询/加权/最少连接/一致性哈希——见 [Nginx](/learning-paths/middleware/nginx) 与注册中心);⑧**健康检查**(存活/就绪探针,不健康自动摘除——见 [K8s](/learning-paths/devops/kubernetes))。**组合拳:超时兜底 → 重试扛抖动 → 熔断停试探 → 限流防过载 → 降级保体验 → 舱壁防蔓延**——微服务韧性的六件套。
+微服务多,故障概率就高——**可靠性模式的目标是"一个挂不拖垮一片"**(理论细讲见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 弹性章,此处列模式清单):①**超时**(每个调用都要有,防无限等待);②**重试 + 指数退避**(治瞬时故障,只对幂等操作);③**断路器**(错误率超阈值 → 打开直接快速失败 → 半开试探恢复——治"持续故障",避免无谓重试放大;实现 Hystrix(已停)/Resilience4j/Sentinel);④**舱壁 Bulkhead**(线程池/连接池按依赖隔离——慢依赖不占光全局资源);⑤**限流**(令牌桶/漏桶,防过载;实现 Sentinel/Nginx/网关);⑥**降级 Fallback**(依赖挂了给默认值/缓存——优雅降级优于硬失败);⑦**负载均衡**(轮询/加权/最少连接/一致性哈希——见 [Nginx](/learning-paths/middleware/nginx) 与注册中心);⑧**健康检查**(存活/就绪探针,不健康自动摘除——见 [K8s](/learning-paths/devops/kubernetes))。
+**组合拳:超时兜底 → 重试扛抖动 → 熔断停试探 → 限流防过载 → 降级保体验 → 舱壁防蔓延**——微服务韧性的六件套。
 
 ## 第五站:服务发现与安全模式——服务怎么找到彼此、怎么互信
 
-**服务发现(实例地址动态变化——微服务没有写死的 IP)**:客户端发现(服务从注册中心拉列表自己负载均衡——Eureka/Nacos/Consul,见 [Spring Cloud](/learning-paths/microservices/spring-cloud))与服务端发现(请求到 LB,Nginx/K8s Service 代查——见 [K8s](/learning-paths/devops/kubernetes));注册方式:自注册(服务自己注册+心跳)或第三方(K8s 自动)。**安全模式(零信任在服务间)**:对外——**网关统一认证**(OAuth2/JWT 在入口验,见 [认证](/learning-paths/security/auth));对内——**服务间认证三选**:mTLS(双向证书,最强,Service Mesh 提供——见 [服务网格](/learning-paths/cloud-native/service-mesh))/服务凭证(Client Credentials)/共享密钥;令牌透传(用户上下文随请求传下游——见 [认证](/learning-paths/security/auth) 微服务章);密钥管理(Vault/K8s Secret——见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 密钥章)。**RBAC 授权**:用户-角色-权限,网关验身份、服务验权限(数据级权限见 [Web 安全](/learning-paths/security/web-security) 越权章)。
+**服务发现(实例地址动态变化——微服务没有写死的 IP)**:客户端发现(服务从注册中心拉列表自己负载均衡——Eureka/Nacos/Consul,见 [Spring Cloud](/learning-paths/microservices/spring-cloud))与服务端发现(请求到 LB,Nginx/K8s Service 代查——见 [K8s](/learning-paths/devops/kubernetes));注册方式:自注册(服务自己注册+心跳)或第三方(K8s 自动)。
+**安全模式(零信任在服务间)**:对外——**网关统一认证**(OAuth2/JWT 在入口验,见 [认证](/learning-paths/security/auth));对内——**服务间认证三选**:mTLS(双向证书,最强,Service Mesh 提供——见 [服务网格](/learning-paths/cloud-native/service-mesh))/服务凭证(Client Credentials)/共享密钥;令牌透传(用户上下文随请求传下游——见 [认证](/learning-paths/security/auth) 微服务章);密钥管理(Vault/K8s Secret——见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 密钥章)。
+**RBAC 授权**:用户-角色-权限,网关验身份、服务验权限(数据级权限见 [Web 安全](/learning-paths/security/web-security) 越权章)。
 
 ## 第六站:可观测性模式——几十个服务怎么排障
 
-微服务排障 = 顺着一条请求穿过 N 个服务——**三支柱缺一不可**(落地见 [监控](/learning-paths/devops/monitoring)):①**日志聚合**:集中收集(EFK/Loki)+ **结构化日志**(JSON)+ **Trace ID 贯穿**(每服务日志带同一 ID——否则跨服务对不上);②**分布式追踪**:Trace ID 在服务间**自动传播**(B3/W3C header——框架与网格自动做),Jaeger/Tempo 可视化调用链——**"请求慢在哪一跳"秒级定位**;OpenTelemetry 是统一标准(见 [监控](/learning-paths/devops/monitoring) 追踪章);③**指标**:RED(每服务 QPS/错误/延迟)+ Prometheus/Grafana 统一大盘;④**健康检查 API**(/health 供探针与网关);⑤**异常追踪**(Sentry 聚合报错)与**审计日志**(合规)。**可观测不是后补:新服务上线 checklist 第一项就是"日志带 traceId、指标上大盘、告警有人收"**。
+微服务排障 = 顺着一条请求穿过 N 个服务——**三支柱缺一不可**(落地见 [监控](/learning-paths/devops/monitoring)):①**日志聚合**:集中收集(EFK/Loki)+ **结构化日志**(JSON)+ **Trace ID 贯穿**(每服务日志带同一 ID——否则跨服务对不上);②**分布式追踪**:Trace ID 在服务间**自动传播**(B3/W3C header——框架与网格自动做),Jaeger/Tempo 可视化调用链——**"请求慢在哪一跳"秒级定位**;OpenTelemetry 是统一标准(见 [监控](/learning-paths/devops/monitoring) 追踪章);③**指标**:RED(每服务 QPS/错误/延迟)+ Prometheus/Grafana 统一大盘;④**健康检查 API**(/health 供探针与网关);⑤**异常追踪**(Sentry 聚合报错)与**审计日志**(合规)。
+**可观测不是后补:新服务上线 checklist 第一项就是"日志带 traceId、指标上大盘、告警有人收"**。
 
 ## 第七站:部署与测试模式——微服务的交付与质量
 
-**部署形态演进**:每服务单主机(浪费)→ 每主机多服务(互相干扰)→ **每服务单容器(Docker + K8s——现代标准,见 [Docker](/learning-paths/devops/docker)/[K8s](/learning-paths/devops/kubernetes))** → Serverless(按需,见 [Serverless](/learning-paths/cloud-native/serverless));**发布策略**:蓝绿(两套环境一键切,回滚快但双倍资源)/**金丝雀(灰度:小流量验证逐步放量——现代默认,配网关/网格权重路由,见 [服务网格](/learning-paths/cloud-native/service-mesh))**/滚动(K8s 默认:逐个替换零停机)。**测试金字塔的微服务版(从快到慢)**:单元(服务内逻辑)→ **服务契约测试(微服务特色:Pact/Spring Cloud Contract——消费者与提供者之间用"契约"提前锁接口,解决"两端各自测试都绿、一联调就挂"——契约测试是微服务 CI 的骨干)** → 组件测试(单服务 + mock 依赖)→ 集成测试(真实多服务,慢)→ E2E(全链路,最慢最少)→ **混沌工程(主动注入故障验证韧性:Chaos Monkey/ChaosBlade——"验证设计能扛住"而非等故障来考)**。
+**部署形态演进**:每服务单主机(浪费)→ 每主机多服务(互相干扰)→ **每服务单容器(Docker + K8s——现代标准,见 [Docker](/learning-paths/devops/docker)/[K8s](/learning-paths/devops/kubernetes))** → Serverless(按需,见 [Serverless](/learning-paths/cloud-native/serverless));**发布策略**:蓝绿(两套环境一键切,回滚快但双倍资源)/**金丝雀(灰度:小流量验证逐步放量——现代默认,配网关/网格权重路由,见 [服务网格](/learning-paths/cloud-native/service-mesh))**/滚动(K8s 默认:逐个替换零停机)。
+**测试金字塔的微服务版(从快到慢)**:单元(服务内逻辑)→ **服务契约测试(微服务特色:Pact/Spring Cloud Contract——消费者与提供者之间用"契约"提前锁接口,解决"两端各自测试都绿、一联调就挂"——契约测试是微服务 CI 的骨干)** → 组件测试(单服务 + mock 依赖)→ 集成测试(真实多服务,慢)→ E2E(全链路,最慢最少)→ **混沌工程(主动注入故障验证韧性:Chaos Monkey/ChaosBlade——"验证设计能扛住"而非等故障来考)**。
 
 ## 通关标准
 

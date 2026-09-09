@@ -4,11 +4,13 @@
 
 ## 第一层:前端测试——单元 + 组件
 
-**测什么**:①**纯逻辑**(工具函数/状态管理/日期计算)——收益最高的单测对象,见 [Jest](/learning-paths/testing/jest)/[Vitest](/learning-paths/frontend/vite);②**组件行为**:渲染出什么、点击/输入后变成什么——用 **Testing Library**(React:render/screen;Vue:Vue Test Utils):查询走用户视角(getByRole/getByText)、交互用 user-event、异步断言 waitFor——**测"用户看到的行为",不测内部实现**(见 [React](/learning-paths/frontend/react) 测试章);③**组件边界**:mock 子组件与请求(依赖隔离);④快照慎用(变更提醒而非验收)。**工具选型**:Vite 项目用 Vitest(同 Jest API 更快),React 配 RTL,组件交互复杂可上 Cypress 组件测试(见 [Cypress](/learning-paths/testing/cypress) 组件章)。
+**测什么**:①**纯逻辑**(工具函数/状态管理/日期计算)——收益最高的单测对象,见 [Jest](/learning-paths/testing/jest)/[Vitest](/learning-paths/frontend/vite);②**组件行为**:渲染出什么、点击/输入后变成什么——用 **Testing Library**(React:render/screen;Vue:Vue Test Utils):查询走用户视角(getByRole/getByText)、交互用 user-event、异步断言 waitFor——**测"用户看到的行为",不测内部实现**(见 [React](/learning-paths/frontend/react) 测试章);③**组件边界**:mock 子组件与请求(依赖隔离);④快照慎用(变更提醒而非验收)。
+**工具选型**:Vite 项目用 Vitest(同 Jest API 更快),React 配 RTL,组件交互复杂可上 Cypress 组件测试(见 [Cypress](/learning-paths/testing/cypress) 组件章)。
 
 ## 第二层:后端测试——单元 + 接口
 
-**测什么**:①**服务/业务逻辑**(单元:mock 数据层依赖,断言"依赖被正确调用+边界处理"——见 [Jest](/learning-paths/testing/jest)/[Pytest](/learning-paths/testing/pytest)/[JUnit](/learning-paths/testing/junit) 的 Mock 章);②**接口测试(后端测试的主力)**:直接请求应用(Supertest 打 Express、pytest 的 test client、MockMvc 打 Spring)——**先拿 JWT token 再带 Authorization 头调接口,断言状态码与响应体关键字段**:200 与数据结构、401/403 鉴权、400/422 参数校验、404 边界——**接口测试 = 把"前后端契约"锁进代码**(见 [协作](/learning-paths/fullstack/collaboration));③**数据库集成**:真实依赖用 Testcontainers(容器起 MySQL/Redis——见 [JUnit](/learning-paths/testing/junit) 章)或框架的测试库(事务回滚,见 [Django](/learning-paths/backend/django) 测试章)。**测试数据**:工厂模式(factory_boy/工厂函数)造数据,别手写一堆 setUps。
+**测什么**:①**服务/业务逻辑**(单元:mock 数据层依赖,断言"依赖被正确调用+边界处理"——见 [Jest](/learning-paths/testing/jest)/[Pytest](/learning-paths/testing/pytest)/[JUnit](/learning-paths/testing/junit) 的 Mock 章);②**接口测试(后端测试的主力)**:直接请求应用(Supertest 打 Express、pytest 的 test client、MockMvc 打 Spring)——**先拿 JWT token 再带 Authorization 头调接口,断言状态码与响应体关键字段**:200 与数据结构、401/403 鉴权、400/422 参数校验、404 边界——**接口测试 = 把"前后端契约"锁进代码**(见 [协作](/learning-paths/fullstack/collaboration));③**数据库集成**:真实依赖用 Testcontainers(容器起 MySQL/Redis——见 [JUnit](/learning-paths/testing/junit) 章)或框架的测试库(事务回滚,见 [Django](/learning-paths/backend/django) 测试章)。
+**测试数据**:工厂模式(factory_boy/工厂函数)造数据,别手写一堆 setUps。
 
 ## 第三层:E2E 测试——关键流程的最终防线
 

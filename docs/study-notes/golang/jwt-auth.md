@@ -51,105 +51,105 @@ import (
 var jwtKey = []byte("my-secret-key") // 生产环境从配置读取
 
 // Claims 自定义声明
-type Claims struct {
+type Claims struct &#123;
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
-}
+&#125;
 
 // GenerateToken 生成 token
-func GenerateToken(userID uint, username string) (string, error) {
-	claims := Claims{
+func GenerateToken(userID uint, username string) (string, error) &#123;
+	claims := Claims&#123;
 		UserID:   userID,
 		Username: username,
-		RegisteredClaims: jwt.RegisteredClaims{
+		RegisteredClaims: jwt.RegisteredClaims&#123;
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 24 小时过期
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "gin-demo",
-		},
-	}
+		&#125;,
+	&#125;
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtKey)
-}
+&#125;
 
 // ParseToken 解析并验证 token
-func ParseToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+func ParseToken(tokenString string) (*Claims, error) &#123;
+	token, err := jwt.ParseWithClaims(tokenString, &Claims&#123;&#125;, func(token *jwt.Token) (interface&#123;&#125;, error) &#123;
 		return jwtKey, nil
-	})
-	if err != nil {
+	&#125;)
+	if err != nil &#123;
 		return nil, err
-	}
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+	&#125;
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid &#123;
 		return claims, nil
-	}
+	&#125;
 	return nil, jwt.ErrTokenInvalidClaims
-}
+&#125;
 ~~~
 
 ## 登录接口签发 Token
 
 ~~~go
-r.POST("/login", func(c *gin.Context) {
-	var req struct {
+r.POST("/login", func(c *gin.Context) &#123;
+	var req struct &#123;
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	&#125;
+	if err := c.ShouldBindJSON(&req); err != nil &#123;
+		c.JSON(400, gin.H&#123;"error": err.Error()&#125;)
 		return
-	}
+	&#125;
 
 	// 校验用户名密码（这里简化，实际查数据库）
-	if req.Username != "admin" || req.Password != "123456" {
-		c.JSON(401, gin.H{"error": "用户名或密码错误"})
+	if req.Username != "admin" || req.Password != "123456" &#123;
+		c.JSON(401, gin.H&#123;"error": "用户名或密码错误"&#125;)
 		return
-	}
+	&#125;
 
 	// 生成 token
 	token, err := auth.GenerateToken(1, req.Username)
-	if err != nil {
-		c.JSON(500, gin.H{"error": "生成 token 失败"})
+	if err != nil &#123;
+		c.JSON(500, gin.H&#123;"error": "生成 token 失败"&#125;)
 		return
-	}
+	&#125;
 
-	c.JSON(200, gin.H{
+	c.JSON(200, gin.H&#123;
 		"token": token,
 		"type":  "Bearer",
-	})
-})
+	&#125;)
+&#125;)
 ~~~
 
 ## JWT 鉴权中间件
 
 ~~~go
-func JWTAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// 从 Header 获取 token：Authorization: Bearer <token>
+func JWTAuth() gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
+		// 从 Header 获取 token：Authorization: Bearer &lt;token&gt;
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.AbortWithStatusJSON(401, gin.H{"error": "缺少认证信息"})
+		if authHeader == "" &#123;
+			c.AbortWithStatusJSON(401, gin.H&#123;"error": "缺少认证信息"&#125;)
 			return
-		}
+		&#125;
 		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.AbortWithStatusJSON(401, gin.H{"error": "认证格式错误"})
+		if len(parts) != 2 || parts[0] != "Bearer" &#123;
+			c.AbortWithStatusJSON(401, gin.H&#123;"error": "认证格式错误"&#125;)
 			return
-		}
+		&#125;
 
 		// 解析 token
 		claims, err := auth.ParseToken(parts[1])
-		if err != nil {
-			c.AbortWithStatusJSON(401, gin.H{"error": "无效或过期的 token"})
+		if err != nil &#123;
+			c.AbortWithStatusJSON(401, gin.H&#123;"error": "无效或过期的 token"&#125;)
 			return
-		}
+		&#125;
 
 		// 将用户信息存入上下文，供后续使用
 		c.Set("user_id", claims.UserID)
 		c.Set("username", claims.Username)
 		c.Next()
-	}
-}
+	&#125;
+&#125;
 ~~~
 
 ## 保护路由
@@ -161,21 +161,21 @@ r.POST("/login", loginHandler)
 // 需要认证的路由组
 auth := r.Group("/api")
 auth.Use(JWTAuth())
-{
-	auth.GET("/profile", func(c *gin.Context) {
+&#123;
+	auth.GET("/profile", func(c *gin.Context) &#123;
 		uid, _ := c.Get("user_id")
 		name, _ := c.Get("username")
-		c.JSON(200, gin.H{"user_id": uid, "username": name})
-	})
+		c.JSON(200, gin.H&#123;"user_id": uid, "username": name&#125;)
+	&#125;)
 	auth.PUT("/users/:id", updateUser)
 	auth.DELETE("/users/:id", deleteUser)
-}
+&#125;
 ~~~
 
 客户端请求受保护接口：
 ~~~shell
 curl http://localhost:8080/api/profile \
-  -H "Authorization: Bearer <your-token>"
+  -H "Authorization: Bearer &lt;your-token&gt;"
 ~~~
 
 ## Token 续期方案
@@ -186,12 +186,12 @@ curl http://localhost:8080/api/profile \
 Refresh token 示例：
 
 ~~~go
-r.POST("/refresh", JWTAuth(), func(c *gin.Context) {
+r.POST("/refresh", JWTAuth(), func(c *gin.Context) &#123;
 	uid, _ := c.Get("user_id")
 	name, _ := c.Get("username")
 	token, _ := auth.GenerateToken(uid.(uint), name.(string))
-	c.JSON(200, gin.H{"token": token})
-})
+	c.JSON(200, gin.H&#123;"token": token&#125;)
+&#125;)
 ~~~
 
 ## 基于角色的权限控制（RBAC）
@@ -199,32 +199,32 @@ r.POST("/refresh", JWTAuth(), func(c *gin.Context) {
 在 Claims 中加入角色，在中间件中校验：
 
 ~~~go
-type Claims struct {
+type Claims struct &#123;
 	UserID uint   `json:"user_id"`
 	Role   string `json:"role"` // admin / user
 	jwt.RegisteredClaims
-}
+&#125;
 
 // 角色校验中间件
-func RequireRole(role string) gin.HandlerFunc {
-	return func(c *gin.Context) {
+func RequireRole(role string) gin.HandlerFunc &#123;
+	return func(c *gin.Context) &#123;
 		claims, exists := c.Get("role")
-		if !exists || claims.(string) != role {
-			c.AbortWithStatusJSON(403, gin.H{"error": "权限不足"})
+		if !exists || claims.(string) != role &#123;
+			c.AbortWithStatusJSON(403, gin.H&#123;"error": "权限不足"&#125;)
 			return
-		}
+		&#125;
 		c.Next()
-	}
-}
+	&#125;
+&#125;
 ~~~
 
 使用：
 ~~~go
 admin := auth.Group("/admin")
 admin.Use(RequireRole("admin"))
-{
+&#123;
 	admin.DELETE("/users/:id", deleteUser)
-}
+&#125;
 ~~~
 
 ::: tip

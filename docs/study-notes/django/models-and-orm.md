@@ -202,7 +202,7 @@ updated_at = models.DateTimeField(auto_now=True)       # 修改时间
 | `verbose_name='名称'` | admin 显示名 |
 | `help_text='帮助文字'` | 表单帮助文本 |
 | `validators=[...]` | 校验器列表(如 `MinLengthValidator`) |
-| `error_messages={...}` | 自定义错误消息 |
+| `error_messages=&#123;...&#125;` | 自定义错误消息 |
 | `db_comment='注释'` | 数据库列注释(4.2+) |
 
 **null 与 blank 的区别(高频考点):**

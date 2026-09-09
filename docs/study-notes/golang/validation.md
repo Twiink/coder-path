@@ -39,22 +39,22 @@ Gin 内置使用 [go-playground/validator/v10](https://github.com/go-playground/
 ## 基础校验示例
 
 ~~~go
-type RegisterReq struct {
+type RegisterReq struct &#123;
 	Username string `json:"username" binding:"required,min=3,max=20"`
 	Password string `json:"password" binding:"required,min=6,max=20"`
 	Email    string `json:"email" binding:"required,email"`
 	Age      int    `json:"age" binding:"gte=1,lte=120"`
 	Gender   string `json:"gender" binding:"required,oneof=male female"`
-}
+&#125;
 
-r.POST("/register", func(c *gin.Context) {
+r.POST("/register", func(c *gin.Context) &#123;
 	var req RegisterReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	if err := c.ShouldBindJSON(&req); err != nil &#123;
+		c.JSON(400, gin.H&#123;"error": err.Error()&#125;)
 		return
-	}
-	c.JSON(200, gin.H{"msg": "注册成功", "user": req.Username})
-})
+	&#125;
+	c.JSON(200, gin.H&#123;"msg": "注册成功", "user": req.Username&#125;)
+&#125;)
 ~~~
 
 校验失败时 `err` 是 `validator.ValidationErrors` 类型，包含每个字段的校验失败信息。
@@ -64,10 +64,10 @@ r.POST("/register", func(c *gin.Context) {
 `omitempty` 表示字段为空时跳过校验，常用于可选字段：
 
 ~~~go
-type UpdateReq struct {
+type UpdateReq struct &#123;
 	Email string `json:"email" binding:"omitempty,email"`   // 可选，填了必须是邮箱
 	Phone string `json:"phone" binding:"omitempty,len=11"`  // 可选，填了长度必须11
-}
+&#125;
 ~~~
 
 ## 自定义校验器
@@ -75,31 +75,31 @@ type UpdateReq struct {
 注册自定义校验规则：
 
 ~~~go
-func main() {
+func main() &#123;
 	r := gin.Default()
 
 	// 获取 gin 绑定引擎中的 validator 实例
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok &#123;
 		// 注册自定义校验函数：校验日期格式 YYYY-MM-DD
-		_ = v.RegisterValidation("dateformat", func(fl validator.FieldLevel) bool {
+		_ = v.RegisterValidation("dateformat", func(fl validator.FieldLevel) bool &#123;
 			_, err := time.Parse("2006-01-02", fl.Field().String())
 			return err == nil
-		})
-	}
+		&#125;)
+	&#125;
 
-	r.POST("/date", func(c *gin.Context) {
-		var req struct {
+	r.POST("/date", func(c *gin.Context) &#123;
+		var req struct &#123;
 			Date string `json:"date" binding:"required,dateformat"`
-		}
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+		&#125;
+		if err := c.ShouldBindJSON(&req); err != nil &#123;
+			c.JSON(400, gin.H&#123;"error": err.Error()&#125;)
 			return
-		}
-		c.JSON(200, gin.H{"date": req.Date})
-	})
+		&#125;
+		c.JSON(200, gin.H&#123;"date": req.Date&#125;)
+	&#125;)
 
 	r.Run()
-}
+&#125;
 ~~~
 
 ## 结构体级别校验
@@ -107,25 +107,25 @@ func main() {
 当字段间存在依赖关系（如密码与确认密码一致），使用 `RegisterStructValidation`：
 
 ~~~go
-type ChangePwdReq struct {
+type ChangePwdReq struct &#123;
 	Password  string `json:"password" binding:"required"`
 	ConfirmPwd string `json:"confirm_pwd" binding:"required"`
-}
+&#125;
 
-func ValidateChangePwd(sl validator.StructLevel) {
+func ValidateChangePwd(sl validator.StructLevel) &#123;
 	req := sl.Current().Interface().(ChangePwdReq)
-	if req.Password != req.ConfirmPwd {
+	if req.Password != req.ConfirmPwd &#123;
 		sl.ReportError(req.ConfirmPwd, "ConfirmPwd", "confirm_pwd", "eqfield", "")
-	}
-}
+	&#125;
+&#125;
 
-func main() {
+func main() &#123;
 	r := gin.Default()
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterStructValidation(ValidateChangePwd, ChangePwdReq{})
-	}
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok &#123;
+		v.RegisterStructValidation(ValidateChangePwd, ChangePwdReq&#123;&#125;)
+	&#125;
 	// ...
-}
+&#125;
 ~~~
 
 ## 友好的错误信息
@@ -133,13 +133,13 @@ func main() {
 默认的校验错误信息是英文且较晦涩。可以将错误转换为更友好的中文提示：
 
 ~~~go
-func GetValidMsg(err error) map[string]string {
+func GetValidMsg(err error) map[string]string &#123;
 	errs := make(map[string]string)
-	if ve, ok := err.(validator.ValidationErrors); ok {
-		for _, e := range ve {
+	if ve, ok := err.(validator.ValidationErrors); ok &#123;
+		for _, e := range ve &#123;
 			field := e.Field()
 			tag := e.Tag()
-			switch tag {
+			switch tag &#123;
 			case "required":
 				errs[field] = field + " 不能为空"
 			case "min":
@@ -150,20 +150,20 @@ func GetValidMsg(err error) map[string]string {
 				errs[field] = field + " 格式不正确"
 			default:
 				errs[field] = field + " 校验失败: " + tag
-			}
-		}
-	}
+			&#125;
+		&#125;
+	&#125;
 	return errs
-}
+&#125;
 
-r.POST("/login", func(c *gin.Context) {
+r.POST("/login", func(c *gin.Context) &#123;
 	var req Login
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"errors": GetValidMsg(err)})
+	if err := c.ShouldBindJSON(&req); err != nil &#123;
+		c.JSON(400, gin.H&#123;"errors": GetValidMsg(err)&#125;)
 		return
-	}
-	c.JSON(200, gin.H{"msg": "ok"})
-})
+	&#125;
+	c.JSON(200, gin.H&#123;"msg": "ok"&#125;)
+&#125;)
 ~~~
 
 ::: tip
@@ -183,13 +183,13 @@ import (
 
 var trans ut.Translator
 
-func InitTrans() {
+func InitTrans() &#123;
 	uni := ut.New(zh.New())
 	trans, _ = uni.GetTranslator("zh")
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok &#123;
 		_ = zhTrans.RegisterDefaultTranslations(v, trans)
-	}
-}
+	&#125;
+&#125;
 
 // 使用：errs.Translate(trans) 返回中文错误 map
 ~~~

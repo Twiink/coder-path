@@ -480,7 +480,7 @@ _bulk 是 ES 写入性能的钥匙：
 | `123.45` | `float` |
 | `"2026-09-06"` | `date` |
 | `"hello"` | `text` + `keyword` 子字段 |
-| `{ "a": 1 }` | `object` |
+| (&#123; "a": 1 &#125;) | `object` |
 | `[1, 2, 3]` | 根据元素类型 |
 
 > **生产环境建议 `dynamic: strict`**，拒绝未定义字段写入，避免 Mapping 爆炸（Mapping Explosion）。

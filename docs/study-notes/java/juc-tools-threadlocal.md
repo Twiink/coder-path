@@ -1228,12 +1228,12 @@ public Data getWithSingleFlight(String key) {
 | 4 | ThreadLocal 存大对象 | 内存放大 N 倍（N=线程数） | 只存必要的小对象 |
 | 5 | ThreadLocal 的 value 是可变共享对象 | 多线程修改同一对象 | 每线程独立创建（`withInitial`） |
 | 6 | 静态 ThreadLocal 被置 null | Entry 变脏，探测链变长 | 不要置 null，用 remove |
-| 7 | `CountDownLatch.countDown` 不在 finally | 任务抛异常导致计数永不归零，主线程永久阻塞 | 必须 `finally { countDown(); }` |
+| 7 | `CountDownLatch.countDown` 不在 finally | 任务抛异常导致计数永不归零，主线程永久阻塞 | 必须 `finally &#123; countDown(); &#125;` |
 | 8 | `CountDownLatch.await()` 无超时 | 某任务卡死 → 主线程永久阻塞 | `await(timeout, unit)` |
 | 9 | 期望 CountDownLatch 可重用 | 第二次 await 立即返回 | 用 `CyclicBarrier` |
 | 10 | `CyclicBarrier` 未处理 `BrokenBarrierException` | 编译错误/异常未处理 | 必须 catch（受检异常） |
 | 11 | CyclicBarrier 某线程超时 | 栅栏 broken，所有线程抛异常 | 合理设置超时 + reset 恢复 |
-| 12 | `Semaphore.release()` 不在 finally | 许可泄漏，最终全部阻塞 | 必须 `finally { release(); }` |
+| 12 | `Semaphore.release()` 不在 finally | 许可泄漏，最终全部阻塞 | 必须 `finally &#123; release(); &#125;` |
 | 13 | 把 Semaphore 当互斥锁 | 其他线程可 release，状态错乱 | 用 `ReentrantLock` |
 | 14 | Semaphore 许可数配错（过大） | 限流失效，下游被打垮 | 按下游承载能力配置 + 压测验证 |
 | 15 | `LinkedBlockingQueue` 默认无界 | OOM | 显式指定容量 |

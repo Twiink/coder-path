@@ -6,11 +6,13 @@ Spring Boot 是 Java 企业级开发的事实标准:它把 Spring 框架(IoC/AOP
 
 ## 第一站:快速开始
 
-**项目生成**:start.spring.io 或 IDEA 内置 Initializr——选依赖(Web/Validation/Data JPA/Security……)即得可运行项目;**启动类**:`@SpringBootApplication`(= @SpringBootConfiguration + **@EnableAutoConfiguration** + @ComponentScan)+ `main` 里 `SpringApplication.run(XxxApplication.class)`;**配置**:`application.yml`(端口/数据源/日志……),`spring-boot-devtools` 开发热重启;**依赖**:starter 机制(`spring-boot-starter-web` 一个坐标带齐 web 全家——版本由 Boot BOM 统一管理,不写版本号);目录结构(src/main/java + resources、启动类放根包——**组件扫描的边界**)。第一个接口:Controller + @GetMapping 返回 JSON。
+**项目生成**:start.spring.io 或 IDEA 内置 Initializr——选依赖(Web/Validation/Data JPA/Security……)即得可运行项目;**启动类**:`@SpringBootApplication`(= @SpringBootConfiguration + **@EnableAutoConfiguration** + @ComponentScan)+ `main` 里 `SpringApplication.run(XxxApplication.class)`;**配置**:`application.yml`(端口/数据源/日志……),`spring-boot-devtools` 开发热重启;**依赖**:starter 机制(`spring-boot-starter-web` 一个坐标带齐 web 全家——版本由 Boot BOM 统一管理,不写版本号);目录结构(src/main/java + resources、启动类放根包——**组件扫描的边界**)。
+第一个接口:Controller + @GetMapping 返回 JSON。
 
 ## 第二站:自动配置与 Starter 原理——"零配置"的秘密
 
-Boot 凭什么不写配置就能连数据库?答案:**自动配置类 + 条件注解**。启动时 `@EnableAutoConfiguration` 加载 `META-INF/spring/...AutoConfiguration.imports`(Boot 3;2.x 是 spring.factories)里注册的自动配置类(DataSourceAutoConfiguration、JpaRepositoriesAutoConfiguration……);每个自动配置类用**条件注解**按需生效:`@ConditionalOnClass`(classpath 有驱动才配)、`@ConditionalOnMissingBean`(你自定义了就不覆盖)、`@ConditionalOnProperty`(按配置开关)——**"有才配、你配了我不动"是自动配置的黄金法则**。**@ConfigurationProperties**(强类型配置绑定):`@ConfigurationProperties(prefix = "app.jwt")` + 类字段,自动绑定 yml——比 @Value 散装注入优雅;开启 @EnableConfigurationProperties 或 @Component 注册;**自定义 Starter**(给团队/公司写公共组件时):命名规范 `xxx-spring-boot-starter`、自动配置类 + imports 文件 + spring.factories(旧)——会写 starter 才算真懂自动配置。
+Boot 凭什么不写配置就能连数据库?答案:**自动配置类 + 条件注解**。启动时 `@EnableAutoConfiguration` 加载 `META-INF/spring/...AutoConfiguration.imports`(Boot 3;2.x 是 spring.factories)里注册的自动配置类(DataSourceAutoConfiguration、JpaRepositoriesAutoConfiguration……);每个自动配置类用**条件注解**按需生效:`@ConditionalOnClass`(classpath 有驱动才配)、`@ConditionalOnMissingBean`(你自定义了就不覆盖)、`@ConditionalOnProperty`(按配置开关)——**"有才配、你配了我不动"是自动配置的黄金法则**。
+**@ConfigurationProperties**(强类型配置绑定):`@ConfigurationProperties(prefix = "app.jwt")` + 类字段,自动绑定 yml——比 @Value 散装注入优雅;开启 @EnableConfigurationProperties 或 @Component 注册;**自定义 Starter**(给团队/公司写公共组件时):命名规范 `xxx-spring-boot-starter`、自动配置类 + imports 文件 + spring.factories(旧)——会写 starter 才算真懂自动配置。
 
 ## 第三站:IoC 容器与依赖注入
 
@@ -18,11 +20,11 @@ Boot 凭什么不写配置就能连数据库?答案:**自动配置类 + 条件�
 
 ## 第四站:REST API 开发
 
-**@RestController**(= @Controller + @ResponseBody,方法返回值直接 JSON);**路由**:@RequestMapping + 快捷注解(@GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping),路径变量 @PathVariable、查询 @RequestParam(required/defaultValue)、请求体 @RequestBody(自动 JSON 反序列化)、@RequestHeader;DTO 校验:@Valid 触发(spring-boot-starter-validation):DTO 字段加 @NotNull/@NotBlank/@Size/@Email/@Pattern——**请求入口全校验**(Bean Validation 标准);**响应**:ResponseEntity<T>(状态码/响应头/Location)或统一 Result<T>(code/message/data——团队约定,别混用);业务分层:Controller(薄:参数与响应)→ Service(@Service,事务与业务)→ Repository;**API 规范**:资源复数/状态码语义/版本化(见 [全栈路线](/learning-paths/fullstack/overview))。
+**@RestController**(= @Controller + @ResponseBody,方法返回值直接 JSON);**路由**:@RequestMapping + 快捷注解(@GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping),路径变量 @PathVariable、查询 @RequestParam(required/defaultValue)、请求体 @RequestBody(自动 JSON 反序列化)、@RequestHeader;DTO 校验:@Valid 触发(spring-boot-starter-validation):DTO 字段加 @NotNull/@NotBlank/@Size/@Email/@Pattern——**请求入口全校验**(Bean Validation 标准);**响应**:ResponseEntity&lt;T&gt;(状态码/响应头/Location)或统一 Result&lt;T&gt;(code/message/data——团队约定,别混用);业务分层:Controller(薄:参数与响应)→ Service(@Service,事务与业务)→ Repository;**API 规范**:资源复数/状态码语义/版本化(见 [全栈路线](/learning-paths/fullstack/overview))。
 
 ## 第五站:数据访问
 
-**Spring Data JPA**(Java 持久层标准,基于 Hibernate):**Entity**:@Entity + @Table + @Id @GeneratedValue + @Column + @Enumerated;**Repository**:接口继承 JpaRepository<User, Long> 即得 CRUD——**方法命名查询**(findByEmailAndStatus、countByXxx、existsBy——Spring 按方法名解析 SQL)、**@Query**(JPQL 或 nativeQuery=true 原生 SQL)、分页(Pageable/Page)、Specification 或 QueryDSL(多条件动态查询:筛选列表);**关系映射**:@OneToMany/@ManyToOne/@ManyToMany(mappedBy、joinTable)+ **fetch = LAZY**(默认一对多懒加载——**懒加载发生在事务外会 LazyInitializationException**,经典坑)+ **N+1 问题**(循环里查库:join fetch / @EntityGraph 预加载);**实体与 DTO 转换**:MapStruct(编译期生成,性能好)或手动(别把 Entity 直接吐给前端——密码/内部字段泄露与循环引用);**事务**见第七站;**国产替代 MyBatis-Plus**(国内互联网公司极流行:注解 SQL/XML 分离/代码生成器——会 JPA 后按需补);**连接池**:默认 HikariCP(性能最好,配置 maximum-pool-size 等)。
+**Spring Data JPA**(Java 持久层标准,基于 Hibernate):**Entity**:@Entity + @Table + @Id @GeneratedValue + @Column + @Enumerated;**Repository**:接口继承 JpaRepository&lt;User, Long&gt; 即得 CRUD——**方法命名查询**(findByEmailAndStatus、countByXxx、existsBy——Spring 按方法名解析 SQL)、**@Query**(JPQL 或 nativeQuery=true 原生 SQL)、分页(Pageable/Page)、Specification 或 QueryDSL(多条件动态查询:筛选列表);**关系映射**:@OneToMany/@ManyToOne/@ManyToMany(mappedBy、joinTable)+ **fetch = LAZY**(默认一对多懒加载——**懒加载发生在事务外会 LazyInitializationException**,经典坑)+ **N+1 问题**(循环里查库:join fetch / @EntityGraph 预加载);**实体与 DTO 转换**:MapStruct(编译期生成,性能好)或手动(别把 Entity 直接吐给前端——密码/内部字段泄露与循环引用);**事务**见第七站;**国产替代 MyBatis-Plus**(国内互联网公司极流行:注解 SQL/XML 分离/代码生成器——会 JPA 后按需补);**连接池**:默认 HikariCP(性能最好,配置 maximum-pool-size 等)。
 
 ## 第六站:AOP——切面编程
 
@@ -34,7 +36,8 @@ Boot 凭什么不写配置就能连数据库?答案:**自动配置类 + 条件�
 
 ## 第八站:全局异常处理
 
-**@RestControllerAdvice + @ExceptionHandler**(全局异常中心,替代每个 Controller try-catch):`@ExceptionHandler(BizException.class)` 返回统一错误码;`@ExceptionHandler(MethodArgumentNotValidException.class)`(DTO 校验失败 → 400/422 + 字段错误明细——**前端表单报错的标准数据源**);**自定义业务异常**:继承 RuntimeException + code(如 UserNotFoundException extends BizException)——业务里 throw,切面外统一兜;**统一响应结构**(Result<T> + 错误码表 + i18n 消息)。**过滤器与拦截器**(请求链路的两个层次):`Filter`(Servlet 级,最早最外:编码、CORS 预检、请求日志——注册 @Component 或 FilterRegistrationBean)vs `HandlerInterceptor`(Spring MVC 级:preHandle(登录校验/权限)/postHandle/afterCompletion——注册到 WebMvcConfigurer)——面试常问区别与顺序:Filter → DispatcherServlet → Interceptor → Controller。
+**@RestControllerAdvice + @ExceptionHandler**(全局异常中心,替代每个 Controller try-catch):`@ExceptionHandler(BizException.class)` 返回统一错误码;`@ExceptionHandler(MethodArgumentNotValidException.class)`(DTO 校验失败 → 400/422 + 字段错误明细——**前端表单报错的标准数据源**);**自定义业务异常**:继承 RuntimeException + code(如 UserNotFoundException extends BizException)——业务里 throw,切面外统一兜;**统一响应结构**(Result&lt;T&gt; + 错误码表 + i18n 消息)。
+**过滤器与拦截器**(请求链路的两个层次):`Filter`(Servlet 级,最早最外:编码、CORS 预检、请求日志——注册 @Component 或 FilterRegistrationBean)vs `HandlerInterceptor`(Spring MVC 级:preHandle(登录校验/权限)/postHandle/afterCompletion——注册到 WebMvcConfigurer)——面试常问区别与顺序:Filter → DispatcherServlet → Interceptor → Controller。
 
 ## 第九站:Spring Security 与认证授权
 
@@ -50,7 +53,7 @@ Boot 凭什么不写配置就能连数据库?答案:**自动配置类 + 条件�
 
 ## 第十二站:日志、监控与文档
 
-**日志**:默认 Logback——logback-spring.xml(级别/格式/滚动 RollingFileAppender(按天+大小)/**AsyncAppender(异步写,别让日志拖慢接口)**);**MDC**(日志链路追踪:过滤器里 MDC.put("traceId", UUID) → 日志 pattern 输出 %X{traceId}——排查一次请求的全链路日志,分布式用 OpenTelemetry/SkyWalking);**Actuator(生产监控)**::management.endpoints.web.exposure.include=health,info,metrics,env(prometheus)——**/actuator/health(探针:数据库/Redis 存活探测,K8s 就靠它)、自定义 HealthIndicator(业务依赖状态)、Micrometer 指标 + micrometer-registry-prometheus(/actuator/prometheus → Prometheus → Grafana 看板)**、/env 暴露配置(生产脱敏!)、Spring Boot Admin(多实例可视化管理);**API 文档**:springdoc-openapi(swagger-ui:自动从 Controller 与 DTO 生成——@Tag/@Operation/@Schema 完善;knife4j 国内增强 UI),**文档与代码同源**。
+**日志**:默认 Logback——logback-spring.xml(级别/格式/滚动 RollingFileAppender(按天+大小)/**AsyncAppender(异步写,别让日志拖慢接口)**);**MDC**(日志链路追踪:过滤器里 MDC.put("traceId", UUID) → 日志 pattern 输出 %X&#123;traceId&#125;——排查一次请求的全链路日志,分布式用 OpenTelemetry/SkyWalking);**Actuator(生产监控)**::management.endpoints.web.exposure.include=health,info,metrics,env(prometheus)——**/actuator/health(探针:数据库/Redis 存活探测,K8s 就靠它)、自定义 HealthIndicator(业务依赖状态)、Micrometer 指标 + micrometer-registry-prometheus(/actuator/prometheus → Prometheus → Grafana 看板)**、/env 暴露配置(生产脱敏!)、Spring Boot Admin(多实例可视化管理);**API 文档**:springdoc-openapi(swagger-ui:自动从 Controller 与 DTO 生成——@Tag/@Operation/@Schema 完善;knife4j 国内增强 UI),**文档与代码同源**。
 
 ## 第十三站:测试
 

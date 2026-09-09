@@ -104,7 +104,7 @@ s2.describe();    // 我是蓝的图形，面积=12.0，周长=14.0
 | --- | --- |
 | 抽象类**不能被实例化** | `new Shape()` 编译错误，但可以有构造器供子类调用 |
 | 抽象方法**不能有以下修饰符** | `private`（子类看不到无法重写）、`static`（属于类无法重写）、`final`（不能重写）、`synchronized`、`native` |
-| 抽象类**可以没有抽象方法** | `abstract class A { }` 合法（用于禁止实例化） |
+| 抽象类**可以没有抽象方法** | `abstract class A &#123; &#125;` 合法（用于禁止实例化） |
 | **有抽象方法的类必须是抽象类** | 否则编译错误 |
 | 抽象类可以有**任意普通成员** | 字段、构造器、普通方法、静态方法、内部类 |
 | 子类要么实现**全部**抽象方法，要么自己也声明为抽象类 | — |
@@ -476,7 +476,7 @@ void test(Rectangle r) {
 | **成员内部类** | 类中方法外（无 static） | ✅ **持有** | JDK 16 前不能，JDK 16+ 可以 | 全部（含 private） | 逻辑分组、事件监听 |
 | **静态内部类** | 类中方法外（有 static） | ❌ **不持有** | ✅ 可以 | 只能访问外部**静态**成员 | Builder、Holder、DTO |
 | **局部内部类** | 方法/代码块内 | ✅ 持有 | ❌ | 外部成员 + 方法的 final/等效 final 变量 | 极少用 |
-| **匿名内部类** | 方法内 `new X(){}` | ✅ 持有 | ❌ | 同上 | 一次性实现（Lambda 前身） |
+| **匿名内部类** | 方法内 `new X()&#123;&#125;` | ✅ 持有 | ❌ | 同上 | 一次性实现（Lambda 前身） |
 
 ### 3.2 成员内部类（Member Inner Class）
 
@@ -529,15 +529,15 @@ class Outer$Inner {
 > 【坑 - 内存泄漏】**成员内部类隐式持有外部类引用，是 Android/Java 内存泄漏的经典来源。**
 >
 > ```java
-> public class BigService {
+> public class BigService &#123;
 >     private byte[] hugeData = new byte[1024 * 1024 * 100];   // 100MB
 >
->     public Runnable getTask() {
->         return new Runnable() {                 // 匿名内部类，持有 BigService.this
->             public void run() { System.out.println("task"); }
->         };
->     }
-> }
+>     public Runnable getTask() &#123;
+>         return new Runnable() &#123;                 // 匿名内部类，持有 BigService.this
+>             public void run() &#123; System.out.println("task"); &#125;
+>         &#125;;
+>     &#125;
+> &#125;
 > // 如果 getTask() 返回的 Runnable 被线程池长期持有，
 > // 整个 BigService（含 100MB 数据）都无法被 GC 回收！
 > ```

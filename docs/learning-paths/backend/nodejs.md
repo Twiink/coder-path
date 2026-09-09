@@ -6,11 +6,13 @@ Node.js 让 JavaScript 跑在服务器上——**同一门语言写前后端**,�
 
 ## 第一站:运行时与环境
 
-**安装与版本**:用 **nvm** 管理多版本(Node 偶数版是 LTS,生产用 LTS);`node -v`/`node file.js` 运行;REPL 敲 `node` 进入。**Node 与浏览器的差异**(面试常问):Node 没有 DOM/BOM(window/document),但有 `fs`/`process`/`Buffer` 等服务器能力;`global` 对应 window(globalThis 两处通用);**CommonJS 是 Node 的默认**(浏览器原生 ESM)。**包管理器三选**:npm(默认)/yarn/pnpm(**现代推荐**:省磁盘、严格依赖隔离、快);`package.json` 关键字段:`name/version`、`scripts`(npm run dev/test)、`dependencies` vs `devDependencies`、**`"type": "module"`**(决定 .js 按 ESM 解析)、`engines`;`npx`(免安装执行包,如 `npx tsx`);**`package-lock.json` 必须提交**。**入门体验**:`node -e "console.log(1)"`、读文件脚本、`node --watch`(开发热重启)。
+**安装与版本**:用 **nvm** 管理多版本(Node 偶数版是 LTS,生产用 LTS);`node -v`/`node file.js` 运行;REPL 敲 `node` 进入。**Node 与浏览器的差异**(面试常问):Node 没有 DOM/BOM(window/document),但有 `fs`/`process`/`Buffer` 等服务器能力;`global` 对应 window(globalThis 两处通用);**CommonJS 是 Node 的默认**(浏览器原生 ESM)。
+**包管理器三选**:npm(默认)/yarn/pnpm(**现代推荐**:省磁盘、严格依赖隔离、快);`package.json` 关键字段:`name/version`、`scripts`(npm run dev/test)、`dependencies` vs `devDependencies`、**`"type": "module"`**(决定 .js 按 ESM 解析)、`engines`;`npx`(免安装执行包,如 `npx tsx`);**`package-lock.json` 必须提交**。
+**入门体验**:`node -e "console.log(1)"`、读文件脚本、`node --watch`(开发热重启)。
 
 ## 第二站:模块系统
 
-**CommonJS**:`require('./a')`/`module.exports = {}`(或 exports.x);**模块缓存**(require 同路径只执行一次,单例由此而来);**ESM**:`import`/`export`,Node 里 `.mjs` 后缀或 package.json `"type": "module"`;**两者互操作**:ESM 里 `import` CJS 包一般可以(默认导出是 module.exports),CJS 里 require ESM 不行(要用动态 `import()`);ESM 没有 `__dirname`——用 `import.meta.url` + `fileURLToPath` 推导(日常 import.meta.dirname(Node 20.11+))。**模块解析**:相对路径 vs 包名(去 node_modules 逐级向上找——"幽灵依赖"与 pnpm 的严格隔离由此而来);Node 内置模块(带 node: 前缀:`node:fs`,现代写法,防与包名冲突)。
+**CommonJS**:`require('./a')`/`module.exports = &#123;&#125;`(或 exports.x);**模块缓存**(require 同路径只执行一次,单例由此而来);**ESM**:`import`/`export`,Node 里 `.mjs` 后缀或 package.json `"type": "module"`;**两者互操作**:ESM 里 `import` CJS 包一般可以(默认导出是 module.exports),CJS 里 require ESM 不行(要用动态 `import()`);ESM 没有 `__dirname`——用 `import.meta.url` + `fileURLToPath` 推导(日常 import.meta.dirname(Node 20.11+))。**模块解析**:相对路径 vs 包名(去 node_modules 逐级向上找——"幽灵依赖"与 pnpm 的严格隔离由此而来);Node 内置模块(带 node: 前缀:`node:fs`,现代写法,防与包名冲突)。
 
 ## 第三站:核心模块地图
 
@@ -28,7 +30,10 @@ Node.js 让 JavaScript 跑在服务器上——**同一门语言写前后端**,�
 
 ## 第四站:事件循环与 libuv——Node 的发动机
 
-**事件循环的六个阶段**(Node 面试必考,能画图就赢了):`timers`(执行 setTimeout/setInterval 回调)→ `pending callbacks`(系统回调)→ `idle, prepare`(内部)→ **`poll`(核心:取新的 I/O 事件,如网络/文件完成回调;没有任务时会在这里等待)** → `check`(setImmediate)→ `close callbacks`(关闭事件)。规则细节:**每进入一个阶段,先清空该阶段的队列;阶段之间会执行微任务队列**(Promise.then)与 **`process.nextTick`(优先级比微任务还高!nextTick 队列在每次阶段切换前清空)**——所以 `nextTick` 递归会饿死事件循环。**setTimeout vs setImmediate 的顺序**:在 poll 阶段外(如主模块)取决于计时器到期,结果不固定;在 poll 阶段内(setTimeout 回调里)setImmediate 必先执行——经典面试题。**浏览器 vs Node 的循环差异**:浏览器没有阶段模型、nextTick 不存在、微任务时机略有不同(浏览器每个宏任务后清空,Node 阶段间清空)。**libuv**:跨平台异步 I/O 库(Windows IOCP/macOS kqueue/Linux epoll 的封装);分工:**网络/管道等用系统级非阻塞 + 事件通知(不进线程池),文件系统与 crypto 等用线程池(默认 4 线程,`UV_THREADPOOL_SIZE` 可调)**——所以"Node 单线程"不准确:JS 执行单线程,I/O 另有线程池。**阻塞事件循环的后果**:一个 `while(true)` 或大数组排序会让所有请求、定时器全部卡死——CPU 密集任务必须另开线程/进程。
+**事件循环的六个阶段**(Node 面试必考,能画图就赢了):`timers`(执行 setTimeout/setInterval 回调)→ `pending callbacks`(系统回调)→ `idle, prepare`(内部)→ **`poll`(核心:取新的 I/O 事件,如网络/文件完成回调;没有任务时会在这里等待)** → `check`(setImmediate)→ `close callbacks`(关闭事件)。
+规则细节:**每进入一个阶段,先清空该阶段的队列;阶段之间会执行微任务队列**(Promise.then)与 **`process.nextTick`(优先级比微任务还高!nextTick 队列在每次阶段切换前清空)**——所以 `nextTick` 递归会饿死事件循环。**setTimeout vs setImmediate 的顺序**:在 poll 阶段外(如主模块)取决于计时器到期,结果不固定;在 poll 阶段内(setTimeout 回调里)setImmediate 必先执行——经典面试题。
+**浏览器 vs Node 的循环差异**:浏览器没有阶段模型、nextTick 不存在、微任务时机略有不同(浏览器每个宏任务后清空,Node 阶段间清空)。**libuv**:跨平台异步 I/O 库(Windows IOCP/macOS kqueue/Linux epoll 的封装);分工:**网络/管道等用系统级非阻塞 + 事件通知(不进线程池),文件系统与 crypto 等用线程池(默认 4 线程,`UV_THREADPOOL_SIZE` 可调)**——所以"Node 单线程"不准确:JS 执行单线程,I/O 另有线程池。
+**阻塞事件循环的后果**:一个 `while(true)` 或大数组排序会让所有请求、定时器全部卡死——CPU 密集任务必须另开线程/进程。
 
 ## 第五站:V8 与内存
 
@@ -36,11 +41,12 @@ Node.js 让 JavaScript 跑在服务器上——**同一门语言写前后端**,�
 
 ## 第六站:异步编程深水区
 
-回调(error-first 约定:`(err, data) => {}`)→ Promise → **async/await**(现代主力,上一门课已学,这里讲 Node 实践):**并发控制**(`Promise.all` 一把梭会瞬间打爆数据库/第三方——用 p-limit 限流或分批)、`Promise.allSettled`(批量任务不因单败中断)、**取消**:AbortController 配合 fetch/超时;**全局兜底**:`process.on('unhandledRejection', ...)`(async 里漏 catch 的 Promise 拒绝——现代 Node 默认直接崩,别让它发生)、`uncaughtException`(最后防线,记录后退出重启);**同步 API 的使用边界**:启动阶段与 CLI 脚本可以,服务器请求路径禁用(阻塞循环);`util.callbackify/promisify` 桥接两代风格。
+回调(error-first 约定:`(err, data) => &#123;&#125;`)→ Promise → **async/await**(现代主力,上一门课已学,这里讲 Node 实践):**并发控制**(`Promise.all` 一把梭会瞬间打爆数据库/第三方——用 p-limit 限流或分批)、`Promise.allSettled`(批量任务不因单败中断)、**取消**:AbortController 配合 fetch/超时;**全局兜底**:`process.on('unhandledRejection', ...)`(async 里漏 catch 的 Promise 拒绝——现代 Node 默认直接崩,别让它发生)、`uncaughtException`(最后防线,记录后退出重启);**同步 API 的使用边界**:启动阶段与 CLI 脚本可以,服务器请求路径禁用(阻塞循环);`util.callbackify/promisify` 桥接两代风格。
 
 ## 第七站:Express 与 Web 开发
 
-**Express**(最流行、最基础的 Node Web 框架;新项目也可以直接 Nest/Fastify,但 Express 心智是通用的):路由 `app.get('/users/:id', handler)`;取参三件套:`req.params`(路径)/`req.query`(查询串)/`req.body`(请求体,配 `express.json()`);**中间件机制(Node 后端最重要的心智)**:`app.use(fn)` 串成"洋葱模型"——请求依次穿过中间件再到路由,响应再逆序穿回;`next()` 放行、顺序敏感(写在路由前的才生效)、`app.use(express.static('public'))` 静态服务;常见中间件:morgan(日志)/helmet(安全响应头)/cors(跨域)/compression(gzip)/express-rate-limit(限流);**错误处理**:四参中间件 `(err, req, res, next)` 兜底、异步 handler 包 asyncHandler(Express 5 原生支持 async 错误传递)、统一错误响应 `{ error: { code, message } }`;**RESTful**:资源复数命名、方法语义(GET 查/POST 建/PUT 全量改/PATCH 局部改/DELETE)、状态码(200/201/204/400/401/403/404/409/422/500——别全返回 200)、版本化(/api/v1)。**项目分层**(从小白到工程的跨越):routes(路由声明)→ controllers(取参调服务)→ services(业务逻辑)→ 数据层(ORM),配错误码与校验层——**别在路由里写 SQL**。
+**Express**(最流行、最基础的 Node Web 框架;新项目也可以直接 Nest/Fastify,但 Express 心智是通用的):路由 `app.get('/users/:id', handler)`;取参三件套:`req.params`(路径)/`req.query`(查询串)/`req.body`(请求体,配 `express.json()`);**中间件机制(Node 后端最重要的心智)**:`app.use(fn)` 串成"洋葱模型"——请求依次穿过中间件再到路由,响应再逆序穿回;`next()` 放行、顺序敏感(写在路由前的才生效)、`app.use(express.static('public'))` 静态服务;常见中间件:morgan(日志)/helmet(安全响应头)/cors(跨域)/compression(gzip)/express-rate-limit(限流);**错误处理**:四参中间件 `(err, req, res, next)` 兜底、异步 handler 包 asyncHandler(Express 5 原生支持 async 错误传递)、统一错误响应 (&#123; error: &#123; code, message &#125; &#125;);**RESTful**:资源复数命名、方法语义(GET 查/POST 建/PUT 全量改/PATCH 局部改/DELETE)、状态码(200/201/204/400/401/403/404/409/422/500——别全返回 200)、版本化(/api/v1)。
+**项目分层**(从小白到工程的跨越):routes(路由声明)→ controllers(取参调服务)→ services(业务逻辑)→ 数据层(ORM),配错误码与校验层——**别在路由里写 SQL**。
 
 ## 第八站:数据库与 ORM
 
@@ -48,7 +54,8 @@ Node.js 让 JavaScript 跑在服务器上——**同一门语言写前后端**,�
 
 ## 第九站:认证、安全与文件
 
-**认证三方案**:Session + Cookie(服务端存会话)、**JWT(无状态:签发→客户端保存→每请求带 Authorization: Bearer——校验签名与过期,注意注销难、密钥管理)**、OAuth2/第三方登录(见 [认证授权学习路线](/learning-paths/security/auth));**密码存储铁律**:`bcrypt` 或 argon2 哈希(**永远不存明文、不自己 md5**),登录比对用库的 compare;**权限**:中间件里验 token → 挂 req.user → 角色/资源校验;**安全清单**(Node 版):helmet 安全头、CORS 白名单(别 `*` 配凭证)、输入校验(zod/joi——**别信 req.body**)、SQL 注入(ORM 参数化自动挡)、XSS(输出转义,见前端课)、CSRF(SameSite + token)、限流防爆破、`npm audit` 依赖审计、别把密钥写进代码(.env + 不上传)。**文件上传**:multer(内存/磁盘存储、大小与类型限制、文件名重生成)、大文件分片与断点续传概念、云存储(S3/OSS 直传签名)、图片处理 sharp;下载用流(`res.download` / 流式 pipe)。
+**认证三方案**:Session + Cookie(服务端存会话)、**JWT(无状态:签发→客户端保存→每请求带 Authorization: Bearer——校验签名与过期,注意注销难、密钥管理)**、OAuth2/第三方登录(见 [认证授权学习路线](/learning-paths/security/auth));**密码存储铁律**:`bcrypt` 或 argon2 哈希(**永远不存明文、不自己 md5**),登录比对用库的 compare;**权限**:中间件里验 token → 挂 req.user → 角色/资源校验;**安全清单**(Node 版):helmet 安全头、CORS 白名单(别 `*` 配凭证)、输入校验(zod/joi——**别信 req.body**)、SQL 注入(ORM 参数化自动挡)、XSS(输出转义,见前端课)、CSRF(SameSite + token)、限流防爆破、`npm audit` 依赖审计、别把密钥写进代码(.env + 不上传)。
+**文件上传**:multer(内存/磁盘存储、大小与类型限制、文件名重生成)、大文件分片与断点续传概念、云存储(S3/OSS 直传签名)、图片处理 sharp;下载用流(`res.download` / 流式 pipe)。
 
 ## 第十站:实时通信与任务队列
 

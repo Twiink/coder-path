@@ -6,9 +6,9 @@ React 是 Facebook(现 Meta)出品的界面库——注意是"库"不是"框架"
 
 ## 第一站:JSX 与组件——React 的基本粒子
 
-先破除迷信:**JSX 不是模板语言,是 JavaScript 的语法糖**——它会被编译成 `React.createElement` 调用(新编译器是 react-compiler 之前的 babel 插件 `@babel/preset-react`;React 19 开始推荐直接用 react 包的新 JSX 转换)。所以 JSX 里能写任何 JS 表达式,用 `{}` 插值;支持的条件渲染有 `if`/三元/`&&`——注意 `&&` 左边是 0 或 NaN 时会真的渲染出 0(常见 bug,要转成 Boolean 或比较式);列表渲染用 `map` 且**每个子项必须有稳定的 key**,key 是 React 的"身份指纹",在兄弟间唯一即可、不需要全局唯一;用数组下标当 key 在列表增删/排序时会张冠李戴(输入框内容串行),这是新手第一大坑。
+先破除迷信:**JSX 不是模板语言,是 JavaScript 的语法糖**——它会被编译成 `React.createElement` 调用(新编译器是 react-compiler 之前的 babel 插件 `@babel/preset-react`;React 19 开始推荐直接用 react 包的新 JSX 转换)。所以 JSX 里能写任何 JS 表达式,用 `&#123;&#125;` 插值;支持的条件渲染有 `if`/三元/`&&`——注意 `&&` 左边是 0 或 NaN 时会真的渲染出 0(常见 bug,要转成 Boolean 或比较式);列表渲染用 `map` 且**每个子项必须有稳定的 key**,key 是 React 的"身份指纹",在兄弟间唯一即可、不需要全局唯一;用数组下标当 key 在列表增删/排序时会张冠李戴(输入框内容串行),这是新手第一大坑。
 
-JSX 细节清单:属性名走驼峰(`className` 而非 class、`htmlFor` 而非 for、`tabIndex`、`strokeWidth`),`style` 要传对象(驼峰键 + 数字自动加 px,带单位的属性除外),`<></>` Fragment 用来包兄弟节点(**简写不能带 key**,要 key 得写全 `<Fragment key>`),布尔属性写法(`disabled={true}` 可直接 `disabled`)、props 展开 `{...props}` 批量传参、注释写法 `{/* */}`、`null`/`undefined`/`false` 不渲染任何东西(条件渲染的原理)。图片要用 `import` 或放在 public 目录再引路径,别直接写相对路径。
+JSX 细节清单:属性名走驼峰(`className` 而非 class、`htmlFor` 而非 for、`tabIndex`、`strokeWidth`),`style` 要传对象(驼峰键 + 数字自动加 px,带单位的属性除外),`<></>` Fragment 用来包兄弟节点(**简写不能带 key**,要 key 得写全 `<Fragment key>`),布尔属性写法(`disabled=&#123;true&#125;` 可直接 `disabled`)、props 展开 `&#123;...props&#125;` 批量传参、注释写法 `&#123;/* */&#125;`、`null`/`undefined`/`false` 不渲染任何东西(条件渲染的原理)。图片要用 `import` 或放在 public 目录再引路径,别直接写相对路径。
 
 **组件**是 React 的世界观:函数组件是现代主流(纯函数:同 props 必同输出,不修改外部状态——React 靠这个假设做性能优化,StrictMode 下还会故意双调用函数帮你发现不纯);类组件是历史遗产(老项目仍在,见第九站)。规则:组件名大写开头(小写被当成原生标签)、一个组件只做一件事、**组合优于继承**——`children` prop 和"插槽"模式(传 prop 一个 ReactNode)实现布局复用。React 运行时全家:react 包(核心 API)、react-dom 包(`createRoot(...).render()` 挂载;`hydrateRoot` 是 SSR 水合入口;React Native 用的是 react-native 渲染器——"一次学习,处处编写"靠的就是 renderer 可替换架构)。
 
@@ -21,7 +21,7 @@ JSX 细节清单:属性名走驼峰(`className` 而非 class、`htmlFor` 而非 
 3. **状态初始化可以传函数** `useState(() => expensive())`,惰性计算只跑一次;
 4. **状态提升**:兄弟组件共享的数据提到共同父组件,props 下发值与更新函数;反过来也有"状态下放",把大 state 拆到真正用它的子组件减少重渲染。
 
-**事件系统**:事件名驼峰(`onClick`),绑定的是函数引用(`onClick={handle}` 不是 `onClick={handle()}`);事件对象是 **SyntheticEvent 合成事件**(React 17 起事件挂载到 root 容器而非 document,19 移除事件池化,`e.persist()` 是古董 API);传参用箭头函数或 bind;`onMouseEnter`/`onMouseLeave` 特殊(不冒泡但 React 模拟了进出子元素的行为);`onChange` 语义与 DOM 不同(每次输入都触发,input 的 onChange 是 React 重写的,对应原生 input 事件)。**受控组件**(value 绑 state + onChange 更新,React 是唯一数据源)与**非受控组件**(`defaultValue` + ref 读 DOM,偶尔用于性能/第三方集成)要分清:受控是默认姿势;`select` 的受控写法是 value 不是 selected;checkbox 用 `checked`。
+**事件系统**:事件名驼峰(`onClick`),绑定的是函数引用(`onClick=&#123;handle&#125;` 不是 `onClick=&#123;handle()&#125;`);事件对象是 **SyntheticEvent 合成事件**(React 17 起事件挂载到 root 容器而非 document,19 移除事件池化,`e.persist()` 是古董 API);传参用箭头函数或 bind;`onMouseEnter`/`onMouseLeave` 特殊(不冒泡但 React 模拟了进出子元素的行为);`onChange` 语义与 DOM 不同(每次输入都触发,input 的 onChange 是 React 重写的,对应原生 input 事件)。**受控组件**(value 绑 state + onChange 更新,React 是唯一数据源)与**非受控组件**(`defaultValue` + ref 读 DOM,偶尔用于性能/第三方集成)要分清:受控是默认姿势;`select` 的受控写法是 value 不是 selected;checkbox 用 `checked`。
 
 ## 第三站:Hooks 全家桶——函数组件的瑞士军刀
 
@@ -55,7 +55,7 @@ Hooks 是 React 16.8 的范式革命,逐个认识并记一句话场景:
 
 朴素模式:useEffect + fetch + loading/error/data 三件套,卸载时 AbortController 取消——**竞态问题**是这模式的暗礁(快速切换时旧请求后到覆盖新数据,要自己用"请求序号"或取消解决),写一次就懂为什么需要库。
 
-**TanStack Query(React Query)**:`useQuery({ queryKey, queryFn })` 声明数据依赖——缓存按 queryKey 管理、窗口聚焦自动刷新(`refetchOnWindowFocus`)、`staleTime`(数据多久算旧)与 `gcTime`(缓存保留)、`useMutation` 管写 + `invalidateQueries` 失效重取、`useInfiniteQuery` 无限滚动/分页、乐观更新(先改 UI,失败回滚)、错误重试(默认三次)。**SWR**(Next.js 同门):`useSWR`,stale-while-revalidate(先给缓存再后台验证),`mutate` 手动更新,`useSWRInfinite` 分页。选型:数据密集应用 React Query;SSR 项目 SWR。SSR 数据获取还有 RSC(Server Components)新范式——服务端直接取数下发,客户端零请求代码,Next.js 的 App Router 是主战场。
+**TanStack Query(React Query)**:`useQuery(&#123; queryKey, queryFn &#125;)` 声明数据依赖——缓存按 queryKey 管理、窗口聚焦自动刷新(`refetchOnWindowFocus`)、`staleTime`(数据多久算旧)与 `gcTime`(缓存保留)、`useMutation` 管写 + `invalidateQueries` 失效重取、`useInfiniteQuery` 无限滚动/分页、乐观更新(先改 UI,失败回滚)、错误重试(默认三次)。**SWR**(Next.js 同门):`useSWR`,stale-while-revalidate(先给缓存再后台验证),`mutate` 手动更新,`useSWRInfinite` 分页。选型:数据密集应用 React Query;SSR 项目 SWR。SSR 数据获取还有 RSC(Server Components)新范式——服务端直接取数下发,客户端零请求代码,Next.js 的 App Router 是主战场。
 
 ## 第六站:路由与表单
 
@@ -73,19 +73,24 @@ Hooks 是 React 16.8 的范式革命,逐个认识并记一句话场景:
 
 React 性能心智模型一句话:**setState 之后发生了什么**——进入**渲染阶段**(执行组件函数、生成新虚拟 DOM、与上次**协调/Diff**,此阶段可中断),再进**提交阶段**(差异写入真实 DOM,不可中断)。React 18 的 **Fiber 双缓冲**(current/workInProgress 两棵树)让"可中断渲染"成为可能——这就是并发特性(useTransition/useDeferredValue)的底层,也是 React 19 并发 Actions 的地基。**Diff 算法**要点:同层比较、key 定位移动、类型不同直接重建——所以 key 稳定、组件类型稳定(别在条件里换组件类型,会整个卸载重建丢 state)是两条铁律。
 
-优化武器库按性价比排序:①key 给对;②`React.memo`(props 浅比较,配 useCallback/useMemo 保持引用稳定,否则白搭);③避免内联对象/函数/箭头(每次渲染新引用 = memo 失效);④懒加载(React.lazy + Suspense、动态 import、路由级);⑤虚拟化(react-window,长列表只渲染可视区);⑥**并发特性**(useTransition 降级非紧急更新,输入框不卡);⑦**Profiler 组件**与 React DevTools Profiler 火焰图测量——**先测再改,别凭感觉优化**;⑧Suspense 边界与流式 SSR(服务端分批下发);⑨Server Components(把组件跑在服务端,客户端包体积骤减——Next.js App Router 实践)。别过度优化:大部分"卡"来自巨型列表与重复渲染,先修这两个;`<StrictMode>` 开发期双调用是帮你发现副作用,不是 bug。
+优化武器库按性价比排序:①key 给对;②`React.memo`(props 浅比较,配 useCallback/useMemo 保持引用稳定,否则白搭);③避免内联对象/函数/箭头(每次渲染新引用 = memo 失效);④懒加载(React.lazy + Suspense、动态 import、路由级);⑤虚拟化(react-window,长列表只渲染可视区);⑥**并发特性**(useTransition 降级非紧急更新,输入框不卡);⑦**Profiler 组件**与 React DevTools Profiler 火焰图测量——**先测再改,别凭感觉优化**;⑧Suspense 边界与流式 SSR(服务端分批下发);⑨Server Components(把组件跑在服务端,客户端包体积骤减——Next.js App Router 实践)。别过度优化:大部分"卡"来自巨型列表与重复渲染,先修这两个;`&lt;StrictMode&gt;` 开发期双调用是帮你发现副作用,不是 bug。
 
 ## 第九站:类组件、错误边界与老代码
 
-老项目维护必备的"考古学":类组件生命周期(挂载:constructor → getDerivedStateFromProps → render → componentDidMount;更新:getDerivedStateFromProps → shouldComponentUpdate(性能:手动控制是否渲染,React.memo 的函数式对应)→ render → getSnapshotBeforeUpdate → componentDidUpdate;卸载:componentWillUnmount);`this.setState` 合并更新;refs 三种拿法(字符串 ref 废弃、回调 ref、createRef);HOC(高阶组件:包装组件加 props,`withRouter` 那类;现在被自定义 Hook 取代)、render props(children 为函数的模式)——看到别慌,知道"旧写法,新代码别用"。**错误边界(Error Boundaries)**:类组件专属 `static getDerivedStateFromError` + `componentDidCatch` 捕获子树渲染错误降级 UI——捕获不了事件处理器与异步代码的错;粒度按"独立功能区域"设计,配错误上报服务(独立于 React 的监控体系,如 Sentry)。**Portals**:`createPortal(children, dom)` 渲染到组件树外的 DOM(Modal/Tooltip 标配,逃过 overflow 裁剪);Portal 里事件按 React 树冒泡、Context 照常穿透。**SSR/hydration**:服务端渲染 HTML + 客户端"复活",`hydrateRoot`;hydrate 不匹配(客户端首渲与服务端 HTML 不一致)会警告并全量重渲染——时间/随机数别在渲染期生成(useId 就是为它而生的)。
+老项目维护必备的"考古学":类组件生命周期(挂载:constructor → getDerivedStateFromProps → render → componentDidMount;更新:getDerivedStateFromProps → shouldComponentUpdate(性能:手动控制是否渲染,React.memo 的函数式对应)→ render → getSnapshotBeforeUpdate → componentDidUpdate;卸载:componentWillUnmount);`this.setState` 合并更新;refs 三种拿法(字符串 ref 废弃、回调 ref、createRef);HOC(高阶组件:包装组件加 props,`withRouter` 那类;现在被自定义 Hook 取代)、render props(children 为函数的模式)——看到别慌,知道"旧写法,新代码别用"。
+**错误边界(Error Boundaries)**:类组件专属 `static getDerivedStateFromError` + `componentDidCatch` 捕获子树渲染错误降级 UI——捕获不了事件处理器与异步代码的错;粒度按"独立功能区域"设计,配错误上报服务(独立于 React 的监控体系,如 Sentry)。
+**Portals**:`createPortal(children, dom)` 渲染到组件树外的 DOM(Modal/Tooltip 标配,逃过 overflow 裁剪);Portal 里事件按 React 树冒泡、Context 照常穿透。**SSR/hydration**:服务端渲染 HTML + 客户端"复活",`hydrateRoot`;hydrate 不匹配(客户端首渲与服务端 HTML 不一致)会警告并全量重渲染——时间/随机数别在渲染期生成(useId 就是为它而生的)。
 
 ## 第十站:测试与类型
 
-**测试栈**:Vitest(或 Jest)+ **React Testing Library**(RTL)+ user-event + MSW(mock 接口)。RTL 哲学:像用户一样测试——查询优先 `getByRole`/`getByLabelText`(语义查询,顺带逼你写对无障碍),少用 `getByTestId`;断言渲染结果与行为(`fireEvent` 是老 API,新代码用 user-event 模拟真实交互);异步用 `findBy*` + `waitFor`;组件外操作(请求/定时器)会触发 act 警告——学会"把交互包进 act"是 RTL 的第一课。策略:纯函数与自定义 Hook 单测、组件交互测试、关键流程 E2E(Playwright/Cypress);快照测试易碎,慎用。**TypeScript 集成**:Props 用 interface + `PropsWithChildren`;事件类型 `React.ChangeEvent<HTMLInputElement>`、`MouseEvent`;`useRef<HTMLInputElement>(null)` 泛型带 null;`ComponentProps<'button'>` 继承原生属性;多态组件(as prop)用泛型;`z.infer` 让 API 类型与校验同源。React 19 + TS:ref 作为 prop 的类型 `Ref<T>`。
+**测试栈**:Vitest(或 Jest)+ **React Testing Library**(RTL)+ user-event + MSW(mock 接口)。RTL 哲学:像用户一样测试——查询优先 `getByRole`/`getByLabelText`(语义查询,顺带逼你写对无障碍),少用 `getByTestId`;断言渲染结果与行为(`fireEvent` 是老 API,新代码用 user-event 模拟真实交互);异步用 `findBy*` + `waitFor`;组件外操作(请求/定时器)会触发 act 警告——学会"把交互包进 act"是 RTL 的第一课。
+策略:纯函数与自定义 Hook 单测、组件交互测试、关键流程 E2E(Playwright/Cypress);快照测试易碎,慎用。**TypeScript 集成**:Props 用 interface + `PropsWithChildren`;事件类型 `React.ChangeEvent&lt;HTMLInputElement&gt;`、`MouseEvent`;`useRef&lt;HTMLInputElement&gt;(null)` 泛型带 null;`ComponentProps<'button'>` 继承原生属性;多态组件(as prop)用泛型;`z.infer` 让 API 类型与校验同源。
+React 19 + TS:ref 作为 prop 的类型 `Ref&lt;T&gt;`。
 
 ## 第十一站:源码与生态地图
 
-React 源码仓库布局:react(核心 API)、react-dom(渲染器)、react-reconciler(协调器,灵魂)、scheduler(调度器,时间切片)、react-server(Server Components 运行时,新)。阅读路径:ReactElement 创建 → JSX 转换 → Fiber 创建与更新 → Hooks 链表(memoizedState 上的秘密)→ Lane 优先级调度(过期/饥饿/插队)→ 合成事件 → Diff。想快速建立全景可以先看"React 工作原理"类图解文章,再对着源码验证;手写迷你 React(createElement + render + useState)是公认最有效的入门方式。**生态地图**(按需点亮):框架层 Next.js(全栈默认)、Remix(嵌套路由激进派);状态 XState(状态机);表单 RHF;动画 framer-motion;样式 Tailwind;数据 TanStack Query;i18n react-i18next;表格 TanStack Table;图表 ECharts/Recharts;拖拽 dnd-kit;虚拟滚动 TanStack Virtual;CLI 脚手架 Vite + create-react-app(已停更,别再用)。
+React 源码仓库布局:react(核心 API)、react-dom(渲染器)、react-reconciler(协调器,灵魂)、scheduler(调度器,时间切片)、react-server(Server Components 运行时,新)。阅读路径:ReactElement 创建 → JSX 转换 → Fiber 创建与更新 → Hooks 链表(memoizedState 上的秘密)→ Lane 优先级调度(过期/饥饿/插队)→ 合成事件 → Diff。
+想快速建立全景可以先看"React 工作原理"类图解文章,再对着源码验证;手写迷你 React(createElement + render + useState)是公认最有效的入门方式。**生态地图**(按需点亮):框架层 Next.js(全栈默认)、Remix(嵌套路由激进派);状态 XState(状态机);表单 RHF;动画 framer-motion;样式 Tailwind;数据 TanStack Query;i18n react-i18next;表格 TanStack Table;图表 ECharts/Recharts;拖拽 dnd-kit;虚拟滚动 TanStack Virtual;CLI 脚手架 Vite + create-react-app(已停更,别再用)。
 
 ## 岔路口:React 学完去哪
 

@@ -17,30 +17,30 @@ updated: 2026-09-06
 # 文件操作
 `os.Create`: 文件不存在则创建, 文件存在则清空文件内容
 ~~~go
-func main () {
+func main () &#123;
 	f, err := os.Create('./test/is')
-	if err != nil {
+	if err != nil &#123;
 		fmt.Println("create err:", err)
 		return
-	}
+	&#125;
 	defer f.Close()		//关闭文件
-}
+&#125;
 ~~~
 `os.Open`: 以只读方式打开文件,文件不存在则打开失败
 ~~~go
-func main () {
+func main () &#123;
 	f, err := os.Open('./test/is')
-	if err != nil {
+	if err != nil &#123;
 		fmt.Println("create err:", err)
 		return
-	}
+	&#125;
 	_, err := f.WriteString("高江华")
-	if err != nil {
+	if err != nil &#123;
 		fmt.Println("WriteString err:", err)
 		return
-	}					//会报错,权限不足
+	&#125;					//会报错,权限不足
 	defer f.Close()		//关闭文件
-}
+&#125;
 ~~~
 `os.OpenFile`: (适用于操作目录) 以只读, 只写, 读写方式打开文件, 文件不存在则打开失败
 
@@ -61,19 +61,19 @@ func main () {
 7. 读权限与写权限
 8. 读权限, 写权限, 执行权限
 ~~~go
-func main () {
+func main () &#123;
 	f, err := os.OpenFile('./test/is', O_RDWR, 6)
-	if err != nil {
+	if err != nil &#123;
 		fmt.Println("create err:", err)
 		return
-	}
+	&#125;
 	_, err := f.WriteString("高江华")
-	if err != nil {
+	if err != nil &#123;
 		fmt.Println("WriteString err:", err)
 		return
-	}
+	&#125;
 	defer f.Close()		//关闭文件
-}
+&#125;
 ~~~
 - `f.WriteString()`: 返回写入的字符个数, 从起始位置开始, 会覆盖原有内容
 
@@ -96,68 +96,68 @@ func main () {
 ~~~go
 reader := bufio.NewReader(f) 	//创建一个带有缓冲区的reader
 buf, err := reader.ReadBytes('\n')		//到\n结束,读一行数据
-if err != nil {			//err == io.EOF则读完所有内容
+if err != nil &#123;			//err == io.EOF则读完所有内容
 	fmt.Println("ReadBytes err:", err)
 	return
-}
+&#125;
 fmt.Println(string(buf))
 ~~~
 文件拷贝
 ~~~go
-func main () {
+func main () &#123;
 	//打开要读取的文件
     fr, err := os.Open("C:/123/test.txt")
-    if err != nil {
+    if err != nil &#123;
         fmt.Println("Open err:", err)
         return
-    }
+    &#125;
     defer fr.Close()
     //创建要写入的文件
     fw, err := os.Create("C:/123/my.txt")
-    if err != nil {
+    if err != nil &#123;
         fmt.Println("Create err:", err)
         return
-    }
+    &#125;
     defer fw.Close()
     //创建一个切片缓冲区
     buf := make([]byte, 4096)
-    for {
+    for &#123;
         //将读到的数据放入buf切片缓冲区中
         n, err := fr.Read(buf)
-        if err != nil && err == io.EOF {
+        if err != nil && err == io.EOF &#123;
             fmt.Printf("读完")
             return
-        }
+        &#125;
         //将读取后放入缓冲区的内容写入要写入的文件中
         fw.Write(buf[:n])
-    }
-}
+    &#125;
+&#125;
 ~~~
 遍历目录
 ~~~go
-func main() {
+func main() &#123;
 	var path string
     fmt.Scan(&path)
     //打开目录
     f, err := os.OpenFile(path, os.O_RDONLY, os.ModeDir)
-    if err != nil {
+    if err != nil &#123;
         fmt.Println("OpenFile err:", err)
         return
-    }
+    &#125;
     defer f.Close()
     //读取目录项
     info, err := f.Readdir(-1)	//负值代表读取目录中的所有目录项
-    if err != nil {
+    if err != nil &#123;
         fmt.Println("Readdir err:", err)
         return
-    }
+    &#125;
     //遍历返回的切片
-    for _, fileinfo := range info {
-        if fileinfo.IsDir() {
+    for _, fileinfo := range info &#123;
+        if fileinfo.IsDir() &#123;
             fmt.Println(fileinfo.Name(),"是一个目录")
-        }else{
+        &#125;else&#123;
         	fmt.Println(fileinfo.Name(),"是一个文件")
-        }
-    }
-}
+        &#125;
+    &#125;
+&#125;
 ~~~

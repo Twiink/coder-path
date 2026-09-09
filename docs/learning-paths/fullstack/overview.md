@@ -4,7 +4,10 @@
 
 ## 全栈工程师的能力地图
 
-**①前端能力**:HTML/CSS/JavaScript 基础扎实(见 [前端路线](/learning-paths/frontend/html-css));至少精通一个框架(React 或 Vue——见 [React](/learning-paths/frontend/react)/[Vue](/learning-paths/frontend/vue));响应式与移动端适配;前端性能与用户体验(见 [性能](/learning-paths/fullstack/performance))。**②后端能力**:至少一门后端语言(下节选主线);RESTful API 设计与错误规范(见 [协作](/learning-paths/fullstack/collaboration));数据库设计与 SQL(见 [MySQL](/learning-paths/database/mysql));认证授权(JWT/OAuth——见 [认证](/learning-paths/security/auth));缓存与队列(见 [Redis](/learning-paths/database/redis) 与 [消息队列](/learning-paths/middleware/rabbitmq))。**③DevOps 能力**:Git(见 [Git](/learning-paths/tools/git))、Docker([Docker](/learning-paths/devops/docker))、CI/CD([GitHub Actions](/learning-paths/devops/github-actions))、云服务与部署([部署](/learning-paths/fullstack/deployment))、监控日志([监控](/learning-paths/devops/monitoring))。**④软技能**:产品思维(理解"为什么做"比"怎么做"先)、架构意识(系统怎么拆、数据怎么流)、沟通协作、**快速学习(技术日新月异,但底层(HTTP/数据结构/操作系统)不变——把底层学扎实,框架只是换皮)**。
+**①前端能力**:HTML/CSS/JavaScript 基础扎实(见 [前端路线](/learning-paths/frontend/html-css));至少精通一个框架(React 或 Vue——见 [React](/learning-paths/frontend/react)/[Vue](/learning-paths/frontend/vue));响应式与移动端适配;前端性能与用户体验(见 [性能](/learning-paths/fullstack/performance))。
+**②后端能力**:至少一门后端语言(下节选主线);RESTful API 设计与错误规范(见 [协作](/learning-paths/fullstack/collaboration));数据库设计与 SQL(见 [MySQL](/learning-paths/database/mysql));认证授权(JWT/OAuth——见 [认证](/learning-paths/security/auth));缓存与队列(见 [Redis](/learning-paths/database/redis) 与 [消息队列](/learning-paths/middleware/rabbitmq))。
+**③DevOps 能力**:Git(见 [Git](/learning-paths/tools/git))、Docker([Docker](/learning-paths/devops/docker))、CI/CD([GitHub Actions](/learning-paths/devops/github-actions))、云服务与部署([部署](/learning-paths/fullstack/deployment))、监控日志([监控](/learning-paths/devops/monitoring))。
+**④软技能**:产品思维(理解"为什么做"比"怎么做"先)、架构意识(系统怎么拆、数据怎么流)、沟通协作、**快速学习(技术日新月异,但底层(HTTP/数据结构/操作系统)不变——把底层学扎实,框架只是换皮)**。
 
 ## 选择你的主力语言——四条主流全栈线
 
@@ -28,7 +31,9 @@
 
 ## 建议的成长路径(从 0 到独立交付)
 
-**阶段一(会做页面)**:HTML/CSS/JS → 一个框架(React/Vue) → 能调 API 渲染数据([前端路线](/learning-paths/frontend/html-css) 通关)。**阶段二(会写接口)**:一门后端语言 + 框架 → REST API + 数据库增删改查 → JWT 登录——**此时你已能"前端调自己写的接口"**,完成第一个全栈 demo(见 [Node.js](/learning-paths/backend/nodejs) 或 [Django](/learning-paths/backend/django))。**阶段三(会上线)**:Docker 容器化 + 部署到云服务器 + 域名 HTTPS——**让作品能被别人访问**(见 [Docker](/learning-paths/devops/docker) 与 [部署](/learning-paths/fullstack/deployment))。**阶段四(会做工程)**:CI/CD 自动测试发布、监控日志、缓存与性能优化、代码规范与协作流程——**从"能跑"到"能维护"**(见 [GitHub Actions](/learning-paths/devops/github-actions) 与 [监控](/learning-paths/devops/monitoring))。**阶段五(会做架构)**:按业务拆服务、消息队列解耦、读写分离/缓存分层——**从"单体"到"可扩展"**(见 [微服务](/learning-paths/microservices/microservices-patterns) 与 [云原生](/learning-paths/cloud-native/cloud-native-patterns))。
+**阶段一(会做页面)**:HTML/CSS/JS → 一个框架(React/Vue) → 能调 API 渲染数据([前端路线](/learning-paths/frontend/html-css) 通关)。**阶段二(会写接口)**:一门后端语言 + 框架 → REST API + 数据库增删改查 → JWT 登录——**此时你已能"前端调自己写的接口"**,完成第一个全栈 demo(见 [Node.js](/learning-paths/backend/nodejs) 或 [Django](/learning-paths/backend/django))。
+**阶段三(会上线)**:Docker 容器化 + 部署到云服务器 + 域名 HTTPS——**让作品能被别人访问**(见 [Docker](/learning-paths/devops/docker) 与 [部署](/learning-paths/fullstack/deployment))。**阶段四(会做工程)**:CI/CD 自动测试发布、监控日志、缓存与性能优化、代码规范与协作流程——**从"能跑"到"能维护"**(见 [GitHub Actions](/learning-paths/devops/github-actions) 与 [监控](/learning-paths/devops/monitoring))。
+**阶段五(会做架构)**:按业务拆服务、消息队列解耦、读写分离/缓存分层——**从"单体"到"可扩展"**(见 [微服务](/learning-paths/microservices/microservices-patterns) 与 [云原生](/learning-paths/cloud-native/cloud-native-patterns))。
 
 ## 心态与常见误区
 

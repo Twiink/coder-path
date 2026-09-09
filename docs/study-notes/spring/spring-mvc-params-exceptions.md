@@ -29,7 +29,7 @@ updated: 2026-09-07
 | 注解 | 数据来源 | 适用 Content-Type | 示例 |
 | --- | --- | --- | --- |
 | **`@RequestParam`** | ★ URL 查询串 / 表单字段 | `?k=v`、`x-www-form-urlencoded`、`multipart` | `?id=1` |
-| **`@PathVariable`** | ★ URL 路径模板变量 | 任意 | `/users/{id}` |
+| **`@PathVariable`** | ★ URL 路径模板变量 | 任意 | `/users/&#123;id&#125;` |
 | **`@RequestBody`** | ★ 请求体（反序列化） | `application/json`、`xml` | JSON body |
 | `@RequestHeader` | 请求头 | 任意 | `Authorization` |
 | `@CookieValue` | Cookie | 任意 | `JSESSIONID` |
@@ -199,7 +199,7 @@ public Result<Void> xml(@RequestBody UserDto dto) { }
 | 能读几次 | 多次（容器已解析） | ★ **只能读一次**（流） | 多次 |
 | 支持 GET | ✅ | ⚠️ 技术上可以但不规范 | ✅ |
 | 嵌套对象 | ❌（需 `obj.field` 形式） | ✅ **完美支持** | ✅（需 `obj.field` 形式） |
-| 集合 | ✅ `List<Long> ids` | ✅ 任意结构 | ⚠️ 有限（`ids[0]`、`ids[1]`） |
+| 集合 | ✅ `List&lt;Long&gt; ids` | ✅ 任意结构 | ⚠️ 有限（`ids[0]`、`ids[1]`） |
 | 校验 | ✅ 配合 `@Validated` 在类上 | ✅ `@Valid` | ✅ `@Valid` + `BindingResult` |
 | 典型场景 | 简单查询、分页参数 | ★ **POST/PUT 的复杂对象** | 表单提交、GET 的查询条件对象 |
 
@@ -1402,7 +1402,7 @@ public class CustomErrorController implements ErrorController {
 | 4 | 一个方法用两个 `@RequestBody` | 第二个读不到（流只能读一次） | 只能有一个 `@RequestBody` |
 | 5 | `@RequestParam` 接嵌套对象 | 绑定失败 | 用 `obj.field` 形式的参数名 |
 | 6 | `@PathVariable` 变量名不匹配 | 400 或 null | 显式 `@PathVariable("id")`，或编译加 `-parameters` |
-| 7 | `/users/{id}` 与 `/users/list` 冲突 | list 被当成 id | 用正则 `{id:\\d+}`，或精确路径优先 |
+| 7 | `/users/&#123;id&#125;` 与 `/users/list` 冲突 | list 被当成 id | 用正则 (对象(id属性))，或精确路径优先 |
 | 8 | Long 类型 ID 前端精度丢失 | 末几位变 0 | Jackson 的 `ToStringSerializer` |
 | 9 | `@Valid` 忘记加 | 校验完全不生效 | 检查注解 |
 | 10 | `@Validated` 校验单个参数不生效 | 无校验 | ★ 必须在**类**上加 `@Validated` |

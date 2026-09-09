@@ -19,7 +19,7 @@ updated: 2026-04-04
 
 所谓高级用法，只不过是一些深层知识点和实用技巧，你甚至可以把本章当做对前面知识点的一个巩固和学习。  
 
-<br>
+&lt;br&gt;
 
 ## 使用useReducer来管理复杂类型的数据
 
@@ -30,12 +30,12 @@ updated: 2026-04-04
 
 如果我们使用useState来实现上述功能，伪代码如下：  
 
-    function Component() {
+    function Component() &#123;
       const [loading,setLoading] = useState(true); //是否ajax请求中，默认为true
       const [result,setResult] = useState(''); //请求数据内容，默认为''
       const [error,setError] = useState(false); //请求是否发生错误，默认为false
     
-      {
+      &#123;
           //ajax请求成功
           setLoading(false);
           setResult('You have a good news!');//请注意，这是一行伪代码，只是为了演示，并不是真正ajax获取的结果
@@ -44,43 +44,43 @@ updated: 2026-04-04
           //ajax请求错误
           setLoading(false);
           setError(true);
-      }
+      &#125;
     
-      return <div>
-        {loading ? 'loading...' : result}
-        {error ? 'wrong!' : null}
+      return &lt;div&gt;
+        表达式(loading 条件判断)
+        表达式(error 条件判断)
       </div>
-    }
+    &#125;
 
 如果我们使用useReducer来实现，则可将上述3个变量都放在我们定义的变量state中，伪代码如下：  
 
-    const initralData = {loading: true,result: '',error: false};
+    const initralData = 对象(loading属性);
     
-    const reducer = (state, action) => {
-      switch (action.type) {
+    const reducer = (state, action) => &#123;
+      switch (action.type) &#123;
         case 'succes':
-            return {loading:false,result:action.res,error:false}
+            return 对象(loading属性)
         case 'error':
-            return {loading:false,error:true}
-      }
-    }
+            return 对象(loading属性)
+      &#125;
+    &#125;
     
-    function Component() {
+    function Component() &#123;
       const [state, dispatch] = useReducer(reducer, initralData);
     
-      {
+      &#123;
           //ajax请求成功
-          dispatch({type:'succes',res:'You have a good news!'});
+          dispatch(对象(type属性));
     
           //ajax请求错误
-          dispatch({type:'error'});
-      }
+          dispatch(对象(type属性));
+      &#125;
     
-      return <div>
-        {state.loading ? 'loading...' : state.result}
-        {state.error ? 'wrong!' : null}
+      return &lt;div&gt;
+        &#123;state.loading ? 'loading...' : state.result&#125;
+        &#123;state.error ? 'wrong!' : null&#125;
       </div>
-    }
+    &#125;
 
 你可能会有疑问？  
 1、为什么看上去使用useReducer后代码变得更多？   
@@ -91,7 +91,7 @@ updated: 2026-04-04
 
 
 
-<br>
+&lt;br&gt;
 
 
 ## 使用useContext和useReducer实现操作全局共享数据
@@ -118,7 +118,7 @@ updated: 2026-04-04
 1、用React.createContext()定义一个全局数据对象；  
 2、在父组件中用 useReducer 定义全局变量xx和负责抛出修改事件的dispatch；  
 3、在父组件之外，定义负责具体修改全局变量的处理函数reducer，根据修改xx事件类型和参数，执行修改xx的值；  
-4、在父组件中用 <XxxContext.Provider value={{xx,dispatch}}> 标签把 全局共享数据和负责抛出修改xx的dispatch 暴露给子组件；  
+4、在父组件中用 <XxxContext.Provider value=&#123;&#123;xx,dispatch&#125;&#125;> 标签把 全局共享数据和负责抛出修改xx的dispatch 暴露给子组件；  
 5、在子组件中用 useContext 获取全局变量；  
 6、在子组件中用 xxContext.dispatch 去抛出修改xx的事件，携带修改事件类型和参数；  
 
@@ -145,7 +145,7 @@ updated: 2026-04-04
 
 父组件 代码如下：  
 
-    import React, { useReducer } from 'react';
+    import React, &#123; useReducer &#125; from 'react';
     import CountContext from './CountContext';
     import ComponentA from './ComponentA';
     import ComponentB from './ComponentB';
@@ -154,9 +154,9 @@ updated: 2026-04-04
     const initialCount = 0; //定义count的默认值
     
     //修改count事件处理函数，根据修改参数进行处理
-    function reducer(state, action) {
+    function reducer(state, action) &#123;
     //注意这里先判断事件类型，然后结合携带的参数param 来最终修改count
-    switch (action.type) {
+    switch (action.type) &#123;
         case 'add':
             return state + action.param;
         case 'sub':
@@ -168,59 +168,59 @@ updated: 2026-04-04
         default:
             console.log('what?');
             return state;
-    }
-    }
+    &#125;
+    &#125;
     
-    function ParentComponent() {
+    function ParentComponent() &#123;
       //定义全局变量count，以及负责抛出修改事件的dispatch
       const [count, dispatch] = useReducer(reducer, initialCount);
     
-      //请注意：value={{count,dispatch} 是整个代码的核心，把将count、dispatch暴露给所有子组件
-      return <CountContext.Provider value={{count,dispatch}}>
-        <div>
-            ParentComponent - count={count}
+      //请注意：value=&#123;&#123;count,dispatch&#125; 是整个代码的核心，把将count、dispatch暴露给所有子组件
+      return <CountContext.Provider value=&#123;&#123;count,dispatch&#125;&#125;>
+        &lt;div&gt;
+            ParentComponent - count=&#123;count&#125;
             <ComponentA />
             <ComponentB />
             <ComponentC />
         </div>
       </CountContext.Provider>
-    }
+    &#125;
     
     export default ParentComponent;
 
 
 子组件A 代码如下：  
 
-    import React,{ useState, useContext } from 'react';
+    import React,&#123; useState, useContext &#125; from 'react';
     import CountContext from './CountContext';
     
-    function CopmpoentA() {
+    function CopmpoentA() &#123;
       const [param,setParam] = useState(1);
       //引入全局共享对象，获取全局变量count，以及修改count对应的dispatch
       const countContext = useContext(CountContext);
     
-      const inputChangeHandler = (eve) => {
+      const inputChangeHandler = (eve) => &#123;
         setParam(eve.target.value);
-      }
+      &#125;
     
-      const doHandler = () => {
+      const doHandler = () => &#123;
         //若想修改全局count，先获取count对应的修改抛出事件对象dispatch，然后通过dispatch将修改内容抛出
-        //抛出的修改内容为：{type:'add',param:xxx}，即告诉count的修改事件处理函数，本次修改的类型为add，参数是param
+        //抛出的修改内容为：对象(type属性)，即告诉count的修改事件处理函数，本次修改的类型为add，参数是param
         //这里的add和param完全是根据自己实际需求自己定义的
-        countContext.dispatch({type:'add',param:Number(param)});
-      }
+        countContext.dispatch(对象(type属性));
+      &#125;
     
-      const resetHandler = () => {
-        countContext.dispatch({type:'reset'});
-      }
+      const resetHandler = () => &#123;
+        countContext.dispatch(对象(type属性));
+      &#125;
     
-      return <div>
-            ComponentA - count={countContext.count}
-            <input type='number' value={param} onChange={inputChangeHandler} />
-            <button onClick={doHandler}>add {param}</button>
-            <button onClick={resetHandler}>reset</button>
+      return &lt;div&gt;
+            ComponentA - count=&#123;countContext.count&#125;
+            <input type='number' value=&#123;param&#125; onChange=&#123;inputChangeHandler&#125; />
+            <button onClick=&#123;doHandler&#125;>add &#123;param&#125;</button>
+            <button onClick=&#123;resetHandler&#125;>reset</button>
         </div>
-    }
+    &#125;
     
     export default CopmpoentA;
 
@@ -234,7 +234,7 @@ updated: 2026-04-04
 
 
 
-<br>
+&lt;br&gt;
 
 
 ## 为什么不使用Redux？
@@ -244,9 +244,9 @@ updated: 2026-04-04
 
 
 
-<br>
+&lt;br&gt;
 
-<br>
+&lt;br&gt;
 
 > 以下内容更新于 2021.05.18
 
@@ -261,11 +261,11 @@ Recoil 官方网站：https://recoiljs.org/
 
 > 以上内容更新于 2021.05.18
 
-<br>
+&lt;br&gt;
 
 
 
-<br>
+&lt;br&gt;
 
 ## 什么时候用useState？什么时候用useReducer？
 

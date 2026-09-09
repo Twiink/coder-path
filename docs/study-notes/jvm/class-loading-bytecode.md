@@ -155,7 +155,7 @@ invokevirtual #15    // Method com/example/User.getName:()Ljava/lang/String;
 
 ### 1.5 初始化（Initialization）★★★★★
 
-**执行类构造器 `<clinit>()` 方法。**
+**执行类构造器 `&lt;clinit&gt;()` 方法。**
 
 ```java
 // <clinit>() 是编译器自动收集的：
@@ -177,15 +177,15 @@ public class Demo {
 // 输出：静态块 1  →  静态块 2, a=2
 ```
 
-**`<clinit>()` 的关键特性：**
+**`&lt;clinit&gt;()` 的关键特性：**
 
 | 特性 | 说明 |
 | --- | --- |
-| **JVM 保证线程安全** | 多线程同时初始化一个类，只有一个线程执行 `<clinit>()`，其他线程**阻塞等待** ★ |
+| **JVM 保证线程安全** | 多线程同时初始化一个类，只有一个线程执行 `&lt;clinit&gt;()`，其他线程**阻塞等待** ★ |
 | 父类优先 | 初始化子类时，若父类未初始化则先初始化父类；但**接口不要求先初始化父接口** |
-| 不需要显式调用父类 | `<clinit>()` 不会调用父类的 `<clinit>()`（JVM 保证顺序） |
-| 可以没有 | 类中没有静态变量赋值和静态代码块，编译器就不生成 `<clinit>()` |
-| 接口也有 | 接口不能有静态代码块，但静态变量赋值仍会生成 `<clinit>()` |
+| 不需要显式调用父类 | `&lt;clinit&gt;()` 不会调用父类的 `&lt;clinit&gt;()`（JVM 保证顺序） |
+| 可以没有 | 类中没有静态变量赋值和静态代码块，编译器就不生成 `&lt;clinit&gt;()` |
+| 接口也有 | 接口不能有静态代码块，但静态变量赋值仍会生成 `&lt;clinit&gt;()` |
 
 ```java
 // ★ <clinit> 的线程安全性 = 「静态内部类单例」的理论基础
@@ -213,16 +213,16 @@ public class DeadlockDemo {
 // jstack 会显示：waiting on condition / in Object.wait() at ClassLoader
 ```
 
-**`<clinit>()` vs `<init>()`：**
+**`&lt;clinit&gt;()` vs `&lt;init&gt;()`：**
 
-| | `<clinit>()` | `<init>()` |
+| | `&lt;clinit&gt;()` | `&lt;init&gt;()` |
 | --- | --- | --- |
 | 名称 | 类构造器（class initializer） | 实例构造器（instance initializer） |
 | 触发 | **类初始化阶段**（首次主动使用） | **对象创建时**（new） |
 | 执行次数 | 每个类**只执行一次** | 每创建一个对象执行一次 |
 | 内容 | 静态变量赋值 + 静态代码块 | 实例变量赋值 + 实例代码块 + 构造器体（先 `super()`） |
 | 线程安全 | **JVM 保证** | 不保证 |
-| 调用父类版本 | 不调用（JVM 保证父类先初始化） | **必须先调用** `super.<init>()` |
+| 调用父类版本 | 不调用（JVM 保证父类先初始化） | **必须先调用** `super.&lt;init&gt;()` |
 | 是否必须 | 无静态初始化内容时不生成 | 无构造器时编译器生成默认的 |
 
 ### 1.6 类初始化的触发时机（主动引用 vs 被动引用）★★★★★
@@ -284,8 +284,8 @@ Class<?> c2 = Class.forName("com.example.User");   // ✅ 这个「会」触发
 
 | 加载器 | 名称 | 加载范围 | 实现 |
 | --- | --- | --- | --- |
-| **启动类加载器** | Bootstrap ClassLoader | `<JAVA_HOME>/lib`（如 `rt.jar`、`java.lang.*`）；或被 `-Xbootclasspath` 指定 | **C++ 实现**，是 JVM 的一部分，**Java 中获取到的是 `null`** |
-| **扩展类加载器** | Extension ClassLoader（JDK 9+ 改名 **Platform ClassLoader**） | `<JAVA_HOME>/lib/ext` 目录，或 `java.ext.dirs` 指定 | `sun.misc.Launcher$ExtClassLoader`（JDK 9+: `jdk.internal.loader.ClassLoaders$PlatformClassLoader`） |
+| **启动类加载器** | Bootstrap ClassLoader | `&lt;JAVA_HOME&gt;/lib`（如 `rt.jar`、`java.lang.*`）；或被 `-Xbootclasspath` 指定 | **C++ 实现**，是 JVM 的一部分，**Java 中获取到的是 `null`** |
+| **扩展类加载器** | Extension ClassLoader（JDK 9+ 改名 **Platform ClassLoader**） | `&lt;JAVA_HOME&gt;/lib/ext` 目录，或 `java.ext.dirs` 指定 | `sun.misc.Launcher$ExtClassLoader`（JDK 9+: `jdk.internal.loader.ClassLoaders$PlatformClassLoader`） |
 | **应用类加载器** | Application ClassLoader（System ClassLoader） | **用户 classpath**（`-cp` 指定的路径，即我们写的代码和依赖 jar） | `sun.misc.Launcher$AppClassLoader` |
 | **自定义类加载器** | Custom ClassLoader | 任意来源 | 继承 `java.lang.ClassLoader` |
 
@@ -725,7 +725,7 @@ ServiceLoader.load(HelloService.class, myClassLoader);   // 指定 ClassLoader
 | `javax.sound.midi.spi.MidiFileReader` | MIDI 解析器 | 同上 |
 | `java.util.spi.LocaleNameProvider` | 本地化名称 | 同上 |
 | **Dubbo 的 `@SPI`** | Dubbo 扩展点（比 JDK SPI 强，支持按名加载、AOP、DI） | `META-INF/dubbo/接口名` |
-| **Spring 的 `spring.factories`** | 自动配置类、监听器、初始化器 | `META-INF/spring.factories`（Spring Boot 2）<br>`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`（Boot 2.7+/3） |
+| **Spring 的 `spring.factories`** | 自动配置类、监听器、初始化器 | `META-INF/spring.factories`（Spring Boot 2）&lt;br&gt;`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`（Boot 2.7+/3） |
 | SLF4J | 日志实现绑定 | `META-INF/services/org.slf4j.spi.SLF4JServiceProvider` |
 
 ```java
@@ -1085,7 +1085,7 @@ private int square(int x) { return x * x; }
 | 1 | 以为静态变量在准备阶段就有值 | 读到 0 或 null | 准备阶段是零值，初始化阶段才赋真值 |
 | 2 | `static final` 非编译期常量当常量用 | 值在准备阶段是 0 | 只有字面量/常量运算才是编译期常量 |
 | 3 | 常量内联导致修改不生效 | 改了常量类未重新编译依赖方，值不变 | 全量重新编译，或改用方法返回 |
-| 4 | `<clinit>` 中互相调用其他类 | **类初始化死锁** | 避免静态块中的复杂依赖 |
+| 4 | `&lt;clinit&gt;` 中互相调用其他类 | **类初始化死锁** | 避免静态块中的复杂依赖 |
 | 5 | 静态块抛异常 | `ExceptionInInitializerError`，之后访问抛 `NoClassDefFoundError` | 静态块中做好异常处理 |
 | 6 | 以为 `Child.value` 会初始化 Child | 只初始化 Parent | JVM 规范：只初始化定义字段的类 |
 | 7 | TCCL 未还原 | 后续任务用错 ClassLoader | try-finally 中还原 |

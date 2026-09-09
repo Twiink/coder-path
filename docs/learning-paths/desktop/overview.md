@@ -4,7 +4,9 @@
 
 ## 技术选型:三条主流路线
 
-**①Electron(最成熟,复杂应用的默认)**:Chromium + Node.js——**前端技术栈零门槛**:HTML/CSS/JS 直接写 UI,Node 提供系统能力;跨平台(Windows/macOS/Linux)一套代码;生态最成熟、成功案例最多(VS Code/Slack/Discord)。**代价**:包体积大(最小 50MB+,每个应用打包整个 Chromium)、内存占用高、启动相对慢——**"复杂 UI + 前端团队 + 要快"选它**。**②Tauri(新兴轻量派)**:Rust 后端 + 系统 WebView(不打包浏览器)——**包体积 3-10MB、内存低、启动快、性能好**(前端仍是 Web 技术,后端与系统能力走 Rust);**代价**:生态小于 Electron、不同平台 WebView 有差异、要学 Rust 后端。**③传统原生(Qt(C++)/.NET MAUI(C#)/Swift(Apple))**:真原生、性能最佳、平台集成最深——**代价**:开发效率低于 Web 技术、要学 C++/C#、UI 迭代慢;适合对性能/系统集成极致要求的专业软件。**④Flutter Desktop**(补充):同一套 Flutter 代码编译到桌面——**移动端团队做桌面的低成本延伸**(见 [Flutter Desktop](/learning-paths/desktop/flutter-desktop))。
+**①Electron(最成熟,复杂应用的默认)**:Chromium + Node.js——**前端技术栈零门槛**:HTML/CSS/JS 直接写 UI,Node 提供系统能力;跨平台(Windows/macOS/Linux)一套代码;生态最成熟、成功案例最多(VS Code/Slack/Discord)。
+**代价**:包体积大(最小 50MB+,每个应用打包整个 Chromium)、内存占用高、启动相对慢——**"复杂 UI + 前端团队 + 要快"选它**。**②Tauri(新兴轻量派)**:Rust 后端 + 系统 WebView(不打包浏览器)——**包体积 3-10MB、内存低、启动快、性能好**(前端仍是 Web 技术,后端与系统能力走 Rust);**代价**:生态小于 Electron、不同平台 WebView 有差异、要学 Rust 后端。
+**③传统原生(Qt(C++)/.NET MAUI(C#)/Swift(Apple))**:真原生、性能最佳、平台集成最深——**代价**:开发效率低于 Web 技术、要学 C++/C#、UI 迭代慢;适合对性能/系统集成极致要求的专业软件。**④Flutter Desktop**(补充):同一套 Flutter 代码编译到桌面——**移动端团队做桌面的低成本延伸**(见 [Flutter Desktop](/learning-paths/desktop/flutter-desktop))。
 
 **选型速查**:前端团队 + 复杂应用 + 要快 → **Electron**;要轻量/性能/体积敏感(工具类)→ **Tauri**;专业级性能与原生深度 → **Qt/.NET MAUI**;已有 Flutter 移动端 → **Flutter Desktop**。**没有绝对最优:Electron 的"重"对多数业务可接受,Tauri 的"轻"正快速补生态——两者都值得会,先用 Electron 跑通,再按需评估 Tauri**。
 

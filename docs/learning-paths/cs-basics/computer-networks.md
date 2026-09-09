@@ -52,7 +52,9 @@ TCP 是"可靠传输"的模范生,可靠靠一整套机制堆出来:
 
 四次挥手:①主动方发 FIN(SEQ=m,进入 FIN_WAIT_1)→ ②被动方回 ACK(ACK=m+1,进入 CLOSE_WAIT,主动方进入 FIN_WAIT_2)→ ③被动方发 FIN(SEQ=n,进入 LAST_ACK)→ ④主动方回 ACK(ACK=n+1,进入 TIME_WAIT,被动方收到后 CLOSED)。为什么比握手多一次?TCP 是全双工,单方 FIN 只关闭自己的发送方向(半关闭)——被动方收到 FIN 可能还有数据要发(如长响应还没传完),先 ACK 确认"我知道了",等数据发完再 FIN 关自己的发送方向。
 
-TIME_WAIT(面试重灾区):主动关闭方最后要等 2MSL(Maximum Segment Lifetime,Linux 默认 60 秒,所以 TIME_WAIT 是 120 秒,可调)才彻底关闭。两个作用:①让最后的 ACK 有足够时间到达(若丢失,被动方超时重发 FIN,主动方还能在 TIME_WAIT 里回 ACK);②让网络里的迷途报文(旧连接的延迟包)自然消亡,防止污染新连接(新连接若复用了同一四元组,旧包会被误识别)。高并发短连接的服务器 TIME_WAIT 堆积(每关一个连接占一个端口号,客户端端口 6 万上限很快耗尽)——调优方向:tcp_tw_reuse(允许 TIME_WAIT 的端口快速复用,对外连接用)、tcp_tw_recycle(已废弃,NAT 下有问题)、长连接池(HTTP/1.1 Keep-Alive、数据库连接池)、调大端口范围(net.ipv4.ip_local_port_range)。为什么服务端也会 TIME_WAIT?谁主动关谁 TIME_WAIT——HTTP/1.1 常是服务端发 FIN(Connection: close),所以服务端也会堆积。
+TIME_WAIT(面试重灾区):主动关闭方最后要等 2MSL(Maximum Segment Lifetime,Linux 默认 60 秒,所以 TIME_WAIT 是 120 秒,可调)才彻底关闭。两个作用:①让最后的 ACK 有足够时间到达(若丢失,被动方超时重发 FIN,主动方还能在 TIME_WAIT 里回 ACK);②让网络里的迷途报文(旧连接的延迟包)自然消亡,防止污染新连接(新连接若复用了同一四元组,旧包会被误识别)。
+高并发短连接的服务器 TIME_WAIT 堆积(每关一个连接占一个端口号,客户端端口 6 万上限很快耗尽)——调优方向:tcp_tw_reuse(允许 TIME_WAIT 的端口快速复用,对外连接用)、tcp_tw_recycle(已废弃,NAT 下有问题)、长连接池(HTTP/1.1 Keep-Alive、数据库连接池)、调大端口范围(net.ipv4.ip_local_port_range)。
+为什么服务端也会 TIME_WAIT?谁主动关谁 TIME_WAIT——HTTP/1.1 常是服务端发 FIN(Connection: close),所以服务端也会堆积。
 
 还有一个开发必踩的坑:粘包与半包。TCP 是"字节流",没有消息边界——你 send 两次,对端可能一次 recv 全收到(粘包),也可能只收到一半(半包)。原因:TCP 的 Nagle 算法(小包合并发送,减少网络开销)、接收缓冲区大小、网络分片。所以应用层协议必须自己定界:固定长度(每个消息 N 字节,不够填充)、分隔符(如 HTTP 的 \r\n\r\n、Redis 的 \r\n)、长度前缀(最常用:头 4 字节表示 Body 长度,Protobuf/Thrift/自定义 RPC 都这么干)。你用过的每个 RPC 框架、消息队列,内部都在做这件事——这也是为什么"直接用 Socket 写业务"是自找麻烦,框架已经帮你处理好了。
 

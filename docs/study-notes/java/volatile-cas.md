@@ -505,7 +505,7 @@ CAS(V, A, B):
 
 **CAS 的硬件实现（x86）：**
 
-```assembly
+```asm
 ; JDK 中 Unsafe.compareAndSwapInt 的汇编实现（HotSpot x86）
 lock cmpxchg [address], newValue
 ;  └─ lock 前缀：锁定总线或缓存行，保证多核下的原子性
@@ -678,8 +678,8 @@ ref.isMarked();
 
 | 类 | 版本管理 | 适用场景 |
 | --- | --- | --- |
-| `AtomicStampedReference<V>` | int 版本号（每次 +1） | **需要精确检测修改次数**（如上面的链表） |
-| `AtomicMarkableReference<V>` | boolean 标记 | **只关心「有没有被改过」**（如一次性状态翻转） |
+| `AtomicStampedReference&lt;V&gt;` | int 版本号（每次 +1） | **需要精确检测修改次数**（如上面的链表） |
+| `AtomicMarkableReference&lt;V&gt;` | boolean 标记 | **只关心「有没有被改过」**（如一次性状态翻转） |
 
 **解决方案 3：业务上规避（最常用）**
 

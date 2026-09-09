@@ -36,56 +36,56 @@ updated: 2026-09-06
 协程与管道案例
 
 ~~~go
-func putNum(iniChan chan int) {
-	for i:=0;i<=8000;i++ {
+func putNum(iniChan chan int) &#123;
+	for i:=0;i<=8000;i++ &#123;
 		iniChan<-i
-	}
+	&#125;
 	close(iniChan)
-}
-func primeChan (intChan chan int, primeChan chan int, exitChan chan bool) {
+&#125;
+func primeChan (intChan chan int, primeChan chan int, exitChan chan bool) &#123;
 	//var num int
 	var flag bool
-	for {
+	for &#123;
 		num, ok := <-intChan
-		if !ok {
+		if !ok &#123;
 			break
-		}
+		&#125;
 		flag = true
-		for i := 2; i < num; i++ {
-			if num % i == 0 {
+		for i := 2; i < num; i++ &#123;
+			if num % i == 0 &#123;
 				flag = false
 				break
-			}
-		}
-		if flag {
+			&#125;
+		&#125;
+		if flag &#123;
 			primeChan<- num
-		}
-	}
+		&#125;
+	&#125;
 	exitChan<-true
-}
+&#125;
 
-func main() {
+func main() &#123;
 	iniChan := make(chan int, 1000)
 	promeChan := make(chan int, 2000)
 	exitChan := make(chan bool, 4)
 	go putNum(iniChan)
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 4; i++ &#123;
 		go primeChan(iniChan, promeChan, exitChan)
-	}
-	go func() {
+	&#125;
+	go func() &#123;
 
-		for i := 0; i < 4; i++ {
+		for i := 0; i < 4; i++ &#123;
 			<-exitChan
-		}
+		&#125;
 		close(promeChan)
 
-	}()
-	for {
+	&#125;()
+	for &#123;
 		res, ok :=<-promeChan
-		if !ok {
+		if !ok &#123;
 			break
-		}
+		&#125;
 		fmt.Printf("s=%d\n", res)
-	}
-}
+	&#125;
+&#125;
 ~~~

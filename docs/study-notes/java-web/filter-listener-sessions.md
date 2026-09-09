@@ -450,7 +450,7 @@ bean.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC, Dispatcher
 | `REQUEST` | 浏览器直接请求（★ 最常见） | **必须** |
 | `FORWARD` | `request.getRequestDispatcher().forward()` | 视需求（鉴权不需要，日志可能需要） |
 | `INCLUDE` | `include()`（包含片段） | 少用 |
-| `ERROR` | 容器跳转到 `<error-page>` | ★ **需要**（否则错误页响应不会被包装/记录） |
+| `ERROR` | 容器跳转到 `&lt;error-page&gt;` | ★ **需要**（否则错误页响应不会被包装/记录） |
 | `ASYNC` | 异步 Servlet 的 `asyncContext.dispatch()` | ★ **异步应用需要** |
 
 > 【坑】**异步 Servlet 场景忘记配 `DispatcherType.ASYNC`**：
@@ -607,7 +607,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
 ```
 
 > 【安全原则】**防 XSS 的正确姿势是「输出时编码」而非「输入时过滤」**：
-> 1. **输入过滤容易绕过**（编码变形、嵌套标签、大小写、注释），且会破坏合法数据（如用户真的要输入 `<div>`）。
+> 1. **输入过滤容易绕过**（编码变形、嵌套标签、大小写、注释），且会破坏合法数据（如用户真的要输入 `&lt;div&gt;`）。
 > 2. **输出编码根据上下文选择**：HTML 内容用 `forHtml`，属性值用 `forHtmlAttribute`，JS 中用 `forJavaScript`，URL 中用 `forUriComponent`。
 > 3. **富文本场景用白名单清洗**（Jsoup/AntiSamy），而非黑名单过滤。
 > 4. **配合 CSP（Content-Security-Policy）响应头**做纵深防御。
@@ -1507,7 +1507,7 @@ public class SingleLoginService {
 | 1 | Filter 拦截后忘记 `return` | 已重定向又执行业务，`Response already committed` | 拦截后立即 return |
 | 2 | Filter 中定义可变实例变量 | 数据串号（单例多线程） | 用局部变量 |
 | 3 | 忘记调用 `chain.doFilter()` | 请求挂起/无响应 | 必须放行（除拦截场景） |
-| 4 | 后置逻辑不在 finally 中 | 异常时清理代码不执行 | `try { chain.doFilter } finally { 清理 }` |
+| 4 | 后置逻辑不在 finally 中 | 异常时清理代码不执行 | `try &#123; chain.doFilter &#125; finally &#123; 清理 &#125;` |
 | 5 | MDC/ThreadLocal 未清理 | 日志 traceId 串号、内存泄漏 | finally 中 `MDC.clear()` |
 | 6 | `@WebFilter` 期望控制顺序 | 顺序不可控 | 用 `FilterRegistrationBean.setOrder()` |
 | 7 | `@WebFilter` 未加 `@ServletComponentScan` | Filter 不生效 | 启动类加注解，或用 `@Component` |

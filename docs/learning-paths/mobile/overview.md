@@ -4,13 +4,17 @@
 
 ## 技术选型:原生 vs 跨平台
 
-**原生开发(iOS 用 Swift + SwiftUI,Android 用 Kotlin + Jetpack Compose)**:性能最优、原生体验最好、能深度调用平台特性(相机/传感器/系统集成);代价:**两套代码两套人**(成本翻倍)。**何时选原生**:对性能要求极高(游戏/AR/音视频剪辑)、需要深度平台能力、团队有专职两端开发、**大型长期产品**(原生是"最稳的长期投资")。**跨平台开发**:一套代码两端跑——主流三派:①**React Native**(用 React 写:生态成熟、社区大、性能接近原生——**适合有前端背景的团队**,见 [React Native](/learning-paths/mobile/react-native));②**Flutter**(Google 出品、自绘引擎(UI 高度一致与流畅)、组件丰富——**要学 Dart,界面一致性最强**,见 [Flutter](/learning-paths/mobile/flutter));③**WebView/混合(Ionic/Capacitor)**:Web 技术套壳,**适合简单应用**与 Web 团队低成本入场(性能弱,复杂交互别选)。**何时选跨平台**:同时要 iOS+Android、团队小/快速迭代 MVP、对极致性能要求不高——**当前市场主流选择**(多数产品团队 RN 或 Flutter 起步,原生按需补充)。
+**原生开发(iOS 用 Swift + SwiftUI,Android 用 Kotlin + Jetpack Compose)**:性能最优、原生体验最好、能深度调用平台特性(相机/传感器/系统集成);代价:**两套代码两套人**(成本翻倍)。**何时选原生**:对性能要求极高(游戏/AR/音视频剪辑)、需要深度平台能力、团队有专职两端开发、**大型长期产品**(原生是"最稳的长期投资")。
+**跨平台开发**:一套代码两端跑——主流三派:①**React Native**(用 React 写:生态成熟、社区大、性能接近原生——**适合有前端背景的团队**,见 [React Native](/learning-paths/mobile/react-native));②**Flutter**(Google 出品、自绘引擎(UI 高度一致与流畅)、组件丰富——**要学 Dart,界面一致性最强**,见 [Flutter](/learning-paths/mobile/flutter));③**WebView/混合(Ionic/Capacitor)**:Web 技术套壳,**适合简单应用**与 Web 团队低成本入场(性能弱,复杂交互别选)。
+**何时选跨平台**:同时要 iOS+Android、团队小/快速迭代 MVP、对极致性能要求不高——**当前市场主流选择**(多数产品团队 RN 或 Flutter 起步,原生按需补充)。
 
 **国内特殊生态**:微信小程序(流量入口,见 [小程序](/learning-paths/mobile/wechat-miniprogram))与 **uni-app(一套代码发布 App/小程序/H5 的多端框架,国内团队高频选择**,见 [uni-app](/learning-paths/mobile/uniapp))——**国内产品的现实配方常常是"App(RN/Flutter)+ 小程序"双轨**。
 
 ## 上手路线(按背景对号入座)
 
-**前端背景 → React Native(或 uni-app)**:从 Expo 脚手架起步(对初学者最友好,见 [RN](/learning-paths/mobile/react-native)):核心组件与 Flexbox 布局(与 Web CSS 同思维)→ React Navigation 导航 → 数据获取与状态管理(React Query/Zustand 同 Web 习惯)→ 本地存储 → 按需接入相机/定位/推送等原生能力——**Web 技能迁移率最高**。**想换新语言/要极致 UI 一致性 → Flutter**:先过 Dart 语法与"一切皆 Widget"思想(约两周,见 [Flutter](/learning-paths/mobile/flutter))→ StatelessWidget/StatefulWidget → 布局与 Material 组件 → Navigator 导航与状态管理 → http/dio 对接后端。**追求原生深度/进大厂原生岗 → 原生**:iOS 走 Swift + SwiftUI(见 [iOS](/learning-paths/mobile/ios-native)),Android 走 Kotlin + Jetpack Compose(见 [Android](/learning-paths/mobile/android-native));**国内多端/小程序 → uni-app + 小程序**(见 [uni-app](/learning-paths/mobile/uniapp) 与 [小程序](/learning-paths/mobile/wechat-miniprogram))。
+**前端背景 → React Native(或 uni-app)**:从 Expo 脚手架起步(对初学者最友好,见 [RN](/learning-paths/mobile/react-native)):核心组件与 Flexbox 布局(与 Web CSS 同思维)→ React Navigation 导航 → 数据获取与状态管理(React Query/Zustand 同 Web 习惯)→ 本地存储 → 按需接入相机/定位/推送等原生能力——**Web 技能迁移率最高**。
+**想换新语言/要极致 UI 一致性 → Flutter**:先过 Dart 语法与"一切皆 Widget"思想(约两周,见 [Flutter](/learning-paths/mobile/flutter))→ StatelessWidget/StatefulWidget → 布局与 Material 组件 → Navigator 导航与状态管理 → http/dio 对接后端。
+**追求原生深度/进大厂原生岗 → 原生**:iOS 走 Swift + SwiftUI(见 [iOS](/learning-paths/mobile/ios-native)),Android 走 Kotlin + Jetpack Compose(见 [Android](/learning-paths/mobile/android-native));**国内多端/小程序 → uni-app + 小程序**(见 [uni-app](/learning-paths/mobile/uniapp) 与 [小程序](/learning-paths/mobile/wechat-miniprogram))。
 
 ## 移动端通用技能(与框架无关的必修)
 

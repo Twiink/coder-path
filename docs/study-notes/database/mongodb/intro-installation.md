@@ -136,7 +136,7 @@ Foreign Key    →      引用或嵌入
 | **Date** | 64 位时间戳 | `ISODate("2026-09-06T10:00:00Z")` |
 | **ObjectId** | 12 字节唯一标识 | `ObjectId("507f1f77bcf86cd799439011")` |
 | **Array** | 数组 | `[1, 2, 3]` |
-| **Object** | 嵌套文档 | `{ "city": "北京" }` |
+| **Object** | 嵌套文档 | (&#123; "city": "北京" &#125;) |
 | **Null** | 空值 | `null` |
 | **Binary** | 二进制数据 | `BinData(0, "...")` |
 | **Decimal128** | 128 位十进制 | `NumberDecimal("9.99")` |

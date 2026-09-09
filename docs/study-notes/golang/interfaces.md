@@ -35,46 +35,46 @@ updated: 2026-09-06
 - 方法名：当方法名首字母是大写且这个接口类型名首字母也是大写时，这个方法可以被接口所在的包（`package`）之外的代码访问。
 - 参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。
 ~~~go
-type 接口类型名 interface{
+type 接口类型名 interface&#123;
 	方法名1( 参数列表1 ) 返回值列表1
 	方法名2( 参数列表2 ) 返回值列表2
 	…
-}
+&#125;
 ~~~
 值接收者和指针接收者实现接口的区别:
 ~~~go
-type Mover interface {
+type Mover interface &#123;
     move()
-}
+&#125;
 
-type dog struct {}
+type dog struct &#123;&#125;
 ~~~
 ~~~go
 // 值接收者实现接口
-func (d dog) move() {
+func (d dog) move() &#123;
     fmt.Println("狗会动")
-}
-func main() {
+&#125;
+func main() &#123;
     var x Mover
-    var wangcai = dog{} // 旺财是dog类型
+    var wangcai = dog&#123;&#125; // 旺财是dog类型
     x = wangcai         // x可以接收dog类型
-    var fugui = &dog{}  // 富贵是*dog类型
+    var fugui = &dog&#123;&#125;  // 富贵是*dog类型
     x = fugui           // x可以接收*dog类型
     x.move()
-}
+&#125;
 // 使用值接收者实现接口之后，不管是dog结构体还是结构体指针*dog类型的变量都可以赋值给该接口变量。因为Go语言中有对指针类型变量求值的语法糖，dog指针fugui内部会自动求值*fugui。
 ~~~
 ~~~go
 // 指针接收者实现接口
-func (d *dog) move() {
+func (d *dog) move() &#123;
     fmt.Println("狗会动")
-}
-func main() {
+&#125;
+func main() &#123;
     var x Mover
-    var wangcai = dog{} // 旺财是dog类型
+    var wangcai = dog&#123;&#125; // 旺财是dog类型
     x = wangcai         // x不可以接收dog类型
-    var fugui = &dog{}  // 富贵是*dog类型
+    var fugui = &dog&#123;&#125;  // 富贵是*dog类型
     x = fugui           // x可以接收*dog类型
-}
+&#125;
 // 此时实现Mover接口的是*dog类型，所以不能给x传入dog类型的wangcai，此时x只能存储*dog类型的值。
 ~~~

@@ -28,39 +28,39 @@ updated: 2026-04-04
 
 实现代码：  
 
-    import React,{ useContext } from 'react'
+    import React,&#123; useContext &#125; from 'react'
 
     const UserContext = React.createContext();
     const NewsContext = React.createContext();
 
-    function AppComponent() {
+    function AppComponent() &#123;
       return (
-        <UserContext.Provider value={{name:'puxiao'}}>
-            <NewsContext.Provider value={{title:'Hello React Hook.'}}>
+        <UserContext.Provider value=&#123;对象(name属性)&#125;>
+            <NewsContext.Provider value=&#123;对象(title属性)&#125;>
                 <ChildComponent />
             </NewsContext.Provider>
         </UserContext.Provider>
       )
-    }
+    &#125;
 
-    function ChildComponent(){
+    function ChildComponent()&#123;
       const user = useContext(UserContext);
       const news = useContext(NewsContext);
-      return <div>
-        {user.name} - {news.title}
+      return &lt;div&gt;
+        &#123;user.name&#125; - &#123;news.title&#125;
       </div>
-    }
+    &#125;
 
     export default AppComponent;
 
 代码分析：  
-1、父组件同时要实现传递2个共享数据对象value值，需要使用<XxxContext.Provider value={obj}>标签进行2次嵌套。  
+1、父组件同时要实现传递2个共享数据对象value值，需要使用<XxxContext.Provider value=&#123;obj&#125;>标签进行2次嵌套。  
 2、子组件使用了useContext，他可以自由随意使用父组件传递过来的共享数据value，并不需要多次嵌套获取。  
 
 ## 同时将1个共享数据值传递给多个子组件
 使用<XxxContext.Provider></XxxContext.Provider>标签将多个子组件包裹起来，即可实现。  
 
-    <XxxContext.Provider value={{name:'puxiao'}}>
+    <XxxContext.Provider value=&#123;对象(name属性)&#125;>
         <ComponentA />
         <ComponentB />
         <ComponentC />

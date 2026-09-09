@@ -1201,11 +1201,11 @@ ForkJoinPool.managedBlock(blocker);
 > 【坑 21 详解】**线程池嵌套死锁**（《Java 并发编程实战》第 8.1.1 节的经典案例）：
 > ```java
 > ExecutorService pool = Executors.newFixedThreadPool(2);
-> pool.submit(() -> {
->     Future<Integer> sub = pool.submit(() -> 1);      // 提交子任务到同一个池
+> pool.submit(() -> &#123;
+>     Future&lt;Integer&gt; sub = pool.submit(() -> 1);      // 提交子任务到同一个池
 >     return sub.get();                                 // ★ 等待子任务
-> });
-> pool.submit(() -> { /* 同样的逻辑 */ });
+> &#125;);
+> pool.submit(() -> &#123; /* 同样的逻辑 */ &#125;);
 > // 2 个线程都在等待子任务，但子任务在队列中没有线程执行 → 死锁
 > // ✅ 解决：子任务用独立的池，或改用 CompletableFuture 的组合 API（不阻塞线程）
 > ```

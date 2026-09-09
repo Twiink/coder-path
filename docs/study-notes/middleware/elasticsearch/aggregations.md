@@ -210,7 +210,7 @@ GET /products/_search
 **排序方式**：
 - `_count`：按文档数
 - `_key`：按 key 值
-- 自定义指标：`{ "avg_price": "desc" }`
+- 自定义指标：(&#123; "avg_price": "desc" &#125;)
 
 ### 3.4.2 range 聚合（按数值区间分组）
 

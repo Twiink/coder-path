@@ -8,11 +8,13 @@
 
 ## 第二站:前端优化——管好"加载与渲染"
 
-**加载三板斧**:①**代码分割与懒加载**:路由级/组件级按需加载(React.lazy + Suspense、Vue 的异步组件、动态 import)——**首屏只下载当前路由需要的代码**(见 [React](/learning-paths/frontend/react)/[Vue](/learning-paths/frontend/vue) 性能章);②**图片优化**:next/image 类组件(自动压缩/响应式尺寸)或原生 `loading="lazy"` + `srcset/sizes`(按屏幕加载合适尺寸——**一张 2MB 原图毁掉整个首屏**);③**静态资源缓存**:带 hash 的文件名 + 长缓存头(CDN/浏览器——见 [Nginx](/learning-paths/middleware/nginx) 缓存章)。**渲染优化**:组件 memo 防无谓重渲染、长列表虚拟滚动、动画走 transform/opacity(见 [React](/learning-paths/frontend/react) 渲染原理章)。**请求优化(常被忽略的"假慢"来源)**:①**服务端状态缓存**:TanStack Query/SWR 配置 staleTime(如 5 分钟不重复请求)与缓存策略——**同一数据别每次进页面都重新拉**(见 [React](/learning-paths/frontend/react) 数据获取章);②**请求合并与防抖**:搜索输入防抖、批量请求合并;③**CDN 与预加载**:静态资源上 CDN、关键资源 preload/preconnect(见 [Nginx](/learning-paths/middleware/nginx))。
+**加载三板斧**:①**代码分割与懒加载**:路由级/组件级按需加载(React.lazy + Suspense、Vue 的异步组件、动态 import)——**首屏只下载当前路由需要的代码**(见 [React](/learning-paths/frontend/react)/[Vue](/learning-paths/frontend/vue) 性能章);②**图片优化**:next/image 类组件(自动压缩/响应式尺寸)或原生 `loading="lazy"` + `srcset/sizes`(按屏幕加载合适尺寸——**一张 2MB 原图毁掉整个首屏**);③**静态资源缓存**:带 hash 的文件名 + 长缓存头(CDN/浏览器——见 [Nginx](/learning-paths/middleware/nginx) 缓存章)。
+**渲染优化**:组件 memo 防无谓重渲染、长列表虚拟滚动、动画走 transform/opacity(见 [React](/learning-paths/frontend/react) 渲染原理章)。**请求优化(常被忽略的"假慢"来源)**:①**服务端状态缓存**:TanStack Query/SWR 配置 staleTime(如 5 分钟不重复请求)与缓存策略——**同一数据别每次进页面都重新拉**(见 [React](/learning-paths/frontend/react) 数据获取章);②**请求合并与防抖**:搜索输入防抖、批量请求合并;③**CDN 与预加载**:静态资源上 CDN、关键资源 preload/preconnect(见 [Nginx](/learning-paths/middleware/nginx))。
 
 ## 第三站:后端优化——管好"查询与缓存"
 
-**接口慢的定位顺序(从外到内)**:网络/网关 → 应用代码 → 数据库。**数据库查询优化(后端性能的第一大头)**:①**N+1 查询**(循环里查库——列表接口性能杀手):ORM 预加载(select_related/with/Preload,见各框架 ORM 章);②**索引**:给 WHERE/排序/关联字段建索引,用 EXPLAIN 看是否走索引、有没有全表扫描(见 [MySQL](/learning-paths/database/mysql) 索引章);③**分页**:列表接口必须分页,深分页用游标/延迟关联(见 [MySQL](/learning-paths/database/mysql) 优化章)——**"一次全查"是后端最常见的性能事故**。**缓存分层(后端提速的第二步)**:①**Redis 缓存读多写少的热数据**:先查缓存 → 未命中查库并回填 → 设过期时间——**"接口先问缓存再问数据库"的 Cache Aside 模式**(防穿透/击穿/雪崩三件套见 [Redis](/learning-paths/database/redis) 缓存章);②**HTTP 层缓存**:静态与公开接口用 Nginx/CDN 边缘缓存(见 [Nginx](/learning-paths/middleware/nginx) 缓存章);③**并发与异步**:重活(报表/邮件/推送)异步化进队列,请求只干快活(见 [RabbitMQ](/learning-paths/middleware/rabbitmq) 场景章);④**连接池与超时**:数据库/Redis 连接池参数、下游调用超时(防级联,见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 弹性章)。
+**接口慢的定位顺序(从外到内)**:网络/网关 → 应用代码 → 数据库。**数据库查询优化(后端性能的第一大头)**:①**N+1 查询**(循环里查库——列表接口性能杀手):ORM 预加载(select_related/with/Preload,见各框架 ORM 章);②**索引**:给 WHERE/排序/关联字段建索引,用 EXPLAIN 看是否走索引、有没有全表扫描(见 [MySQL](/learning-paths/database/mysql) 索引章);③**分页**:列表接口必须分页,深分页用游标/延迟关联(见 [MySQL](/learning-paths/database/mysql) 优化章)——**"一次全查"是后端最常见的性能事故**。
+**缓存分层(后端提速的第二步)**:①**Redis 缓存读多写少的热数据**:先查缓存 → 未命中查库并回填 → 设过期时间——**"接口先问缓存再问数据库"的 Cache Aside 模式**(防穿透/击穿/雪崩三件套见 [Redis](/learning-paths/database/redis) 缓存章);②**HTTP 层缓存**:静态与公开接口用 Nginx/CDN 边缘缓存(见 [Nginx](/learning-paths/middleware/nginx) 缓存章);③**并发与异步**:重活(报表/邮件/推送)异步化进队列,请求只干快活(见 [RabbitMQ](/learning-paths/middleware/rabbitmq) 场景章);④**连接池与超时**:数据库/Redis 连接池参数、下游调用超时(防级联,见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 弹性章)。
 
 ## 第四站:全链路排查套路——"页面慢"的破案流程
 

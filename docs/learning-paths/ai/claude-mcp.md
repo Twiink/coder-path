@@ -6,7 +6,9 @@ MCP(Model Context Protocol,模型上下文协议)是 Anthropic 于 2024 年底�
 
 ## 第一站:架构与核心概念
 
-**三要素(先记牢)**:①**Host(宿主)**:运行 AI 的应用(Claude Desktop/Claude Code/IDE/你的 Agent 程序)——它持有模型与用户会话;②**Client(客户端)**:宿主内部的 MCP 客户端组件,负责与 Server 建立连接、协商能力、转发调用;③**Server(服务器)**:**工具提供方**——暴露特定能力(文件系统/数据库/GitHub/内部 API),一个 Server 就是"一组能力的打包"。**连接方式**:Server 通过配置注册给 Client(本地:`mcpServers` 配置启动命令(stdio);远程:HTTPS URL);通信协议 **JSON-RPC 2.0**,传输层本地用 stdio(子进程管道——最简单最常见),远程用 **Streamable HTTP**(2025-03 规范修订,替代老 HTTP+SSE;远程要 OAuth 鉴权)。**握手与能力协商**:连接后双方交换 capabilities(server 声明支持哪些原语/特性)——客户端据此渲染与调用。**心智**:MCP 不改变"模型怎么调用工具"(内部仍是各家函数调用),它统一的是**工具的定义、发现、鉴权与传输**——你的 Agent 代码不再写死"调用 GitHub API",而是说"调用名叫 github-search 的工具",由 MCP 客户端路由到对应 Server。
+**三要素(先记牢)**:①**Host(宿主)**:运行 AI 的应用(Claude Desktop/Claude Code/IDE/你的 Agent 程序)——它持有模型与用户会话;②**Client(客户端)**:宿主内部的 MCP 客户端组件,负责与 Server 建立连接、协商能力、转发调用;③**Server(服务器)**:**工具提供方**——暴露特定能力(文件系统/数据库/GitHub/内部 API),一个 Server 就是"一组能力的打包"。
+**连接方式**:Server 通过配置注册给 Client(本地:`mcpServers` 配置启动命令(stdio);远程:HTTPS URL);通信协议 **JSON-RPC 2.0**,传输层本地用 stdio(子进程管道——最简单最常见),远程用 **Streamable HTTP**(2025-03 规范修订,替代老 HTTP+SSE;远程要 OAuth 鉴权)。
+**握手与能力协商**:连接后双方交换 capabilities(server 声明支持哪些原语/特性)——客户端据此渲染与调用。**心智**:MCP 不改变"模型怎么调用工具"(内部仍是各家函数调用),它统一的是**工具的定义、发现、鉴权与传输**——你的 Agent 代码不再写死"调用 GitHub API",而是说"调用名叫 github-search 的工具",由 MCP 客户端路由到对应 Server。
 
 ## 第二站:三种原语——Tools / Resources / Prompts
 
@@ -18,11 +20,12 @@ MCP Server 暴露三类能力,**选对类型是设计的一半**:①**Tools(工�
 
 ## 第四站:Server 设计——好工具的三个标准
 
-**①描述与 Schema 决定调用率**(模型靠 description 路由,写清"何时用/何时别用/参数含义");**②单一职责**(一个 server 一组内聚工具:别把"文件读写+发邮件+查天气"塞一个 server——按域拆分便于授权与复用);**③错误要"模型可读"**(抛结构化错误信息("文件不存在:xxx"或 JSON {error, code}),别丢堆栈——模型会基于错误信息换策略);**④超时与限流**:工具内部调外部 API 要有超时;server 对高频调用做限流(防止模型循环调爆);**⑤日志审计**:每次工具调用(参数/结果摘要/耗时)落日志——MCP 是"高杠杆入口",审计不可省;**⑥Resources 提供"元数据先行"**(如数据库 server 先给表结构 resource,再让模型写查询工具的参数)。
+**①描述与 Schema 决定调用率**(模型靠 description 路由,写清"何时用/何时别用/参数含义");**②单一职责**(一个 server 一组内聚工具:别把"文件读写+发邮件+查天气"塞一个 server——按域拆分便于授权与复用);**③错误要"模型可读"**(抛结构化错误信息("文件不存在:xxx"或 JSON &#123;error, code&#125;),别丢堆栈——模型会基于错误信息换策略);**④超时与限流**:工具内部调外部 API 要有超时;server 对高频调用做限流(防止模型循环调爆);**⑤日志审计**:每次工具调用(参数/结果摘要/耗时)落日志——MCP 是"高杠杆入口",审计不可省;**⑥Resources 提供"元数据先行"**(如数据库 server 先给表结构 resource,再让模型写查询工具的参数)。
 
 ## 第五站:安全——MCP 是双向信任面
 
-**清醒认知:把 MCP Server 交给 AI,等于把"那部分能力"交给一个会被 prompt 注入的代理**——安全设计是 Server 开发者的第一责任:**Server 侧**:①输入校验(schema 之外再校验路径/参数——**文件类工具必须路径沙箱**(限定目录,防 ../ 穿越);②**只读优先**:能只读就只读(数据库 server 用只读账号 + LIMIT 强制 + 查询超时——防 AI 生成的全表扫描拖垮库);③写/删/执行类工具:命名与描述上显著标记(如 "dangerous-write-file"),宿主可配"高风险工具需用户确认"的 UI;④速率限制与配额;⑤**远程 server 鉴权**(OAuth/API Key,经 HTTPS——2025 规范强制方向);⑥依赖与供应链安全:**只装可信来源的 Server**(一个恶意 filesystem server 能读走你全部文件——**MCP Server 拥有宿主的权限,信任它 = 信任它的作者**);**宿主侧**:给不同 server 最小权限、审计工具调用、对高风险工具加确认闸。系统方法论见 [Agent](/learning-paths/ai/agent-development) 与 [Web 安全](/learning-paths/security/web-security)。
+**清醒认知:把 MCP Server 交给 AI,等于把"那部分能力"交给一个会被 prompt 注入的代理**——安全设计是 Server 开发者的第一责任:**Server 侧**:①输入校验(schema 之外再校验路径/参数——**文件类工具必须路径沙箱**(限定目录,防 ../ 穿越);②**只读优先**:能只读就只读(数据库 server 用只读账号 + LIMIT 强制 + 查询超时——防 AI 生成的全表扫描拖垮库);③写/删/执行类工具:命名与描述上显著标记(如 "dangerous-write-file"),宿主可配"高风险工具需用户确认"的 UI;④速率限制与配额;⑤**远程 server 鉴权**(OAuth/API Key,经 HTTPS——2025 规范强制方向);⑥依赖与供应链安全:**只装可信来源的 Server**(一个恶意 filesystem server 能读走你全部文件——**MCP Server 拥有宿主的权限,信任它 = 信任它的作者**);**宿主侧**:给不同 server 最小权限、审计工具调用、对高风险工具加确认闸。
+系统方法论见 [Agent](/learning-paths/ai/agent-development) 与 [Web 安全](/learning-paths/security/web-security)。
 
 ## 第六站:实战场景(生态地图)
 
@@ -34,7 +37,8 @@ MCP Server 暴露三类能力,**选对类型是设计的一半**:①**Tools(工�
 
 ## 第八站:定位、风险与下一步
 
-**为什么它赢**:工具生态"去碎片化"(以前每个 AI 应用各自实现 GitHub/DB/浏览器集成;MCP 一次实现处处复用)、**模型无关/应用无关**(Anthropic 发起,OpenAI/Google 跟进,行业事实标准)、**安全成为一等公民**(权限/鉴权/审计进协议设计)。**风险与治理(组织落地要正视)**:供应链攻击(恶意 server)、过度授权(server 拿宿主全权限)、审计缺失、prompt 注入经工具结果回流——治理清单:server 白名单与来源审查、最小权限配置、调用审计、高风险操作确认、定期复查授权。**下一步分支**:写工具 → [Agent 基础](/learning-paths/ai/agent-basics)(把 MCP 工具装进自己的 Agent);做产品 → [Claude API](/learning-paths/ai/claude-api)(宿主能力);框架集成 → [LangChain](/learning-paths/ai/langchain) 的 MCP 适配;安全加固 → [Web 安全](/learning-paths/security/web-security) 与 [Agent 开发](/learning-paths/ai/agent-development) 安全章。
+**为什么它赢**:工具生态"去碎片化"(以前每个 AI 应用各自实现 GitHub/DB/浏览器集成;MCP 一次实现处处复用)、**模型无关/应用无关**(Anthropic 发起,OpenAI/Google 跟进,行业事实标准)、**安全成为一等公民**(权限/鉴权/审计进协议设计)。**风险与治理(组织落地要正视)**:供应链攻击(恶意 server)、过度授权(server 拿宿主全权限)、审计缺失、prompt 注入经工具结果回流——治理清单:server 白名单与来源审查、最小权限配置、调用审计、高风险操作确认、定期复查授权。
+**下一步分支**:写工具 → [Agent 基础](/learning-paths/ai/agent-basics)(把 MCP 工具装进自己的 Agent);做产品 → [Claude API](/learning-paths/ai/claude-api)(宿主能力);框架集成 → [LangChain](/learning-paths/ai/langchain) 的 MCP 适配;安全加固 → [Web 安全](/learning-paths/security/web-security) 与 [Agent 开发](/learning-paths/ai/agent-development) 安全章。
 
 ## 通关标准
 

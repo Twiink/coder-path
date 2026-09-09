@@ -6,7 +6,9 @@ RocketMQ 是阿里巴巴开源、经**双十一淬炼**的分布式消息中间�
 
 ## 第一站:架构与核心概念
 
-**组件四件套**:①**NameServer(轻量注册中心)**:Broker 启动向所有 NameServer 注册;**Broker 每 30 秒心跳,120 秒无心跳被剔除**;Producer/Consumer 启动时从 NameServer 拉 Topic 路由并**本地缓存**(30 秒刷新);NameServer **节点间无状态、不同步**(不像 ZK/etcd 做强一致选主)——**路由信息最终一致即可,这是 RocketMQ"去中心化协调"的设计取舍**;②**Broker(存储与转发核心)**:Master/Slave 分主从;③Producer/Consumer;④**Topic(逻辑分类)与 MessageQueue(物理队列,类似 Kafka 分区)**:一个 Topic 多个队列(默认读写队列 4-8),队列是并行与顺序的最小单元;Producer Group(事务回查用)/Consumer Group(负载均衡单元)。**存储三件套(与 Kafka 的关键差异)**:①**CommitLog:所有 Topic 的消息共用一个顺序追加的日志文件**(1GB 滚动)——**写模型极致简单(单文件顺序写)**;②**ConsumeQueue:每个 MessageQueue 一个逻辑索引文件**(记录消息在 CommitLog 的偏移/大小/tag hash——消费者先读它"定位");③**IndexFile:按 Key 与时间的索引**(Console 按消息 Key 秒查)。**读写链路**:写消息 → 顺序写 CommitLog → **异步**构建 ConsumeQueue;消费 → 读 ConsumeQueue 拿偏移 → 从 CommitLog 取消息体;**消息保留**:默认 72 小时(fileReservedTime)定时清理(凌晨 4 点删除过期文件)。**RocketMQ vs Kafka vs RabbitMQ 定位**(选型常考):RocketMQ=Java 业务生态 + 事务/顺序/延时内建 + 推拉都支持;Kafka=日志流与吞吐之王;RabbitMQ=功能全的轻量业务 MQ——吞吐量级 RocketMQ/Kafka(十万~百万级)≫ RabbitMQ。
+**组件四件套**:①**NameServer(轻量注册中心)**:Broker 启动向所有 NameServer 注册;**Broker 每 30 秒心跳,120 秒无心跳被剔除**;Producer/Consumer 启动时从 NameServer 拉 Topic 路由并**本地缓存**(30 秒刷新);NameServer **节点间无状态、不同步**(不像 ZK/etcd 做强一致选主)——**路由信息最终一致即可,这是 RocketMQ"去中心化协调"的设计取舍**;②**Broker(存储与转发核心)**:Master/Slave 分主从;③Producer/Consumer;④**Topic(逻辑分类)与 MessageQueue(物理队列,类似 Kafka 分区)**:一个 Topic 多个队列(默认读写队列 4-8),队列是并行与顺序的最小单元;Producer Group(事务回查用)/Consumer Group(负载均衡单元)。
+**存储三件套(与 Kafka 的关键差异)**:①**CommitLog:所有 Topic 的消息共用一个顺序追加的日志文件**(1GB 滚动)——**写模型极致简单(单文件顺序写)**;②**ConsumeQueue:每个 MessageQueue 一个逻辑索引文件**(记录消息在 CommitLog 的偏移/大小/tag hash——消费者先读它"定位");③**IndexFile:按 Key 与时间的索引**(Console 按消息 Key 秒查)。
+**读写链路**:写消息 → 顺序写 CommitLog → **异步**构建 ConsumeQueue;消费 → 读 ConsumeQueue 拿偏移 → 从 CommitLog 取消息体;**消息保留**:默认 72 小时(fileReservedTime)定时清理(凌晨 4 点删除过期文件)。**RocketMQ vs Kafka vs RabbitMQ 定位**(选型常考):RocketMQ=Java 业务生态 + 事务/顺序/延时内建 + 推拉都支持;Kafka=日志流与吞吐之王;RabbitMQ=功能全的轻量业务 MQ——吞吐量级 RocketMQ/Kafka(十万~百万级)≫ RabbitMQ。
 
 ## 第二站:消息类型——RocketMQ 的招牌
 
@@ -26,7 +28,11 @@ RocketMQ 是阿里巴巴开源、经**双十一淬炼**的分布式消息中间�
 
 ## 第四站:消费者
 
-**两种模式**:集群模式(默认:**同一消费组内分摊队列**(一个队列同一时刻组内一个消费者)——点对点负载均衡)与广播模式(组内每个消费者收全量——缓存更新/本地配置)。**Push vs Pull**:DefaultMQPushConsumer(名"推"实为**长轮询**:向 broker 拉,有消息立即返回、无消息挂起等待(默认挂 15s)——**体验像推、实现是拉**,多数场景用它,最简单);DefaultLitePullConsumer(手动拉取:完全控制拉取频率与批量——特殊控速场景)。**两种消费监听(重要)**:`MessageListenerConcurrently`(**并发消费**:线程池(默认 20)多线程处理,返回 CONSUME_SUCCESS 或 RECONSUME_LATER(失败稍后重试)——吞吐优先、**无顺序**);`MessageListenerOrderly`(**顺序消费**:同一队列提交给同一消费线程串行处理,失败会**阻塞重试**——配顺序消息用)。**消费进度**:集群模式存 Broker(远程,默认 5 秒上报),广播模式存本地文件;**重置消费位点**(Console 或 API 按时间戳回溯——**"重放最近 2 小时消息"排障神器**,对应 Kafka 的 seek);Rebalance(消费者增减/队列变化时重新分配——触发重复消费与短停,参数调优减少不必要再平衡)。**重试与死信(业务消息的保命机制)**:消费失败(RECONSUME_LATER)自动重试,**默认 16 次,间隔按 10s/30s/1m/2m…2h 阶梯递增**;16 次耗尽消息进入**死信队列 `%DLQ%消费组名`**(独立 Topic)——**监控死信队列 + 人工/脚本介入处理**(转人工修复/重发);**幂等设计是消费者第一原则**(RocketMQ 与所有 MQ 一样不保证不重:发送重试/rebalance/消费超时都可能重投——消费前按业务键去重)。**Lag 监控**(消费积压):Console 看消费组 lag/TPS——积压了先查消费者健康(挂了?处理慢?)再考虑扩容(加消费者(≤队列数)或加队列(注意 topic 队列扩容)或读 slave)。
+**两种模式**:集群模式(默认:**同一消费组内分摊队列**(一个队列同一时刻组内一个消费者)——点对点负载均衡)与广播模式(组内每个消费者收全量——缓存更新/本地配置)。**Push vs Pull**:DefaultMQPushConsumer(名"推"实为**长轮询**:向 broker 拉,有消息立即返回、无消息挂起等待(默认挂 15s)——**体验像推、实现是拉**,多数场景用它,最简单);DefaultLitePullConsumer(手动拉取:完全控制拉取频率与批量——特殊控速场景)。
+**两种消费监听(重要)**:`MessageListenerConcurrently`(**并发消费**:线程池(默认 20)多线程处理,返回 CONSUME_SUCCESS 或 RECONSUME_LATER(失败稍后重试)——吞吐优先、**无顺序**);`MessageListenerOrderly`(**顺序消费**:同一队列提交给同一消费线程串行处理,失败会**阻塞重试**——配顺序消息用)。
+**消费进度**:集群模式存 Broker(远程,默认 5 秒上报),广播模式存本地文件;**重置消费位点**(Console 或 API 按时间戳回溯——**"重放最近 2 小时消息"排障神器**,对应 Kafka 的 seek);Rebalance(消费者增减/队列变化时重新分配——触发重复消费与短停,参数调优减少不必要再平衡)。
+**重试与死信(业务消息的保命机制)**:消费失败(RECONSUME_LATER)自动重试,**默认 16 次,间隔按 10s/30s/1m/2m…2h 阶梯递增**;16 次耗尽消息进入**死信队列 `%DLQ%消费组名`**(独立 Topic)——**监控死信队列 + 人工/脚本介入处理**(转人工修复/重发);**幂等设计是消费者第一原则**(RocketMQ 与所有 MQ 一样不保证不重:发送重试/rebalance/消费超时都可能重投——消费前按业务键去重)。
+**Lag 监控**(消费积压):Console 看消费组 lag/TPS——积压了先查消费者健康(挂了?处理慢?)再考虑扩容(加消费者(≤队列数)或加队列(注意 topic 队列扩容)或读 slave)。
 
 ## 第五站:高可用——主从与 Dledger
 
@@ -34,11 +40,13 @@ RocketMQ 是阿里巴巴开源、经**双十一淬炼**的分布式消息中间�
 
 ## 第六站:原理与性能——存储引擎的功夫
 
-**高性能三板斧(面试常问,与 Kafka 同源思想)**:①**顺序写**:所有消息追加写同一个 CommitLog(**对比 Kafka 按分区写多个文件——RocketMQ 的写放大更小**),磁盘顺序写接近内存速度;②**页缓存 + mmap**:CommitLog 用内存映射(mapped file)读写走操作系统页缓存——读写都在 OS 层完成,Java 堆不存消息;③**零拷贝**:消费端 sendfile 减少拷贝次数。**刷盘策略(可靠性与性能的旋钮)**:异步刷盘(默认:写页缓存即返回——快,OS 崩溃丢秒级数据)vs 同步刷盘(强制落盘才返回——稳,吞吐下降;金融场景用);**ConsumeQueue 异步构建**(写路径不阻塞);预分配文件(AllocateMappedFileService 提前建好文件,消抖动);**Broker 调优**:堆(4-8G,消息不占堆)、G1GC、文件系统 XFS、SSD;**性能建议**:批量/异步发送、消费线程池调大、批量消费(consumeMessageBatchMaxSize)、避免大消息与超长消费阻塞、堆积时优先扩容消费能力。
+**高性能三板斧(面试常问,与 Kafka 同源思想)**:①**顺序写**:所有消息追加写同一个 CommitLog(**对比 Kafka 按分区写多个文件——RocketMQ 的写放大更小**),磁盘顺序写接近内存速度;②**页缓存 + mmap**:CommitLog 用内存映射(mapped file)读写走操作系统页缓存——读写都在 OS 层完成,Java 堆不存消息;③**零拷贝**:消费端 sendfile 减少拷贝次数。
+**刷盘策略(可靠性与性能的旋钮)**:异步刷盘(默认:写页缓存即返回——快,OS 崩溃丢秒级数据)vs 同步刷盘(强制落盘才返回——稳,吞吐下降;金融场景用);**ConsumeQueue 异步构建**(写路径不阻塞);预分配文件(AllocateMappedFileService 提前建好文件,消抖动);**Broker 调优**:堆(4-8G,消息不占堆)、G1GC、文件系统 XFS、SSD;**性能建议**:批量/异步发送、消费线程池调大、批量消费(consumeMessageBatchMaxSize)、避免大消息与超长消费阻塞、堆积时优先扩容消费能力。
 
 ## 第七站:运维与监控
 
-**RocketMQ Console(官方 Web 控制台,部署为 Spring Boot 应用)**:集群/主题/消费组管理、**消息查询(按 Topic+Key/MessageId/时间——查一条消息从生产到消费的轨迹,排障第一工具)**、消费进度与 lag 可视化、发送测试消息。**监控指标**:Broker(TPS/堆积总量/磁盘)、Topic(生产/消费速率)、消费组(lag、消费 TPS、rebalance 次数)、系统(CPU/内存/IO);接 Prometheus(rocketmq-exporter)+ Grafana。**消息轨迹(Trace)**:客户端开启 enableMsgTrace=true——生产/存储/消费各环节时间与结果写入轨迹 Topic,**Console 里看一条消息的完整旅程**(谁发的、何时到、谁消费了、成功没)——分布式排障体验的标杆功能。**容量规划与规范**:单 Broker Topic 别过千、单 Topic 队列 4-8 个(先想清并发与顺序)、消息 <4MB、保留时间与磁盘预算(写速率 × 保留时长)、集群 ≥2 主 2 从或 3 节点 Dledger;升级先 broker 后客户端。
+**RocketMQ Console(官方 Web 控制台,部署为 Spring Boot 应用)**:集群/主题/消费组管理、**消息查询(按 Topic+Key/MessageId/时间——查一条消息从生产到消费的轨迹,排障第一工具)**、消费进度与 lag 可视化、发送测试消息。**监控指标**:Broker(TPS/堆积总量/磁盘)、Topic(生产/消费速率)、消费组(lag、消费 TPS、rebalance 次数)、系统(CPU/内存/IO);接 Prometheus(rocketmq-exporter)+ Grafana。
+**消息轨迹(Trace)**:客户端开启 enableMsgTrace=true——生产/存储/消费各环节时间与结果写入轨迹 Topic,**Console 里看一条消息的完整旅程**(谁发的、何时到、谁消费了、成功没)——分布式排障体验的标杆功能。**容量规划与规范**:单 Broker Topic 别过千、单 Topic 队列 4-8 个(先想清并发与顺序)、消息 <4MB、保留时间与磁盘预算(写速率 × 保留时长)、集群 ≥2 主 2 从或 3 节点 Dledger;升级先 broker 后客户端。
 
 ## 第八站:场景与选型
 

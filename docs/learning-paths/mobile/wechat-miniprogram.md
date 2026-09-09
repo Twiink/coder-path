@@ -8,15 +8,18 @@
 
 ## 基础篇:框架与语法(小程序自己的三件套)
 
-**环境**:注册小程序账号(获取 AppID)→ 微信开发者工具(IDE:编辑器/模拟器/真机调试/上传一体)。**项目结构**:`app.js`(逻辑入口)/`app.json`(全局配置:页面注册、window、tabBar)/`app.wxss`(全局样式);`pages/` 下每个页面 = 四个文件:`index.wxml`(结构,类 HTML)/`index.wxss`(样式,类 CSS)/`index.js`(逻辑,页面 Page 对象)/`index.json`(页面配置)。**WXML 模板语法**:数据绑定 `{{ }}`、列表渲染 `wx:for`(配 `wx:key`——身份标识,同 React key 理念)、条件渲染 `wx:if/else`、事件绑定 `bindtap`/`catchtap`(注意 catch 阻止冒泡)、模板复用 `<template>` 与自定义组件。**WXSS 样式**:单位用 **rpx(响应式像素:750rpx = 屏宽——一套样式适配所有机型)**;样式选择器受限(无通配符,不支持部分选择器)。**JS 逻辑**:每个页面的 `Page({ data, onLoad, onShow, ... })`——**data 是视图数据源,更新必须用 `this.setData({ key: value })`(不是直接赋值!setData 触发视图更新且是"逻辑层→视图层"的消息传递——**性能关键认知:setData 的数据量与频率直接影响渲染性能**)**:生命周期:onLoad(带参进入)/onShow/onReady/onHide/onUnload + onPullDownRefresh/onReachBottom(下拉刷新/上拉加载——列表分页标配)。
+**环境**:注册小程序账号(获取 AppID)→ 微信开发者工具(IDE:编辑器/模拟器/真机调试/上传一体)。**项目结构**:`app.js`(逻辑入口)/`app.json`(全局配置:页面注册、window、tabBar)/`app.wxss`(全局样式);`pages/` 下每个页面 = 四个文件:`index.wxml`(结构,类 HTML)/`index.wxss`(样式,类 CSS)/`index.js`(逻辑,页面 Page 对象)/`index.json`(页面配置)。
+**WXML 模板语法**:数据绑定 `&#123;&#123; &#125;&#125;`、列表渲染 `wx:for`(配 `wx:key`——身份标识,同 React key 理念)、条件渲染 `wx:if/else`、事件绑定 `bindtap`/`catchtap`(注意 catch 阻止冒泡)、模板复用 `&lt;template&gt;` 与自定义组件。
+**WXSS 样式**:单位用 **rpx(响应式像素:750rpx = 屏宽——一套样式适配所有机型)**;样式选择器受限(无通配符,不支持部分选择器)。**JS 逻辑**:每个页面的 `Page(&#123; data, onLoad, onShow, ... &#125;)`——**data 是视图数据源,更新必须用 (this.setData(&#123; key: value &#125;))(不是直接赋值!setData 触发视图更新且是"逻辑层→视图层"的消息传递——**性能关键认知:setData 的数据量与频率直接影响渲染性能**)**:生命周期:onLoad(带参进入)/onShow/onReady/onHide/onUnload + onPullDownRefresh/onReachBottom(下拉刷新/上拉加载——列表分页标配)。
 
 ## 进阶篇:组件、API 与自定义组件
 
-**内置组件**:view/text/image/scroll-view/swiper/表单(input/button/checkbox)/媒体(video);**API 大全(uni 风格,但这里是 wx 前缀)**:`wx.request`(网络——**域名必须在小程序后台配置白名单且 HTTPS**)、`wx.setStorageSync`(本地存储)、`wx.showToast/showModal`(交互反馈)、`wx.chooseImage`(相册相机)、`wx.getLocation`(定位——**隐私授权新规:用途声明必填**);**自定义组件**:Component 构造器(properties 属性/data/生命周期/methods)——**组件化是代码组织的基本功**(与 Web 组件理念同)。**登录与授权(微信生态的核心流程)**:`wx.login` 拿 code → 后端换 openid/session → 发自己服务的 token(见 [认证](/learning-paths/security/auth));用户信息/手机号等敏感授权走**官方按钮组件**(直接弹窗授权已被收紧——**按最新规范用 button open-type**);**微信支付**:后端统一下单 → 前端 `wx.requestPayment`——**支付是"后端签名+前端拉起"的配合**(商户号/证书流程,测试要沙箱)。
+**内置组件**:view/text/image/scroll-view/swiper/表单(input/button/checkbox)/媒体(video);**API 大全(uni 风格,但这里是 wx 前缀)**:`wx.request`(网络——**域名必须在小程序后台配置白名单且 HTTPS**)、`wx.setStorageSync`(本地存储)、`wx.showToast/showModal`(交互反馈)、`wx.chooseImage`(相册相机)、`wx.getLocation`(定位——**隐私授权新规:用途声明必填**);**自定义组件**:Component 构造器(properties 属性/data/生命周期/methods)——**组件化是代码组织的基本功**(与 Web 组件理念同)。
+**登录与授权(微信生态的核心流程)**:`wx.login` 拿 code → 后端换 openid/session → 发自己服务的 token(见 [认证](/learning-paths/security/auth));用户信息/手机号等敏感授权走**官方按钮组件**(直接弹窗授权已被收紧——**按最新规范用 button open-type**);**微信支付**:后端统一下单 → 前端 `wx.requestPayment`——**支付是"后端签名+前端拉起"的配合**(商户号/证书流程,测试要沙箱)。
 
 ## 实战篇:性能、云开发与发布
 
-**性能优化(小程序特有)**:①**setData 瘦身**:只更新变化的字段(路径式 `this.setData({ 'list[0].name': x })`)、避免大对象整传——**setData 的数据即开销**;②**长列表**:分页 + 虚拟列表/回收;③图片:压缩/懒加载(lazy-load)/CDN(域名白名单);④**分包加载**:主包 ≤2MB,大模块拆 `subpackages`(独立分包/分包预下载)——**超包上不了架的答案**;⑤首屏:减少首屏请求、骨架屏。**云开发(免后端选项)**:微信云开发(云函数/云数据库/云存储/云调用——**小团队不用自己买服务器就能有后端**,登录鉴权也内置);或传统自建后端对接(HTTPS 接口)。**发布流程**:开发者工具上传代码 → 小程序后台提交审核(类目/隐私协议/测试账号)→ 审核通过发布(可灰度)——**从注册到上线一天可完成**,这是小程序对创业者的核心吸引力;**版本管理**:体验版(内测)/审核版/线上版三段。
+**性能优化(小程序特有)**:①**setData 瘦身**:只更新变化的字段(路径式 (this.setData(&#123; 'list[0].name': x &#125;)))、避免大对象整传——**setData 的数据即开销**;②**长列表**:分页 + 虚拟列表/回收;③图片:压缩/懒加载(lazy-load)/CDN(域名白名单);④**分包加载**:主包 ≤2MB,大模块拆 `subpackages`(独立分包/分包预下载)——**超包上不了架的答案**;⑤首屏:减少首屏请求、骨架屏。**云开发(免后端选项)**:微信云开发(云函数/云数据库/云存储/云调用——**小团队不用自己买服务器就能有后端**,登录鉴权也内置);或传统自建后端对接(HTTPS 接口)。**发布流程**:开发者工具上传代码 → 小程序后台提交审核(类目/隐私协议/测试账号)→ 审核通过发布(可灰度)——**从注册到上线一天可完成**,这是小程序对创业者的核心吸引力;**版本管理**:体验版(内测)/审核版/线上版三段。
 
 ## 学习路径与进阶
 

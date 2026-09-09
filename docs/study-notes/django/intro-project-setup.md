@@ -130,7 +130,7 @@ mysite1/
 | 命令 | 作用 |
 | --- | --- |
 | `runserver` | 启动开发服务器 |
-| `startapp <name>` | 创建应用(见 2.2) |
+| `startapp &lt;name&gt;` | 创建应用(见 2.2) |
 | `makemigrations` | 生成数据库迁移文件 |
 | `migrate` | 执行迁移(建表/改表) |
 | `createsuperuser` | 创建后台管理员 |
@@ -139,7 +139,7 @@ mysite1/
 | `collectstatic` | 收集静态文件到统一目录(部署用) |
 | `test` | 运行测试 |
 | `check` | 检查项目配置问题 |
-| `startproject <name>` | (django-admin 用)创建项目 |
+| `startproject &lt;name&gt;` | (django-admin 用)创建项目 |
 | `dbshell` | 进入数据库命令行 |
 | `showmigrations` | 查看迁移状态 |
 

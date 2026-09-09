@@ -95,7 +95,7 @@ updated: 2026-09-07
 | 缓存 | **强缓存友好**（CDN、浏览器长缓存） | 一般不缓存或短缓存 |
 | 性能 | 极高 | 取决于业务逻辑 |
 
-> **动静分离**：Nginx 处理静态资源（`location /static/ { root /data/www; }`），动态请求转发给 Tomcat（`proxy_pass http://backend;`）。这是 Web 性能优化的第一步。
+> **动静分离**：Nginx 处理静态资源（`location /static/ &#123; root /data/www; &#125;`），动态请求转发给 Tomcat（`proxy_pass http://backend;`）。这是 Web 性能优化的第一步。
 
 ## 2. HTTP 协议 ★★★★★
 
@@ -298,7 +298,7 @@ if (lock.tryLock(3, 10, TimeUnit.SECONDS)) {
 | `Accept-Language` | 期望语言 | `zh-CN,zh;q=0.9,en;q=0.8` |
 | `Content-Type` | **请求体的 MIME 类型** | `application/json;charset=UTF-8` |
 | `Content-Length` | 请求体字节数 | `128` |
-| `Authorization` | **认证凭证** | `Bearer <token>`、`Basic <base64>` |
+| `Authorization` | **认证凭证** | `Bearer &lt;token&gt;`、`Basic &lt;base64&gt;` |
 | `Cookie` | 携带 Cookie | `JSESSIONID=xxx; theme=dark` |
 | `Referer` | 来源页面（防盗链、统计） | `https://www.example.com/list` |
 | `Origin` | **跨域请求的来源**（CORS 用，只有协议+域名+端口） | `https://www.example.com` |
@@ -415,7 +415,7 @@ public ResponseEntity<Resource> download() {
 | | Last-Modified | ETag |
 | --- | --- | --- |
 | 精度 | 秒级 | 任意（通常是 hash 或版本号） |
-| 局限 | ① 1 秒内多次修改无法感知<br>② 文件只是 touch 但内容没变也会失效<br>③ 多服务器时钟不一致 | 需要计算（有开销） |
+| 局限 | ① 1 秒内多次修改无法感知&lt;br&gt;② 文件只是 touch 但内容没变也会失效&lt;br&gt;③ 多服务器时钟不一致 | 需要计算（有开销） |
 | 优先级 | 低 | **高**（两者都有时用 ETag） |
 | 生成方式 | 文件修改时间 | Nginx：`etag on`（自动）；应用：内容 hash |
 
@@ -872,7 +872,7 @@ server {
 
 | | 简单请求（Simple Request） | 预检请求（Preflight Request） |
 | --- | --- | --- |
-| 触发条件 | ① 方法是 GET/POST/HEAD<br>② Content-Type 仅限：`application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`<br>③ 无自定义头（只有 CORS 安全头） | 不满足简单请求的任意条件 |
+| 触发条件 | ① 方法是 GET/POST/HEAD&lt;br&gt;② Content-Type 仅限：`application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`&lt;br&gt;③ 无自定义头（只有 CORS 安全头） | 不满足简单请求的任意条件 |
 | 请求次数 | **请求流程** | **直接发送**，浏览器检查响应的 CORS 头 | **先发 OPTIONS 预检**，通过后再发真实请求 |
 | 性能 | 好 | 多一次往返（可用 `Access-Control-Max-Age` 缓存预检结果） |
 
