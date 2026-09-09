@@ -9,7 +9,9 @@
     "preview": "vitepress preview docs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "optimize:images": "bash scripts/optimize-images-simple.sh",
+    "analyze": "vitepress build docs && node scripts/analyze-bundle.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
   },
   "homepage": "https://github.com/Twiink/coder-path#readme",
   "devDependencies": {
+    "terser": "^5.51.2",
     "vitepress": "^1.6.4",
     "vue": "^3.5.42"
   }

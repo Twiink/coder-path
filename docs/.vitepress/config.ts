@@ -11,6 +11,58 @@ export default defineConfig({
   // 设置默认语言
   lang: 'zh-CN',
 
+  // 构建优化
+  vite: {
+    build: {
+      // 分块策略优化
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // 将 node_modules 中的大型依赖分组
+            if (id.includes('node_modules')) {
+              // 避免 Vue 和 VitePress 的循环依赖，统一打包为 vendor
+              return 'vendor'
+            }
+          },
+          // 使用更短的哈希以减小文件名长度
+          chunkFileNames: 'assets/[name].[hash:8].js',
+          entryFileNames: 'assets/[name].[hash:8].js',
+          assetFileNames: 'assets/[name].[hash:8].[ext]'
+        }
+      },
+      // 代码压缩选项
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true, // 生产环境移除 console
+          drop_debugger: true,
+          pure_funcs: ['console.log'], // 移除 console.log
+          passes: 2 // 多次压缩以获得更好效果
+        },
+        format: {
+          comments: false // 移除注释
+        }
+      },
+      // 启用 CSS 代码分割
+      cssCodeSplit: true,
+      // 设置 chunk 大小警告限制（提高以避免过多警告）
+      chunkSizeWarningLimit: 2000,
+      // 资源内联限制（小于 4KB 的资源内联为 base64）
+      assetsInlineLimit: 4096,
+      // 生成 source map（生产环境可关闭）
+      sourcemap: false
+    },
+    // 优化依赖预构建
+    optimizeDeps: {
+      include: ['vue'],
+      exclude: ['vitepress']
+    },
+    // CSS 优化
+    css: {
+      devSourcemap: false
+    }
+  },
+
   themeConfig: {
     logo: '/images/coderpath-c-icon.png',
     siteTitle: 'CoderPath',
@@ -590,10 +642,30 @@ export default defineConfig({
       ]
     },
 
-    // 搜索配置
+    // 搜索配置 - 优化搜索索引
     search: {
       provider: 'local',
       options: {
+        // 限制搜索结果数量以减小索引大小
+        miniSearch: {
+          searchOptions: {
+            boost: { title: 4, text: 2, titles: 1 },
+            fuzzy: 0.1,
+            prefix: true
+          },
+          options: {
+            // 减少索引字段
+            fields: ['title', 'text'],
+            storeFields: ['title'],
+            // 优化分词
+            tokenize: (text: string) => text.split(/[\s\-/]+/)
+          }
+        },
+        // 排除不需要搜索的内容
+        _render(src, env, md) {
+          // 可以在这里自定义渲染逻辑
+          return md.render(src, env)
+        },
         translations: {
           button: {
             buttonText: '搜索文档',
@@ -652,11 +724,20 @@ export default defineConfig({
     }
   },
 
-  // 头部配置
+  // 头部配置 - 添加预加载和资源提示
   head: [
     ['link', { rel: 'icon', href: '/images/coderpath-rocket-pixel.png' }],
     ['meta', { name: 'theme-color', content: '#2ca985' }],
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
-    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }]
-  ]
+    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }],
+    // DNS 预解析
+    ['link', { rel: 'dns-prefetch', href: 'https://fonts.googleapis.com' }],
+    // 预加载关键资源
+    ['link', { rel: 'preload', href: '/images/coderpath-c-icon.png', as: 'image' }]
+  ],
+
+  // 站点地图生成
+  sitemap: {
+    hostname: 'https://twiink.github.io/coder-path'
+  }
 })
