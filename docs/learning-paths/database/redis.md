@@ -58,7 +58,85 @@ Redis 是**内存数据库的王者**:它不只是缓存,更是"**数据结构�
 
 ## 第十四站:性能与运维
 
-**单线程为什么快**(面试点):内存操作本身快 + **IO 多路复用**(epoll 处理海量连接)+ 无锁无上下文切换;**6.0 多线程只加速网络 IO 读写,命令执行仍单线程**(所以"单线程"说法要精确)。**性能放大三板斧**:**Pipeline**(一批命令一次往返,吞吐提升数倍——批量写/批量读场景必用)、**连接池**(客户端复用连接:Jedis/Lettuce/Redisson、go-redis、redis-py 都要池化+超时配置)、合理数据结构与 key 设计(别大 value、别频繁全量 HGETALL)。**运维命令与排查**:`INFO`(内存/连接/命中率:`keyspace_hits/(hits+misses)` 看缓存命中)、`redis-cli --bigkeys`(扫大 key)/`--hotkeys`(热 key)、**SLOWLOG**(慢查询——大 key 删除/KEYS/大范围操作是常客)、**大 key 的删除用 UNLINK(4.0,异步删不阻塞)**、MONITOR(调试慎用);**卡顿排查**:fork 耗时(RDB 大)、AOF 重写、内存碎片(activedefrag);**内存优化**:key/字段名别太长、小对象自动紧凑编码(ziplist/listpack/intset——配置阈值)、别存大字符串;**监控**:RedisInsight(官方 GUI)/prometheus redis_exporter + Grafana;**对比 Memcached**(纯 KV 缓存,多线程):Redis 的数据结构与持久化让它全面胜出,Memcached 只在"极简超大内存缓存"场景有存在感——**学 Redis 就够**。**工具清单**:redis-cli/RedisInsight/redis-benchmark/redis-rdb-tools。
+单线程为什么快(面试高频,要答全):
+
+内存操作本身快(ns 级,比磁盘快 10 万倍),数据结构简单高效(哈希表/跳表/压缩列表优化到极致);
+
+IO 多路复用(epoll/kqueue):单线程用 epoll 监听几万个连接,哪个就绪处理哪个,不阻塞、不用线程切换——见 [计算机网络学习路线](/learning-paths/cs-basics/computer-networks) 的 IO 模型章节;
+
+无锁无上下文切换:单线程命令串行执行,无需加锁保护共享数据,无线程调度开销;
+
+简单协议:RESP 协议(Redis Serialization Protocol)极简(文本行,易解析);
+
+为什么有了多线程还说单线程:6.0 引入多线程只负责网络 IO 读写与协议解析(充分利用多核加速网络瓶颈),命令执行仍是单线程(保证原子性、无需加锁)——所以"单线程命令执行模型"没变,只是 IO 部分多线程了。默认 4 个 IO 线程,可配 io-threads 4-8(配太多反而慢,上下文切换)。
+
+数据结构底层实现(面试加分项,理解为什么快):
+
+String:SDS(Simple Dynamic String,动态字符串)——C 字符串改良版:带长度字段(O(1) 获取长度,C 的 strlen 要遍历)、预分配空间(减少扩容)、二进制安全(可存任意数据含\0);编码:int(整数)、embstr(短字符串 ≤44 字节,一次内存分配)、raw(长字符串,两次分配);
+
+List:3.2 前是 ziplist(压缩列表,连续内存,省空间但插入 O(n))或 linkedlist(双向链表);3.2+ 统一用 quicklist(快表 = 双向链表的每个节点是一个 ziplist,兼顾空间与性能);
+
+Hash:ziplist(元素少时,键值对紧凑存)或 hashtable(标准哈希表,渐进式 rehash:扩容时分多次搬迁,不阻塞);阈值:`hash-max-ziplist-entries 512`、`hash-max-ziplist-value 64`;
+
+Set:intset(整数集合,有序数组,元素全是整数且少时用)或 hashtable(值全是 NULL);
+
+ZSet:ziplist(元素少)或 skiplist + hashtable 组合(跳表做范围查询 + 哈希表做 O(1) 查分数)——为什么不用红黑树:跳表实现简单(几十行代码)、范围查询天然友好(沿指针走就是有序)、删除不需要 rebalance、支持并发(层级独立);
+
+性能放大三板斧:
+
+Pipeline(管道):一批命令打包一次发送,一次接收响应——省 RTT(往返时延),吞吐提升数倍到几十倍;注意:Pipeline 不是原子的(中间可能插入其他客户端命令),不能替代事务;Pipeline 命令数不要太多(几百条合理,几万条内存爆、网络超时),单次返回数据别太大;
+
+连接池:客户端复用连接,避免频繁建连(TCP 三次握手、AUTH 认证开销);主流客户端:Jedis(Java,老牌,同步阻塞,需配连接池 JedisPool)、Lettuce(Java,异步非阻塞,Spring Boot 2+ 默认)、Redisson(Java,高级封装:分布式锁/延迟队列/布隆过滤器/分布式集合)、go-redis(Go,连接池自带)、redis-py(Python,redis-py 内置连接池 ConnectionPool)、ioredis/node-redis(Node.js)——配置要点:maxTotal(最大连接数)、maxIdle(最大空闲)、minIdle(最小空闲保持)、超时(连接超时 connectTimeout、读写超时 soTimeout);
+
+合理数据结构与 key 设计:小对象压缩编码(ziplist/listpack/intset 阈值调优)、key 别太长(key 本身占内存且哈希计算慢)、value 别太大(大 key,见下)、合理 TTL(别让冷数据永驻)。
+
+大 key 问题(生产高频故障):
+
+什么是大 key:String 超 10KB、List/Set/Hash/ZSet 元素超 5000 或总大小超 10MB——业务常见:把整个列表/大 JSON 存一个 key;
+
+危害:网络传输慢(阻塞其他命令)、序列化/反序列化慢、删除慢(DEL 大 key 是 O(n) 阻塞操作,百万元素的 List DEL 能卡几秒)、内存占用高、主从同步慢、持久化慢;
+
+排查:redis-cli --bigkeys(扫描采样,找各类型最大的)、--memkeys(扫内存占用,4.0+)、MEMORY USAGE key(查单 key 内存,4.0+)、RdbTools(解析 RDB 找大 key);
+
+解法:拆分(大 Hash 拆成多个小 Hash,如 user:1001:info / user:1001:profile)、压缩(GZIP 后存 String)、异步删除(4.0+ UNLINK 异步删,6.2+ DEL 自动转异步 lazyfree-lazy-user-del=yes)、定期清理(HSCAN/SSCAN 遍历分批删);
+
+热 key 问题:
+
+什么是热 key:访问频率极高的 key(如秒杀商品库存、热搜榜、大 V 用户信息)——单 key QPS 几万到几十万,单线程瓶颈、网卡打满;
+
+排查:redis-cli --hotkeys(4.0+,基于 LFU 统计)、monitor + 分析(MONITOR 命令实时看所有命令,性能影响大勿生产长开)、代理层统计(Codis/Twemproxy)、客户端埋点;
+
+解法:多级缓存(本地缓存 Caffeine/Guava Cache 扛第一波,几十 ms 过期)、主从读写分离(从库分摊读)、热 key 拆分(key 加随机后缀 hot_key_01~hot_key_10,写时都写,读时随机选——分散到多个 key 分摊压力);
+
+运维命令与排查:
+
+INFO:分段查看(INFO memory/stats/replication/cpu/clients)——关键指标:used_memory_human(内存占用)、used_memory_rss(RSS 物理内存,大于 used_memory 说明碎片)、mem_fragmentation_ratio(碎片率,> 1.5 考虑重启或 MEMORY PURGE)、connected_clients(当前连接数,达 maxclients 拒绝新连接)、instantaneous_ops_per_sec(实时 QPS)、keyspace_hits / keyspace_misses(命中率 = hits/(hits+misses),低于 80% 检查缓存策略);
+
+SLOWLOG GET 10:慢查询日志(slowlog-log-slower-than 10000 微秒,10ms 以上记)——大 key 操作、KEYS *、SMEMBERS 大集合、未优化的 Lua 是常客;
+
+CLIENT LIST:当前连接列表(addr/fd/age/idle/flags/db/sub/psub/multi/qbuf/obl/oll)——排查连接泄漏(idle 超大)、阻塞客户端;
+
+MEMORY DOCTOR:内存诊断建议(4.0+);
+
+MEMORY STATS:内存统计详情;
+
+MEMORY PURGE:手动触发内存整理(碎片回收);
+
+内存碎片:频繁修改(尤其变长的 append/setrange)、大量删除后,allocator(jemalloc/tcmalloc)分配的物理内存未归还系统——碎片率高(> 1.5)影响性能;解法:activedefrag yes(4.0+,后台自动整理,低峰期跑)、重启(瞬间回收,需主从切换)、升级到 7.0+(碎片整理优化更好);
+
+卡顿排查(线上 Redis 突然慢):
+
+fork 耗时(BGSAVE/BGREWRITE 时 fork 子进程,内存大时 fork 几秒阻塞)——查 INFO stats 的 latest_fork_usec,优化:缩小内存、关闭 THP(Transparent Huge Pages,大页会让 fork 慢)、避免高峰 fork;
+
+AOF 重写阻塞(重写完成时主进程要等待并合并增量,短暂阻塞)——no-appendfsync-on-rewrite yes 可缓解(重写期间不 fsync,风险是丢数据);
+
+内存交换(swap):物理内存不足,Redis 被 swap 到磁盘,性能雪崩——查 INFO memory 的 used_memory_rss 与 used_memory 差异,cat /proc/<pid>/smaps | grep Swap 看交换量,解法:加内存、缩小 maxmemory、关闭 swap(swappiness=0);
+
+网络问题:带宽打满(大 key/热 key)、网络抖动、连接数打满;
+
+慢命令:KEYS *、SMEMBERS 百万元素、SORT 无 LIMIT、Lua 脚本长时间运行;
+
+对比 Memcached(纯 KV 缓存,多线程):Redis 的数据结构、持久化、主从、Lua 让它全面胜出,Memcached 只在"极简超大内存纯缓存"场景(不需要持久化、不需要数据结构、超大 value)有一席之地——现代架构学 Redis 就够。
 
 ## 通关标准
 

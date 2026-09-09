@@ -30,7 +30,73 @@ MySQL 是世界上最流行的开源关系型数据库:从个人博客到大型�
 
 ## 第七站:查询优化实战
 
-**一条 SQL 的执行流程**(面试八股之巅):连接器(鉴权/连接管理)→ 分析器(词法语法解析)→ **优化器(基于成本的执行计划选择:选索引、决定 JOIN 顺序)** → 执行器(调存储引擎取数据);**查询缓存 8.0 已移除**(一致性维护成本高)。**优化工作流**:①开慢查询日志(long_query_time=1)+ pt-query-digest 分析(或 performance_schema);②EXPLAIN 逐条看(type/rows/Extra 三板斧);③按索引失效清单排查;④SQL 重写技巧:**select 具体列**(覆盖索引友好)、**大偏移分页优化**(`LIMIT 100000, 10` 会扫 10 万行——改**延迟关联**(先只查 id 再 join 原表)或**游标分页** `WHERE id > 上次最大值 ORDER BY id LIMIT 10`)、COUNT(*) 用覆盖索引、避免在循环里查库(**N+1 是应用层问题**:用 IN 一次查、JOIN 或 ORM 预加载)、IN vs EXISTS 看数据分布、把子查询改 JOIN 常更快;**优化器不傻**:强制索引 FORCE INDEX 慎用;**写优化**:批量 INSERT、避免大事务(分批)、UPDATE/DELETE 带 LIMIT(线上分批删)。
+一条 SQL 的执行流程(面试八股之巅):连接器(鉴权/连接管理/连接池)→ 查询缓存(8.0 已移除,一致性维护成本高,一个表任何写操作都让缓存全失效)→ 分析器(词法语法解析,检查语法错误与表/字段存在性)→ 优化器(基于成本 CBO 的执行计划选择:选索引、决定 JOIN 顺序、子查询展开)→ 执行器(权限检查后调存储引擎 API 取数据)。优化器的成本模型(了解):基于统计信息(表行数、索引基数、数据分布)估算每种执行计划的 IO 成本与 CPU 成本,选成本最低的——所以统计信息不准(长期未 ANALYZE)会让优化器选错索引。
+
+查询缓存为什么失败:查询字符串完全相同(大小写/空格/注释都算)才命中,且任何写操作让整表缓存失效——写多读少的表缓存命中率极低还拖慢写入,不如应用层缓存(Redis)或 ORM 的查询缓存。8.0 果断移除是正确决定。
+
+优化工作流(一套完整打法):
+
+1. 开慢查询日志:`slow_query_log=ON`,`long_query_time=1`(超 1 秒记录),`log_queries_not_using_indexes=ON`(未走索引的也记)→ 日志文件在 `datadir` 下;
+
+2. 分析慢查询日志:手工看(慢查询日志格式:`# Time: ... # User@Host: ... # Query_time: 2.5 Lock_time: 0.001 Rows_sent: 10 Rows_examined: 100000`)或用 mysqldumpslow(官方工具,按次数/时间排序)/pt-query-digest(Percona Toolkit,强推,统计+分组+建议,输出 HTML 报告)——`pt-query-digest slow.log > report.html`;
+
+3. EXPLAIN 逐条看(三板斧:type/rows/Extra):
+
+type(访问类型,性能从好到坏):system(表只有一行,常量表)> const(主键/唯一索引等值查询,一行)> eq_ref(JOIN 时唯一索引查找,每次一行)> ref(非唯一索引等值)> range(范围查询,走索引)> index(索引全扫描,比 ALL 好但仍慢)> ALL(全表扫描,红色警钟)——生产 SQL type 最低要到 range,ALL/index 要优化;
+
+key(实际使用的索引):NULL 表示未走索引,对比 possible_keys(可能用的索引)看优化器选择;
+
+rows(预估扫描行数):越小越好,若 rows 远大于实际返回行数(nReturned)说明索引不够精准或缺失;
+
+Extra(额外信息,关键诊断):
+
+  Using index:覆盖索引(好事,不回表);
+  
+  Using where:Server 层过滤(引擎返回后再筛选,可能索引不精确);
+  
+  Using index condition:索引下推 ICP(5.6+,把 WHERE 部分条件下推到存储引擎层过滤,减少回表——优化);
+  
+  Using filesort:排序未走索引(要优化 ORDER BY:让排序字段走索引);
+  
+  Using temporary:用了临时表(GROUP BY/DISTINCT/UNION 可能产生,尽量优化掉);
+  
+  Using join buffer:JOIN 未走索引,用了 join buffer(被驱动表要加索引);
+  
+  Impossible WHERE:WHERE 恒假(如 id=1 AND id=2);
+  
+  Select tables optimized away:优化器直接返回结果(如 COUNT(*) 单表无 WHERE,InnoDB 直接从统计信息拿);
+
+filtered(过滤百分比):WHERE 过滤后剩余的行占 rows 的比例,低说明索引区分度不够;
+
+4. 按索引失效清单排查(见索引站);
+
+5. SQL 重写技巧:
+
+select 具体列:避免 SELECT *(网络传输、解析开销、无法覆盖索引、未来表结构变化风险);
+
+大偏移分页优化(经典难题):`LIMIT 1000000, 10` 扫 100 万行只取 10 行——解法:①延迟关联(先走索引查 id 再 JOIN 原表取完整行:`SELECT * FROM t INNER JOIN (SELECT id FROM t ORDER BY id LIMIT 1000000,10) AS t2 USING(id)`)、②游标分页(记住上次最大 id:`WHERE id > last_id ORDER BY id LIMIT 10`,前提 id 连续或业务可容忍跳号)、③业务限制(不让翻太深,搜索引擎常见做法);
+
+COUNT(*) 优化:InnoDB 的 COUNT(*) 不是 O(1)(MVCC 多版本,无法维护准确总数)——优化:WHERE 走覆盖索引(二级索引树比主键树小,扫得快)、近似值(EXPLAIN 的 rows)、自己维护计数表(Redis INCR/数据库单独一行);COUNT(1) vs COUNT(*) vs COUNT(列):性能 COUNT(*) ≈ COUNT(1)(优化器等价)> COUNT(主键)> COUNT(非主键列,要判 NULL);
+
+避免在循环里查库(N+1 问题,ORM 的常见坑):循环 100 次每次查一条 = 100 次网络往返——改成一次 IN 查询(id IN (1,2,...,100))或 JOIN,或 ORM 的预加载(Eager Loading);
+
+IN vs EXISTS 看数据分布:`SELECT * FROM A WHERE id IN (SELECT aid FROM B WHERE ...)`(内表小,MySQL 8 会用半连接优化)vs `... EXISTS (SELECT 1 FROM B WHERE B.aid=A.id AND ...)`(外表小);现代 MySQL 优化器智能,手动改不一定更快,EXPLAIN 为准;
+
+子查询改 JOIN 常更快:老版本(5.5-)子查询优化差(每行都执行子查询),改 JOIN 走索引;8.0 的半连接优化(semijoin)让 IN 子查询性能接近 JOIN,但复杂相关子查询仍建议改写;
+
+OR 改 UNION ALL:多个 OR 条件可能让索引失效(如 `WHERE a=1 OR b=2`,a 和 b 各有索引但组合用不上)——改成 UNION ALL 分别走索引:`SELECT * WHERE a=1 UNION ALL SELECT * WHERE b=2 AND a!=1`(注意去重);
+
+优化器提示(Hint):FORCE INDEX(idx_name)(强制用某索引)、IGNORE INDEX(忽略)、STRAIGHT_JOIN(固定 JOIN 顺序)——慎用,优化器通常比人聪明,只在确定优化器选错时用(如统计信息不准时);
+
+写优化:
+
+批量 INSERT(一条 INSERT 插 1000 行 vs 1000 条单行 INSERT,前者快几十倍:减少事务提交、索引维护、网络往返):`INSERT INTO t VALUES (1,'a'),(2,'b'),...`(单次别超 1MB 或几千行,太大回滚慢);
+
+避免大事务(长事务占锁、undo log 膨胀、主从延迟、回滚慢):分批处理(删 100 万行改成循环删 1000 行提交一次,SLEEP 0.01 让出 CPU);
+
+UPDATE/DELETE 带 LIMIT(线上分批操作):`DELETE FROM t WHERE status='old' LIMIT 1000`(每次删 1000,循环直到删完——减少锁持有时间、避免一次性大事务);
+
+INSERT ... ON DUPLICATE KEY UPDATE(upsert)比先 SELECT 再 INSERT/UPDATE 少一次网络往返(原子)。
 
 ## 第八站:复制、高可用与备份
 

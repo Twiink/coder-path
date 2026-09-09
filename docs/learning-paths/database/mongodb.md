@@ -18,7 +18,85 @@ Mongo 的查询就是"描述你要什么的 JSON":**相等**:`{status: 'active'}
 
 ## 第四站:聚合管道——Mongo 的 SQL
 
-**aggregate()** 是 Mongo 的查询重武器:一串**阶段(stage)**按顺序流水处理文档,每阶段输出给下一阶段。**常用阶段地图**:`$match`(过滤——**放最前,配合索引,先缩小数据**)、`$project`(投影 + 计算字段 + 重命名,1/0 或表达式)、**`$group`**(分组聚合:`_id` 分组键 + 累加器 `$sum: 1`(计数)/`$sum: '$price'`(求和)/`$avg/$max/$min`、`$push`(收集数组)/`$addToSet`(去重收集)、`$first/$last`(取组内首尾——**"每人最新订单"套路**:先 $sort 再 $group 取 $first))、$sort/$limit/$skip、**`$unwind`**(数组展开成多行——一对多打平、数组去重统计前必用)、**`$lookup`**(左连接:关联另一集合——**对照 JOIN,注意:放最后、被关联集合要建索引**)、`$addFields`(加字段)、`$count`、`$out/$merge`(管道结果写回集合——报表落表);**SQL 对照记忆**:where→$match、select→$project、group by→$group、order by→$sort、join→$lookup、unwind 对应"拆行"——**能把业务 SQL 翻译成管道,聚合就毕业了**;`$dateToString`/`$toUpper` 等表达式函数(按天统计报表:`_id: {$dateToString: {format: '%Y-%m-%d', date: '$createdAt'}}`)。
+aggregate() 是 Mongo 的查询重武器:一串阶段(stage)按顺序流水处理文档,每阶段输出给下一阶段——类似 Unix 的管道 `cat | grep | sort`。
+
+常用阶段地图(按使用频率与位置):
+
+$match(过滤):WHERE 子句的对应——放最前,配合索引,先缩小数据集(越早过滤性能越好);支持所有查询操作符($gt/$in/$regex/$elemMatch);示例:`{$match: {status: 'active', created: {$gte: new Date('2024-01-01')}}}`——先走 status 索引筛选,减少后续阶段数据量;
+
+$project(投影与计算):SELECT 子句——字段包含/排除(1/0)、重命名、计算新字段(表达式);示例:`{$project: {name: 1, age: 1, _id: 0, year: {$year: '$birthday'}, fullName: {$concat: ['$firstName', ' ', '$lastName']}}}`——只输出需要的字段 + 从 birthday 提取年份 + 拼接姓名;表达式函数:算术($add/$multiply/$divide)、字符串($concat/$substr/$toLower/$toUpper)、日期($dateToString/$year/$month/$dayOfMonth)、条件($cond/$ifNull/$switch)、类型转换($toString/$toInt);
+
+$group(分组聚合):GROUP BY 的对应——_id 是分组键(必填,可以是字段/$field、表达式、多字段组合对象,null 表示全局聚合);累加器(Accumulator):$sum(求和/计数)、$avg/$max/$min、$push(收集到数组)、$addToSet(去重收集)、$first/$last(取组内首尾)——"每人最新订单"套路:先 $sort 降序再 $group 取 $first;示例:按日统计销售额:`{$group: {_id: {$dateToString: {format: '%Y-%m-%d', date: '$date'}}, total: {$sum: '$amount'}, count: {$sum: 1}}}`——_id 是日期字符串(格式化为 YYYY-MM-DD)、total 求和、count 计数;
+
+$sort(排序):ORDER BY 的对应——1 升序/-1 降序,可多字段:`{$sort: {amount: -1, date: 1}}`——先按金额降序再按日期升序;注意:$sort 在 $group 之前可利用索引,之后只能内存排序(超 100MB 报错,需加 allowDiskUse: true);
+
+$limit / $skip(分页):LIMIT / OFFSET 的对应——先 $sort 再 $skip 再 $limit,顺序别错;注意:$skip 大偏移性能差(跳过也要扫描),分页优化同 MySQL:游标分页(记住上次 _id,`{$match: {_id: {$gt: lastId}}}`);
+
+$unwind(数组展开):把数组字段拆成多行——一对多打平、数组去重统计前必用;示例:用户的 tags 数组:`{name: 'A', tags: ['js', 'node']}`经过 `{$unwind: '$tags'}` 变两行:`{name: 'A', tags: 'js'}` 和 `{name: 'A', tags: 'node'}`——之后可以按 tags 分组统计;选项:`preserveNullAndEmptyArrays: true` 保留空数组/无字段的文档(类似 LEFT JOIN);
+
+$lookup(左连接):JOIN 的对应——关联另一集合(支持本地与跨库);基础语法:`{$lookup: {from: 'orders', localField: 'userId', foreignField: 'uid', as: 'orders'}}`——把 orders 集合里 uid 匹配 userId 的文档收集到 orders 数组字段;管道语法(3.6+,更强大):`{$lookup: {from: 'orders', let: {uid: '$_id'}, pipeline: [{$match: {$expr: {$eq: ['$userId', '$$uid']}}}, {$limit: 5}], as: 'recentOrders'}}`——let 定义变量、pipeline 里可以任意聚合操作(过滤/排序/限制);注意:被关联集合(from 指定的)的关联字段要建索引,否则每次 $lookup 都全表扫描(N×M 复杂度爆炸);$lookup 放最后(减少关联的文档数);
+
+$addFields / $set(添加字段):添加/覆盖字段但保留其他字段(与 $project 的区别:$project 要显式指定所有保留字段,1/0 控制;$addFields 默认保留全部只加新字段);示例:`{$addFields: {fullPrice: {$multiply: ['$price', 1.1]}}}`——加一个 fullPrice 字段是原价×1.1;
+
+$count(计数):返回文档数,结果是 `{count: N}`;示例:`{$count: 'total'}`——字段名是 total;
+
+$facet(多管道并行):一次聚合跑多个子管道,返回多个结果数组——用于"同时要分页数据+总数"或"多维度统计";示例:`{$facet: {data: [{$skip: 20}, {$limit: 10}], total: [{$count: 'count'}]}}`——data 数组是分页结果,total 数组是总数;
+
+$out / $merge(写回集合):把管道结果写回集合——$out 替换目标集合(全覆盖)、$merge 合并(可更新/插入);用于报表/物化视图(定期跑聚合把结果落表,查询直接查结果表);注意:$out/$merge 必须是管道最后一个阶段;
+
+$bucket / $bucketAuto(分桶):按范围分组统计(如年龄段、价格区间);
+
+$graphLookup(递归查询):图遍历、树形结构递归(组织架构、评论楼中楼);
+
+SQL 对照记忆(能把业务 SQL 翻译成管道,聚合就毕业了):
+
+  WHERE → $match
+  SELECT → $project
+  GROUP BY → $group
+  ORDER BY → $sort
+  LIMIT/OFFSET → $limit/$skip
+  JOIN → $lookup
+  UNION → $unionWith (5.1+)
+  子查询 → $lookup 管道语法或子管道
+
+实战案例:"按分类统计销售额、取每类前三":
+
+```js
+db.orders.aggregate([
+  {$match: {status: 'paid'}},  // 只统计已付款
+  {$group: {
+    _id: '$category',  // 按分类分组
+    total: {$sum: '$amount'},  // 求和
+    orders: {$push: {id: '$_id', amount: '$amount'}}  // 收集订单
+  }},
+  {$sort: {total: -1}},  // 按销售额降序
+  {$limit: 3}  // 取前三
+])
+```
+
+"每用户最近一单":
+
+```js
+db.orders.aggregate([
+  {$sort: {userId: 1, createdAt: -1}},  // 先按用户分组、时间降序
+  {$group: {
+    _id: '$userId',
+    latestOrder: {$first: '$$ROOT'}  // $$ROOT 是整个文档
+  }}
+])
+```
+
+性能优化要点:
+
+管道顺序:$match/$sort/$limit 尽量前置(利用索引);$lookup/$unwind 尽量后置(减少处理文档数);
+
+索引覆盖:$match 的字段、$sort 的字段、$group 的 _id、$lookup 的 localField/foreignField 都要索引;
+
+allowDiskUse: true:超 100MB 内存限制时允许用磁盘临时文件(性能下降但能跑);
+
+explain('executionStats'):看执行计划(哪些阶段走索引、扫了多少文档、耗时);
+
+避免大数组:$push/$addToSet 收集到数组,数组太大(几万元素)影响性能——考虑 $limit 或分页处理。
 
 ## 第五站:索引——查询快慢的分水岭
 

@@ -30,7 +30,65 @@ PG 的索引是"方法可插拔"(CREATE INDEX ... USING method):**B-tree**(默�
 
 ## 第七站:MVCC 与 VACUUM——PG 与 MySQL 最大的不同
 
-**PG 的 MVCC 实现**:UPDATE 不就地覆盖,而是**插入新版本行**,旧版本行保留在页里(用 xmin/xmax 事务号标记可见性)——读不阻塞写、写不阻塞读(与 MySQL 的 undo 版本链思路不同,效果类似);**代价:死元组(dead tuple)**——被更新/删除的旧版本不会自动消失,表会**膨胀**(明明删了数据文件却不变小);解法:**VACUUM**(清理死元组、更新统计信息;**autovacuum 自动跑**,但高更新率表要盯)与 **VACUUM FULL**(重写表物理收缩——要锁表,低峰期做);相关概念:**HOT 更新**(只更新非索引列时新版本可复用旧索引项,免索引维护)、**事务 ID 回卷**(约 21 亿事务必须 vacuum,否则库只读——运维红线)、`pg_stat_user_tables`(看 n_dead_tup 监控膨胀)。**锁体系**:表锁 8 种模式(ACCESS SHARE...ACCESS EXCLUSIVE——DDL 是 ACCESS EXCLUSIVE,会堵读写)、行锁、**咨询锁 pg_advisory_lock(应用级分布式锁:跨连接协调——"定时任务单实例执行"的 PG 姿势,无需 Redis)**;死锁:自动检测(默认死锁超时 1s,报错回滚一方);**可串行化隔离级别 = SSI(真可串行化快照隔离)**:PG 是少数把 SERIALIZABLE 做实的数据库(冲突检测),需要强一致分析场景可用;锁监控:pg_locks/pg_blocking_pids(查谁堵了谁——**查"数据库卡住"的第一命令**)。
+PG 的 MVCC 实现:UPDATE 不就地覆盖,而是插入新版本行,旧版本行保留在页里——每行有隐藏列:xmin(插入事务 ID)、xmax(删除事务 ID,0 表示未删)、cmin/cmax(命令 ID,事务内语句序号)、ctid(行版本链指针,物理位置 (page, offset))。
+
+事务快照与可见性规则:事务开始时创建快照(当前活跃事务列表 + xmin/xmax 边界),读取行时按规则判断可见性:
+
+xmin 未提交或在快照之后 → 不可见(还没生效);
+
+xmin 已提交且在快照之前、xmax 为 0 或未提交或在快照之后 → 可见(有效版本);
+
+xmax 已提交且在快照之前 → 不可见(已被删除);
+
+这套机制实现读不加锁、读写不互斥(MVCC 的核心价值)——多个事务可以同时读写而不阻塞(每个事务看到自己的快照版本)。对比 MySQL InnoDB 的 undo log 版本链(旧版本在回滚段),PG 是旧版本留在数据页里——各有利弊。
+
+隔离级别实现:
+
+读已提交 RC(PG 默认):每条语句开始时创建新快照——能读到其他事务已提交的修改(不可重复读);
+
+可重复读 RR:事务开始时创建快照,整个事务用同一个——普通 SELECT(快照读)看到的数据不变,但当前读(SELECT FOR UPDATE)仍能看到最新(会锁住);
+
+可串行化 SSI(Serializable Snapshot Isolation):基于快照隔离 + 冲突检测——检测"危险结构"(rw-rw-rw 依赖环),发现潜在异常时 ROLLBACK 一个事务(报 serialization failure,应用需重试)。PG 是少数真正实现可串行化的数据库(不像 MySQL RR 靠锁),代价是冲突检测开销与误判回滚。
+
+死元组(dead tuple,PG 的痛点):UPDATE/DELETE 产生的旧版本行标记 xmax 但不物理删除——占空间、索引膨胀(索引指向所有版本,查询要跳过不可见的)、统计信息不准、查询变慢。为什么不立即删:可能还有旧事务在用(长事务会让死元组堆积);清理需要全表扫描(成本高)。
+
+VACUUM(清理死元组,PG 运维核心):
+
+VACUUM(普通清理):扫描表,标记死元组空间为可重用(free space map FSM 记录)、更新统计信息、冻结老事务 ID(防回卷,见下)——不归还磁盘空间(文件大小不变),只是让空间可复用;autovacuum 自动触发(后台 worker,按阈值:`autovacuum_vacuum_threshold + autovacuum_vacuum_scale_factor × 表行数`,默认 50 + 20% 变化触发);
+
+VACUUM FULL(完全清理):重写整张表(新表只含活元组)、重建索引、归还磁盘——会加 ACCESS EXCLUSIVE 锁(阻塞所有读写),慢且危险,低峰期或维护窗口做;何时用:表严重膨胀(磁盘空间紧张)、长期未 VACUUM 的表(死元组率 > 50%);
+
+VACUUM ANALYZE:清理 + 更新统计信息(优化器用),等同于 VACUUM + ANALYZE;
+
+死元组监控:pg_stat_user_tables 视图:`n_live_tup`(活元组)、`n_dead_tup`(死元组)、`last_vacuum`/`last_autovacuum`(上次清理时间)——`n_dead_tup / n_live_tup > 0.2` 时考虑手动 VACUUM;
+
+调优参数:autovacuum_max_workers(并发 worker 数,默认 3)、autovacuum_naptime(唤醒间隔,默认 1min)、vacuum_cost_delay(限速避免 IO 打满)、按表调整(ALTER TABLE ... SET)——高更新表可以缩短阈值、加快频率。
+
+HOT 更新(Heap-Only Tuple,减少索引维护的优化):如果 UPDATE 不改索引列、且新版本行能放在同一页(page 有空闲空间),新旧行在同一页内形成链表,索引项不需要更新——大幅减少索引膨胀与写放大。触发条件:非索引列更新 + 页内有空闲空间(fill factor 预留空间有用)——所以"表设计时非频繁更新列不建索引"有性能理由。
+
+事务 ID 回卷(wraparound,PG 的定时炸弹):事务 ID 是 32 位(42 亿),用完回绕(0 → 42 亿)——老事务 ID 突然变"未来",MVCC 可见性判断错乱。防御:VACUUM 会冻结(freeze)老行(把 xmin 改成特殊值 FrozenXID,表示"对所有事务可见"),推进冻结点。autovacuum_freeze_max_age(默认 2 亿事务,强制 VACUUM)——超过会触发 aggressive vacuum(扫全表)。告警:接近阈值时日志报 "to prevent wraparound"、达到 failsafe(11 亿)时拒绝写入进入只读模式——运维红线,必须监控 `datfrozenxid`(pg_database 的列)。
+
+锁体系(比 MySQL 复杂):
+
+表级锁 8 种模式(从弱到强):ACCESS SHARE(SELECT)、ROW SHARE(SELECT FOR UPDATE)、ROW EXCLUSIVE(INSERT/UPDATE/DELETE)、SHARE UPDATE EXCLUSIVE(VACUUM/ANALYZE/CREATE INDEX CONCURRENTLY)、SHARE、SHARE ROW EXCLUSIVE、EXCLUSIVE、ACCESS EXCLUSIVE(DDL 如 ALTER TABLE/DROP/TRUNCATE/VACUUM FULL/REINDEX)——ACCESS EXCLUSIVE 阻塞一切(读写都等),DDL 期间业务卡死是常见故障;
+
+行级锁:FOR UPDATE(排他)、FOR NO KEY UPDATE(允许不冲突的外键检查)、FOR SHARE(共享)、FOR KEY SHARE(最弱,允许 UPDATE 不涉及键列);
+
+咨询锁(Advisory Lock):pg_advisory_lock(id) / pg_advisory_unlock(id)——应用层自定义分布式锁(跨事务、跨连接),session 级或事务级;用途:"定时任务单实例执行"(启动时抢锁,抢到才跑)、"队列消费去重"——无需 Redis,PG 自带;
+
+死锁检测:deadlock_timeout(默认 1s,超时触发检测)→ 检测到死锁环后回滚一个事务(报错 "deadlock detected")——应用需捕获并重试;
+
+锁监控(线上卡顿第一排查):
+
+pg_locks 视图:所有锁(locktype/database/relation/pid/mode/granted)——`granted=false` 是等待中(被阻塞);
+
+pg_stat_activity:当前会话(pid/query/state/wait_event)——state=active 且 wait_event 非空是等锁;
+
+查阻塞关系:`SELECT blocked.pid AS blocked_pid, blocking.pid AS blocking_pid, blocked.query FROM pg_stat_activity blocked JOIN pg_locks bl ON blocked.pid = bl.pid AND NOT bl.granted JOIN pg_locks bk ON bl.locktype = bk.locktype AND bk.granted JOIN pg_stat_activity blocking ON bk.pid = blocking.pid`——找出"谁阻塞了谁";
+
+pg_blocking_pids(pid):返回阻塞该 pid 的 pid 数组(9.6+,快捷函数);
+
+杀死阻塞会话:pg_cancel_backend(pid)(取消查询,优雅)、pg_terminate_backend(pid)(强制断开,粗暴)。
 
 ## 第八站:WAL、备份与恢复
 
