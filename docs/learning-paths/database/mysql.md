@@ -1,215 +1,47 @@
 # MySQL 学习路线
 
-MySQL，世界上最流行的开源关系数据库。从小博客到大公司，它无处不在。学会 MySQL，你就掌握了数据持久化的核心武器。
+MySQL 是世界上最流行的开源关系型数据库:从个人博客到大型互联网公司,无处不在;招聘需求量常年第一。它简单到 `SELECT * FROM users` 就能上手,深奥到索引原理、MVCC、主从复制、分库分表够你研究好几年——**它是后端工程师的"数据管家",也是面试的必争之地**。建议配合 [计算机网络](/learning-paths/cs-basics/computer-networks) 与操作系统知识理解其架构;实践环境用 Docker 起一个即可(见 [Docker 路线](/learning-paths/devops/docker))。
 
-## 为什么学 MySQL
+这条线按 **基础与 CRUD → 进阶查询 → 索引原理 → 事务与 MVCC → InnoDB 引擎 → 权限与运维 → 查询优化 → 复制与高可用 → 分库分表** 推进。**索引是性能的关键,事务是数据一致性的保障**——记住这两句,路线就拎清了。
 
-- 市场占有率第一，招聘需求最大
-- 免费开源，社区活跃，资源丰富
-- 性能优秀，适合各种规模的应用
-- 生态完善，工具链成熟
+## 第一站:安装与基础 CRUD
 
-## 学习路线图
+**上手**:安装(或 Docker `mysql:8` 镜像);`mysql -u root -p` 命令行连接;图形工具 Workbench/DBeaver 辅助;基础命令:`SHOW DATABASES`/`USE db`/`SHOW TABLES`/`DESC table`。**数据库与字符集**:创建库表时字符集选 **utf8mb4**(真正的 UTF-8:4 字节,能存 emoji 与生僻字;老 `utf8` 是残缺的 3 字节实现——**乱码与"?"的常见根源**),排序规则 utf8mb4_unicode_ci 之类。**数据类型选型**(建表基本功):整型 int/bigint(有符号无符号、自增 AUTO_INCREMENT)、**金额用 DECIMAL(精确小数,别用 float/double)**、字符串 `VARCHAR(n)`(n 是**字符数**不是字节数,变长,适合短文本)vs `TEXT`(长文本)、`CHAR`(定长,几乎不用)、时间 `DATETIME`(与时区无关)vs `TIMESTAMP`(带时区,2038 问题)与 `DATE`;**JSON 类型**(8.0:直接存 JSON + 索引虚拟列);**约束**:PRIMARY KEY/UNIQUE(唯一)/FOREIGN KEY(外键——**互联网公司生产库普遍禁用外键**,用应用层保证,理由:锁与性能)/NOT NULL/DEFAULT/CHECK。**CRUD**:INSERT(单行与**批量插入**(性能差异巨大));SELECT:WHERE 条件(=、IN、LIKE、BETWEEN)、ORDER BY、**LIMIT offset, count 分页**;UPDATE(**不加 WHERE = 全表更新,生产事故第一来源**——先 SELECT 确认再 UPDATE);DELETE vs **TRUNCATE**(删表重置自增,不可回滚);`REPLACE INTO`/`INSERT ... ON DUPLICATE KEY UPDATE`(upsert 姿势)。数据导入导出:mysqldump/LOAD DATA/客户端工具。
 
-### 第一阶段：基础入门
+## 第二站:进阶查询
 
-**安装与连接**
-- 在 macOS/Linux/Windows 上安装 MySQL
-- 使用 mysql 命令行客户端连接数据库
-- 基础命令：SHOW DATABASES、USE、SHOW TABLES
-- 📖 笔记：[MySQL 安装与连接入门](/study-notes/database/mysql/intro-installation)
+**JOIN 连接**(多表查询的核心):INNER JOIN(交集)/LEFT JOIN(左表全保留,右表无则 NULL)/RIGHT JOIN(反过来)/CROSS JOIN;**on 条件 vs where 条件的坑**:LEFT JOIN 时把右表条件写 WHERE 会把它变成 INNER(过滤掉 NULL 行)——右表条件应放 ON;**子查询**:标量子查询/IN 子查询/EXISTS 相关子查询(大表上 EXISTS 常优于 IN);**GROUP BY 分组** + 聚合函数(COUNT/SUM/AVG/MAX/MIN——**COUNT(*) vs COUNT(列) 区别**(后者不计 NULL));**HAVING**(分组后过滤——与 WHERE 的执行顺序差异,HAVING 里可用聚合);DISTINCT 去重;UNION(去重)vs UNION ALL(不去重,更快);**CASE WHEN**(SQL 里的 if,行转列统计常用)。**窗口函数(8.0+,现代 SQL 的分水岭)**:**ROW_NUMBER()/RANK()/DENSE_RANK()**(排名——**"每组分数的 Top3"用 ROW_NUMBER + PARTITION BY**)、SUM() OVER(PARTITION BY ... ORDER BY ...)(累计/移动平均)、LAG/LEAD(取前后行——同比环比);窗口函数能一行解决"分组 TopN",旧写法(自连接/变量)已成历史。**常用函数**:日期(DATE_FORMAT/DATEDIFF/DATE_ADD/NOW)、字符串(CONCAT/SUBSTRING/REPLACE/TRIM)、IFNULL/COALESCE(NULL 兜底)、CAST 类型转换。
 
-**数据库与表操作**
-- CREATE DATABASE 创建数据库
-- 字符集选择（utf8mb4）
-- CREATE TABLE 定义表结构
-- 数据类型选择（INT、VARCHAR、TEXT、TIMESTAMP 等）
-- 主键、外键、索引的概念
-- 📖 笔记：[数据类型与表设计](/study-notes/database/mysql/data-types-schema-design)
+## 第三站:索引——性能的命根子
 
-**基础 CRUD**
-- INSERT：单行插入、批量插入
-- SELECT：简单查询、WHERE 条件、ORDER BY 排序
-- UPDATE：更新数据
-- DELETE：删除数据
-- LIMIT 和 OFFSET 实现分页
-- 📖 笔记：[SQL 基础（CRUD 语法）](/study-notes/database/mysql/sql-basics)
+**为什么快:B+ 树**——叶子节点有序链表存数据/主键,非叶子只存索引键:树矮(三层能存千万级)、范围查询与排序天然高效、磁盘 IO 次数少(每层一次 IO);对比哈希索引(单点 O(1) 但无法范围)。**InnoDB 的两种索引**:①**聚簇索引**(主键索引:叶子就是整行数据——**表数据按主键物理组织,所以 InnoDB 必须有主键,推荐自增整型**(UUID 无序导致页分裂));②**二级索引(辅助索引)**:叶子存的是主键值——查询时先找二级索引得主键、再回聚簇索引取行,这叫**回表**。**覆盖索引**:要查的列全部在索引里,免回表(所以写 `SELECT id, name` 别无脑 `SELECT *`);**联合索引(复合索引)与最左前缀原则**:`(a, b, c)` 索引可加速 a / a,b / a,b,c 的查询,跳列则部分失效;范围查询(>、<)之后的列失效;**索引失效场景**(面试必背清单):对索引列用函数或运算(`WHERE YEAR(create_time)=2024` 失效,应改范围)、**隐式类型转换**(varchar 列查数字,索引失效)、左模糊 `LIKE '%abc'`、`OR` 连接非索引列、`NOT IN`/`<>` 某些情况、优化器判断全表更快(小表/低选择性列);**EXPLAIN 读法**(分析慢 SQL 的第一工具):关注 **type**(性能从好到坏:const > eq_ref > ref > range > index > **ALL(全表扫描,警钟)**)、key(实际用的索引)、rows(预估扫描行数)、**Extra**(Using index = 覆盖索引(好)/Using filesort = 排序没走索引(要优化 order by)/Using temporary(要优化 group by/distinct));**索引设计原则**:高频查询的 WHERE/ORDER BY/JOIN 列建索引、区分度高的列优先、别滥用(每个索引都是写放大)、唯一约束用唯一索引;**全文索引 FULLTEXT**(英文可用,中文分词差——全文搜索生产上 ES 见 [Elasticsearch 路线](/learning-paths/middleware/elasticsearch))。
 
-### 第二阶段：进阶查询
+## 第四站:事务与 MVCC——数据一致性的基石
 
-**复杂查询技巧**
-- JOIN 多表连接（INNER、LEFT、RIGHT）
-- 子查询与嵌套查询
-- GROUP BY 分组统计
-- HAVING 过滤分组结果
-- DISTINCT 去重
-- UNION 联合查询
-- 📖 笔记：[高级查询与函数](/study-notes/database/mysql/advanced-queries-functions)
+**ACID**:原子性(全成或全败)、一致性(约束不被破坏)、隔离性(事务互不干扰)、持久性(提交不丢);**事务语法**:BEGIN/START TRANSACTION → 操作 → COMMIT/ROLLBACK;**隐式提交陷阱**:DDL 与 autocommit=1 下每条 SQL 自带事务;连接断开未提交自动回滚。**四种隔离级别**(与并发问题的对照表是面试必画):读未提交(脏读:读到别人未提交)、**读已提交 RC**(解决脏读,不可重复读:同事务两次读不同)、**可重复读 RR(MySQL 默认)**:解决不可重复读;串行化(全解决,性能最差);**幻读**:RR 下快照读不出现,当前读(见下)仍可能——靠锁解决。**MVCC(多版本并发控制,InnoDB 的核心设计)**:每行有隐藏列(事务 ID、回滚指针),UPDATE 不覆盖旧值而生成**undo log 版本链**;事务**快照读**(普通 SELECT)时生成 **ReadView**(活跃事务列表),按规则沿版本链找"自己可见的版本"——**读不加锁、读写不互斥**,这就是 MySQL 高并发的底气;**当前读**(SELECT ... FOR UPDATE/LOCK IN SHARE MODE、UPDATE、DELETE)读最新版并加锁。**锁机制**(RR 下的防幻读主力):行锁(记录锁 Record Lock)、**间隙锁 Gap Lock(锁范围空隙,防插入)**、**Next-Key Lock(记录+间隙 = 左开右闭区间,RR 默认——幻读的锁级解法)**;意向锁(表级意图标记);**死锁**:两个事务互相持有对方要的锁——InnoDB 检测到自动回滚一方(报 Deadlock found);避免:固定加锁顺序、事务要短、走索引(全表更新 = 锁全表 = 死锁温床)。**日志三兄弟**(MySQL 面试名场面):**redo log**(InnoDB 的崩溃恢复日志:**WAL 先写日志再改数据页**,重启后重放——保证持久性)、**undo log**(回滚 + MVCC 版本链——保证原子性)、**binlog**(Server 层逻辑日志:复制与恢复用);**两阶段提交**(redo 与 binlog 一致性的保障,主从不丢数据的底层)。
 
-**聚合函数与统计**
-- COUNT、SUM、AVG、MAX、MIN
-- 窗口函数（ROW_NUMBER、RANK）
-- 日期时间函数
-- 字符串处理函数
+## 第五站:InnoDB 与存储引擎
 
-**索引设计**
-- 单列索引 vs 复合索引
-- 唯一索引与普通索引
-- 全文索引（FULLTEXT）
-- 最左前缀原则
-- EXPLAIN 分析查询计划
-- 📖 笔记：[索引与执行计划](/study-notes/database/mysql/indexes-execution-plans)
+**InnoDB 是 MySQL 8 的默认且事实唯一**(MyISAM 只有历史意义:无事务无行锁,面试考古题"区别");存储结构:**表空间**(数据按 **16KB 页**组织:页内行、页间双向链表——理解页也就理解"为什么 varchar 太大行溢出"与索引 IO);**Change Buffer**(二级索引的变更缓冲:非唯一索引的插入更新先记缓冲再合并,减少随机 IO——唯一索引用不上,所以"尽量用普通索引 + 应用保证唯一"有性能论据);双写缓冲(防页半写);自适应哈希索引(InnoDB 自动优化热点);**表设计规范**:每表都要主键、时间字段建议 created_at/updated_at(应用维护或默认值)、命名规范(库表 snake_case、索引 idx_xxx/uk_xxx)——**团队规范先行,建表前先定规矩**。
 
-**索引原理深入**
-- B+ 树结构：叶子节点存储数据
-- 聚簇索引：主键索引、数据存储
-- 二级索引：辅助索引、回表查询
-- 覆盖索引：避免回表
-- 索引下推（Index Condition Pushdown）
-- MRR（Multi-Range Read）优化
-- 索引的维护成本：页分裂、页合并
-- 索引失效场景：函数、隐式转换、左模糊
+## 第六站:用户、权限与运维
 
-### 第三阶段：高级特性
+**用户与权限**:CREATE USER/`GRANT SELECT, INSERT ON db.* TO 'user'@'host'`/REVOKE/FLUSH PRIVILEGES;**最小权限原则**(应用账号只给需要的库表权限,别用 root 连业务);8.0 默认认证 caching_sha2_password(**老客户端/老驱动连不上是升级常见坑**——兼容可改 mysql_native_password);**连接与参数**:max_connections(连接打满 = 服务假死的常见原因,先查 `SHOW PROCESSLIST` 看是哪些 SQL)、wait_timeout;**时区与 sql_mode**(严格模式默认开:插入非法数据报错而非截断);**字符集核对**(库/表/连接三层都 utf8mb4,否则中文乱码);日常运维:慢查询日志(见查询优化)、binlog 开启(复制与恢复的前提)、磁盘监控、`SHOW ENGINE INNODB STATUS`(看锁与死锁)。
 
-**事务处理**
-- ACID 特性理解
-- BEGIN、COMMIT、ROLLBACK
-- 四种隔离级别
-- 死锁检测与处理
-- 事务日志（redo log、undo log）
-- 📖 笔记：[事务与锁机制](/study-notes/database/mysql/transactions-and-locking)
+## 第七站:查询优化实战
 
-**InnoDB 存储引擎**
-- InnoDB vs MyISAM 区别
-- 表空间结构：系统表空间、独立表空间
-- 页（Page）结构：16KB 数据页
-- B+ 树索引结构
-- 聚簇索引与二级索引
-- 自适应哈希索引
-- Change Buffer 变更缓冲
-- 双写缓冲（Doublewrite Buffer）
+**一条 SQL 的执行流程**(面试八股之巅):连接器(鉴权/连接管理)→ 分析器(词法语法解析)→ **优化器(基于成本的执行计划选择:选索引、决定 JOIN 顺序)** → 执行器(调存储引擎取数据);**查询缓存 8.0 已移除**(一致性维护成本高)。**优化工作流**:①开慢查询日志(long_query_time=1)+ pt-query-digest 分析(或 performance_schema);②EXPLAIN 逐条看(type/rows/Extra 三板斧);③按索引失效清单排查;④SQL 重写技巧:**select 具体列**(覆盖索引友好)、**大偏移分页优化**(`LIMIT 100000, 10` 会扫 10 万行——改**延迟关联**(先只查 id 再 join 原表)或**游标分页** `WHERE id > 上次最大值 ORDER BY id LIMIT 10`)、COUNT(*) 用覆盖索引、避免在循环里查库(**N+1 是应用层问题**:用 IN 一次查、JOIN 或 ORM 预加载)、IN vs EXISTS 看数据分布、把子查询改 JOIN 常更快;**优化器不傻**:强制索引 FORCE INDEX 慎用;**写优化**:批量 INSERT、避免大事务(分批)、UPDATE/DELETE 带 LIMIT(线上分批删)。
 
-**锁机制深入**
-- 锁的粒度：表锁、行锁、页锁
-- 共享锁（S）与排他锁（X）
-- 意向锁（IS、IX）
-- 记录锁（Record Lock）
-- 间隙锁（Gap Lock）
-- Next-Key Lock：防止幻读
-- 插入意向锁（Insert Intention Lock）
-- 死锁的产生与检测
+## 第八站:复制、高可用与备份
 
-**MVCC 多版本并发控制**
-- 版本链：undo log 链表
-- Read View 一致性视图
-- 隐藏列：DB_TRX_ID、DB_ROLL_PTR
-- 快照读 vs 当前读
-- READ COMMITTED 与 REPEATABLE READ 的实现
-- MVCC 如何解决幻读
-- Purge 线程清理旧版本
+**主从复制(读写分离的基础)**:原理三线程——主库 binlog 由 **IO 线程**拉取到从库 relay log,再由 **SQL 线程**回放;**复制格式**:STATEMENT(语句,可能不一致)/**ROW(行级,默认且安全)**/MIXED;binlog 格式与 row 下的大事务注意;**GTID(全局事务标识)**:每个事务有全局唯一 ID,主从切换/新建从库不再靠 binlog 文件名定位——现代复制标配;**半同步复制**(主库等至少一个从库确认才提交——损主不丢数据的折中)vs 异步(默认,性能好但主挂有丢数据窗口)vs 组复制 MGR(多主/单主 + Paxos 共识,高可用方向);**主从延迟**(读写分离的最大痛点):原因(SQL 线程单线程回放历史→并行复制改善;大事务;从库自身查询压力;DDL)与应对(业务上**读刚写的数据强制走主库**或缓存、监控延迟秒级 `SHOW SLAVE STATUS` 的 Seconds_Behind_Master);**读写分离架构**:应用层双数据源(框架支持:ShardingSphere/MyBatis 插件)或中间件(ProxySQL/Atlas);**高可用方案**:MHA/Orchestrator(自动故障切换 + 虚 IP 漂移)与 MGR(自动选主)——核心指标:RTO(恢复时间)与 RPO(丢多少数据),半同步 + 自动切换是常见组合。**备份与恢复(运维生命线)**:**mysqldump 逻辑备份**(配 `--single-transaction` 拿一致性快照;库小/迁移用)、**XtraBackup 物理备份**(不锁表的热备,大库用)、binlog 增量(全量备份 + binlog 回放到误删前——**时间点恢复 PITR**:模拟演练必备)、备份验证(定时恢复演练,备份没验证过等于没有)。
 
-**视图与存储过程**
-- CREATE VIEW 创建视图
-- 存储过程编写
-- 函数与触发器
-- 游标使用
+## 第九站:分库分表与分布式
 
-**用户权限管理**
-- CREATE USER 创建用户
-- GRANT 授权
-- REVOKE 撤销权限
-- 权限最小化原则
+**什么时候才需要**(架构演进顺序,别跳级):①先缓存(Redis)与索引优化;②再读写分离;③单表数据千万级/写入瓶颈才考虑**分库分表**。**拆分方式**:垂直拆分(按业务域拆库:用户库/订单库——微服务化的数据基础)与**水平拆分**(同结构按行分:分表/分库);**分片策略**:HASH 取模(均匀,扩容要迁移)与 RANGE(按时间/ID 段,热点不均但好扩容)与一致性哈希(中间件常用);**分片键选择**(决定命运):按查询最频繁的维度(订单按 user_id),**跨分片查询的代价**(JOIN/聚合/事务全变难——业务设计要"按分片键访问");**分布式主键**:雪花算法(时间戳+机器+序列,趋势递增,替代无序 UUID——UUID 伤索引)与号段模式;**中间件**:ShardingSphere(Java 生态成熟:分片/读写分离/分布式事务)与 MyCat;**分布式事务**:Seata(AT/TCC/Saga)与 2PC 概念——见 [微服务](/learning-paths/microservices/spring-cloud);数据迁移:双写 + 回放校验(平滑切换);**终极提醒**:分库分表是最后手段,成本和复杂度极高——90% 的业务做好索引 + 缓存 + 读写分离就够。
 
-### 第四阶段：性能优化
+## 通关标准
 
-**查询优化**
-- 慢查询日志分析
-- EXPLAIN 详解（type、key、rows、Extra）
-- 索引失效场景
-- 避免全表扫描
-- 查询重写技巧
-- 📖 笔记：[慢查询与性能优化](/study-notes/database/mysql/slow-query-optimization)
+能独立做到:写多表 JOIN/分组/窗口函数的报表查询;给新表设计索引并说出理由,拿到慢 SQL 会 EXPLAIN 并指出 type/rows/Extra 的问题;画得出事务隔离级别与并发问题对照表,讲清 MVCC 快照读原理与间隙锁为什么存在;说清 redo/undo/binlog 三者职责与两阶段提交;搭过一主一从并理解延迟监控;能解释"为什么互联网公司不用外键、自增主键、utf8mb4"——MySQL 主线通关。
 
-**查询优化深入**
-- 查询执行流程：连接器、分析器、优化器、执行器
-- 查询缓存（MySQL 8.0 已移除）
-- 优化器的选择：基于成本的优化
-- 连接算法：Nested Loop Join、Block Nested Loop
-- 子查询优化：转换为 JOIN
-- LIMIT 大偏移量优化：延迟关联
-- 分页优化：游标、上次最大值
-- COUNT(*) 优化：覆盖索引
-- IN vs EXISTS 选择策略
-
-**配置优化**
-- innodb_buffer_pool_size 调优
-- query_cache 配置
-- 连接数管理
-- 表分区策略
-
-**架构优化**
-- 读写分离
-- 主从复制配置
-- 分库分表策略
-- 数据归档方案
-
-**主从复制深入**
-- 复制原理：binlog、relay log
-- 异步复制、半同步复制、全同步复制
-- 复制格式：Statement、Row、Mixed
-- GTID 复制：全局事务标识
-- 主从延迟的原因与优化
-- 并行复制：多线程复制
-- 双主复制与循环复制
-- 复制过滤：binlog-do-db、replicate-ignore-table
-
-**分库分表**
-- 垂直拆分：按业务模块
-- 水平拆分：按数据量
-- 分片策略：Hash、Range、一致性哈希
-- 分布式主键生成：雪花算法、UUID
-- 跨分片查询：路由、聚合
-- 分布式事务：两阶段提交、Seata
-- 中间件：ShardingSphere、MyCat
-- 数据迁移与扩容
-- 📖 笔记：[分库分表与高可用](/study-notes/database/mysql/sharding-high-availability)
-
-### 第五阶段：运维实战
-
-**备份恢复**
-- mysqldump 逻辑备份
-- 物理备份（Percona XtraBackup）
-- 增量备份策略
-- 灾难恢复演练
-- 📖 笔记：[日志与备份恢复](/study-notes/database/mysql/logging-backup-recovery)
-
-**监控告警**
-- 慢查询监控
-- 连接数监控
-- 主从延迟监控
-- 磁盘空间告警
-
-**高可用方案**
-- 主从复制
-- 半同步复制
-- MySQL Group Replication
-- MHA（Master High Availability）
-
-## 下一步学习
-
-学完 MySQL 后，可以继续探索：
-- **PostgreSQL**：学院派数据库，功能更强大
-- **Redis**：缓存与高性能方案
-- **MongoDB**：文档数据库，灵活的数据模型
-- **数据库设计模式**：深入理解范式与反范式
-
-## 实用工具
-
-- **MySQL Workbench**：官方 GUI 工具
-- **DBeaver**：跨平台数据库客户端
-- **mycli**：命令行工具，支持自动补全
-- **Percona Toolkit**：性能分析工具套件
-- **pt-query-digest**：慢查询日志分析神器
-
-从一个简单的 `SELECT * FROM users` 到主从复制、分库分表，MySQL 的学习之路既漫长又有趣。先把基础打牢，再逐步深入性能优化和高可用架构。记住：索引是性能的关键，事务是数据一致性的保障。多实践，多思考，MySQL 会成为你最得力的数据管家。
+从 `SELECT 1` 到分库分表,MySQL 的学习之路既漫长又有趣:**先会用(CRUD/查询),再会快(索引/优化),后会稳(事务/复制/备份),终会大(分库分表)**。它是你写过的每个业务系统里最沉默也最关键的组件——索引是它的性能,事务是它的灵魂,理解它,你就理解了后端数据层的大半江山。下一步:对比 [PostgreSQL](/learning-paths/database/postgresql)(功能更强的学院派),缓存上 [Redis](/learning-paths/database/redis),灵活建模看 [MongoDB](/learning-paths/database/mongodb)。

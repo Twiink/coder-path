@@ -1,138 +1,47 @@
-# AI Agent 开发学习路线
+# AI Agent 开发进阶学习路线
 
-大语言模型时代，AI Agent 是最热门的方向之一。从简单的聊天机器人到能自主完成任务的智能体，Agent 开发正在改变软件的形态。这条路线带你从零开始构建实用的 AI Agent。
+基础页([AI Agent 基础](/learning-paths/ai/agent-basics))讲清了"Agent 是什么、循环怎么转";这一页解决"**怎么把 Agent 做成生产级系统**"——工具工程、工作流编排、评估、部署、安全与成本。AI Agent 领域迭代极快(框架月月换),所以本页**重原理与工程模式,轻具体框架版本**——把下面的模式吃透,任何新框架对你都只是换皮。定位:适合已会用 LLM API、想全职做 Agent 应用的开发者。
 
-## 什么是 AI Agent
+这条线按 **LLM 调用工程化 → 工具工程 → 工作流与编排 → 框架选型 → 记忆与 RAG 整合 → 评估体系 → 部署监控与成本 → 安全纵深 → 案例与进阶方向** 推进。
 
-> 📖 篇笔记：[Agent 核心循环](/study-notes/ai/01-agent-core-loop) · [推理与思考](/study-notes/ai/02-reasoning-and-thinking) · [记忆与知识](/study-notes/ai/04-memory-and-knowledge)
+## 第一站:LLM 调用工程化——Agent 的地基
 
-AI Agent 是能够感知环境、做出决策、执行行动的智能系统。不同于传统的"调用一次 API 返回一个结果"，Agent 可以：
-- 分解复杂任务
-- 使用工具（搜索、计算器、数据库等）
-- 记忆上下文
-- 自主规划和执行
-- 从反馈中学习
+Agent 的一切建立在对模型 API 的可靠调用上,先把工程化做扎实:**客户端封装**:统一 SDK 封装(超时/重试(限流 429 与 5xx 指数退避)/错误分类)、**流式输出**(SSE:打字机体验与长任务必备——流式还能提前止损);**结构化输出(生产铁律)**:要求模型返回 JSON 时用 `response_format`/json mode 约束,拿回结果**必须用 Pydantic/Zod 校验后再进业务**(模型输出不可信——字段缺失/类型错乱是常态,校验失败就重试一次或走兜底);**异步与并发**:模型调用是 IO 密集,生产用异步客户端 + 并发控制(同时多个工具结果要合并时);**日志与记账**:每次调用的 model/input_tokens/output_tokens/耗时/错误全记录——**没有账本就没有优化**。
 
-想象一个能帮你订机票、查天气、发邮件的助手，不是按照写死的流程，而是理解你的意图后自己决定怎么做，这就是 Agent。
+## 第二站:工具工程——Agent 的"API 面"
 
-## 基础知识：先会调用 LLM
+工具是 Agent 能力的边界,**工具层质量决定 Agent 上限**:**设计原则**:①**单一职责**(一个工具一件事:query_order 别拆成 query_order_by_id/query_order_by_email……);②**描述即路由**(description 写清"何时用、何时不用、参数含义"——模型靠描述决定调用);③**参数 Schema 严格**(必填/枚举/格式,配 Pydantic 自动生成 JSON Schema);④**工具宁少勿多**(一次暴露十几个以上,模型选择准确率明显下降——需要时分层路由)。**实现模式**:装饰器注册工具 + schema 自动生成 + 执行层统一包装——**执行层负责**:超时(工具可能卡死)、异常捕获并**转成模型能读懂的结构化错误**(返回"查询超时,请重试"而不是堆栈)、结果截断(超长结果先摘要再回填,省 token)、重试策略。**安全分级**:只读工具(查询——安全)与**写操作工具(发消息/改数据——要权限校验/人工确认)**分开标注;**工具幂等设计**(重复调用结果一致——模型可能重试同一次调用);**典型工具库**:实时检索(搜索 API/新闻)、知识库(RAG,见后)、代码执行(沙箱:容器/受限环境——**执行模型生成的代码必须隔离**)、数据库(只读账号+行数限制)、写操作(邮件/工单/下单——确认流)。**大杀器:把"另一个 Agent/API"也做成工具**(级联)。
 
-### OpenAI API
+## 第三站:工作流与编排——什么时候让模型自由,什么时候写死
 
-安装：Python 用 `pip install openai`，Node 用 `npm install openai`——选一门语言深入即可，不必两头都学。
+**核心工程原则:"能确定性解决的,就别让模型自由发挥"**——固定流程(意图分类→查库→模板回复)用代码 if/else 或状态机;只有"开放决策"(自由对话、动态规划)才交给 Agent 循环。**循环设计(防失控三件套)**:最大轮数(如 10 次工具调用)、单步超时、停止条件(任务完成判定——让模型输出结构化"任务完成/需人工"状态);**轮数用尽要给优雅收尾**(总结已做部分+转人工),别让 Agent 无限空转烧钱。**状态管理**:对话状态/任务进度持久化(进程重启可恢复——**有状态服务用 Redis/数据库存会话**,无状态部署则每次请求重建上下文);多轮会话 = 每轮把"系统提示+记忆摘要+历史"拼好。**记忆分层**:短期(窗口内原始消息)+ 长期(向量库存"值得记的事实"、结构化存用户偏好/任务状态)——**写入策略**:不是所有对话都值得长期记忆,规则/模型判断后写入。**编排范式**:①自由循环(ReAct,简单任务);②**图编排(LangGraph 式:节点+边+共享状态)**——复杂多阶段(检索→分析→生成→质检)显式建模,**可中断可恢复可观测,生产推荐**;③Pipeline(纯数据流,无模型决策,最稳);④多 Agent(角色分工——**复杂度最高,收益未必成正比,慎用**)。
 
-基础对话：调用 chat.completions，传 messages 列表（system 设定角色、user 提问），从返回结果中取回答文本。
+## 第四站:框架选型(2025 视角,按需更新)
 
-流式响应：开启 stream 后逐段接收增量输出，实现"打字机"效果；JS/TS 写法与 Python 同构，示例二选一即可。
+**坐标系**:裸写官方 SDK(学习/极小原型)→ **LangChain**(抽象全家桶:模型/工具/记忆/检索——生态最全但抽象层厚,适合快速组装,见 [LangChain](/learning-paths/ai/langchain))→ **LangGraph**(LangChain 同门的**图状态机编排**——生产级复杂 Agent 的主流选择)/ LlamaIndex(RAG 与数据侧,见 [LlamaIndex](/learning-paths/ai/llamaindex))/ CrewAI 与 AutoGen(多 Agent 协作,研究/原型)/ 官方 Agents SDK(OpenAI Agents SDK、Anthropic 的 Claude 工具调用体系——**官方优先:抽象薄、跟进快**,见 [Claude API](/learning-paths/ai/claude-api))/ 国内平台(百炼/通义/智谱/Coze 扣子——快速落地与低代码)。**选型建议**:团队小、要控制力 → 官方 SDK + 自己写编排;要快速丰富能力 → LangChain 系;生产复杂流程 → LangGraph;**警惕:框架版本与 API 变动快,锁定版本,以官方文档为准**。
 
-### Prompt Engineering：让 AI 听懂你的话
+## 第五站:RAG 与记忆整合
 
-**Few-shot Learning**
-少样本（Few-shot）：提问前先给几个「问题 → 理想回答」的示例，模型会照葫芦画瓢，输出格式明显更稳。
+Agent 需要"领域知识"时接 **RAG**(加载→切分→向量化→检索→拼上下文,原理见 [RAG 系统](/learning-paths/ai/rag-systems))——**在 Agent 里的两种接法**:①上下文注入(每轮把检索结果拼进 system 上下文——适合知识问答型);②**做成检索工具**(Agent 自己决定何时查——适合"知识只是任务一部分"的 Agent,减少无谓检索的 token 开销);向量库选型(Chroma 原型/pgvector、Milvus、Qdrant 生产——见 [向量数据库](/learning-paths/ai/vector-databases));**记忆与 RAG 的分工**:RAG 存"可检索的静态知识",记忆存"动态的会话事实"——两条管道别混。
 
-**Chain of Thought（思维链）**
-思维链（Chain of Thought）：让模型"先逐步推理、再给结论"，复杂任务（数学、多步逻辑）准确率显著提升。
+## 第六站:评估体系——没有评估的 Agent 优化是玄学
 
-**Structured Output（结构化输出）**
-结构化输出：要求模型只返回 JSON，并用 response_format / json mode 约束，拿到结果后用 Pydantic 校验再进业务。
+**离线评估**:建 **golden 数据集**(20-100 条典型任务 + 期望行为)与指标——任务成功率、工具调用正确率(该调对工具、参数对不对)、最终答案质量(打分制)、轮数/token(效率维度);**LLM-as-judge**:让强模型当裁判批量打分(快、可扩展——注意偏差:自评偏袒、顺序敏感,用双盲/交换位置缓解);**在线评估**:用户反馈(点赞/点踩)、隐式信号(是否转人工/是否重复提问)、人工抽检;**回归测试**:每次改 prompt/换模型/改工具后跑一遍 golden set——**把 Agent 当软件对待:有测试才能迭代**;**追踪工具**:LangSmith/Langfuse/自建——记录每步 thought/action/observation(可回放排障是评估的地基)。
 
-## Function Calling：让 AI 使用工具
+## 第七站:部署、监控与成本
 
-这是 Agent 的核心能力。AI 不再只会说话，还能调用函数完成实际任务。
+**部署形态**:封装成 API(FastAPI:POST /chat);三种响应模式——同步 JSON(快任务)、**SSE 流式**(打字机/长任务)、异步任务队列(分钟级任务:提交→轮询/回调,配 Redis 队列 + worker——**Agent 任务可能跑几十秒到几分钟,别让 HTTP 请求同步扛**);**稳定性**:模型 API 限流(客户端退避+队列)、超时降级(模型挂→缓存兜底/模板回复)、优雅错误(用户看到的是"稍后重试"不是堆栈)。**监控指标**:成本(每任务 token 记账+每日预算+告警——**Agent 的成本方差大,一个失控循环能烧掉一天预算**)、延迟(P50/P95)、成功率、工具错误率、轮数分布;**降本手段**:模型路由(简单任务用便宜小模型——意图分类/抽取用轻量模型,推理规划用旗舰)、**缓存**(相同/相似请求命中——语义缓存/前缀缓存)、批量接口、prompt 精简。**灰度**:新模型/新 prompt 按流量比例放量,对比指标再全量。
 
-Function Calling 三步走：① 用 JSON Schema 描述工具（名称、参数、用途）；② 模型返回"调用意图"而非直接回答；③ 执行真实函数，把结果回传给模型继续推理。把 ②③ 循环起来，就是最简 Agent 的 Reason → Act → Observe 闭环。
+## 第八站:安全纵深(Agent 是"高杠杆"入口)
 
-## 主流 Agent 框架
+一个用户 prompt 能触发 N 次工具调用与真实副作用——**攻击面比普通 API 大一个量级**:①**提示词注入**:用户输入与**工具返回的外部内容**都可能夹带恶意指令——规则上明确"外部内容只是数据";输入输出双向过滤(敏感词/PII);②**权限最小化**:工具白名单、数据库只读账号、文件系统沙箱目录、写操作二次确认(支付/删除类必须人工);③**执行隔离**:模型生成的代码/命令在容器/沙箱跑;④**滥用防护**:按用户限流与配额(Agent 调用成本是普通接口的百倍级,防薅羊毛)、审计日志(全链路留痕——合规);⑤**数据安全**:日志脱敏、上下文不泄露他人数据(多租户隔离——检索与记忆按用户隔离)。安全清单随业务扩展,但"最小权限 + 确认 + 审计"三原则不变——详见基础页安全节与 [Web 安全](/learning-paths/security/web-security)。
 
-### LangChain：最流行的 Agent 框架
+## 第九站:案例拆解与进阶方向
 
-安装 langchain 与 langchain-openai 等配套包；版本组合以 LangChain 官方文档为准（迭代较快）。
+**四大参考案例(建议亲手复刻一两个)**:①**代码 Agent(最热)**:工具集(读文件/搜索/写文件/终端/跑测试)+ 沙箱执行 + 循环修错——Claude Code/Cursor 的架构;难点:长上下文管理与"改错文件"的回归控制;②**数据分析 Agent**:自然语言→SQL/代码→执行(只读+限制)→可视化迭代;难点:结果可信度(让模型展示数据依据);③**客服 Agent**:RAG(FAQ)+ 订单工具 + 情绪识别 + **转人工边界**;难点:兜底设计;④**研究/写作 Agent**:规划→多路搜索→大纲→成稿→自检。**进阶方向**:多模态 Agent(图/音/视频输入)、代码仓库级 Agent、浏览器操作 Agent(WebAgent)、多 Agent 组织(MetaGPT 式角色公司)、具身/游戏 Agent——**方向很多,底层能力相同:工具设计 + 编排 + 评估 + 成本控制**。**论文地图**(知其所以然):ReAct(推理与行动交替)、Reflexion(语言强化:失败后反思重试)、Tree of Thoughts(多路径搜索)、Toolformer(模型自学用工具)——读论文看思想,不必追每一篇。**资源**:官方文档(Cookbook 系列)、LangChain/LlamaIndex 文档、LangSmith 追踪示例、GitHub 热门 Agent 项目(看架构 README,别照抄会过期的代码)。
 
-理解四大抽象：模型封装（ChatOpenAI）、提示模板、工具（tools）、执行器（AgentExecutor）；把工具挂给 Agent 后一句 run 即可自主调用。完整路线见 [LangChain 学习路线](/learning-paths/ai/langchain)。
+## 通关标准
 
-**LangChain 的记忆系统**
-记忆：ConversationBufferMemory 直接存全部历史最简单但费 token；进阶用窗口记忆、总结记忆或向量检索记忆。见 [LangChain 学习路线](/learning-paths/ai/langchain)。
+能独立做到:设计并实现 5 个以上生产级工具(含 schema/错误回填/幂等/权限分级);用图编排(LangGraph 或自写状态机)搭一个"检索→分析→生成→质检"的复杂 Agent 并支持中断恢复;建 golden 集合并跑通 LLM-as-judge 评估(改一次 prompt 能看出指标变化);接好成本记账与预算告警、SSE 流式部署、写操作二次确认;给"代码执行/数据查询"类工具写出沙箱与权限方案——AI Agent 开发主线通关。
 
-**RAG（检索增强生成）**
-RAG 链路：加载文档 → 切分 → 向量化 → 存入向量库 → 检索 top-k 拼进 Prompt。概念见 [RAG 系统](/learning-paths/ai/rag-systems)，框架用法见 [LangChain 学习路线](/learning-paths/ai/langchain)。
-
-### LlamaIndex：专注于数据索引
-
-安装 llama-index 后，加载文档、建索引、提问都只要一两行核心 API，主打"开箱即用"。详见 [LlamaIndex 学习路线](/learning-paths/ai/llamaindex)。
-
-LlamaIndex 的定位是「数据接入 + 索引 + 查询」：支持 PDF/网页/数据库等几十种数据源，适合做个人知识库。详见 [LlamaIndex 学习路线](/learning-paths/ai/llamaindex)。
-
-### AutoGPT 模式：自主 Agent
-
-AutoGPT 模式：目标拆解 → 循环执行 → 自我反思改进，适合研究性探索；直接用于生产要警惕成本与失控风险。详见 [自主 Agent 学习路线](/learning-paths/ai/autonomous-agents)。
-
-### CrewAI：多 Agent 协作
-
-安装 crewai（要求较新的 Python 版本），示例代码变化快，以官方文档为准。
-
-CrewAI 模式：定义多个各司其职的 Agent（如研究员、写手、审校）→ 分配 Task → 组成 Crew 顺序执行，模拟真实团队协作。
-
-## Vector Database：Agent 的记忆
-
-向量库选型：Chroma 轻量适合本地原型，Milvus / pgvector / Qdrant 适合生产。对比见 [向量数据库学习路线](/learning-paths/ai/vector-databases)。
-
-掌握四步操作：建 collection → 写入带 embedding 的文档 → 相似度检索 → 取回 top-k 结果。
-
-## Agent 评估与优化
-
-### 评估指标
-
-评估：离线准备一批用例算准确率/召回率，在线靠用户反馈与人工抽检；也可以让更强的模型当裁判（LLM-as-judge）批量打分。
-
-### Prompt 优化
-
-Prompt 优化：对同一任务做 A/B 测试，记录每个版本的输出与失败样本，基于数据迭代而不是凭感觉改词。
-
-## 部署与监控
-
-### FastAPI 部署
-
-部署：把 Agent 封装成 FastAPI 接口（如 POST /chat），耗时任务用流式响应或任务队列，避免请求同步阻塞。
-
-### 监控与日志
-
-监控：输出结构化日志（请求内容、token 用量、延迟、错误）；进阶用 LangSmith 等工具可视化追踪 Agent 的每一步。
-
-## 安全与成本控制
-
-### 防止 Prompt Injection
-
-安全：对用户输入做长度与内容过滤，给工具的权限最小化，涉及支付、删除等敏感操作必须二次确认。
-
-### 成本控制
-
-成本控制：按「模型单价 × token 数」给每次请求记账，设置每日预算上限；用缓存、批量与更小的模型降本。
-
-## 学习资源
-
-**官方文档**
-- [OpenAI Cookbook](https://github.com/openai/openai-cookbook)
-- [LangChain 文档](https://python.langchain.com/)
-- [LlamaIndex 文档](https://docs.llamaindex.ai/)
-
-**开源项目**
-- [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT)
-- [BabyAGI](https://github.com/yoheinakajima/babyagi)
-- [MetaGPT](https://github.com/geekan/MetaGPT)
-
-**论文**
-- ReAct: Synergizing Reasoning and Acting in Language Models
-- Reflexion: Language Agents with Verbal Reinforcement Learning
-- Tree of Thoughts
-
-## 下一步学习
-
-- **多模态 Agent** - 处理图像、音频、视频
-- **具身 Agent** - 控制机器人
-- **游戏 Agent** - 自动玩游戏
-- **代码 Agent** - 自动编程
-- **Agent 编排** - 复杂任务分解与协作
-
----
-
-AI Agent 是一个快速发展的领域，新框架、新方法层出不穷。核心能力是理解 LLM、设计 Prompt、构建工具链。从简单的聊天机器人开始，逐步增加记忆、工具、规划能力，最终做出能自主完成复杂任务的智能体。未来已来，开始构建你的 Agent 吧！
+Agent 开发是"软件工程 + 认知科学"的交叉:80% 的活是常规工程(工具、状态、评估、运维),20% 是与模型的不确定性共舞(提示、路由、兜底)。**把 Agent 当软件而不是魔法来对待**——有测试、有日志、有预算、有降级——它就能从 demo 变成产品;反之,再强的模型也救不了一个没有护栏的系统。框架会过时,但这套工程心智会一直值钱。下一步:强化 [Prompt Engineering](/learning-paths/ai/prompt-engineering),深入 [自主 Agent](/learning-paths/ai/autonomous-agents),或给 Agent 接上 [RAG](/learning-paths/ai/rag-systems)。

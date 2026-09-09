@@ -1,392 +1,47 @@
-# Redis 深入学习路线
-
-Redis 不仅仅是个缓存，它是内存数据库、消息队列、分布式锁、排行榜引擎、地理位置服务...几乎是万能的瑞士军刀。从单机到主从、哨兵、集群，从简单的 String 到复杂的 Stream，Redis 的每个特性都值得深挖。这条路线会带你从数据结构源码到分布式架构，从性能调优到生产实践。
-
-## 数据结构深入篇
-
-### String 的底层实现
-- SDS（Simple Dynamic String）：不是 C 字符串，是动态字符串
-- 结构：len（长度）+ free（剩余空间）+ buf（字节数组）
-- 二进制安全：可存储任意二进制数据，不以 \0 结尾
-- 预分配策略：< 1MB 翻倍，> 1MB 每次增加 1MB
-- 惰性释放：缩短字符串时不立即回收内存
-- 三种编码：int（整数）、embstr（<= 44 字节）、raw（> 44 字节）
-
-### List 的底层实现
-- 3.2 之前：ziplist（压缩列表）+ linkedlist（双向链表）
-- 3.2 之后：quicklist（快速列表）= ziplist + linkedlist 的混合
-- ziplist：连续内存块，节省内存，但插入删除慢
-- quicklist：ziplist 的双向链表，平衡内存和性能
-- list-max-ziplist-size：控制每个节点的大小（负数表示字节，正数表示个数）
-- list-compress-depth：首尾不压缩的节点数（中间节点 LZF 压缩）
-
-### Hash 的底层实现
-- ziplist：元素少时使用（hash-max-ziplist-entries < 512）
-- hashtable：元素多时升级为哈希表
-- 渐进式 rehash：扩容时分批迁移，避免阻塞
-- rehash 触发：负载因子 > 1（无 BGSAVE）或 > 5（有 BGSAVE）
-- 缩容触发：负载因子 < 0.1
-- 负载因子 = used / size
-
-### Set 的底层实现
-- intset：所有元素都是整数且数量 < 512
-- hashtable：其他情况
-- intset 升级：添加更大范围的整数时升级（int16 → int32 → int64）
-- hashtable：value 为 NULL，只用 key
-
-### ZSet 的底层实现
-- ziplist：元素少时（zset-max-ziplist-entries < 128）
-- skiplist + hashtable：元素多时
-- skiplist（跳表）：有序链表 + 多层索引，平均 O(logN) 查询
-- 跳表层数：随机生成（1/4 概率增加一层，最多 32 层）
-- hashtable：score 快速查找，O(1) 复杂度
-- 对比红黑树：实现简单、范围查询友好、并发友好
-
-### Stream 的底层实现（5.0 新增）
-- Radix Tree（基数树）：存储消息 ID 和内容
-- listpack：紧凑的列表编码（替代 ziplist）
-- Consumer Group：消费者组元数据
-- PEL（Pending Entries List）：待确认消息列表
-- 消息 ID：时间戳-序号（毫秒级时间戳 + 同一毫秒内的序号）
-
-### Bitmap、HyperLogLog、GeoHash
-- Bitmap：String 的位操作，统计活跃用户、签到
-- HyperLogLog：基数统计，0.81% 误差，占用 12KB
-- GeoHash：地理位置编码，经纬度编码为字符串
-- Geo 实现：基于 ZSet，score 是 GeoHash 值
-
-## 持久化深入篇
-
-### RDB（Redis Database）
-- 工作原理：fork 子进程，创建内存快照写入磁盘
-- 触发方式：SAVE（阻塞）、BGSAVE（后台）、自动触发（save 配置）
-- COW（Copy On Write）：父进程修改内存时复制页面
-- 优势：恢复快、文件紧凑、对性能影响小
-- 劣势：可能丢失最后一次快照后的数据、fork 时可能阻塞
-- 压缩：LZF 算法压缩字符串
-- 文件格式：REDIS + 版本 + 数据库 + 键值对 + EOF + 校验和
-
-### AOF（Append Only File）
-- 工作原理：记录每个写命令，追加到文件末尾
-- 刷盘策略：always（每次）、everysec（每秒）、no（OS 决定）
-- AOF 重写：合并命令，缩小文件体积
-- 重写触发：auto-aof-rewrite-percentage、auto-aof-rewrite-min-size
-- 重写过程：fork 子进程，读取数据库重新生成 AOF，同时记录增量命令
-- AOF 缓冲区：重写期间的新命令先写缓冲区，重写完成后追加
-- 混合持久化（4.0+）：RDB + AOF 增量，快速恢复 + 低数据丢失
-
-### RDB vs AOF
-- 数据安全：AOF 更安全（最多丢 1 秒），RDB 可能丢更多
-- 恢复速度：RDB 快，AOF 慢（需要重放命令）
-- 文件大小：RDB 小，AOF 大（未重写时）
-- 性能影响：RDB 对性能影响小，AOF always 模式影响大
-- 推荐：混合持久化，兼顾恢复速度和数据安全
-
-### 持久化最佳实践
-- 主从架构：主节点关闭持久化，从节点开启 RDB
-- 混合模式：开启 aof-use-rdb-preamble
-- AOF 策略：everysec 是最佳平衡点
-- 监控 fork：关注 fork 耗时，影响响应延迟
-- 磁盘选择：SSD 提升持久化性能
-
-## 主从复制篇
-
-### 主从复制原理
-- 全量同步：从节点首次连接，主节点 BGSAVE 生成 RDB，发送给从节点
-- 增量同步：全量同步后，主节点持续发送写命令到从节点
-- 复制缓冲区（repl_backlog）：环形缓冲区，存储增量命令
-- 断线重连：根据 offset 判断是全量还是增量同步
-- 心跳机制：从节点定期发送 REPLCONF ACK，报告复制进度
-
-### 复制流程
-- PSYNC：从节点发送 PSYNC runid offset
-- 主节点判断：runid 匹配且 offset 在缓冲区内则增量，否则全量
-- 全量同步：BGSAVE → 发送 RDB → 发送缓冲区命令
-- 增量同步：从缓冲区 offset 开始发送命令
-- 命令传播：主节点执行写命令后发送给所有从节点
-
-### 主从架构优势
-- 读写分离：主节点写，从节点读，提升吞吐
-- 数据备份：从节点是主节点的冷备
-- 故障恢复：主节点宕机后可手动切换从节点
-- 扩展性：增加从节点提升读性能
-
-### 主从复制问题
-- 复制延迟：网络延迟、主节点写入过快
-- 数据不一致：异步复制导致从节点数据滞后
-- 全量同步开销：fork + RDB 生成 + 网络传输
-- 级联复制：从节点的从节点，减轻主节点压力
-
-### 复制配置
-- replicaof（slaveof）：配置主节点地址
-- repl-backlog-size：复制缓冲区大小（默认 1MB）
-- repl-timeout：复制超时时间
-- min-replicas-to-write：最少从节点数，不足则拒绝写入
-- min-replicas-max-lag：从节点最大延迟
-
-## 哨兵篇（Sentinel）
-
-### 哨兵的作用
-- 监控：检测主从节点是否正常运行
-- 通知：故障时通知管理员或应用程序
-- 自动故障转移：主节点宕机时自动选举新主节点
-- 配置提供：客户端连接哨兵获取主节点地址
-
-### 哨兵工作原理
-- 心跳检测：哨兵定期 PING 主从节点（1 秒一次）
-- 主观下线（SDOWN）：单个哨兵认为节点下线
-- 客观下线（ODOWN）：多数哨兵认为主节点下线（quorum）
-- 故障转移：选举 Leader 哨兵执行故障转移
-- 选举新主：从从节点中选择一个提升为主节点
-
-### 故障转移流程
-- 确认主节点下线：超过 quorum 个哨兵判断主观下线
-- 选举 Leader 哨兵：Raft 协议选举（过半数投票）
-- 选择新主节点：优先级、复制偏移量、runid 排序
-- 提升新主：向从节点发送 SLAVEOF NO ONE
-- 切换从节点：其他从节点 SLAVEOF 新主
-- 更新配置：通知客户端和其他哨兵
-
-### 新主选择规则
-- replica-priority：优先级高的优先（0 表示不参与选举）
-- 复制偏移量：数据最新的优先
-- runid：字典序最小的优先
-
-### 哨兵集群
-- 奇数个哨兵：3/5/7 个（推荐 3 个）
-- 过半数原则：Leader 选举需要过半数投票
-- 网络分区：避免脑裂（通过 quorum 和过半数投票）
-- 部署建议：哨兵分布在不同机器甚至不同机房
-
-### 哨兵配置
-- sentinel monitor：监控主节点（mymaster 主机 端口 quorum）
-- sentinel down-after-milliseconds：主观下线时间（默认 30 秒）
-- sentinel parallel-syncs：故障转移时同时同步的从节点数
-- sentinel failover-timeout：故障转移超时时间
-
-## 集群篇（Cluster）
-
-### Cluster 的架构
-- 去中心化：无中心节点，P2P 架构
-- 数据分片：16384 个槽位（slot），分配给各节点
-- 多主多从：多个主节点分担写入，每个主节点有从节点备份
-- 客户端路由：客户端直接访问对应节点（MOVED 重定向）
-- Gossip 协议：节点间交换信息，维护集群状态
-- 📖 笔记：[Redis 集群与高可用](/study-notes/database/redis/clustering-high-availability)
-
-### 数据分片
-- 槽位计算：CRC16(key) % 16384
-- 槽位分配：平均分配给各主节点（如 3 个节点每个 5461 个槽）
-- Hash Tag：{user:1}:info 只对 {} 内的部分计算 Hash
-- 多键操作：多个 key 必须在同一槽位（通过 Hash Tag 实现）
-- 槽位迁移：在线扩缩容时迁移槽位
-
-### 集群通信
-- Gossip 协议：节点间定期交换信息
-- PING/PONG：心跳消息，携带节点状态
-- MEET：新节点加入集群
-- FAIL：节点宣告某节点失败
-- 集群总线：单独的端口（客户端端口 + 10000）
-
-### 故障检测与转移
-- 主观下线：单个节点认为另一节点下线
-- 客观下线：超过半数主节点认为某节点下线
-- 故障转移：从节点自动提升为主节点
-- 从节点选举：Raft 协议选举（类似哨兵）
-- 手动故障转移：CLUSTER FAILOVER 命令
-
-### 集群扩缩容
-- 添加节点：CLUSTER MEET，加入集群
-- 迁移槽位：CLUSTER SETSLOT、MIGRATE 命令
-- 迁移过程：逐个迁移槽位内的 key
-- 删除节点：先迁移槽位，再移除节点
-- 在线扩缩：不影响服务可用性
-
-### 集群的局限性
-- 不支持多库：只有 db0
-- 批量操作受限：mget/mset 需要 key 在同一槽位
-- 事务受限：涉及多个槽位的事务无法执行
-- 复制结构：只支持一层主从，不支持级联复制
-
-### 集群 vs 哨兵
-- 哨兵：单主多从，读写分离，故障自动转移
-- 集群：多主多从，数据分片，水平扩展
-- 选择：数据量小用哨兵，数据量大用集群
-
-## 分布式锁篇
-
-### 单机锁（SETNX）
-- 实现：SETNX key value + EXPIRE key seconds
-- 原子性：SET key value NX EX seconds（2.6.12+）
-- 问题：锁持有者宕机，锁永不释放
-- 解决：设置过期时间
-
-### 防止误删锁
-- 问题：A 加锁 → 超时释放 → B 加锁 → A 删除了 B 的锁
-- 方案：value 设为唯一标识（UUID），删除时判断
-- Lua 脚本保证原子性：GET + 判断 + DEL
-
-### Redlock 算法
-- 场景：多个独立的 Redis 实例（主从架构会有问题）
-- 步骤：向多数实例获取锁、检查获取时间、使用锁、释放所有锁
-- 时间限制：获取锁的总时间 < 锁的过期时间
-- 争议：Martin Kleppmann 质疑其正确性
-- 实践：高可靠场景用 ZooKeeper/etcd，普通场景单实例锁足够
-
-### 锁的自动续期
-- 问题：业务执行时间超过锁过期时间
-- Watchdog 机制：后台线程定期检查并延长锁
-- Redisson 实现：自动续期，默认 30 秒过期，每 10 秒续期
-
-### 可重入锁
-- 问题：同一线程多次获取锁
-- 实现：Hash 记录线程 ID 和重入次数
-- 释放：重入次数 - 1，为 0 时删除锁
-
-### 分布式锁的问题
-- 性能：网络往返开销
-- 时钟问题：服务器时间不同步
-- GC 暂停：长时间 GC 导致锁超时
-- 网络分区：脑裂问题（Redlock 部分解决）
-
-## 性能优化篇
-
-### 内存优化
-- 数据结构选择：小对象用 ziplist/intset
-- Key 设计：短 key 名、避免大 key
-- 过期策略：合理设置 TTL，避免内存堆积
-- 淘汰策略：maxmemory-policy（LRU、LFU、TTL、Random）
-- 内存碎片：定期重启或 MEMORY PURGE（4.0+）
-
-### 网络优化
-- Pipeline：批量发送命令，减少 RTT
-- 事务：MULTI/EXEC 打包命令
-- Lua 脚本：原子性执行多个命令
-- 连接池：复用连接，避免频繁建立连接
-- 客户端缓存：6.0+ 支持客户端缓存
-
-### 命令优化
-- 避免慢查询：KEYS、SMEMBERS、HGETALL（大集合）
-- 使用 SCAN：替代 KEYS，分批扫描
-- 批量操作：MGET/MSET 替代多次 GET/SET
-- 避免大 key：单个 key 的 value 过大影响性能
-- HyperLogLog：大量唯一值统计
-
-### 持久化优化
-- 关闭 AOF：纯缓存场景
-- RDB 策略：降低 save 频率
-- AOF 重写：控制触发阈值，避免频繁重写
-- no-appendfsync-on-rewrite：重写时不 fsync
-- 独立磁盘：持久化文件放独立磁盘
-
-### CPU 优化
-- 单线程模型：避免阻塞命令
-- 慢查询日志：slowlog-log-slower-than
-- 禁用危险命令：rename-command KEYS ""
-- Lazy Free：4.0+ 异步删除大 key
-
-### 集群优化
-- 槽位分配：均匀分配，避免数据倾斜
-- 客户端路由缓存：减少 MOVED 重定向
-- 批量操作：使用 Hash Tag 将相关 key 分配到同一槽位
-- 监控网络：Gossip 协议的网络开销
-
-## 高级特性篇
-
-### Lua 脚本
-- EVAL：执行 Lua 脚本
-- EVALSHA：执行已加载脚本（SHA1）
-- 原子性：脚本执行期间阻塞其他命令
-- 使用场景：复杂逻辑、原子操作、减少网络往返
-- 注意：避免长时间脚本，会阻塞服务器
-
-### 发布订阅
-- PUBLISH/SUBSCRIBE：消息发布订阅
-- 模式订阅：PSUBSCRIBE pattern
-- 问题：消息不持久化，订阅者离线丢消息
-- 使用场景：实时消息通知、缓存失效通知
-- 替代方案：Stream（5.0+）更可靠
-
-### Stream（5.0+）
-- 消息队列：持久化、消费者组、ACK 机制
-- XADD：添加消息
-- XREAD：读取消息
-- XGROUP：创建消费者组
-- XACK：确认消息
-- 对比 Kafka：轻量级、单机部署、功能简化版
-
-### 事务
-- MULTI/EXEC：事务块
-- WATCH：乐观锁，监控 key 变化
-- 特点：打包执行、不支持回滚
-- 局限性：命令错误不回滚，逻辑错误无法处理
-
-### 模块（Module）
-- 4.0+ 支持：动态加载扩展功能
-- 常用模块：RedisJSON、RedisSearch、RedisGraph、RedisTimeSeries、RedisBloom
-- 自定义模块：C 语言编写
-
-### 客户端缓存（6.0+）
-- Client-side caching：服务端推送失效通知
-- Tracking：客户端注册感兴趣的 key
-- 使用场景：频繁读取的数据
-- 对比本地缓存：减少网络往返，自动失效
-
-### 多线程 IO（6.0+）
-- 网络 IO 多线程：读写网络数据
-- 命令执行仍单线程：保证原子性
-- 性能提升：高并发场景明显
-- 配置：io-threads、io-threads-do-reads
-- 📖 笔记：[Redis 线程模型与高性能原理](/study-notes/database/redis/threading-model-performance)
-
-## 运维监控篇
-
-### 监控指标
-- 内存：used_memory、内存碎片率、淘汰 key 数量
-- 性能：QPS、命令耗时、慢查询
-- 持久化：RDB/AOF 耗时、fork 耗时
-- 连接：连接数、拒绝连接数
-- 复制：复制延迟、复制缓冲区大小
-- 集群：节点状态、槽位分布、故障转移次数
-
-### INFO 命令
-- Server：版本、运行时间、配置
-- Clients：连接数
-- Memory：内存使用情况
-- Persistence：RDB/AOF 状态
-- Stats：命令统计、网络流量
-- Replication：主从复制状态
-- CPU：CPU 使用情况
-- Cluster：集群状态
-
-### 慢查询日志
-- slowlog-log-slower-than：慢查询阈值（微秒）
-- slowlog-max-len：慢查询日志长度
-- SLOWLOG GET：查看慢查询
-- 优化方向：避免慢命令、优化业务逻辑
-
-### 备份与恢复
-- RDB 备份：复制 dump.rdb 文件
-- AOF 备份：复制 appendonly.aof 文件
-- 恢复：将文件放入数据目录，重启 Redis
-- 增量备份：主从复制实现实时备份
-- 云备份：定期上传备份到对象存储
-
-### 安全加固
-- 密码认证：requirepass 配置
-- 重命名命令：rename-command 禁用危险命令
-- 绑定 IP：bind 限制访问来源
-- 保护模式：protected-mode yes
-- TLS 加密：6.0+ 支持（需编译时启用）
-
-## 下一步学习
-
-掌握 Redis 深入知识后，你可以：
-- **源码阅读**：深入 Redis 源码（C 语言，约 5 万行）
-- **对比其他内存数据库**：Memcached、KeyDB、Dragonfly
-- **学习分布式缓存**：一致性哈希、缓存穿透/击穿/雪崩
-- **研究存储引擎**：LSM-Tree、B+ Tree 等
-- **实践缓存架构**：多级缓存、缓存预热、降级策略
-- **扩展场景应用**：实时排行榜、地理位置服务、布隆过滤器
-
-Redis 是"快"的代名词，也是分布式系统的基石。从简单的缓存到复杂的分布式场景，Redis 的每个细节都值得玩味。Happy caching！
+# Redis 深入(原理与调优)学习路线
+
+如果说 [Redis 基础路线](/learning-paths/database/redis) 教你"怎么用",这一页负责"为什么快、怎么不踩坑、挂了怎么救"——**数据结构的底层编码、持久化的取舍、复制的全量/增量、哨兵与集群的故障转移、分布式锁的正确性与边界、性能与内存诊断**。这些是后端面试的深水区,也是线上 Redis 事故(卡顿、丢数据、脑裂、大 key 阻塞)的答案所在。建议先通关基础页再进本页;想再深一层,Redis 源码只有约 5 万行 C(从 server.c/object.c 读起)且注释友好,是读开源源码的最佳起点。
+
+这条线按 **数据结构底层 → 持久化原理 → 主从复制 → 哨兵高可用 → 集群分片 → 分布式锁深水区 → 命令与内存优化 → 高级结构与模块 → 运维与安全** 推进。
+
+## 第一站:数据结构底层——内存里到底存了什么
+
+**String 的 SDS(Simple Dynamic String)**:Redis 不用 C 字符串,自研 SDS:记录 len/free 的结构体 + 字节数组——换来 **O(1) 取长度、二进制安全(可存 \0 与任意二进制)、预分配减少扩容拷贝**;编码三态:**int(整数直接存)、embstr(≤44 字节,对象与数据连续分配)、raw(大字符串)**——理解编码就能解释"小 value 省内存"。**List**:3.2 前是 ziplist(压缩列表:连续内存的紧凑编码,省内存但插入删除要搬移)或双向链表;3.2 起 **quicklist = 双向链表串起多个 ziplist 节点**(内存与性能的平衡,可配节点大小与中间节点压缩);**7.0 后 listpack 全面替代 ziplist**(更安全的紧凑编码)。**Hash/Set/ZSet 的小对象优化**:元素少时用紧凑编码(ziplist/listpack 或 intset),超阈值升级为哈希表——**阈值即配置(如 hash-max-listpack-entries 128)**。**Hash 的渐进式 rehash**:扩容不是一次性搬完,而是**分批迁移**(每次增删查顺带搬一点,期间新旧两表共存)——**防止大哈希扩容阻塞服务**;触发:负载因子(used/size)>1(无子进程)或 >5(有 BGSAVE 防 fork 后写放大)。**Set:intset(全整数且量少,有序数组,二分查找)**,否则哈希表(值存 null)。**ZSet:skiplist + hashtable 双结构**:跳表管**范围查询与排序**(有序链表 + 随机多层索引,平均 O(logN)),哈希表管 O(1) 查分——**为什么用跳表不用红黑树**:实现简单、**天然支持范围遍历**、无旋转。**Stream**:消息 ID(毫秒时间戳-序号)+ **Rax(基数树)** 存储 + listpack + 消费者组 PEL(待确认列表)。**扩展位图三兄弟**:Bitmap(String 的位操作:SETBIT/BITCOUNT——**签到、在线状态、月活**的极致省内存方案)、HyperLogLog(PFADD/PFCOUNT——**亿级去重计数仅 12KB,0.81% 误差;不可取成员,只求"大概多少个"**:UV/独立访客)、GEO(GEOADD/GEORADIUS——**基于 ZSet,score 是 geohash 编码**:"附近的人/门店")。**学编码的价值**:估算内存(小对象 vs 大对象)、理解"为什么小 value 快"、配置阈值有依据。
+
+## 第二站:持久化原理
+
+**RDB**:fork 子进程用**写时复制(COW)**打内存快照——fork 后父子共享页,父进程写时才复制页;**两个代价**:fork 瞬间阻塞(大实例可达秒级,`latest_fork_usec` 监控)与 COW 期间内存可能翻倍;触发:SAVE(阻塞,禁)/BGSAVE/自动 save 规则/从节点全量同步时;**丢数据窗口**:两次快照之间。**AOF**:记录写命令追加文件;**fsync 三档**:always(最安全最慢)/everysec(默认,丢 ≤1s)/no(OS 决定);**AOF 重写(BGREWRITEAOF)**:fork 子进程读当前数据库**重新生成最精简的命令集**,期间新命令进缓冲区、完成后追加——解决"日志无限膨胀";触发:auto-aof-rewrite-percentage/min-size;**混合持久化(4.0 默认)**:AOF 文件 = RDB 头(全量数据)+ 增量命令尾——**重启加载快(RDB 段)且丢得少(尾段)**。**生产姿势**:纯缓存可全关;**数据重要开 AOF everysec + 混合**(或主 RDB + 从 AOF 的组合兜底);SSD 上持久化;注意 **no-appendfsync-on-rewrite**(重写期间不 fsync,防磁盘抖动);**fork 是最大隐患**:大实例配大内存机器,监控 fork 耗时,必要时主从错峰持久化。
+
+## 第三站:主从复制——全量与增量
+
+**同步协议 PSYNC**:从节点发 `PSYNC <runid> <offset>`——**runid 匹配且 offset 落在主节点的复制积压缓冲区(repl_backlog,默认 1MB 环形)内 → 增量同步;否则全量同步**;**全量同步流程**:主 BGSAVE 生成 RDB → 传从 → 从清空加载 → 主把期间的写命令补发——**全量昂贵(主 fork + 网络传 + 从阻塞加载),要尽量避免**:repl-backlog-size 调大(防"断线一会儿就全量")、避免频繁主从切换;**增量同步**:主执行写命令即传播给从(命令传播),从回 `REPLCONF ACK offset` 报告进度(主据此判断断线重连走全量还是增量,也用于 min-replicas 判断)。**拓扑**:一主多从、**级联(从的从)**:缓解主节点全量同步压力(每从全量都从主来会压垮主);**读写分离的坑**(见基础页:异步复制延迟 → 刚写入读不到;从节点只读默认);**保护配置**:`min-replicas-to-write` + `min-replicas-max-lag`(从节点不足时主拒绝写——**哨兵脑裂场景的止损阀**,见下);replica-priority(从的优先级)。**为什么主从不等于高可用**:主挂需要人工/哨兵切换——见下一站。
+
+## 第四站:哨兵——自动故障转移
+
+**Sentinel 三职责**:监控、**通知、自动故障转移(主挂选新主)** + 配置提供(客户端问哨兵要当前主地址)。**机制**:每秒 PING;单哨兵判定 → **主观下线(sdown)**;**quorum 个哨兵都判定 → 客观下线(odown)**——odown 才触发转移;**转移流程**:哨兵们选一个 **Leader 哨兵**(简化 Raft,过半票)执行:从从节点里**选新主**(规则:replica-priority 小优先(0 不参选)→ 复制偏移量大(数据最新)→ runid 小)→ 对新主 `SLAVEOF NO ONE` → 其他从 `SLAVEOF 新主` → **更新配置并通知客户端**(客户端从哨兵发现主,主地址变化自动跟随)。**部署铁律**:哨兵 ≥3 且奇数(自己高可用+过半决策)、与 Redis 分机部署、`down-after-milliseconds`(判定阈值,别太短防抖动)/`failover-timeout`/`parallel-syncs`(同时让几个从同步新主,防复制风暴)。**哨兵模式的丢失窗口(面试深水区)**:①**异步复制丢数据**:主挂时未同步到从的写全丢;②**脑裂丢数据**:主网络分区被孤立,但客户端还在写它,同时哨兵把从提升为新主——分区恢复后旧主被降级,孤立期的写入丢失——**止损:min-replicas-to-write(从不够就不写)+ 业务幂等**;③**选主数据新旧**:偏移量最大者胜出,尽量少丢。**结论**:哨兵架构适合"读多写少、可容忍秒级丢写"的场景;要"写不丢"得上集群或外部存储兜底。
+
+## 第五站:Cluster 集群——水平分片
+
+**架构**:去中心化 P2P(无代理,客户端直连任意节点),**16384 个哈希槽**:`CRC16(key) % 16384` 决定槽位,槽均匀分给各主节点;**每个主节点可带从**(故障自动提升)。**客户端交互**:请求的 key 不在本节点 → 返回 **MOVED(槽永久在别处,客户端缓存槽位映射后直连)/ASK(槽迁移中的临时转向)**——集群客户端(Redis Cluster 模式的客户端库)内置槽路由;多 key 命令(mget/事务/Lua)要求 key 同槽——**hash tag `{}`**:`{user:1001}:cart` 只对 `{}` 内计算槽——相关 key 强制同槽(但注意:hash tag 会让大量同 tag key 挤在一个槽 → 数据倾斜)。**集群内通信**:Gossip 协议(节点间互相 PING/PONG 交换状态——集群总线端口=客户端端口+10000),**故障判定**:半数以上主节点认为某主主观下线 → 客观下线 → 其从节点发起选举(Raft 风格)提升。**扩缩容(在线)**:`CLUSTER MEET` 加节点 → **reshard 迁移槽位**(槽内 key 逐个 MIGRATE——`redis-cli --cluster reshard` 交互式完成,期间服务不中断;迁移中客户端遇 ASK 会跟随)。**集群局限(面试常问)**:只有 db0、多键操作受槽限制、**只支持一层主从(从不能再挂从)**、客户端必须支持集群协议、故障转移窗口内部分槽不可用(集群默认**不保证强一致**,主从间异步复制丢写窗口依旧存在)。**选型(与哨兵对照)**:数据量单机容得下、读写分离够用 → 哨兵(简单);数据量大/写吞吐高/要水平扩展 → 集群(**最小 3 主 3 从**);云托管(阿里云/腾讯云 Redis)自带 Proxy 高可用,不用自己操心。**生产注意**:槽位均衡、key 设计别全挤 hash tag、监控 reshard 与故障转移事件。
+
+## 第六站:分布式锁深水区
+
+在基础页"SET NX EX + Lua 释放"之上,再挖三层:**①可重入**:同一线程重入(递归/嵌套)会自己锁死自己——Redisson 用 Hash 结构(锁名→线程 id→计数)实现重入,释放计数归零才删;**②看门狗(Wathcdog)续期**:业务执行超过锁过期时间(默认 30s)怎么办——Redisson 后台线程**每 10 秒自动续期**(锁活多久看业务跑多久)——解决"锁过期但业务没完,另一个进程进来了";**③Redlock 及其争议**:主从架构下"锁写入主未同步,主挂,从提升,锁丢了"——Redlock 提议向 **N 个独立 Redis 实例**多数加锁;但 Martin Kleppmann(《数据密集型应用系统设计》作者)论证其**在 GC 暂停/时钟跳跃下仍可能破坏互斥**,且实现复杂——**业界主流结论**:普通业务单实例锁(带看门狗)足够;**真强一致场景用 ZooKeeper/etcd 锁**(会话语义,见 [etcd](/learning-paths/middleware/etcd) 页)。**边界认知(面试加分)**:分布式锁防的是"协作进程的意外"(同时执行),**防不了时钟回拨、长时间 GC 停顿、网络分区**——所以锁之上永远要有**幂等 + 唯一约束**兜底(库存扣减在数据库层有唯一键/乐观锁)。**性能**:锁是网络往返,高并发下用分段锁(把一个大锁拆 N 段:库存按库存位分桶)降冲突。
+
+## 第七站:命令、内存与性能诊断
+
+**阻塞命令黑名单(线上事故高发区)**:KEYS(全遍历,换 **SCAN 游标分批**)、大集合的 SMEMBERS/HGETALL(换 SSCAN/HSCAN)、集合间大运算(SINTER 大集合)、超大 value(>100KB 的 get/set/序列化都慢)、`flushall/flushdb`(生产 rename 或加保护)——**慢查询日志**:`slowlog-log-slower-than`(微秒)开启,`SLOWLOG GET` 看,慢命令 = 大 key 或阻塞命令;大 key 扫描:`redis-cli --bigkeys`。**危险命令保护**:`rename-command CONFIG ""` 等(至少 FLUSHALL/CONFIG/KEYS);**lazy free**:大 key 删除会阻塞——用 **UNLINK(异步删)**,配 lazyfree-lazy-eviction 等让淘汰也异步(4.0+)。**内存诊断**:`INFO memory`:`used_memory` vs `used_memory_rss` → **内存碎片率(rss/used)>1.5 关注碎片(activedefrag 自动整理或低峰重启)**;`MEMORY USAGE key`(单 key 体检);`--stat` 实时;淘汰计数(evicted_keys 涨 = maxmemory 不够)。**客户端缓存(6.0,多级缓存进阶)**:RESP3 的 **client-side caching**:客户端本地缓存 + Redis 主动推送失效通知(TRACKING)——**本地缓存(如 Caffeine)+ Redis + DB 三级缓存中"一致性推送"的官方机制**,比"本地缓存设短 TTL"优雅;多线程 IO(6.0 `io-threads`):**网络读写多线程化,命令执行仍单线程**——高并发下吞吐提升(CPU 多核时),瓶颈在网卡时有效。
+
+## 第八站:高级结构与模块
+
+**Stream(5.0,Redis 的可靠队列)**:见基础页——补充底层与对比:消息 ID 时间序、**PEL(消费但未确认的消息列表)——断线重连从 PEL 恢复不丢**;对比 Kafka:轻量单机版(无分区伸缩/无长期保留),够用但别硬上生产核心队列。**Module 体系(4.0+,Redis 的"插件化边界")**:RedisJSON(JSON 文档操作)/RedisSearch(全文与二级索引——**需要搜索但不想上 ES 的中间态**)/RedisTimeSeries(时序)/**RedisBloom(布隆过滤器:缓存穿透防护的标准件**——见基础页三大缓存问题)/RedisGraph——**生产用模块前确认维护状态,官方 Redis Stack 打包了常用模块**。**位图/基数/Geo 的工程场景**(见第一站):签到与月活(bitmap:一位一天,亿级用户月活几百 MB 内)、UV(HLL)、附近的人(Geo)。
+
+## 第九站:安全与运维
+
+**安全(血泪教训)**:Redis 未授权访问被挖矿是云上第一事故——**生产必做**:`requirepass` 强密码(或 ACL 用户体系,6.0+)、`bind` 内网/`protected-mode yes`、**不暴露公网**、管理命令 rename、TLS(6.0 可选,云托管默认);**备份**:RDB/AOF 文件定时拷贝 + 从节点兜底 + 定期**恢复演练**(备份没验证过等于没有);云托管开自动备份。**监控告警清单**:内存(used_memory 与 maxmemory 比、碎片率)、连接数(拒绝连接=打满)、命中率(keyspace_hits/misses)、大 key/慢查询、主从延迟(INFO replication 的 offset 差)、fork 耗时、集群(节点数/槽位覆盖/故障转移次数)——Prometheus(redis_exporter)+ Grafana 一套接齐。**故障排查流程**:卡顿 → 先看慢查询与 bigkeys(大 key 删除阻塞?)、再 INFO 看 fork/内存、CPU(单线程:一个慢命令卡全局);丢数据 → 查持久化配置与主从切换记录;内存暴涨 → 查无 TTL 的 key(内存泄漏式增长)与 bigkeys。
+
+## 通关标准
+
+能独立做到:讲清 SDS/quicklist/跳表/渐进式 rehash 各自解决什么问题;对比 RDB/AOF/混合持久化并解释 fork+COW 的代价与监控点;画全量/增量同步流程与 repl_backlog 的作用;说清哨兵 sdown/odown/选主规则与脑裂丢数据场景及止损(含 min-replicas);解释 16384 槽、MOVED/ASK、hash tag、reshard 过程与集群局限;在"单实例锁 vs Redlock vs etcd 锁"的对比中给出有依据的选型;会用 SCAN/slowlog/INFO/MEMORY 诊断慢与内存问题——Redis 深入主线通关。
+
+Redis 的"快"不是魔法,而是每一层工程选择的累积:紧凑编码省内存、单线程免锁、COW 快照不阻塞、跳表换范围查询——读它的源码或文档,像在读一本"如何把内存用到极致"的教科书。而它的"坑"同样深:大 key、fork、脑裂、锁的边界——**会用的 Redis 让你快,懂原理的 Redis 让你稳**。带上这一页的视角回头看 [基础篇](/learning-paths/database/redis) 的应用,再往 [缓存架构](/learning-paths/cloud-native/cloud-native-patterns) 与数据库内核方向走,你会是团队里"Redis 出事了都找你"的那个人。

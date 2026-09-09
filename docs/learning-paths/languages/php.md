@@ -1,256 +1,55 @@
 # PHP 学习路线
 
-PHP，这门"世界上最好的语言"（PHP 开发者如是说），从个人网站到大型电商平台，驱动着互联网上 70% 以上的网站。虽然常被调侃，但 PHP 的简单上手、强大生态和持续进化，让它依然是 Web 开发的主力军。
+PHP,"世界上最好的语言"——这当然是调侃,但它驱动着互联网上七成以上的网站(WordPress 一家就占三成以上),从个人博客到电商巨头,从 Laravel 到各类 CMS,生态庞大得可怕。PHP 的真相是:**入门极简、上限很高**——写不好的 PHP 是"能跑的意大利面",写好的 PHP(PHP 8 + 框架 + 工程实践)优雅、安全、高效。它每年都在进化,8.x 的性能与语法已经完全是现代语言的样子。**别学"能跑就行"的 PHP,学现代 PHP**。
 
-## 基础篇
+这条线按 **环境与基础 → 数组(万能容器)→ 字符串与正则 → 函数 → 表单与会话 → 数据库(PDO)→ 面向对象 → 命名空间与 Composer → 异常与文件 → 性能与安全 → 现代特性与生态** 推进。
 
-### PHP 入门
-- **环境搭建**：XAMPP、WAMP、MAMP、Docker + PHP-FPM
-- **基本语法**：PHP 标签（`<?php ?>`）、变量（$符号）、数据类型、常量
-- **输出**：echo、print、print_r、var_dump
-- **运算符**：算术、比较、逻辑、字符串连接（.）
-- **控制流**：if/elseif/else、switch、for/foreach/while/do-while
+## 第一站:环境与语法地基
 
-```php
-<?php
-echo "Hello, PHP World!";
-?>
-```
+**运行原理先搞清**:PHP 是"请求-响应"模型——每次 HTTP 请求,入口文件(index.php)被 **PHP-FPM**(进程池)执行一遍,产出 HTML 后进程待命;**生产部署标配是 Nginx + PHP-FPM**(Nginx 处理静态与转发,`fastcgi_pass` 把 .php 交给 FPM);开发环境:XAMPP/宝塔一键包,或 `php -S localhost:8000` 内置服务器(够用),进阶用 Docker。**标签**:`<?php ... ?>`(纯 PHP 文件**结尾 ?> 可以省略且推荐省略**——避免意外输出空白);注释 `//`/`#`/`/* */`。**变量**:`$` 前缀(`$name`);大小写敏感;类型弱但可标注。**输出**:`echo`(字符串)/`print_r`(数组人肉可读)/**`var_dump`(类型+值,调试神器)**。**类型**:标量(int/float/string/bool)+ array/object/callable/null;8 起支持**联合类型** `int|string` 与 **strict_types**(文件头 `declare(strict_types=1);` 后类型严格——**现代项目每个文件都加**)。**常量**:`define('X', 1)` 与 `const X = 1`(类内用 const);魔术常量 `__FILE__`/`__DIR__`/`__LINE__`。**运算符**:算术/比较/逻辑;`.` 字符串拼接(**不是 +**);`==`(宽松,`"1" == 1` 为 true,老笑话)vs `===`(严格,必用);`<=>`(宇宙飞船);**`??` 空合并**(`$a ?? '默认'`——只兜 null/未定义,替代 isset 三连)与 `??=`。**控制流**:if/elseif/else;foreach 是主力(见下);`match`(8,替代 switch 的表达式:`match ($x) { 1 => 'a', default => 'b' }`——严格比较、不穿透、可返回);for/while/do-while 常规。**内置服务器调试**:`error_reporting(E_ALL)` + `display_errors` 开发期开、生产关(记日志)。
 
-**下一步学习**：基础语法简单，数组和字符串是 PHP 的核心数据结构。
+## 第二站:数组——PHP 的万能容器
 
-### 数组操作
-- **索引数组**：数字索引、array() 和 [] 语法
-- **关联数组**：键值对、类似 Map/Dictionary
-- **多维数组**：嵌套数组、遍历技巧
-- **数组函数**：
-  - 遍历：foreach、array_walk、array_map
-  - 查找：in_array、array_search、array_key_exists
-  - 修改：array_push、array_pop、array_shift、array_unshift
-  - 排序：sort、rsort、asort、ksort、usort
-  - 合并拆分：array_merge、array_slice、array_chunk
-  - 其他：array_filter、array_reduce、array_unique
+PHP 数组是**有序映射**(一个结构同时是列表、字典、栈、集合),灵活到极致也随意到极致:`$arr = [1, 2, 3]`(数字键)/`$user = ['name' => 'x', 'age' => 18]`(字符串键,自动维护插入序);多维嵌套;`[]` 追加;解构 `[$a, $b] = $arr`。**遍历**:`foreach ($arr as $value)` / `foreach ($arr as $key => $value)`;**按引用修改**:`foreach ($arr as &$v)`(**用后必须 unset($v)**,否则残留引用污染后续循环——经典坑);`for` 循环数组用 `count()` 提出去。**函数库**(PHP 的数组函数有 80+ 个,按需查手册):查找:`in_array`(宽松比较!第三参 true 严格)/`array_search`/`array_key_exists`/`isset`(键存在且非 null,区别要懂);增删:`array_push`/`array_pop`/`array_shift`(头部,慢)/`array_unshift`/`unset`(删键,**不重建索引**——要连续索引用 array_values);排序:`sort`/`rsort`(值,重建索引)/`asort`(值保键)/`ksort`(键)/`usort`/`uasort`(自定义比较器);合并拆分:**`array_merge`**(字符串键后者覆盖、**数字键重新编号**)vs `+`(数字键保留前者,键冲突前者赢——区别必考)/`array_slice`/`array_chunk`/`array_splice`;变换:**`array_map`(注意参数顺序:先回调后数组,与 JS 相反)/`array_filter`(默认去假值,可带 ARRAY_FILTER_USE_BOTH)/`array_reduce`**;实用:`array_column`(取二维数组一列——从数据库结果集抽字段的神器)/`array_unique`/`array_flip`(键值互换)/`array_combine`/`array_key_first`/`array_sum`/`array_count_values`/`range`/`compact`+`extract`(少用)/`implode`(数组转字符串);**数组解包 `...`**(7.4,合并与传参)。**JSON 互转**是 PHP 数组的最常见出口:`json_encode($arr)`(配 JSON_UNESCAPED_UNICODE 防中文变 \uXXXX)与 `json_decode($json, true)`(**第二参 true 得数组而非对象**——忘了就是"为什么取不到属性"的日常)。
 
-**下一步学习**：数组灵活强大，字符串处理同样重要。
+## 第三站:字符串与正则
 
-### 字符串处理
-- **字符串定义**：单引号、双引号、Heredoc、Nowdoc
-- **字符串操作**：拼接（.）、长度（strlen）、查找（strpos）、替换（str_replace）
-- **大小写转换**：strtoupper、strtolower、ucfirst、ucwords
-- **分割与连接**：explode、implode
-- **正则表达式**：preg_match、preg_match_all、preg_replace
-- **字符串格式化**：sprintf、number_format、date
+**引号语义**(PHP 特色):单引号(原样,不解析变量)vs 双引号(**解析变量与转义**:`"hi $name"`、`"{$obj->name}"` 花括号定界);heredoc(`<<<EOT ... EOT`,多行+插值)/nowdoc(`<<<'EOT'`,不插值);8 起支持 `sprintf` 式新语法?不,保持。**操作**:拼接用 `.`(循环里大量拼接用 `.=` 或攒数组后 implode——性能);`strlen`(**字节数!**中文要 `mb_strlen`)/`strpos`(**找不到返回 false,判断必须 `!== false`**——`if (strpos($s, 'x'))` 遇到位置 0 是经典 bug)/`str_contains`/`str_starts_with`/`str_ends_with`(8,告别 strpos !== false)/`str_replace`(支持数组批量)/`substr`(字节版!中文 mb_substr)/`explode`/`implode`/`strtoupper`/`strtolower`/`ucfirst`/`trim`/`str_pad`/`sprintf`(格式化)/`number_format`(千分位)/`nl2br`;日期:`date('Y-m-d H:i:s')`/`strtotime`(解析"next monday"这类)/`time()`/`DateTime` 类;**生产用 Carbon 库**(Laravel 内置,链式人性化)。**正则(PCRE,与 Perl 同源)**:函数四件:`preg_match`(**返回 0(无匹配)/1(匹配)/false(出错)三态**——`if (preg_match(...))` 只看真假没问题,但严格判断用 === 1)/`preg_match_all`(全局,配捕获组出二维)/`preg_replace`(支持数组与 `$1` 反向引用,回调版)/`preg_split`;**修饰符**:`i`/`m`/`s`/`u`(处理 UTF-8 **必须加 u**,否则中文匹配错乱)/`x`;命名捕获 `(?<name>...)`(8.2 起可用 `\g{name}`?普通 `$matches['name']`);零宽断言 `(?=)`/`(?!)/`(?<=)`/`(?<! )`;贪婪 `*+` vs 懒惰 `*?`。`preg_quote`(把用户输入转义成正则字面量)。
 
-**下一步学习**：字符串处理频繁，函数是代码复用的开始。
+## 第四站:函数与作用域
 
-### 函数与作用域
-- **函数定义**：function 关键字、参数、返回值
-- **参数传递**：值传递、引用传递（&）
-- **默认参数**：可选参数、默认值
-- **可变参数**：...$args（PHP 5.6+）
-- **变量作用域**：局部变量、全局变量（global）、静态变量（static）
-- **匿名函数**：闭包、use 关键字捕获外部变量
-- **箭头函数**：fn() =>（PHP 7.4+）
+`function foo($a, $b = 默认) {}`;**作用域是"函数级隔离"**:函数内看不到外部变量,要用必须 `global $x`(或 $GLOBALS)——**与 JS/Python 不同,现代风格是参数传入**;**static 局部变量**(函数多次调用间保留值,计数器/缓存);参数传递:默认按值,`&` 按引用(少用);`...$args` 可变参数(收集数组);**命名参数**(8,`foo(b: 2)`——跳过可选参数);返回:`return`;`?type` 可空返回、`void`/`never`(8.1,抛异常/exit 的函数)。**类型声明**:参数/返回值可标 `int`/`string`/`array`/`callable`/类名/接口名;**联合类型** `int|string`、`mixed`、`false` 伪类型;弱类型下自动 coercion(如 `"5"` 自动转 5),strict_types 下报 TypeError。**闭包与箭头函数**:闭包 `function () use ($x) {}`(**use 显式捕获外部变量**,与 JS 自动捕获不同——忘了 use 就是 undefined variable 警告);箭头函数 `fn($a) => $a + $x`(7.4,**自动按值捕获** use 列表,单表达式);`callable` 类型与**可变函数**(变量名即函数名 `$fn()`)、`Closure::call`(高级)。**内置函数命名规律**(重要,不然永远记不住):字符串 str_*、数组 array_*、布尔 is_*/has_*。
 
-**下一步学习**：函数封装逻辑，表单和请求处理是 Web 开发基础。
+## 第五站:表单、会话与文件上传
 
-### 表单与请求处理
-- **超全局变量**：$_GET、$_POST、$_REQUEST、$_SERVER、$_COOKIE、$_SESSION、$_FILES
-- **表单处理**：获取表单数据、数据验证、过滤
-- **文件上传**：$_FILES、move_uploaded_file、文件类型检查
-- **Cookie 管理**：setcookie、读取 cookie、过期时间
-- **Session 管理**：session_start、$_SESSION、session_destroy
-- **安全处理**：htmlspecialchars、filter_var、SQL 注入防护
+**超全局数组**(PHP Web 的入口):`$_GET`/`$_POST`(表单与查询串;`$_REQUEST` 是两者合并,别用——来源不明)/`$_SERVER`(`REQUEST_METHOD`/`HTTP_USER_AGENT`/`REMOTE_ADDR` 等)/`$_COOKIE`/`$_SESSION`/`$_FILES`。**输入处理三板斧**:①取——永远不要裸用超全局,经框架 Request 对象或自己 `filter_input`;②**校验**——`filter_var($email, FILTER_VALIDATE_EMAIL)`(内置过滤器比手写正则稳)/白名单;③**转义输出**——`htmlspecialchars($s, ENT_QUOTES)`(**输出时转义是防 XSS 的铁律**,`<?= htmlspecialchars($name) ?>` 模板标配)。**Cookie**:`setcookie(name, value, ['expires'=>..., 'httponly'=>true, 'secure'=>true, 'samesite'=>'Lax'])`(选项数组是 7.3+ 姿势,属性意义见 [Web 安全](/learning-paths/security/web-security))。**Session**:`session_start()`(必须在任何输出前)→ `$_SESSION['user_id'] = 1`;安全:登录成功后 **`session_regenerate_id(true)`**(防会话固定攻击)、Cookie 加 HttpOnly/Secure/SameSite、`session_destroy` 登出。**文件上传**($_FILES 结构:name/type/tmp_name/error/size):错误码检查(UPLOAD_ERR_OK)、大小与 **MIME 白名单检查**(别信客户端 filename 扩展名)、`move_uploaded_file($tmp, $dest)`(必须用它移动,直接 copy 临时文件是安全漏洞)、文件名重新生成(防路径穿越)。
 
-**下一步学习**：表单处理是交互基础，数据库让数据持久化。
+## 第六站:数据库——PDO 与预处理
 
-### MySQL 数据库
-- **连接数据库**：mysqli、PDO（推荐）
-- **PDO 基础**：连接、预处理语句、参数绑定
-- **CRUD 操作**：INSERT、SELECT、UPDATE、DELETE
-- **预处理语句**：防止 SQL 注入、占位符（? 和 :name）
-- **事务处理**：beginTransaction、commit、rollback
-- **错误处理**：PDO 异常模式、try-catch
+PHP 连 MySQL 用 **PDO**(PHP Data Objects),不用老 mysqli:`new PDO('mysql:host=...;dbname=...;charset=utf8mb4', $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION])`(异常模式必开);连接选项:`ATTR_DEFAULT_FETCH_MODE => FETCH_ASSOC`(默认拿关联数组)。**预处理语句(防 SQL 注入的唯一正解)**:`$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?')`;执行 `$stmt->execute([$email])`(问号占位)或命名占位符 `:email` + 关联数组;`bindValue` vs `bindParam`(后者绑引用,execute 时才取值——日常直接 execute 传数组)。**取数据**:`fetch()`(一行,配合 while 循环)/`fetchAll()`(全量,小数据)/`fetchColumn`(单值);**CRUD 都走预处理**。**事务**:`$pdo->beginTransaction()` → 多条 SQL → `commit()`;出错 `rollBack()`(包 try/catch)——转账、下单这种"要么全成要么全不成"的业务必用(事务概念见 [MySQL 路线](/learning-paths/database/mysql))。**SQL 注入原理**要能讲:字符串拼接 SQL(`"WHERE id = $id"`)时用户输入 `1 OR 1=1`/`'; DROP TABLE...` 改变语句结构;预处理把数据与语句分离,注入失效。**连接复用**:PHP-FPM 每请求一条连接(短连接),连接池靠 Swoole/常驻框架解决;查询性能:索引、避免 N+1(见 Laravel 章节)。
 
-**下一步学习**：数据库是数据中心，面向对象让代码更结构化。
+## 第七站:面向对象
 
-## 进阶篇
+**类**:`class User {}`、`new`、`$this->`;**属性**(7.4 起可声明类型 `public string $name;`)、访问控制 public/private/protected;**构造器** `__construct`(**属性提升 promotion**:8 起 `public function __construct(private string $name) {}` 自动声明+赋值——样板终结者);析构 `__destruct`(少见)。**static** 与范围解析 `::`:`self::`(当前类,**早期绑定**)vs **`static::`(后期静态绑定**——子类覆写后 static 调的是子类版本,8 的 enum 案例常用);`parent::`。**继承**:extends + parent::__construct;方法覆写;**final**(禁继承/禁覆写);抽象类 abstract + **接口 interface/implements**(多接口);**Trait**(PHP 的单继承补丁:代码水平复用,`use TraitName;`,冲突用 `insteadof`/`as` 解决——Laravel 里大量 trait)。**魔术方法**(__ 开头,自动触发):`__construct`/`__destruct`/`__get`/`__set`(访问不存在属性时,老 ORM 的动态字段)/`__call`(调不存在方法,门面 Facade 原理)/`__toString`(echo 对象)/`__clone`(控制深拷贝)/`__invoke`(对象当函数)/`__sleep`/`__wakeup`(序列化)。**枚举 enum**(8.1 大特性):`enum Status: string { case Active = 'active'; }`——纯枚举/带值枚举、方法、`from()`/`tryFrom()`、`match($status)`——状态机的现代答案;**readonly 属性/类**(8.1/8.2,不可变对象)。**匿名类**(new class {})。**对象比较**:==(属性全等)vs ===(同一实例)。
 
-### 面向对象编程
-- **类与对象**：class 关键字、new 实例化、$this
-- **属性与方法**：public、private、protected
-- **构造函数与析构函数**：__construct、__destruct
-- **继承**：extends、parent 关键字
-- **抽象类与接口**：abstract、interface、implements
-- **Trait**：代码复用、use 关键字、冲突解决
-- **魔术方法**：__get、__set、__call、__toString、__clone
-- **静态成员**：static、self、::（范围解析运算符）
-- **后期静态绑定**：static:: vs self::
+## 第八站:命名空间、Composer 与自动加载
 
-**下一步学习**：OOP 是现代 PHP 的基础，命名空间管理代码组织。
+**命名空间**:`namespace App\Models;`(文件第一行,PSR 风格);`use App\Models\User;` + `as` 别名;全限定 `\` 开头(全局类如 `\DateTime`);命名空间 ≠ 目录,但 **PSR-4 规范**把它们绑定:命名空间 `App\` 映射到 `src/`,`App\Models\User` → `src/Models/User.php`。**Composer(PHP 的包管理器,现代 PHP 的基石)**:`composer require vendor/package` 装依赖 → 生成 `vendor/` 与 **`composer.lock`(必须提交,锁定版本)**;`composer.json` 里配 `"autoload": { "psr-4": { "App\\": "src/" } }` → `composer dump-autoload` → `require 'vendor/autoload.php'` 一行让所有类自动加载(**不用手写 require 每个文件**——老 PHP 教程的 require_once 地狱到此终结);`require-dev`(测试工具)、`scripts`(自定义命令)、`composer update`(升版本)vs `install`(按 lock);常用包:Guzzle(HTTP 客户端)、Monolog(日志,PSR-3)、Carbon(日期)、PHPUnit、PHPStan。
 
-### 命名空间
-- **命名空间定义**：namespace 关键字
-- **命名空间使用**：use、as 别名
-- **全局命名空间**：\前缀
-- **命名空间与文件结构**：PSR-4 自动加载规范
-- **子命名空间**：多级命名空间
+## 第九站:异常、错误与文件
 
-**下一步学习**：命名空间避免冲突，自动加载让代码管理简单。
+**PHP 7 前的错误是"通知"不是异常;7+ 统一为 Throwable**:`Exception`(业务异常)与 **`Error`**(TypeError/ValueError 等引擎错误)都可被 catch。`try { } catch (TypeError $e) { } catch (Exception $e) { } finally { }`(多 catch 按序匹配、`$e->getPrevious()` 异常链、`throw new X('msg', 0, $prev)`);自定义异常继承 Exception;**全局兜底**:`set_exception_handler`(未捕获异常统一转 500 JSON——API 项目必配);错误级别:`error_reporting(E_ALL)`、`@` 抑制符是毒药(别用)。**文件操作**:一键式 `file_get_contents($path)`/`file_put_contents`(配 `LOCK_EX` 防并发写坏)——**80% 场景够用**;流式 `fopen`/`fgets`/`fwrite`/`fclose`(大文件逐行);目录:`scandir`/`glob('*.log')`/`mkdir`/`is_dir`;路径:`dirname`/`basename`/`pathinfo`/`realpath`;信息:`file_exists`/`is_file`/`filesize`/`filemtime`;`SplFileObject`(面向对象封装,迭代逐行);下载响应头与 `readfile`;**流 context**(file_get_contents 第二参传 headers/超时——抓取远程 API 的平民方案)。**JSON**:`json_encode`(选项:JSON_UNESCAPED_UNICODE/JSON_PRETTY_PRINT/**JSON_THROW_ON_ERROR**(8.3 默认,失败抛异常而非静默 null))、`json_decode($s, true, 512, JSON_THROW_ON_ERROR)`;**XML**:SimpleXML(读)或 DOMDocument(复杂),现代 API 以 JSON 为主,XML 出现在老系统互操作。
 
-### 自动加载与 Composer
-- **自动加载**：spl_autoload_register、PSR-4 规范
-- **Composer 基础**：安装、composer.json、require/require-dev
-- **依赖管理**：安装包、更新包、composer.lock
-- **自动加载配置**：psr-4、classmap、files
-- **常用包**：Guzzle（HTTP 客户端）、Monolog（日志）、Carbon（日期时间）
-- **脚本**：composer scripts、post-install
+## 第十站:性能与安全
 
-**下一步学习**：Composer 是包管理器，异常处理让错误管理规范。
+**性能**:①**OPcache 必开**(PHP 源码每次请求都要"编译"成字节码,OPcache 缓存之——生产不开它等于自费一半性能;`opcache.enable`、`validate_timestamps` 开发关);②数据库是最大瓶颈:索引、**N+1 查询**用预加载(见框架)、慢查询日志;③缓存:Redis/Memcached(热数据)/APCu(本地变量)/页面缓存;④HTTP 层:`ETag`/`Last-Modified`/Cache-Control(静态资源与 API 响应);⑤常驻内存:Swoole(协程,高并发 API,学习曲线陡)/RoadRunner;⑥剖析:Xdebug(调试器 + profiler,**生产环境不要装**)、Blackfire。**安全清单**(Web 安全的 PHP 实践版,理论见 [Web 安全路线](/learning-paths/security/web-security)):**SQL 注入**(PDO 预处理——见第六站)、**XSS**(输出 htmlspecialchars + CSP 头)、**CSRF**(表单令牌 + SameSite Cookie——Laravel 自动)、**密码**(`password_hash($pw, PASSWORD_DEFAULT)` 与 `password_verify`——**永远不要自己 md5/sha1 存密码**,也不要自己发明加盐算法;bcrypt/argon2 内置)、**文件上传**(白名单 + move_uploaded_file)、**会话**(regenerate_id + HttpOnly)、**SSRF**(服务端请求用户 URL 时校验白名单)、**依赖漏洞**(`composer audit`)、**安全头**(`header('X-Frame-Options: DENY')` 等,框架中间件会配)。
 
-### 异常处理
-- **异常基础**：try-catch-finally、throw
-- **异常类**：Exception、ErrorException、自定义异常
-- **多个 catch**：捕获不同异常类型
-- **异常链**：previous 参数
-- **Error 类**：PHP 7+ 错误也可捕获
-- **错误处理**：set_error_handler、set_exception_handler
+## 第十一站:现代 PHP 与生态
 
-**下一步学习**：异常处理规范错误，文件操作处理数据。
+**版本特性时间线**(新代码直接 8.2+):7.0(标量类型/`??`/`<=>`)、7.4(属性类型/箭头函数/`??=`)、**8.0(JIT、命名参数、联合类型、match、Nullsafe `?->`、构造器属性提升、Attributes 注解**)、8.1(**enum、readonly、Fiber 协程**、never)、8.2(只读类、DNF 类型)、8.3(类型化类常量)。**Attributes(注解,8.0)**:`#[Route('/user')]` 替代 PHPDoc 注释约定,框架路由/验证的现代方式——`#[Attribute]` 自定义 + 反射读取。**SPL 标准库**:数据结构(SplStack/SplQueue/SplHeap/SplPriorityQueue)、迭代器接口(Iterator/IteratorAggregate——让对象可 foreach)、SplFileObject、SplObserver/SplSubject(观察者)。**框架选型**(PHP 开发绕不开):**Laravel**(现代 PHP 的事实标准:Eloquent ORM、Blade 模板、Artisan CLI、中间件、队列、事件、迁移、认证脚手架、生态(Breeze/Jetstream/Spark);**请求生命周期**(public/index.php → 容器 → 路由 → 中间件 → 控制器 → 响应)值得完整走一遍——见 [Laravel 学习路线](/learning-paths/backend/laravel));Symfony(组件化企业级,Laravel 的地基也是它)、Slim(微框架写 API)、CodeIgniter(轻量老牌);**CMS**:WordPress(主题/插件开发是独立职业方向)。**API 与异步**:RESTful(资源/方法/状态码,见 [全栈](/learning-paths/fullstack/overview))、JWT/OAuth2 认证、OpenAPI 文档;**异步与队列**:Laravel Queue + Redis(后台任务)、Swoole/ReactPHP(常驻协程,高并发场景)。**工程质量**:代码规范 **PSR-12** + PHP-CS-Fixer(自动格式化)、**PHPStan/Psalm 静态分析**(level 从 0 到 9——把"动态的 PHP"重新加上类型安全网,现代项目标配)、**PHPUnit**(单元测试:断言/数据提供者 provider/@test 注解/mock)、CI(GitHub Actions 跑测试与静态分析)、Docker 部署(Nginx + PHP-FPM 镜像)。
 
-### 文件操作
-- **读写文件**：fopen、fread、fwrite、fclose
-- **便捷函数**：file_get_contents、file_put_contents、file
-- **目录操作**：opendir、readdir、scandir、glob
-- **文件信息**：file_exists、is_file、is_dir、filesize、filemtime
-- **路径操作**：dirname、basename、pathinfo、realpath
-- **递归操作**：RecursiveDirectoryIterator、RecursiveIteratorIterator
+## 通关标准
 
-**下一步学习**：文件操作基础，JSON 和 XML 是数据交换格式。
+能独立做到:写出不拼接 SQL、输出全转义、密码用 password_hash 的"无毒" PHP;说清 PDO 预处理为什么能防注入、`==` 与 `===`、`array_merge` 与 `+` 的区别;会用 Composer 管理依赖并配 PSR-4 自动加载;能讲 Laravel 一次请求的完整生命周期(入口 → 容器 → 路由 → 中间件 → 控制器 → Eloquent → 响应);会配 OPcache 并用 PHPStan 给项目做过静态分析——PHP 主线通关。
 
-### JSON 与 XML
-- **JSON**：json_encode、json_decode、JSON_THROW_ON_ERROR
-- **JSON 选项**：JSON_PRETTY_PRINT、JSON_UNESCAPED_UNICODE
-- **XML**：SimpleXML、DOMDocument
-- **XML 解析**：simplexml_load_string、xpath 查询
-- **XML 生成**：创建节点、属性设置
-
-**下一步学习**：数据格式处理完，正则表达式提升字符串能力。
-
-### 高级正则表达式
-- **PCRE 函数**：preg_match、preg_match_all、preg_replace、preg_split
-- **模式修饰符**：i（忽略大小写）、m（多行）、s（.匹配换行）、u（UTF-8）
-- **捕获组**：括号捕获、命名捕获（`?<name>`）
-- **零宽断言**：`(?=...)`、`(?!...)`、`(?<=...)`、`(?<!...)`
-- **贪婪与懒惰**：*、+、?、*?、+?
-
-**下一步学习**：正则强大，现代 PHP 特性让代码更优雅。
-
-## 实战篇
-
-### PHP 7/8 新特性
-- **PHP 7**：
-  - 标量类型声明、返回类型声明、null 合并运算符（??）
-  - 太空船运算符（<=>）、匿名类、Throwable 接口
-- **PHP 7.4**：
-  - 类型属性、箭头函数、null 合并赋值（??=）、扩展运算符
-- **PHP 8.0**：
-  - JIT 编译器、命名参数、联合类型、match 表达式
-  - Nullsafe 运算符（?->）、构造器属性提升、注解（Attributes）
-- **PHP 8.1**：
-  - 枚举（Enum）、只读属性、Fiber（协程）、never 类型
-- **PHP 8.2/8.3**：
-  - 只读类、DNF 类型、动态属性弃用
-
-**下一步学习**：新特性让语法现代化，SPL 是标准库宝库。
-
-### SPL（标准 PHP 库）
-- **数据结构**：SplStack、SplQueue、SplHeap、SplPriorityQueue
-- **迭代器**：Iterator 接口、IteratorAggregate、ArrayIterator
-- **文件操作**：SplFileObject、SplFileInfo
-- **异常**：SPL 异常类体系
-- **观察者模式**：SplObserver、SplSubject
-
-**下一步学习**：SPL 提供工具，性能优化让应用更快。
-
-### 性能优化
-- **OPcache**：字节码缓存、配置优化
-- **性能分析**：Xdebug Profiler、Blackfire、Tideways
-- **数据库优化**：索引、查询优化、连接池
-- **缓存策略**：Redis、Memcached、APCu
-- **代码优化**：减少数据库查询、避免 N+1 问题、惰性加载
-- **HTTP 缓存**：ETag、Last-Modified、缓存头
-
-**下一步学习**：性能优化提升体验，安全是 Web 应用的生命线。
-
-### 安全最佳实践
-- **SQL 注入防护**：PDO 预处理、参数绑定
-- **XSS 防护**：htmlspecialchars、内容安全策略
-- **CSRF 防护**：Token 验证、SameSite Cookie
-- **密码安全**：password_hash、password_verify、bcrypt
-- **文件上传安全**：类型验证、大小限制、文件名处理
-- **会话安全**：session_regenerate_id、HttpOnly Cookie、Secure Cookie
-- **输入验证**：filter_var、白名单验证、正则表达式
-
-**下一步学习**：安全是基础，测试保证质量。
-
-### 测试与调试
-- **单元测试**：PHPUnit、断言、数据提供者
-- **Mock 对象**：PHPUnit Mock、Mockery
-- **测试覆盖率**：代码覆盖率报告
-- **调试工具**：Xdebug、var_dump、error_log
-- **日志系统**：Monolog、PSR-3 日志接口
-
-**下一步学习**：测试保证正确性，框架提升开发效率。
-
-### 流行框架
-- **Laravel**：全栈框架、Eloquent ORM、Blade 模板、Artisan CLI
-- **Symfony**：企业级框架、组件化、Doctrine ORM
-- **CodeIgniter**：轻量级、简单易学
-- **Slim**：微框架、RESTful API
-- **Lumen**：Laravel 的微服务版本
-- **Yii**：高性能、适合大型应用
-
-**下一步学习**：框架加速开发，API 开发是现代趋势。
-
-### RESTful API 开发
-- **RESTful 设计**：资源、HTTP 方法、状态码
-- **路由**：动态路由、路由参数、路由组
-- **认证授权**：JWT、OAuth2、API Key
-- **请求处理**：JSON 输入输出、参数验证
-- **错误处理**：统一错误响应格式
-- **API 文档**：Swagger/OpenAPI、API Blueprint
-- **版本管理**：URL 版本、Header 版本
-
-**下一步学习**：API 是服务接口，微服务是架构演进。
-
-### 现代 PHP 生态
-- **包开发**：创建 Composer 包、版本管理、发布到 Packagist
-- **代码规范**：PSR-1/PSR-2/PSR-12、PHP_CodeSniffer、PHP-CS-Fixer
-- **静态分析**：PHPStan、Psalm、代码质量检查
-- **持续集成**：GitHub Actions、GitLab CI、Travis CI
-- **容器化**：Docker、docker-compose、PHP-FPM + Nginx
-- **异步与队列**：Swoole、ReactPHP、Laravel Queue
-
-**下一步学习**：生态完善，现在你已掌握 PHP 全貌！
-
-## 学习建议
-
-### 推荐书籍
-- 《Modern PHP》：现代 PHP 开发指南
-- 《PHP Objects, Patterns, and Practice》：面向对象与设计模式
-- 《Laravel: Up & Running》：Laravel 框架实战
-
-### 学习周期
-- **基础篇**：1-2 个月（每天 2-3 小时）
-- **进阶篇**：2-3 个月（每天 2-3 小时）
-- **实战篇**：3-6 个月（需要项目实践）
-
-### 职业方向
-- **Web 后端开发**：Laravel/Symfony 企业应用
-- **API 开发**：RESTful/GraphQL API 服务
-- **内容管理系统**：WordPress 插件/主题开发
-- **电商平台**：Magento/PrestaShop 开发
-- **微服务架构**：Swoole/ReactPHP 异步服务
-
-PHP 从最初的"个人主页工具"进化成了现代化的编程语言，PHP 8 的性能甚至可以媲美一些编译型语言。学习 PHP 不是学习过时技术，而是掌握一门持续进化、生态丰富的实用语言。记住：好的 PHP 代码不是能跑就行，而是优雅、安全、高效。继续加油！
+PHP 从"个人主页工具"进化成了现代化语言:8.x 的语法、Composer 生态、Laravel 的工程化,让它依然是 Web 开发最务实的选项之一——学习成本低、岗位多、部署简单、改完即生效。别理会"PHP 已死"的梗(它每年都"被死"一次),也别做"能跑就行"的开发者:预处理、转义、password_hash、Composer、框架、测试——按这条线走完,你写的就是**现代 PHP**。

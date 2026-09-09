@@ -1,359 +1,41 @@
 # Spring Cloud 学习路线
 
-Spring Cloud 是微服务架构的瑞士军刀，基于 Spring Boot 构建，提供了配置管理、服务发现、断路器、智能路由、微代理、控制总线等一整套解决方案。它就像是给分布式系统装上了自动驾驶系统，让你不用从零开始造轮子。
+Spring Cloud 是 **Java 微服务的"全家桶"**:基于 Spring Boot,把服务注册发现、配置中心、负载均衡、熔断、网关、追踪、消息驱动等微服务组件**打包成一套开箱即用的方案**——"给分布式系统装上自动驾驶,不用从零造轮子"。**重要背景(选型必懂)**:Spring Cloud 有两个"套餐"——**Netflix 全家(Eureka/Ribbon/Hystrix/Zuul:经典教材里的名字,已进入维护模式,新项目别用)** 与 **Spring Cloud Alibaba(Nacos/Sentinel/Seata/RocketMQ:国内事实主流,社区活跃)**;外加官方维护的 LoadBalancer/OpenFeign/Gateway/Resilience4j 集成。**再泼一盆冷水**:云原生时代,注册发现与配置正被 K8s/平台能力吸收(见 [云原生](/learning-paths/cloud-native/cloud-native-patterns))——**Spring Cloud 仍是大规模 Java 微服务的标配,但先想清楚"要不要微服务"(见 [模式](/learning-paths/microservices/microservices-patterns))**,再谈全家桶。前置:[Spring Boot](/learning-paths/backend/spring-boot) 通关。
 
-## 基础篇：核心组件概览
+## 第一站:生态版图与版本管理
 
-### Spring Cloud 生态系统
-- Spring Cloud Netflix：Netflix OSS 组件集成（Eureka、Ribbon、Hystrix、Zuul）
-- Spring Cloud Alibaba：阿里巴巴开源组件（Nacos、Sentinel、Seata、RocketMQ）
-- Spring Cloud Gateway：新一代 API 网关
-- Spring Cloud Config：分布式配置中心
-- Spring Cloud Stream：消息驱动微服务
-- Spring Cloud Sleuth：分布式链路追踪
-- Spring Cloud Bus：消息总线
-- Spring Cloud OpenFeign：声明式 HTTP 客户端
-- Spring Cloud LoadBalancer：客户端负载均衡（Ribbon 替代品）
-- Spring Cloud Circuit Breaker：断路器抽象层
-- 📖 笔记：[SpringCloud 技术体系与版本选型](/study-notes/microservices/spring-cloud/spring-cloud-ecosystem)
-- 📖 笔记：[微服务架构演进与 CAP 理论](/study-notes/microservices/spring-cloud/microservices-architecture-cap)
-- 📖 笔记：[微服务实战与常见问题](/study-notes/microservices/spring-cloud/microservices-practice-faq)
+**组件全景(先认识名字,再用时查)**:注册发现(Nacos/Eureka)、配置中心(Nacos Config/Spring Cloud Config)、服务调用(**OpenFeign** 声明式 HTTP 客户端)、负载均衡(**Spring Cloud LoadBalancer**,Ribbon 的官方继任)、熔断降级(Resilience4j 集成/Sentinel)、API 网关(**Spring Cloud Gateway**,Zuul 的继任)、链路追踪(Micrometer Tracing/Sleuth 演进)、消息驱动(Spring Cloud Stream)、配置刷新总线(Bus)、分布式事务(Seata,Alibaba 套餐)。**版本管理(Java 微服务第一坑)**:Spring Cloud 用**发布列车命名**(2020.0/2021.0/2022.0 或 Hoxton——**必须与 Spring Boot 版本严格对应**(如 2022.0.x ↔ Boot 3.x),对照官方兼容矩阵选版本——**版本配错 = 启动即各种 NoSuchMethodError**;子组件版本可独立覆盖。**学习路径**:建议 **Spring Cloud Alibaba 套餐为主(Nacos+OpenFeign+Sentinel+Seata+Gateway)**,Netflix 组件只做"看懂老项目"的考古。
 
-### 版本管理
-- 发布列车（Release Train）命名：Hoxton、2020.0、2021.0、2022.0
-- 版本兼容性：Spring Cloud 与 Spring Boot 版本对应关系
-- 子项目版本：各组件独立版本号
-- 升级策略：兼容性矩阵、迁移指南
+## 第二站:服务注册与发现——服务怎么找到彼此
 
-## 服务注册与发现：Eureka
+**问题**:微服务实例地址动态变化(扩缩容/重启),调用方不能写死 IP。**方案:注册中心——服务启动自注册+心跳续约,调用方从注册中心拿实例列表**。**Eureka(Netflix,维护模式,考古)**:Server 集群互相注册 + **自我保护模式**(网络分区时保留实例而非误删——AP 倾向);Client 心跳/拉取缓存。**Nacos(Alibaba,现代主流)**:注册发现 + 配置管理二合一——服务注册/发现、**健康检查、权重(负载均衡权重)、保护阈值(健康实例比例过低时只给健康实例)、命名空间与分组(环境/租户隔离)**;支持临时/持久实例;**控制台可视化**(看服务/实例/健康状态——排障体验好)。**选型**:新 Java 微服务用 **Nacos**(或云厂商注册中心);Eureka 只出现在老项目。**服务调用的完整链路**:服务 A 调 B → A 从 Nacos 拿 B 的实例列表 → **LoadBalancer 选一个**(客户端负载均衡:轮询/随机/权重)→ OpenFeign 发请求。
 
-### Eureka 架构
-- Eureka Server：注册中心服务端
-- Eureka Client：服务提供者和消费者
-- 服务注册：心跳机制、续约
-- 服务发现：获取注册表、缓存
-- 自我保护模式：网络分区容错
+## 第三站:服务调用与负载均衡——OpenFeign + LoadBalancer
 
-### Eureka Server 配置
-- 单机模式：开发环境
-- 集群模式：生产环境高可用
-- 服务端配置：端口、主机名、副本节点
-- 关闭自我保护：测试环境
-- 清理间隔：失效服务剔除时间
+**OpenFeign(声明式 HTTP 客户端,Java 微服务的"调用标准")**:定义一个接口 + 注解,就能像调本地方法一样调远程服务:`@FeignClient(name = "order-service")` 接口里 `@GetMapping("/orders/{id}") Order getOrder(@PathVariable Long id)`——**框架自动生成实现:服务发现 + 负载均衡 + HTTP 序列化全包**;配置:超时(连接/读——**必配,防无限等待**)、日志级别(NONE/BASIC/FULL——排查用 FULL)、**拦截器 RequestInterceptor(统一加 token/请求头——服务间认证透传的关键)**、错误处理(fallback/异常解码)。**LoadBalancer(Ribbon 继任)**:客户端负载均衡(进程内选实例——与 Nginx 的服务端 LB 互补,见 [API 网关](/learning-paths/microservices/api-gateway) 分层);策略:轮询/随机/权重(Nacos 权重),`@LoadBalanced RestTemplate` 或 Feign 自动集成;**注意**:Spring Cloud 2020 后默认用 LoadBalancer,**Ribbon 相关配置已失效——老教程的坑**。
 
-### Eureka Client 配置
-- 服务注册：应用名、实例 ID、IP 地址
-- 心跳配置：续约间隔、过期时间
-- 获取注册表：拉取间隔、缓存刷新
-- 健康检查：actuator 健康端点
-- 优雅下线：取消注册
+## 第四站:配置中心——配置统一与热更新
 
-### 服务发现方式
-- 客户端发现：Ribbon 负载均衡
-- RestTemplate 集成：@LoadBalanced 注解
-- Feign 集成：声明式调用
-- 服务实例信息：元数据、状态
+**问题**:几十个服务的配置散在各处,改一个要重发 N 个服务。**方案:配置中心(集中管理 + 动态刷新)**。**Spring Cloud Config(官方,考古)**:**Git 仓库当配置存储**(配置文件版本化),Config Server 提供拉取,客户端启动时获取;**刷新**:`@RefreshScope` + POST /actuator/refresh(手动)/ Spring Cloud Bus(消息总线广播刷新——Git Webhook 触发全自动)。**Nacos Config(现代主流)**:配置存在 Nacos,**变更实时推送**(无需 Bus/Webhook——体验质的提升);支持多环境(namespace/group)、YAML/Properties、历史版本与回滚、灰度发布;**配 @RefreshScope 实现热更新**(配置变更不用重启——生产救命的体验)。**选型**:Nacos Config 完胜(实时推送+控制台);Config Server 只剩考古;**配置安全**:敏感配置加密/走环境变量与密钥管理(见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 配置章)。**现代替代思考**:K8s ConfigMap 也能管配置,但**无推送、无灰度**——Java 微服务仍普遍用 Nacos。
 
-## 配置管理：Spring Cloud Config
+## 第五站:熔断限流——Resilience4j 与 Sentinel
 
-### Config Server
-- Git 仓库：配置文件版本管理
-- 本地文件系统：开发测试
-- 多环境配置：dev、test、prod
-- 配置文件命名：application-{profile}.yml
-- 加密解密：对称加密、非对称加密
+**Hystrix(Netflix,停止维护,考古)**:线程池隔离+熔断+降级+Dashboard——**概念经典,实现退役**(见 [模式](/learning-paths/microservices/microservices-patterns) 可靠性章)。**Resilience4j(官方推荐,函数式)**:轻量模块化——**CircuitBreaker(熔断:失败率/慢调用率阈值 + 滑动窗口 + 半开恢复)、RateLimiter(限流)、Bulkhead(线程池/信号量隔离)、Retry(重试)、TimeLimiter(超时)**——注解式(`@CircuitBreaker(name, fallbackMethod)`)接入 Spring,指标走 Micrometer(见 [Spring Boot](/learning-paths/backend/spring-boot) 弹性章)。**Sentinel(Alibaba,国内主流)**:流量控制(按 QPS/并发线程,支持热点参数限流)、熔断降级(慢调用比例/异常比例/异常数)、**系统自适应保护(按 CPU/负载)**,规则可持久化到 Nacos、**Dashboard 可视化实时监控与规则管理**——**国内团队做限流熔断的首选,与 Nacos 同生态集成顺**。**选型**:跟着套餐走——Alibaba 套餐用 Sentinel,官方线用 Resilience4j;两者都实现断路器概念(见 [云原生](/learning-paths/cloud-native/cloud-native-patterns) 弹性章)。
 
-### Config Client
-- 配置拉取：启动时从 Config Server 获取
-- 配置绑定：@Value、@ConfigurationProperties
-- 配置刷新：@RefreshScope、/actuator/refresh
-- 重试机制：启动失败重试
-- 快速失败：fail-fast 配置
+## 第六站:网关与追踪——Gateway + Micrometer Tracing
 
-### 配置刷新机制
-- 手动刷新：POST /actuator/refresh
-- 自动刷新：Spring Cloud Bus + Git Webhook
-- 配置热更新：无需重启服务
-- 刷新范围：指定服务、全局广播
+**Spring Cloud Gateway(Zuul 的官方继任,见 [API 网关](/learning-paths/microservices/api-gateway))**:基于 WebFlux **异步非阻塞**(高并发不占线程);**路由 = Predicates(匹配:Path/Method/Header/Query/Weight)+ Filters(处理:加头/重写路径/限流/熔断/重试)**——YAML 声明路由:`id/uri/predicates/filters`;**动态路由**:从注册中心(Nacos)按服务名转发——新服务上线网关自动路由;**限流**:RequestRateLimiter(Redis 令牌桶);**鉴权**:全局过滤器验 JWT(见 [认证](/learning-paths/security/auth) 微服务章);**CORS 在网关统一配**。**链路追踪(Java 微服务排障神器)**:旧 Sleuth(停止维护)→ **Micrometer Tracing(新标准,接 OpenTelemetry)**:自动为 Feign/RestTemplate/MQ/DB 调用生成 **Trace ID 并在服务间传播**,日志自动带 traceId、上报 Zipkin/Jaeger 可视化调用链——**"请求慢在哪一跳"靠它**(落地见 [监控](/learning-paths/devops/monitoring) 追踪章);不想自建追踪接 SkyWalking(国内 APM 常用)。
 
-### 配置安全
-- 配置加密：敏感信息保护
-- 密钥管理：JCE、Key Store
-- 访问控制：Config Server 认证
-- 传输安全：HTTPS
+## 第七站:Spring Cloud Alibaba 全家——国内微服务的标准答案
 
-## 服务调用：OpenFeign
+**Nacos**(注册+配置:见第二/四站);**Sentinel**(限流熔断:见第五站);**Seata(分布式事务,微服务数据一致性的答案,理论见 [模式](/learning-paths/microservices/microservices-patterns) 的 Saga)**:四种模式——**AT 模式(自动补偿:框架生成 undo log 自动回滚,无侵入——默认首选,适合"本地事务+SQL"场景)**、TCC(Try-Confirm-Cancel 手动三阶段,强业务控制)、Saga(长事务编排)、XA(强一致);用法:`@GlobalTransactional` 一个注解包住全局事务——**下单扣库存跨服务回滚的体验:像本地事务一样**(实际是 Seata 协调的最终一致);**RocketMQ**(消息:见 [RocketMQ](/learning-paths/middleware/rocketmq),与 Stream 集成做异步解耦)。**套餐组装(国内生产配方)**:Nacos(注册+配置)+ OpenFeign(调用)+ Sentinel(限流熔断)+ Seata(分布式事务)+ Gateway(入口)+ RocketMQ(异步)+ Micrometer Tracing(追踪)——**一套代码覆盖 [微服务模式](/learning-paths/microservices/microservices-patterns) 的九成模式**。
 
-### Feign 基础
-- 声明式客户端：接口 + 注解
-- @FeignClient：指定服务名
-- 请求映射：@GetMapping、@PostMapping
-- 请求参数：@RequestParam、@PathVariable、@RequestBody
-- 请求头：@RequestHeader
-- 📖 笔记：[OpenFeign 服务调用](/study-notes/microservices/spring-cloud/openfeign)
+## 第八站:监控、安全与演进判断
 
-### Feign 配置
-- 超时配置：连接超时、读超时
-- 日志级别：NONE、BASIC、HEADERS、FULL
-- 编码器解码器：请求响应转换
-- 拦截器：RequestInterceptor
-- 重试机制：Retryer
+**监控(Java 微服务标配)**:Spring Boot Admin(服务健康/JVM/日志可视化管理台)+ **Actuator 端点(/health 探针//metrics——见 [Spring Boot](/learning-paths/backend/spring-boot) 监控章)** + Micrometer → Prometheus/Grafana(统一大盘——见 [监控](/learning-paths/devops/monitoring));**安全**:网关统一 OAuth2/JWT 认证 + Feign 拦截器透传 token + 服务内方法级权限(@PreAuthorize——见 [认证](/learning-paths/security/auth) 与 [Spring Boot](/learning-paths/backend/spring-boot) 安全章);**演进判断(架构师视角)**:Spring Cloud 解决了"JVM 微服务的基础设施",但 2020 后**云原生平台(K8s/Service Mesh)正在吸收注册发现/负载均衡/熔断/追踪等能力**(见 [K8s](/learning-paths/devops/kubernetes) 与 [Service Mesh](/learning-paths/cloud-native/service-mesh))——**趋势判断**:老系统/Java 团队继续 Spring Cloud(成熟省心);新系统可评估"Spring Boot + K8s 平台能力 + 少量组件"的混合(配置与注册交给平台,Nacos 退场);**但无论怎么演进,微服务的模式(见 [模式页](/learning-paths/microservices/microservices-patterns))不变,组件只是实现**。
 
-### Feign 与其他组件集成
-- 负载均衡：Spring Cloud LoadBalancer
-- 断路器：Resilience4j、Sentinel
-- 服务发现：Eureka、Nacos
-- 链路追踪：Sleuth
+## 通关标准
 
-## 负载均衡：Ribbon 与 LoadBalancer
+能独立做到:用 Nacos + OpenFeign + LoadBalancer 搭出两个服务互相调用的完整链路(注册/发现/负载均衡工作正常);配好 Nacos Config + @RefreshScope 并演示一次不重启的热更新;用 Sentinel 或 Resilience4j 给关键接口配置熔断与限流并触发验证;用 Seata AT 模式跑通一次跨服务事务回滚;说清 Netflix 套餐退役与 Alibaba/官方组件的对应关系、Spring Cloud 与 K8s 平台能力的边界——Spring Cloud 主线通关。
 
-### Ribbon（维护模式）
-- 客户端负载均衡：进程内 LB
-- 负载均衡策略：轮询、随机、加权响应时间、最少并发、重试
-- 自定义策略：实现 IRule 接口
-- 服务列表：从 Eureka 获取
-- 健康检查：Ping 机制
-
-### Spring Cloud LoadBalancer
-- Ribbon 替代方案：Spring Cloud 官方推荐
-- 负载均衡策略：轮询、随机
-- 自定义策略：ReactorServiceInstanceLoadBalancer
-- 缓存：服务实例列表缓存
-- 响应式支持：WebFlux 兼容
-
-### 负载均衡配置
-- 全局配置：所有服务通用
-- 特定服务配置：针对某个服务
-- 超时配置：结合 Feign 使用
-- 重试配置：失败重试次数
-
-## 断路器：Hystrix 与 Resilience4j
-
-### Hystrix（维护模式）
-- 断路器模式：熔断、降级
-- 资源隔离：线程池、信号量
-- 超时控制：execution.isolation.thread.timeoutInMilliseconds
-- 熔断条件：错误率、请求量阈值
-- 熔断恢复：半开状态、自动恢复
-- 降级策略：fallback 方法
-- 请求合并：HystrixCollapser
-- 请求缓存：HystrixRequestCache
-- Dashboard：实时监控面板
-- Turbine：聚合多个服务监控数据
-
-### Resilience4j（推荐）
-- CircuitBreaker：断路器
-- RateLimiter：限流
-- Bulkhead：隔离
-- Retry：重试
-- TimeLimiter：超时
-- Cache：缓存
-- 函数式编程风格：装饰器模式
-- Spring Boot 集成：自动配置、Actuator 端点
-- 监控指标：Micrometer 集成
-
-### 断路器配置
-- 失败率阈值：触发熔断的错误率
-- 慢调用阈值：超时视为失败
-- 等待时长：熔断后恢复时间
-- 滑动窗口：基于时间或计数
-- 最小请求数：触发熔断的最小调用量
-
-## API 网关：Zuul 与 Gateway
-
-### Zuul（维护模式）
-- 路由功能：URL 路径映射
-- 过滤器：pre、routing、post、error
-- 自定义过滤器：ZuulFilter
-- 负载均衡：集成 Ribbon
-- 熔断降级：集成 Hystrix
-- 限流：自定义实现
-
-### Spring Cloud Gateway（推荐）
-- 异步非阻塞：基于 WebFlux
-- 路由配置：predicates、filters、uri
-- 断言（Predicates）：Path、Method、Header、Query、Cookie、Host、Weight
-- 过滤器（Filters）：AddRequestHeader、AddResponseHeader、StripPrefix、Retry、CircuitBreaker
-- 全局过滤器：GlobalFilter
-- 自定义过滤器：GatewayFilter、GatewayFilterFactory
-- 限流：RequestRateLimiter（Redis）
-- 熔断：Spring Cloud Circuit Breaker 集成
-- 跨域配置：CORS
-- 📖 笔记：[Gateway 网关](/study-notes/microservices/spring-cloud/gateway)
-
-### 网关功能
-- 统一入口：所有请求经过网关
-- 路由转发：动态路由、服务发现
-- 认证授权：JWT、OAuth2
-- 限流降级：保护后端服务
-- 日志监控：请求响应日志
-- 协议转换：HTTP、WebSocket
-
-## 链路追踪：Spring Cloud Sleuth
-
-### Sleuth 核心概念
-- Trace：一次完整请求链路
-- Span：链路中的一个操作单元
-- Trace ID：全局唯一追踪 ID
-- Span ID：操作单元唯一 ID
-- Parent ID：父 Span ID
-- 采样率：控制追踪数据量
-- 📖 笔记：[分布式 ID 与链路追踪](/study-notes/microservices/spring-cloud/distributed-id-tracing)
-
-### 日志集成
-- MDC（Mapped Diagnostic Context）：日志中自动添加 Trace ID
-- 日志格式：[appName,traceId,spanId,exportable]
-- 日志关联：跨服务日志串联
-
-### 数据导出
-- Zipkin：分布式追踪系统
-- HTTP 上报：Zipkin Server
-- 消息队列上报：RabbitMQ、Kafka
-- 可视化：Zipkin UI 查看调用链
-
-### 追踪范围
-- HTTP 请求：RestTemplate、Feign
-- 消息队列：RabbitMQ、Kafka
-- 数据库：JDBC
-- 异步任务：@Async
-
-## 消息总线：Spring Cloud Bus
-
-### Bus 核心功能
-- 配置刷新：广播配置变更
-- 事件传播：自定义事件分发
-- 消息中间件：RabbitMQ、Kafka
-
-### 配置刷新流程
-- Git 提交配置变更
-- Webhook 触发 Config Server
-- Config Server 发送刷新事件到 Bus
-- Bus 广播到所有服务
-- 服务接收事件刷新配置
-
-### 自定义事件
-- 远程事件：RemoteApplicationEvent
-- 事件发送：ApplicationEventPublisher
-- 事件监听：@EventListener
-- 目标服务：指定接收方
-
-## 消息驱动：Spring Cloud Stream
-
-### Stream 抽象
-- Binder：消息中间件适配器（RabbitMQ、Kafka、RocketMQ）
-- Binding：输入输出通道
-- Source：消息生产者
-- Sink：消息消费者
-- Processor：既生产又消费
-
-### 函数式编程模型
-- Supplier：生产者（无参数）
-- Function：处理器（一进一出）
-- Consumer：消费者（有参数无返回）
-- 多输入输出：`Function<Tuple2<Flux<A>, Flux<B>>, Flux<C>>`
-
-### 消息配置
-- 目的地（Destination）：主题、队列
-- 消费组（Group）：负载均衡、消息不重复
-- 分区（Partitioning）：消息有序
-- 错误处理：重试、死信队列
-- 消息序列化：JSON、Avro
-
-## Spring Cloud Alibaba
-
-### Nacos
-- 服务注册发现：替代 Eureka
-- 配置管理：替代 Config Server
-- 命名空间：环境隔离
-- 分组：配置分类
-- 配置格式：YAML、Properties、JSON
-- 配置监听：实时推送
-- 服务元数据：自定义元信息
-- 权重配置：负载均衡权重
-- 保护阈值：健康实例比例
-- 📖 笔记：[Nacos 注册中心与配置中心](/study-notes/microservices/spring-cloud/nacos-registry-config)
-
-### Sentinel
-- 流量控制：QPS、并发线程数
-- 熔断降级：慢调用、异常比例、异常数
-- 系统保护：CPU、负载、RT、线程数、入口 QPS
-- 热点参数限流：针对参数值
-- 授权规则：黑白名单
-- 规则持久化：Nacos、Apollo
-- 实时监控：Sentinel Dashboard
-- 集群流控：Token Server
-- 📖 笔记：[Sentinel 限流熔断](/study-notes/microservices/spring-cloud/sentinel-rate-limiting-circuit-breaking)
-
-### Seata
-- 分布式事务解决方案
-- AT 模式：自动补偿
-- TCC 模式：手动补偿
-- Saga 模式：长事务
-- XA 模式：强一致性
-- 全局事务：@GlobalTransactional
-- 事务分组：资源隔离
-- 📖 笔记：[Seata 分布式事务](/study-notes/microservices/spring-cloud/seata-distributed-transactions)
-
-### RocketMQ
-- 消息队列：高性能、高可靠
-- 普通消息：异步解耦
-- 顺序消息：严格顺序
-- 事务消息：分布式事务
-- 延迟消息：定时任务
-- 批量消息：提升性能
-
-## 监控与管理
-
-### Spring Boot Admin
-- 服务监控：健康状态、JVM、线程、HTTP 追踪
-- 应用管理：重启、关闭、日志级别
-- 日志查看：在线查看日志文件
-- 通知告警：邮件、钉钉、Slack
-- 权限控制：Spring Security
-
-### Actuator
-- 健康检查：/actuator/health
-- 指标监控：/actuator/metrics
-- 环境信息：/actuator/env
-- 配置属性：/actuator/configprops
-- Bean 列表：/actuator/beans
-- 日志配置：/actuator/loggers
-- 端点暴露：web、jmx
-- 端点安全：Spring Security
-
-### Micrometer
-- 指标收集：JVM、HTTP、数据库、缓存
-- 多种后端：Prometheus、Grafana、InfluxDB、Datadog
-- 自定义指标：Counter、Gauge、Timer、Summary
-- 标签（Tags）：指标维度
-
-## 安全：Spring Cloud Security
-
-### OAuth2
-- 授权码模式：第三方应用
-- 密码模式：自家应用
-- 客户端模式：服务间调用
-- 简化模式：纯前端应用
-- 授权服务器：颁发 Token
-- 资源服务器：验证 Token
-- JWT：无状态 Token
-
-### 服务间认证
-- Token 传递：Feign 拦截器
-- Token 刷新：过期自动刷新
-- 网关认证：统一认证入口
-- 服务鉴权：方法级权限
-
-## 下一步学习
-
-掌握 Spring Cloud 后，可以深入以下方向：
-
-- **Kubernetes** - 云原生时代的容器编排
-- **Service Mesh** - Istio、Linkerd 服务网格
-- **Spring Cloud Alibaba** - 阿里巴巴微服务全家桶
-- **API 网关** - Kong、APISIX 高性能网关
-- **可观测性** - ELK、Prometheus、Grafana、SkyWalking
-- **分布式事务** - Seata、TCC、Saga
-- **DevOps** - CI/CD、自动化部署、监控告警
-
-Spring Cloud 就像是微服务的全家桶套餐，Netflix 套餐虽然经典但已经不太新鲜，Alibaba 套餐越来越香。不过别忘了，再好的框架也救不了糟糕的架构设计，微服务不是银弹，拆分需谨慎。
+Spring Cloud 是 Java 微服务的"**成熟答案集**":注册、配置、调用、熔断、网关、事务——每个分布式难题都有开箱组件,学习曲线被框架大幅抹平。**它也是"版本与套餐的迷宫"**:记住三条主线(Alibaba 主流/N 系考古/官方继任)与版本兼容矩阵,你就能在组件海洋里不迷路。**最后那句忠告值得刻在桌上:再好的框架也救不了糟糕的架构——微服务不是银弹,拆分需谨慎(先读 [模式](/learning-paths/microservices/microservices-patterns))**,Spring Cloud 是"怎么实现"的答案,而"该不该拆"是更先的问题。下一步:国内同生态的 [Dubbo](/learning-paths/microservices/dubbo) 对照,或平台级能力看 [K8s](/learning-paths/devops/kubernetes)。

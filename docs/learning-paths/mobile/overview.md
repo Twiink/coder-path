@@ -1,105 +1,27 @@
 # 移动端开发学习路线
 
-从 iOS、Android 原生开发到跨平台方案，移动端开发有多种选择。这条路线帮你找到最适合自己的技术栈，快速上手移动应用开发。
+移动端是流量最大的终端战场:全球数十亿台手机,App 与小程序承载了大部分用户时间。**技术选型是第一关**:原生、跨平台、小程序/多端框架——各有各的甜点与代价。本页是移动端全景地图;每条的纵深见对应页面([Android 原生](/learning-paths/mobile/android-native)/[iOS 原生](/learning-paths/mobile/ios-native)/[React Native](/learning-paths/mobile/react-native)/[Flutter](/learning-paths/mobile/flutter)/[uni-app](/learning-paths/mobile/uniapp)/[微信小程序](/learning-paths/mobile/wechat-miniprogram))。**先想清楚三件事再选型**:目标平台(iOS/Android/都要)、团队背景(前端/原生/新学)、产品形态(工具/内容/重交互/强原生能力)。
 
-## 技术选型：原生 vs 跨平台
+## 技术选型:原生 vs 跨平台
 
-### 原生开发
+**原生开发(iOS 用 Swift + SwiftUI,Android 用 Kotlin + Jetpack Compose)**:性能最优、原生体验最好、能深度调用平台特性(相机/传感器/系统集成);代价:**两套代码两套人**(成本翻倍)。**何时选原生**:对性能要求极高(游戏/AR/音视频剪辑)、需要深度平台能力、团队有专职两端开发、**大型长期产品**(原生是"最稳的长期投资")。**跨平台开发**:一套代码两端跑——主流三派:①**React Native**(用 React 写:生态成熟、社区大、性能接近原生——**适合有前端背景的团队**,见 [React Native](/learning-paths/mobile/react-native));②**Flutter**(Google 出品、自绘引擎(UI 高度一致与流畅)、组件丰富——**要学 Dart,界面一致性最强**,见 [Flutter](/learning-paths/mobile/flutter));③**WebView/混合(Ionic/Capacitor)**:Web 技术套壳,**适合简单应用**与 Web 团队低成本入场(性能弱,复杂交互别选)。**何时选跨平台**:同时要 iOS+Android、团队小/快速迭代 MVP、对极致性能要求不高——**当前市场主流选择**(多数产品团队 RN 或 Flutter 起步,原生按需补充)。
 
-**iOS（Swift/SwiftUI）**
-- 性能最优
-- 原生体验最好
-- 只能开发 iOS 应用
-- 学习成本高
+**国内特殊生态**:微信小程序(流量入口,见 [小程序](/learning-paths/mobile/wechat-miniprogram))与 **uni-app(一套代码发布 App/小程序/H5 的多端框架,国内团队高频选择**,见 [uni-app](/learning-paths/mobile/uniapp))——**国内产品的现实配方常常是"App(RN/Flutter)+ 小程序"双轨**。
 
-**Android（Kotlin/Jetpack Compose）**
-- 性能优秀
-- Google 官方支持
-- 只能开发 Android 应用
-- 设备碎片化需要兼容
+## 上手路线(按背景对号入座)
 
-**何时选原生？**
-- 对性能要求极高（游戏、AR/VR）
-- 需要深度使用平台特性
-- 团队有专门的 iOS/Android 开发者
+**前端背景 → React Native(或 uni-app)**:从 Expo 脚手架起步(对初学者最友好,见 [RN](/learning-paths/mobile/react-native)):核心组件与 Flexbox 布局(与 Web CSS 同思维)→ React Navigation 导航 → 数据获取与状态管理(React Query/Zustand 同 Web 习惯)→ 本地存储 → 按需接入相机/定位/推送等原生能力——**Web 技能迁移率最高**。**想换新语言/要极致 UI 一致性 → Flutter**:先过 Dart 语法与"一切皆 Widget"思想(约两周,见 [Flutter](/learning-paths/mobile/flutter))→ StatelessWidget/StatefulWidget → 布局与 Material 组件 → Navigator 导航与状态管理 → http/dio 对接后端。**追求原生深度/进大厂原生岗 → 原生**:iOS 走 Swift + SwiftUI(见 [iOS](/learning-paths/mobile/ios-native)),Android 走 Kotlin + Jetpack Compose(见 [Android](/learning-paths/mobile/android-native));**国内多端/小程序 → uni-app + 小程序**(见 [uni-app](/learning-paths/mobile/uniapp) 与 [小程序](/learning-paths/mobile/wechat-miniprogram))。
 
-### 跨平台开发
+## 移动端通用技能(与框架无关的必修)
 
-**React Native**
-- 用 React 写移动应用
-- 生态成熟，社区活跃
-- 性能接近原生
-- 适合有前端背景的开发者
+**①UI 与交互**:移动设计规范(Material Design 与 iOS HIG 的差异:导航/返回/手势)、列表与详情的主流交互、空态/加载态/错误态三件套;②**网络层**:HTTP 客户端封装(拦截器加 token/统一错误)、JSON 解析、**弱网与断网处理**(移动网络比 Web 残酷:超时重试/离线缓存);③**本地存储**:键值(偏好设置)与数据库(SQLite/Room/Core Data 等)的分工;④**权限管理**:相机/相册/定位的**运行时权限申请**(用户拒绝/不再询问的处理——移动端特有);⑤**性能**:列表虚拟化(FlatList/ListView.builder/LazyColumn——**别一次渲染上千行**)、图片优化(压缩/懒加载/缓存库:Coil/Kingfisher)、避免无谓重渲染(memo/useMemo)、**计算密集任务别堵 UI 线程**(原生模块/isolate);⑥**发布与分发**:iOS 走 App Store(开发者账号年费+审核+TestFlight 内测);Android 走 Google Play 或**国内厂商商店**(应用宝/华为/小米等,各要软著与审核);国内小程序走微信平台审核——**"能上架"是移动开发与 Web 的最大差异,发布流程要提前规划**(签名/证书/版本管理,CI 用 Fastlane 等)。
 
-**Flutter**
-- Google 出品
-- 自绘引擎，性能优秀
-- 组件丰富，界面统一
-- Dart 语言需要学习
+## 学习路径建议
 
-**Ionic / Capacitor**
-- 基于 Web 技术（HTML/CSS/JS）
-- 可复用 Web 代码
-- 性能稍弱于 RN 和 Flutter
-- 适合简单应用
+**第一步**:选定一条主线(推荐:前端背景选 RN,想学新栈选 Flutter,国内多端选 uni-app);**第二步**:跑通"列表页→详情页→登录→调接口渲染"的最小应用(移动端的第一课是**模拟器与真机调试**);**第三步**:接一个真实后端(自己写的 API 或公开接口),处理加载/错误/空态;第四步:补原生能力(相机/定位/推送)与本地存储;第五步:**发布到商店**(走一遍签名/审核流程——**上过架才算完整做过移动应用**);第六步:按方向深挖(性能/原生模块/CI/CD/跨端桌面)。
 
-**何时选跨平台？**
-- 同时需要 iOS 和 Android 版本
-- 团队人手有限
-- 快速迭代、MVP 阶段
-- 对极致性能要求不高
+## 通关标准
 
-## 上手路线
+能独立做到:用选定的技术栈做出一个带登录、列表详情、本地存储、网络请求的完整 App;在真机上运行并处理好权限申请与弱网场景;讲清自己技术栈的选型理由与原生/跨平台的取舍;把应用发布到一个商店(或完成发布全流程);列表/图片性能优化达标(不卡顿不爆内存)——移动端主线通关。
 
-**React Native（React 技术栈）**
-从 Expo 脚手架起步（对初学者最友好），掌握核心组件与 Flexbox 布局、React Navigation 导航、数据获取与状态管理、本地存储，再按需接入相机、定位、推送等原生能力。完整路线见 [React Native 学习路线](/learning-paths/mobile/react-native)。
-
-**Flutter（Dart 技术栈）**
-先过一遍 Dart 语法与"一切皆 Widget"思想，再掌握 StatelessWidget / StatefulWidget、常用布局、Navigator 导航与 Provider 状态管理，最后用 http 包对接后端。完整路线见 [Flutter 学习路线](/learning-paths/mobile/flutter)。
-
-**iOS / Android 原生**
-追求极致性能与原生体验时选择原生：iOS 走 Swift + SwiftUI（见 [iOS 原生学习路线](/learning-paths/mobile/ios-native)），Android 走 Kotlin + Jetpack Compose（见 [Android 原生学习路线](/learning-paths/mobile/android-native)）。
-
-**uni-app / 微信小程序**
-国内多端发布与小程序生态，可看 [uni-app 学习路线](/learning-paths/mobile/uniapp) 与 [微信小程序学习路线](/learning-paths/mobile/wechat-miniprogram)。
-
-## 性能优化
-
-- 使用 `FlatList` / `ListView.builder` 而非直接渲染大量子组件
-- 图片优化（压缩、懒加载、缓存）
-- 避免不必要的重新渲染（React.memo、useMemo）
-- 使用原生模块处理计算密集型任务
-- 减少桥接通信（React Native）
-
-## 发布上架
-
-**iOS（App Store）**
-1. 注册 Apple Developer（99 美元/年）
-2. 在 App Store Connect 创建应用
-3. 准备截图、描述、关键词
-4. 提交审核（通常 1-3 天）
-
-**Android（Google Play）**
-1. 注册 Google Play Developer（25 美元一次性）
-2. 准备 APK/AAB 文件
-3. 填写应用信息
-4. 提交审核（通常几小时）
-
-## 学习资源
-
-- [React Native 官方文档](https://reactnative.dev/)
-- [Flutter 官方文档](https://flutter.dev/)
-- [SwiftUI 教程](https://developer.apple.com/tutorials/swiftui)
-- [Jetpack Compose 教程](https://developer.android.com/jetpack/compose)
-
-## 下一步学习
-
-- **性能优化** - Profiling、内存管理
-- **原生模块** - 集成原生代码
-- **CI/CD** - Fastlane、Bitrise
-- **应用分发** - TestFlight、Firebase App Distribution
-- **跨平台桌面** - React Native for Windows/macOS
-
----
-
-移动端开发市场需求大，技术栈选择多。React Native 和 Flutter 是主流，原生开发性能最优但成本高。选择一个方向深入，做出几个完整的应用，就能找到工作。加油！
+移动端开发的本质是"**在一个资源有限、体验要求极高的终端上做工程**":屏幕小、网络弱、审核严、碎片多——**这些约束决定了它与 Web 开发的不同手感**。选型没有标准答案,只有"适合你团队与产品"的答案:先跑通一个最小应用验证选型,再决定深挖原生还是跨平台;**能上架、能被用户用起来,是移动开发者的"完成"标准**。下一步:按上表选一条主线进对应页面,或先看 [桌面端](/learning-paths/desktop/overview) 了解跨端延伸。

@@ -1,357 +1,39 @@
 # Cypress 学习路线
 
-Cypress 是为现代 Web 应用设计的端到端测试框架，以"开发者友好"著称。它直接运行在浏览器中，无需 Selenium，测试执行快、调试体验好、API 简洁。内置等待机制、时间旅行调试、自动截图录像，让前端测试变得优雅。如果你厌倦了 Selenium 的不稳定，Cypress 会是你的新宠。
-
-## 基础篇：入门与配置
-
-### Cypress 特点
-- 浏览器内运行：直接访问 DOM、Window、Network
-- 自动等待：无需手动写等待逻辑
-- 时间旅行：快照每个命令的执行状态
-- 实时重载：代码变化自动重跑
-- 视频录制：失败自动录像
-- 截图功能：命令级别截图
-- 调试友好：Chrome DevTools 集成
-
-### 安装与初始化
-- npm install cypress --save-dev
-- 初始化：npx cypress open
-- 项目结构：cypress/ 目录（e2e、fixtures、support）
-- 配置文件：cypress.config.js
-- TypeScript 支持：开箱即用
-
-### 第一个测试
-- 测试文件：cypress/e2e/*.cy.js
-- describe 和 it：测试组织
-- cy.visit()：访问页面
-- cy.get()：查找元素
-- 断言：should()
-- 运行测试：GUI 模式、Headless 模式
-
-### 配置详解
-- baseUrl：基础 URL，简化测试代码
-- viewportWidth/Height：视口大小
-- defaultCommandTimeout：命令超时时间
-- requestTimeout：请求超时
-- video：视频录制开关
-- screenshotOnRunFailure：失败截图
-- env：环境变量
-
-## 基础篇：选择器与查询
-
-### 基础选择器
-- cy.get()：CSS 选择器
-- cy.contains()：文本内容匹配
-- ID：#username
-- Class：.btn-primary
-- 属性：[data-test="login-btn"]
-- 组合：button.submit
-
-### 推荐实践
-- data-* 属性：data-testid、data-cy
-- 避免 class/id：样式变化影响测试
-- 避免标签名：重构影响测试
-- 语义化属性：更稳定、可读性强
-
-### 遍历查询
-- .find()：后代查询
-- .children()：子元素
-- .parent()：父元素
-- .siblings()：兄弟元素
-- .prev()、.next()：相邻元素
-- .first()、.last()：首尾元素
-- .eq()：索引访问
-
-### 过滤查询
-- .filter()：过滤匹配
-- .not()：排除元素
-- .within()：范围限定
-
-## 基础篇：命令与交互
-
-### 操作命令
-- .click()：点击元素
-- .dblclick()：双击
-- .rightclick()：右键
-- .type()：输入文本
-- .clear()：清空输入
-- .check()、.uncheck()：复选框
-- .select()：下拉框
-
-### 断言命令
-- .should()：断言
-- 链式断言：多个条件
-- 常用断言：exist、visible、contain、have.class
-- BDD 风格：be.visible、have.text
-- 隐式断言：自动重试直到成功或超时
-
-### 别名与引用
-- .as()：给元素或请求起别名
-- cy.get('@alias')：通过别名引用
-- this.alias：在回调中访问（需要 function）
-- 适用场景：复用查询结果
-
-### 条件与循环
-- .then()：访问元素
-- .each()：遍历元素
-- .its()：获取属性
-- .invoke()：调用方法
-- Cypress 不支持 if：用 .then() 处理条件逻辑
-
-## 进阶篇：网络请求
-
-### 拦截请求
-- cy.intercept()：拦截 HTTP 请求
-- 匹配规则：URL、Method、Headers
-- 修改请求：req.body、req.headers
-- 修改响应：res.body、res.statusCode
-- 延迟响应：req.reply({ delay: 1000 })
-
-### Mock 数据
-- fixture：cy.fixture('users.json')
-- 返回 Mock 数据：req.reply(fixture)
-- 动态 Mock：根据请求参数返回不同数据
-- 适用场景：隔离后端、测试边界情况
-
-### 等待请求
-- cy.wait('@alias')：等待请求完成
-- 验证请求：断言 URL、Body
-- 验证响应：断言状态码、数据
-- 超时设置：requestTimeout
-
-### 真实请求
-- cy.request()：发起 HTTP 请求
-- 用途：API 测试、前置数据准备
-- 不受浏览器限制：跨域、Cookie
-- 响应断言：status、body、headers
-
-## 进阶篇：高级特性
-
-### Cookie 管理
-- cy.getCookie()：获取单个 Cookie
-- cy.getCookies()：获取所有 Cookie
-- cy.setCookie()：设置 Cookie
-- cy.clearCookie()、cy.clearCookies()：清除
-- 保留 Cookie：Cypress.Cookies.preserveOnce()
-
-### Local/Session Storage
-- cy.window()：访问 window 对象
-- .then(win => win.localStorage)
-- 读写操作：getItem、setItem
-- 清空：clear()
-
-### 自定义命令
-- Cypress.Commands.add()：添加自定义命令
-- 命令参数：传递参数
-- 链式命令：支持 .should()
-- 覆盖命令：Cypress.Commands.overwrite()
-- 定义位置：cypress/support/commands.js
-
-### Viewport 控制
-- cy.viewport()：设置视口大小
-- 预设：iphone-6、ipad-2、macbook-15
-- 自定义：宽度、高度
-- 响应式测试：不同设备尺寸
-
-### 时间旅行
-- 命令快照：每个命令的 DOM 状态
-- 悬停查看：时间线上的命令
-- 调试利器：回到过去状态
-- 命令日志：点击跳转到执行时刻
-
-## 进阶篇：Hooks 与组织
-
-### 测试钩子
-- before()：所有测试前运行一次
-- after()：所有测试后运行一次
-- beforeEach()：每个测试前运行
-- afterEach()：每个测试后运行
-- 作用域：describe 块内或全局
-
-### 测试组织
-- describe()：测试套件
-- context()：describe 的别名，更语义化
-- it()：单个测试
-- 嵌套 describe：层级结构
-- .only()：只运行指定测试
-- .skip()：跳过测试
-
-### 夹具数据
-- cy.fixture()：加载测试数据
-- JSON、CSV、图片：多格式支持
-- 在 before 中加载：共享数据
-- 别名引用：避免重复加载
-
-### 插件系统
-- cypress.config.js：on() 事件
-- 任务：cy.task() 执行 Node.js 代码
-- 用途：数据库操作、文件系统、第三方 API
-- 安全沙箱：隔离浏览器和 Node
-
-## 实战篇：登录与认证
-
-### 登录策略
-- UI 登录：每个测试都登录（慢）
-- API 登录：cy.request() 获取 Token（快）
-- Session 复用：beforeEach 中恢复 Session
-- cy.session()：Cypress 12+ 的会话管理
-
-### Token 管理
-- 存储 Token：localStorage、Cookie
-- 请求头注入：cy.intercept() 添加 Authorization
-- 环境变量：cypress.env.json 存储凭证
-- 安全性：不提交敏感信息到 Git
-
-### 多用户测试
-- 不同角色：管理员、普通用户
-- 切换用户：退出再登录或清空 Session
-- 并行测试：隔离会话
-
-## 实战篇：框架集成
-
-### React 集成
-- @cypress/react：组件测试
-- 挂载组件：cy.mount()
-- Props 传递：测试不同状态
-- 事件触发：用户交互
-- 隔离测试：无需启动整个应用
-
-### Vue 集成
-- @cypress/vue：组件测试
-- 挂载语法：类似 React
-- Vuex：状态管理测试
-- Router：路由测试
-
-### Angular 集成
-- @cypress/angular：组件测试
-- 服务注入：Mock 依赖
-- 指令测试：自定义指令
-
-### Next.js/Nuxt.js
-- 全栈测试：前后端一体
-- API Routes：cy.request() 测试
-- SSR：服务端渲染测试
-
-## 实战篇：CI/CD 集成
-
-### GitHub Actions
-- Cypress GitHub Action：官方 Action
-- 并行执行：矩阵策略
-- 缓存：node_modules、Cypress 二进制
-- 录像上传：Artifacts
-- Cypress Dashboard：测试报告托管
-
-### Docker 集成
-- Cypress Docker 镜像：cypress/included
-- 无头模式：适合 CI
-- 视频录制：自动保存
-- 体积优化：选择合适的镜像
-
-### 报告生成
-- Mochawesome：美观的 HTML 报告
-- cypress-mochawesome-reporter：集成插件
-- JUnit：CI 集成
-- Allure：企业级报告
-
-### 并行执行
-- Cypress Dashboard：官方并行方案（付费）
-- cypress-parallel：开源并行插件
-- 分组策略：按文件、标签
-- 负载均衡：智能分配测试
-
-## 实战篇：调试技巧
-
-### 调试命令
-- cy.debug()：暂停执行，打开 DevTools
-- cy.pause()：暂停测试，手动继续
-- .debug()：链式调试
-- debugger：JavaScript 断点
-
-### 日志输出
-- cy.log()：测试日志
-- console.log：浏览器控制台
-- 命令日志：自动记录所有命令
-- 网络日志：查看请求响应
-
-### 截图录像
-- cy.screenshot()：手动截图
-- 失败自动截图：screenshotOnRunFailure
-- 视频录制：video 配置
-- 保存位置：cypress/screenshots、cypress/videos
-
-### Chrome DevTools
-- 实时检查：元素、网络、控制台
-- 断点调试：Source 面板
-- 性能分析：Performance 面板
-- 移动端模拟：Device Toolbar
-
-## 实战篇：最佳实践
-
-### 选择器策略
-- data-* 优先：稳定性高
-- 避免脆弱选择器：动态 class、nth-child
-- 页面对象模式：封装选择器
-- 别名复用：减少重复查询
-
-### 等待策略
-- 自动等待：Cypress 自动重试
-- 显式等待：cy.wait('@request')
-- 超时配置：针对慢接口调整
-- 避免固定等待：cy.wait(5000) 是反模式
-
-### 测试隔离
-- 独立性：每个测试独立运行
-- 数据清理：beforeEach 重置状态
-- 避免依赖：不依赖测试顺序
-- 幂等性：多次运行结果一致
-
-### 性能优化
-- 减少 UI 登录：用 cy.session()
-- 并行执行：多机器分担
-- 选择性运行：只跑相关测试
-- 禁用视频：本地开发关闭录像
-
-### 错误处理
-- 失败重试：cypress-plugin-retries
-- 异常捕获：cy.on('uncaught:exception')
-- 日志记录：便于排查问题
-- 截图调试：失败时留证据
-
-## 实战篇：组件测试
-
-### 组件测试 vs E2E
-- 组件测试：隔离单个组件
-- E2E 测试：完整用户流程
-- 速度对比：组件测试更快
-- 覆盖范围：E2E 更全面
-
-### 挂载与配置
-- cy.mount()：挂载组件
-- Props：传递输入数据
-- Slots：插槽内容
-- Providers：上下文提供者
-
-### 交互测试
-- 用户事件：点击、输入
-- 状态变化：断言更新
-- 事件触发：验证回调
-- 边界情况：异常输入
-
-### Mock 依赖
-- API：cy.intercept()
-- Store：Mock Vuex/Redux
-- Router：Mock 路由
-- 环境隔离：无副作用
-
-## 下一步学习
-
-掌握 Cypress 后，可以探索更多前端测试领域：
-
-- **Playwright** - 微软出品，支持更多浏览器
-- **Testing Library** - 更贴近用户行为的测试
-- **Storybook** - 组件开发与测试
-- **Vitest** - Vite 原生单元测试框架
-- **WebdriverIO** - 另一个强大的自动化框架
-- **Puppeteer** - Chrome 官方自动化库
-
-Cypress 是前端测试的游戏规则改变者。它不是 Selenium 的竞品，而是新一代的测试工具。自动等待让你告别 flaky tests，时间旅行让调试变得直观，API 简洁让代码优雅。当然，Cypress 也有限制：只支持 Chrome 系浏览器、不能跨域、不能操作多标签页，但对于绝大多数现代 Web 应用，这些都不是问题。记住，好的测试不是为了覆盖率，而是为了信心。有了 Cypress，你会爱上写测试。
+Cypress 是为现代 Web 应用设计的**端到端(E2E)测试框架**,以"开发者友好"掀起前端测试体验革命:**它直接在浏览器里运行**(不像 Selenium 走外部驱动)、**命令自动等待**(告别 sleep 与 flaky)、**时间旅行调试**(每个命令的 DOM 快照可回放)、失败自动截图录像——写 E2E 第一次有了"写单元测试"的爽感。**适用与边界**:现代 Web 应用(React/Vue/Next 等)的 E2E 与组件测试;跨域 iframe、多标签页场景受限(单页面上下文);多浏览器(Chrome 系最稳,Firefox/WebKit 支持以官方版本为准)。**与 Playwright 同代竞争**(详见 [Selenium](/learning-paths/testing/selenium) 页的选型对照):Playwright 多浏览器与并行更强、支持多语言;Cypress 调试体验与前端生态更顺——**JS 栈团队两者皆可,本页讲 Cypress**。
+
+这条线按 **核心特性与配置 → 选择器与断言 → 交互与网络拦截 → 登录与会话 → 组织与自定义命令 → CI 与调试 → 限制与选型** 推进。
+
+## 第一站:核心特性与安装配置
+
+**三个"游戏规则改变者"特性(先理解,后面全靠它们)**:①**自动等待与重试**:Cypress 的每个命令+断言都会**自动重试直到成功或超时**——"点按钮→断言弹窗出现"不用写任何等待代码(对比 Selenium 的显式等待,这是 flaky 大幅减少的根源);②**时间旅行**:命令日志里每个命令都有**当时的 DOM 快照**——悬停即回放,失败时能看到"哪一步开始不对";③**浏览器内运行 + 实时重载**:改测试自动重跑、DevTools 直接可用。**安装**:`npm i -D cypress` → `npx cypress open`(交互模式:首次生成脚手架 + 可视跑测——**开发期用它**)/`npx cypress run`(无头模式——CI 用);目录:`cypress/e2e/`(测试)/`fixtures/`(mock 数据)/`support/`(自定义命令与全局配置);配置 cypress.config.js:**baseUrl**(测试里 `cy.visit('/login')` 不用写全 URL)、viewport(默认桌面尺寸——**响应式测试用 cy.viewport 切**)、defaultCommandTimeout(重试超时,默认 4s——慢接口可调)、视频与失败截图开关、env(环境变量);TypeScript 开箱即用。
+
+## 第二站:选择器、查询与断言
+
+**选择器**:`cy.get('[data-cy=submit]')`(CSS)/`cy.contains('提交')`(按文本——**断言文案时最直观**);**官方推荐:用 `data-cy`/`data-testid` 语义属性**——样式 class 与结构变化不影响测试(与 [Selenium](/learning-paths/testing/selenium) 章同理念,前端团队要在组件里埋好测试钩子);遍历链:.find(后代)/.parent/.closest(向上找容器)/.within({ 范围限定 })/.siblings;`.eq(0)`(索引,少用)。**断言(BDD 风格,核心心智)**:`.should('be.visible')`(可见)/`have.text`/`have.class`/`contain`/`have.length`——**断言会自动重试**:元素还没出现?等它;文本还没变?等它——**"期望最终状态"而非"立即状态",这就是不用写等待的原因**;链式 `.should('be.visible').and('contain', '成功')`;**断言元素不存在**:`should('not.exist')`(自动等到消失——比 sleep 优雅)。**别名 .as()**:`cy.get('@loginBtn')` 或 `cy.intercept(...).as('getUsers')` 复用——测试里给关键元素/请求起名,可读性也更好。
+
+## 第三站:交互、状态与网络拦截
+
+**交互命令**(与 Selenium 相似但自带可点击等待):click/dblclick/rightclick/type(真实键盘输入,支持特殊键 {enter})/clear/check(checkbox)/select(下拉);**交互后马上断言**——"点击→输入→断言结果"就是用户故事。**网络拦截(cy.intercept,E2E 的后端隔离利器)**:`cy.intercept('GET', '/api/users', { fixture: 'users.json' })`——**拦截请求并返回假数据**:测试不依赖后端在线、**边界情况随便造**(空列表/500 错误/慢响应(`req.reply` 延迟)——测 loading 与错误 UI);`cy.intercept(...).as('getUsers')` + `cy.wait('@getUsers')`(等请求发出并断言——**"点了按钮真的发了这个请求"的验证**);**cy.request(直接发 HTTP:两用**——API 测试(断言状态码/响应)与 **前置准备(直接调接口建数据/拿 token,绕过 UI——测试提速关键)**;fixture 加载测试数据(JSON 放 cypress/fixtures)。
+
+## 第四站:登录与会话——E2E 提速的命门
+
+**经典问题**:每个测试都走 UI 登录 = 又慢又脆(几十个测试每个多花 5 秒+登录页偶发失败)。**正解:cy.session()(Cypress 的会话缓存)**:在 `beforeEach` 里 `cy.session('user', () => { UI 或 API 登录 })`——**首次真实登录,后续测试直接恢复会话,秒级进入业务页**(不同角色建不同 session:admin/user);**API 登录姿势**:`cy.request('POST', '/api/login', {...})` 拿 token → localStorage/Cookie 注入;**凭证管理**:放 `cypress.env.json`(已在 .gitignore——**别把测试密码提交进仓库**);多用户/多角色测试按角色建 session 隔离。
+
+## 第五站:组织、自定义命令与组件测试
+
+**自定义命令(Cypress 的复用方式,对应 Selenium 的 Page Object 理念)**:`Cypress.Commands.add('login', (role) => {...})` 写在 `support/commands.js`——**高频操作(登录/创建订单/填表单)封装成命令,测试体只写业务流**(团队约定:命令 = 动作,断言留在测试);hooks:beforeEach(重置状态:清 localStorage/拦截请求/建 session)/afterEach;**测试隔离**:每个测试独立数据、不依赖执行顺序、幂等可重复跑。**组件测试(可选但值得知道)**:Cypress 也能测单个组件(cy.mount)——**"组件交互的 E2E 式验证"(真实浏览器里点组件),与单元测试(RTL)互补**:单元测逻辑、组件测交互、E2E 测流程——三层金字塔的 Cypress 全家桶。
+
+## 第六站:CI 与调试
+
+**CI 集成(见 [GitHub Actions](/learning-paths/devops/github-actions))**:官方 `cypress-io/github-action`——自动装 Cypress、起应用(或等已部署环境)、跑 `cypress run`、**上传录像与截图产物**(失败证据给开发看——E2E 报告的灵魂);配置:baseUrl 指向测试环境、headless 模式、并行(按文件分片,Dashboard 或 cypress-parallel);录像开关(video: 本地关/CI 开,省时间省存储)。**调试体验(Cypress 的王牌)**:失败时**时间旅行**:点命令日志回放每一步 DOM——**"哪一步开始不对"一目了然**(对比 Selenium 只有截图);cy.pause()(手动步进)/cy.debug();DevTools 直连(Network 看请求/Console 看报错);**选择器自动生成**(Selector Playground:点页面元素生成 data-cy 建议);cy.log 标记测试节点。
+
+## 第七站:稳定性最佳实践与选型
+
+**稳定性清单(把 flaky 扼杀在习惯里)**:①选择器一律 data-cy(别 class/文本依赖样式);②**别用固定等待 `cy.wait(500)`**(反模式——Cypress 的自动重试就是为消灭它而生;等"元素/请求状态"而不是等时间);③拦截请求用别名 + wait(别裸等);④测试独立幂等(每测试自建数据/清状态);⑤慢接口调 defaultCommandTimeout 而不是加 sleep;⑥第三方错误选择性忽略(`cy.on('uncaught:exception')`——**别全局吞,会藏真 bug**);⑦**测试 = 用户故事,别测实现细节**(别断言"调用了某个函数",断言"界面变成什么样")。**限制与选型**:Cypress 的边界(同源策略:跨域 iframe 内容难测、多标签页流程不支持、WebKit 支持实验性)——遇到这些场景看 **Playwright**(多浏览器/多标签/多语言更强);**纯前端 JS 栈、重调试体验 → Cypress;跨浏览器矩阵/多语言团队 → Playwright;跨语言老系统 → Selenium**;**金字塔提醒:E2E 贵而脆——关键路径(登录/下单/核心流程)10-20 条就够,大量逻辑交给单元与组件测试(见 [Jest](/learning-paths/testing/jest) 章)**。
+
+## 通关标准
+
+能独立做到:写出"访问→登录(cy.session)→操作→断言"的完整 E2E(全程无 sleep);用 data-cy 规划选择器并解释为什么不用 class;用 cy.intercept 造出"空数据/错误/慢响应"三种边界并断言对应 UI;把"API 登录+建数据"封装成自定义命令并让测试提速;在 CI 里跑通并拿到失败录像与截图;对一次 flaky 失败能定位是"选择器/等待/数据耦合"哪类问题——Cypress 主线通关。
+
+Cypress 改变的不只是工具,是**写 E2E 的心态**:自动等待消灭了 flaky 的头号来源,时间旅行让调试从"猜"变"看",测试第一次可以像写产品代码一样愉悦。它教你的核心是"**测试要模拟用户,而不是模拟实现**"——用户看到什么、点什么、期望什么,测试就写什么;剩下的稳定性(等待、隔离、选择器),框架帮你扛了大半。**好测试的标准始终不变:给重构信心、给上线底气**。下一步:若需多浏览器矩阵可评估 Playwright(见 [Selenium](/learning-paths/testing/selenium) 的选型对照),或回 [Jest](/learning-paths/testing/jest) 补单元层。

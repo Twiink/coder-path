@@ -144,14 +144,30 @@ export default defineConfig({
               text: '通用基础',
               collapsed: true,
               items: [
+                // 计算机科学四大基石：不绑定任何技术栈的内功心法
+                {
+                  text: '计算机科学基础',
+                  collapsed: false,
+                  items: [
+                    { text: '数据结构与算法', link: '/learning-paths/cs-basics/data-structures-algorithms' },
+                    { text: '计算机组成原理', link: '/learning-paths/cs-basics/computer-organization' },
+                    { text: '操作系统', link: '/learning-paths/cs-basics/operating-systems' },
+                    { text: '计算机网络', link: '/learning-paths/cs-basics/computer-networks' }
+                  ]
+                },
                 {
                   text: '编程语言',
                   collapsed: false,
+                  // JavaScript/TypeScript/Go/Rust 的语言路线由各自技术栈页承载（前端/后端），此处汇总全部语言入口
                   items: [
                     { text: 'Java', link: '/learning-paths/languages/java' },
+                    { text: 'JavaScript', link: '/learning-paths/frontend/javascript' },
+                    { text: 'TypeScript', link: '/learning-paths/frontend/typescript' },
                     { text: 'Python', link: '/learning-paths/languages/python' },
+                    { text: 'Go', link: '/learning-paths/backend/golang' },
                     { text: 'C++', link: '/learning-paths/languages/cpp' },
                     { text: 'C#', link: '/learning-paths/languages/csharp' },
+                    { text: 'Rust', link: '/learning-paths/backend/rust-web' },
                     { text: 'PHP', link: '/learning-paths/languages/php' },
                     { text: 'Ruby', link: '/learning-paths/languages/ruby' },
                     { text: 'Swift', link: '/learning-paths/languages/swift' },

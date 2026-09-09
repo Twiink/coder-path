@@ -1,214 +1,43 @@
 # Web 安全学习路线
 
-Web 安全是互联网时代的核心话题。从简单的表单注入到复杂的 XSS 攻击，从 SQL 注入到 CSRF 跨站请求伪造，攻击者的手段层出不穷。这条路线会带你了解常见的 Web 攻击手段、防御策略，以及安全开发的最佳实践。记住：永远不要相信用户输入。
+Web 安全的心法只有一句:**永远不要相信用户输入**(以及一切来自外部的数据);现实是残酷的:**攻击者只需要找到一个漏洞,防守方要堵住所有漏洞**——所以安全靠的不是运气,是"纵深防御"(每层都设防)与"默认安全"(框架默认值别乱关)。Web 攻击类型虽多,但**先理解攻击原理,防御自然水到渠成**——本页按"攻击 → 防御"对照讲,配 OWASP Top 10(行业漏洞榜单)当路线图。配套:[认证授权](/learning-paths/security/auth) 与 [密码学](/learning-paths/security/cryptography) 是另两本安全册子;**实践靶场**:PortSwigger Web Security Academy(免费,带你手把手打漏洞)与 DVWA——**安全是打靶场打会的,不是看书看会的**。
 
-## 基础篇：常见攻击类型
+这条线按 **XSS → CSRF → SQL 注入 → 文件上传与 SSRF → 越权与逻辑漏洞 → 现代安全机制(CSRF/CORS/Cookie)→ 安全开发实践 → 测试与工具** 推进。
 
+## 第一站:XSS(跨站脚本)——最流行的 Web 漏洞
 
-### XSS（跨站脚本攻击）
-- 反射型 XSS：URL 参数直接输出到页面
-- 存储型 XSS：恶意脚本存储到数据库
-- DOM 型 XSS：纯前端 JavaScript 操作 DOM 导致
-- XSS 危害：窃取 Cookie、会话劫持、钓鱼、蠕虫传播
-- 防御措施：输入验证、输出编码、CSP、HttpOnly Cookie
-- 编码方式：HTML 实体编码、JavaScript 编码、URL 编码
-- 富文本过滤：白名单策略、DOMPurify 库
+**原理**:把攻击者的脚本注入到别人的浏览器里执行。**三类(面试必答)**:①**反射型**:恶意脚本藏在 URL 参数里,服务端未编码直接输出(一次性,靠诱导点击);②**存储型(危害最大)**:脚本存进数据库,所有看页面的用户都中招(评论区/昵称)——**一次存储,万人受害**;③**DOM 型**:纯前端漏洞——`innerHTML`/`document.write` 把不可信数据当 HTML 插入(框架都防不住,因为根本没到服务端)。**危害**:窃取 Cookie(会话劫持→登录他人账号)、钓鱼、篡改页面、蠕虫传播。**防御(按层)**:①**输出编码(主战场)**:按输出上下文编码——HTML 上下文转义 `<>"'`,JS/URL/CSS 各有各的编码;**现代框架默认自动转义(React/Vue 模板),漏洞常出在逃生舱**:`v-html`/`dangerouslySetInnerHTML`/`innerHTML`——**用它们处理用户内容 = 手动打开 XSS 之门**;②输入校验(白名单,富文本用 **DOMPurify 白名单清洗**);③**HttpOnly Cookie**(JS 读不到,会话劫持的杀伤减半);④**CSP(内容安全策略,纵深兜底)**:限制脚本来源——即使注入成功,外部脚本也加载不了(见第六站)。
 
-### CSRF（跨站请求伪造）
-- 攻击原理：利用用户已登录状态发起恶意请求
-- 攻击场景：转账、修改密码、发表内容
-- GET 型 CSRF：通过图片、链接触发
-- POST 型 CSRF：通过自动提交表单触发
-- 防御措施：CSRF Token、SameSite Cookie、验证 Referer、二次验证
-- Token 生成：随机性、一次性、时效性
-- 双重 Cookie 验证
+## 第二站:CSRF(跨站请求伪造)——借刀杀人
 
-### SQL 注入
-- 注入原理：拼接 SQL 语句导致执行恶意代码
-- 注入类型：数字型、字符型、搜索型、堆叠注入
-- 盲注：布尔盲注、时间盲注、报错注入
-- 注入危害：数据泄露、数据篡改、提权、执行系统命令
-- 防御措施：参数化查询、预编译语句、ORM 框架、最小权限原则
-- 输入验证：白名单、黑名单、类型检查、长度限制
-- WAF（Web 应用防火墙）
+**原理**:你在银行已登录(Cookie 在)→ 攻击者网页里藏"转账请求"(图片 src/自动提交表单)→ 浏览器自动带上你的 Cookie 发出请求——**服务器以为是你操作的**。**目标**:转账、改密、发帖(一切"带 Cookie 自动执行"的写操作)。**防御三件套(现代全上)**:①**CSRF Token**:表单/请求头带服务端下发的随机 token,校验不过拒绝——**框架内置(Django/Spring/Laravel)默认开,别关**;②**SameSite Cookie(现代主防)**:Cookie 标 `SameSite=Lax/Strict`——**跨站请求不再自动携带 Cookie,CSRF 直接断根**(浏览器现代默认 Lax);③校验 Origin/Referer;④**二次验证**:改密/支付等敏感操作再要一次密码/验证码。**边界认知**:纯 API + Token 认证(无 Cookie)天然免疫 CSRF;第三方回调(支付回调)要验签(见 [密码学](/learning-paths/security/cryptography))。
 
-### 文件上传漏洞
-- 漏洞原理：上传恶意文件并执行
-- 攻击类型：WebShell、木马、病毒、钓鱼页面
-- 绕过方式：双重扩展名、MIME 类型伪造、文件头伪造、解析漏洞
-- 防御措施：文件类型白名单、文件内容检测、随机文件名、独立域名存储
-- 图片检测：重新渲染、二次压缩、ImageMagick
-- 可执行权限控制
+## 第三站:SQL 注入——老牌但致命的数据库漏洞
 
-### SSRF（服务器端请求伪造）
-- 攻击原理：利用服务器发起内网请求
-- 攻击目标：内网扫描、访问内部服务、云服务元数据、Redis 未授权访问
-- 危害：内网信息泄露、绕过防火墙、攻击内部系统
-- 防御措施：URL 白名单、禁止访问内网 IP、DNS Rebinding 防护
-- 协议限制：禁用 file://、gopher://、dict://
-- IP 黑名单：127.0.0.1、0.0.0.0、10.x.x.x、172.16.x.x、192.168.x.x
+**原理**:用户输入拼进 SQL 语句,改变了语句结构(`' OR 1=1 --` 让密码校验恒真;`'; DROP TABLE--` 删库)。**类型**:数字/字符注入、**盲注(布尔/时间盲注:页面不显示数据,靠"真/假、快/慢"猜——自动化工具 sqlmap 干这活)**。**危害**:拖库(数据泄露)、篡改、提权。**防御(唯一正解是参数化)**:**参数化查询/预编译语句**(SQL 与数据分离,输入永远是数据不是代码——PDO/JDBC/ORM 全支持,见 [MySQL](/learning-paths/database/mysql) 与各框架页);辅助:最小数据库权限(应用账号只给需要的表)、输入类型校验;**别信 WAF 能挡注入**(特征可绕过),**别字符串拼 SQL**(无论怎么过滤都有绕过);相关变种:NoSQL 注入(操作符注入)、ORM 注入(传对象而非字符串——少见但存在)。
 
-## 进阶篇：深层攻击与防御
+## 第四站:文件上传与 SSRF——两类"服务器被利用"
 
-### 点击劫持（Clickjacking）
-- 攻击原理：透明 iframe 覆盖诱导点击
-- 攻击场景：诱导点赞、关注、转账、授权
-- 防御措施：X-Frame-Options、CSP frame-ancestors、JavaScript 防护
-- 帧破坏脚本（Frame Busting）
+**文件上传漏洞**:上传点成了"投递恶意可执行文件(WebShell)的通道"——**"能上传且能执行"的目录是雷区**。防御:**白名单扩展名 + MIME + 内容检测(图片重新渲染/二次压缩,剥掉夹带的脚本)**、**随机文件名(防路径可控)**、**存储与执行分离(上传目录不可执行脚本/独立域名/对象存储)**、大小限制;**.htaccess/解析漏洞(老 Apache)了解**。**SSRF(服务端请求伪造)**:服务器端发起的请求被攻击者引导到内网——`url=http://169.254.169.254/latest/meta-data/`(**云厂商元数据端点:一步 SSRF = 偷云 IAM 凭证,云上变提权**)、内网扫描、访问未授权内部服务(Redis)。防御:**URL 白名单(只允许固定域名)/内网 IP 黑名单(127.0.0.1/10.x/172.16.x/192.168.x/169.254.169.254)**、**禁危险协议(file/gopher/dict)**、**重定向防护(DNS rebinding/跟随重定向后再校验——校验一次不够,重定向会带你去别处)**、出网限制。
 
-### XXE（XML 外部实体注入）
-- 攻击原理：XML 解析器处理外部实体引用
-- 攻击危害：读取本地文件、SSRF、DoS 攻击
-- 防御措施：禁用外部实体、使用 JSON 代替 XML、安全解析器配置
+## 第五站:越权与逻辑漏洞——"代码没漏洞但有破绽"
 
-### 命令注入
-- 攻击原理：系统命令拼接导致执行任意命令
-- 危害：服务器完全控制、反弹 Shell
-- 防御措施：避免执行系统命令、参数化执行、白名单验证、最小权限
+**这类占 SRC 漏洞报告的大头,后端日常最该自查**:①**IDOR/水平越权**:登录用户把 URL 里的 id 改成别人的,看到了别人的订单/资料——**防御:每次资源访问都校验属主(后端查"这资源是不是你的"),不是靠前端隐藏按钮**;UUID 换自增 id 能防"遍历"但防不了"知道 id 就访问"——**鉴权是必须的**;②**垂直越权**:普通用户直接调管理接口——**后端每个接口做角色校验(框架注解/中间件),接口权限不是前端路由能挡的**;③**逻辑漏洞**:支付金额前端传(服务端定价!)、优惠券重放、**并发竞态(超卖/重复领取——数据库锁/唯一约束/幂等,见 [数据库](/learning-paths/database/mysql) 事务章)**、流程跳步(改密绕过旧密码验证)。**心法:对"资源访问"与"敏感操作"永远问一句——这真的是"这个人"能做的吗?**
 
-### IDOR（不安全的直接对象引用）
-- 攻击原理：通过修改 ID 参数访问他人资源
-- 攻击场景：查看他人订单、下载他人文件、修改他人信息
-- 防御措施：权限验证、间接引用、UUID 代替自增 ID
+## 第六站:现代安全机制——浏览器的防御工事
 
-### 目录遍历
-- 攻击原理：通过 ../ 访问任意文件
-- 攻击目标：配置文件、密码文件、源代码
-- 防御措施：路径规范化、白名单目录、chroot 隔离
+**①CSP(内容安全策略,防 XSS 的纵深王牌)**:响应头声明"页面只能加载哪些来源的脚本/样式/图片"——`Content-Security-Policy: default-src 'self'; script-src 'self'`(只信自己);**现代姿势:script-src 'self' + nonce(每次响应随机 nonce,合法脚本才带)**——注入的脚本没有 nonce 直接不执行;**别开 'unsafe-inline'/'unsafe-eval'(等于没设)**;上线先 `Content-Security-Policy-Report-Only` 灰度,收违规报告再收紧。**②CORS 配置(同源策略的闸门)**:同源 = 协议+域名+端口;跨域请求默认被浏览器拦,服务端用 `Access-Control-Allow-Origin` 放行;**红线:带凭证(withCredentials)时不能 `*`,必须精确白名单 + `Vary: Origin`**;别用"允许所有来源"图省事——那是把用户数据开放给任意网站读(配置细解见 [Nginx](/learning-paths/middleware/nginx) CORS 与 [网络](/learning-paths/cs-basics/computer-networks))。**③Cookie 属性全家(HttpOnly(JS 不可读,防 XSS 窃取)/Secure(仅 HTTPS)/SameSite(防 CSRF,见第二站)/Domain 收敛)**;**④HTTPS 与 HSTS**(全站 HTTPS + `Strict-Transport-Security` 强制浏览器只走 HTTPS——防 SSL Strip;证书链校验见 [密码学](/learning-paths/security/cryptography));**⑤SRI**:CDN 上的第三方脚本加 `integrity` 哈希——CDN 被黑脚本不执行。**安全头八件套(抄进项目的响应头中间件)**:CSP、X-Content-Type-Options: nosniff、X-Frame-Options: DENY(防点击劫持,配 CSP frame-ancestors)、Referrer-Policy、Permissions-Policy、HSTS——框架/网关一层配好全局生效(见各框架安全章)。
 
-### 逻辑漏洞
-- 支付逻辑：金额篡改、重复支付、并发竞态
-- 业务流程：跳过验证步骤、重放攻击
-- 权限绕过：横向越权、纵向越权
-- 条件竞争：多线程并发导致的安全问题
+## 第七站:安全开发实践(SDL)
 
-## 进阶篇：现代 Web 安全机制
+**把安全左移进开发流程(不是上线后补)**:需求/设计阶段做**威胁建模**(这功能会被怎么攻击?);编码阶段守**安全编码规范**(见各语言页安全节:参数化/转义/最小权限);**测试阶段自动化**:SAST(静态扫描,CI 里跑——见 [GitLab](/learning-paths/devops/gitlab-ci) 安全模板)、DAST(动态扫描)、依赖漏洞扫描(你的依赖库有 CVE 吗——Dependabot/composer audit/npm audit);发布与运维:安全配置 + 监控告警 + 应急响应预案(隔离→取证→修复→复盘)。**日常开发自查清单**:①输入:白名单校验(服务端!)、类型与长度;②输出:按上下文编码;**③正则防 ReDoS(灾难性回溯:嵌套量词 + 长输入卡死服务——写正则用超时/简化)**;④错误处理:**不向用户泄露堆栈/数据库错误**(统一错误页,细节进日志);日志**脱敏**(不记密码/token/身份证);⑤配置:默认口令必改、DEBUG 生产关、**目录列表关、.git/.env/备份文件不能静态可达**、版本信息隐藏、最小化暴露端口/服务。**认证授权与密码存储的完整话题**→ [认证授权](/learning-paths/security/auth);加密算法与 TLS 细节 → [密码学](/learning-paths/security/cryptography)。
 
-### CSP（内容安全策略）
-- 策略指令：default-src、script-src、style-src、img-src、connect-src
-- 值类型：'self'、'unsafe-inline'、'unsafe-eval'、nonce、hash
-- 报告模式：Content-Security-Policy-Report-Only
-- 违规报告：report-uri、report-to
-- 最佳实践：逐步收紧、禁用 unsafe-inline、使用 nonce
+## 第八站:安全测试与工具——会攻才更会防
 
-### CORS（跨域资源共享）
-- 同源策略：协议、域名、端口
-- 简单请求：GET、POST、HEAD + 简单头
-- 预检请求：OPTIONS、复杂请求触发
-- 响应头：Access-Control-Allow-Origin、Access-Control-Allow-Methods
-- 凭证请求：Access-Control-Allow-Credentials、withCredentials
-- 安全配置：避免 *、Origin 白名单、Vary: Origin
+**测试方法论(合法授权内!)**:信息收集(子域/端口/指纹)→ 自动化扫描 → **手工验证**(自动化报的八成是误报,手工确认利用链才是真漏洞)→ 报告(复现步骤+修复建议)。**工具清单(按需)**:**Burp Suite(代理抓包改包:Web 测试的事实标准,免费社区版够学;看请求响应、改参数重放、测越权全靠它)**、OWASP ZAP(免费自动化扫描)、sqlmap(SQL 注入自动化验证——**只在授权目标上用**)、nmap(端口服务扫描);**靶场练手**:PortSwigger Web Security Academy(免费、按漏洞类型教学+在线靶场——**学 Web 安全最快路径**)、DVWA(本地靶场)、HackerOne(真实众测,看报告学思路)。**WAF(Web 应用防火墙)**:云 WAF/ModSecurity——特征拦截,**是兜底不是主防**(绕过手法多:编码/大小写混淆);**应急响应**:发现入侵先隔离(断网/下线)再取证(日志/内存镜像),修复后复盘补监控。
 
-### Cookie 安全
-- HttpOnly：防止 JavaScript 访问
-- Secure：仅 HTTPS 传输
-- SameSite：Strict、Lax、None + Secure
-- Domain 与 Path：作用域控制
-- 前缀：__Secure-、__Host-
-- Cookie Bomb：大量 Cookie DoS 攻击
+## 通关标准
 
-### HTTPS 与 TLS
-- 混合内容：Mixed Content 警告
-- HSTS：强制 HTTPS、preload 列表
-- 证书验证：证书链、吊销检查
-- 中间人攻击：MITM、SSL Stripping
-- TLS 版本：禁用 TLS 1.0/1.1、使用 TLS 1.3
-- 证书透明度（CT）
+能独立做到:讲清 XSS 三类与三层防御(输出编码/HttpOnly/CSP)、CSRF 原理与三件套、SQL 注入为什么参数化能根治;给自己的项目配齐安全头八件套与合理 CSP;审查代码时能指出 v-html/innerHTML、字符串拼 SQL、越权未校验、上传可执行等五类问题;用 Burp 在靶场上复现过 XSS 与 CSRF 并说明修复方式;给"文件上传/SSRF/支付"三个功能写出威胁与防御清单——Web 安全主线通关。
 
-### 子资源完整性（SRI）
-- 完整性校验：script、link 标签 integrity 属性
-- 哈希算法：sha256、sha384、sha512
-- 跨域资源：crossorigin 属性
-- CDN 劫持防护
-
-## 实战篇：安全开发实践
-
-### 输入验证
-- 验证位置：客户端 + 服务端双重验证
-- 验证方式：白名单优于黑名单
-- 数据类型：类型检查、格式验证、范围限制
-- 正则表达式：避免 ReDoS 攻击
-- 文件上传：MIME 类型、文件大小、扩展名、文件内容
-
-### 输出编码
-- HTML 编码：&lt; &gt; &amp; &quot; &#x27; &#x2F;
-- JavaScript 编码：\x、\u 转义
-- URL 编码：encodeURIComponent
-- CSS 编码：十六进制转义
-- 上下文相关：不同位置不同编码方式
-
-### 认证与授权
-- 密码存储：bcrypt、scrypt、Argon2、加盐哈希
-- 会话管理：会话固定防护、会话超时、会话销毁
-- 多因素认证：TOTP、SMS、生物识别
-- 权限检查：每次请求都验证、最小权限原则
-- API 安全：API Key、JWT、OAuth2
-
-### 错误处理
-- 错误信息：不泄露敏感信息、堆栈跟踪、数据库错误
-- 日志记录：记录安全事件、脱敏处理、审计日志
-- 404 与 403：区分不存在与无权限
-- 异常捕获：全局异常处理、友好错误页面
-
-### 安全配置
-- 默认账户：修改默认密码、禁用默认账户
-- 不必要服务：关闭、最小化暴露
-- 版本信息：隐藏服务器版本、框架版本
-- 调试模式：生产环境禁用
-- 目录列表：禁用 autoindex
-- 敏感文件：.git、.env、备份文件、配置文件
-
-### 安全头部
-- X-Content-Type-Options: nosniff
-- X-Frame-Options: DENY / SAMEORIGIN
-- X-XSS-Protection: 1; mode=block（已逐渐废弃）
-- Referrer-Policy: no-referrer / strict-origin-when-cross-origin
-- Permissions-Policy：限制浏览器功能
-- Strict-Transport-Security：HSTS 强制 HTTPS
-
-## 实战篇：安全测试与防护
-
-### 渗透测试
-- 信息收集：域名、子域名、端口、服务、指纹识别
-- 漏洞扫描：自动化扫描工具、手工测试
-- 漏洞利用：POC、EXP、提权
-- 报告编写：漏洞详情、复现步骤、修复建议
-
-### 安全工具
-- 扫描工具：Nmap、Nikto、AWVS、Nessus
-- 代理工具：Burp Suite、OWASP ZAP、Fiddler
-- 漏洞平台：HackerOne、Bugcrowd、CNVD
-- 开源工具：Metasploit、sqlmap、XSStrike
-
-### WAF（Web 应用防火墙）
-- 防护规则：特征匹配、行为分析、机器学习
-- 防护类型：黑名单、白名单、混合模式
-- 绕过技巧：编码变换、大小写变换、注释混淆
-- 主流 WAF：ModSecurity、云 WAF、硬件 WAF
-
-### 应急响应
-- 事件检测：异常流量、入侵检测、日志分析
-- 应急处理：隔离、保留证据、漏洞修复
-- 事后分析：溯源、总结、流程优化
-- 灾难恢复：备份恢复、业务连续性
-
-### SDL（安全开发生命周期）
-- 需求阶段：安全需求分析、威胁建模
-- 设计阶段：安全架构设计、最小权限原则
-- 开发阶段：安全编码规范、代码审查
-- 测试阶段：安全测试、渗透测试
-- 发布阶段：安全配置、版本管理
-- 运维阶段：监控告警、漏洞修复、应急响应
-
-## 下一步学习
-
-掌握 Web 安全后，可以继续深入：
-
-- **认证授权** - OAuth2、JWT、SAML、SSO
-- **密码学** - 加密算法、数字签名、PKI 体系
-- **API 安全** - RESTful API、GraphQL 安全
-- **容器安全** - Docker、Kubernetes 安全加固
-- **云安全** - AWS、Azure、GCP 安全最佳实践
-- **移动安全** - iOS、Android 应用安全
-
-Web 安全是攻防对抗的艺术。攻击者只需要找到一个漏洞，而防御者需要堵住所有漏洞。安全不是一劳永逸的工作，而是持续的过程。保持警惕，不断学习，永远假设下一个漏洞就在眼前。
+Web 安全是最"划算"的学习:攻击原理几十年没大变(XSS/SQLi/越权常青),而**每掌握一个漏洞的原理与防御,你就给未来所有项目装上了一个免疫**。它也是最需要"攻击者思维"的领域——**写代码时多想一步"这里如果被恶意输入会怎样",比事后扫漏洞高效十倍**。学完防御,去靶场当几次"攻击者",你会对"永远不要相信输入"有肌肉记忆般的理解。下一步:[认证授权](/learning-paths/security/auth)(登录体系的安全)与 [密码学](/learning-paths/security/cryptography)(加密的底层)。
