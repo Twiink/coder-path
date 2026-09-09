@@ -47,8 +47,9 @@ jobs:
       - name: Add known hosts
         env:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         run: |
-          ssh-keyscan -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${REMOTE_PORT:-22}" -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
       - name: Ensure deploy directory exists
@@ -56,8 +57,9 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         run: |
-          ssh -i ~/.ssh/deploy_key "$REMOTE_USER@$REMOTE_HOST" \
+          ssh -i ~/.ssh/deploy_key -p "${REMOTE_PORT:-22}" "$REMOTE_USER@$REMOTE_HOST" \
             "mkdir -p '$DEPLOY_PATH'"
 
       - name: Deploy to server
@@ -65,9 +67,10 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         run: |
           rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p ${REMOTE_PORT:-22} -o StrictHostKeyChecking=no" \
             docs/.vitepress/dist/ \
             "$REMOTE_USER@$REMOTE_HOST:$DEPLOY_PATH/"
 
