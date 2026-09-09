@@ -32,9 +32,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create temp directory
-        run: mkdir -p docs/.vitepress/.temp
-
       - name: Build VitePress site
         run: npm run docs:build
         env:
