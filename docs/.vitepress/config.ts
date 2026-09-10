@@ -14,30 +14,6 @@ export default defineConfig({
   // 构建优化
   vite: {
     build: {
-      // 分块策略优化
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            // 将 node_modules 中的大型依赖分组
-            if (id.includes('node_modules')) {
-              // Vue 核心单独分块
-              if (id.includes('vue')) {
-                return 'vue'
-              }
-              // VitePress 核心单独分块
-              if (id.includes('vitepress')) {
-                return 'vitepress'
-              }
-              // 其他依赖统一打包
-              return 'vendor'
-            }
-          },
-          // 使用更短的哈希以减小文件名长度
-          chunkFileNames: 'assets/[name].[hash:8].js',
-          entryFileNames: 'assets/[name].[hash:8].js',
-          assetFileNames: 'assets/[name].[hash:8].[ext]'
-        }
-      },
       // 代码压缩选项
       minify: 'terser',
       terserOptions: {
