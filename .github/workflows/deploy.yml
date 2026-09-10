@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
@@ -72,6 +72,9 @@ jobs:
           REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         run: |
           rsync -avz --delete \
+            --exclude='.user.ini' \
+            --exclude='.htaccess' \
+            --exclude='.well-known/' \
             -e "ssh -i ~/.ssh/deploy_key -p ${REMOTE_PORT:-22} -o StrictHostKeyChecking=no" \
             docs/.vitepress/dist/ \
             "$REMOTE_USER@$REMOTE_HOST:$DEPLOY_PATH/"
