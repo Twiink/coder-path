@@ -84,6 +84,23 @@ body {
   color: #218d70;
 }
 
+/* 正文重点与行内代码保持中性，避免“绿色加粗”抢走阅读焦点。 */
+.vp-doc strong,
+.vp-doc strong a {
+  color: var(--vp-c-text-1);
+}
+
+.vp-doc :not(pre, h1, h2, h3, h4, h5, h6) > code,
+.vp-doc :not(pre) > code {
+  color: var(--vp-c-text-1);
+  font-weight: 400;
+}
+
+.vp-doc strong > code {
+  color: var(--vp-c-text-1);
+  font-weight: 500;
+}
+
 .coderpath-home-page .VPHome {
   padding: 0;
   min-height: auto;

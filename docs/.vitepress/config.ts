@@ -29,8 +29,8 @@ export default defineConfig({
       },
       // 启用 CSS 代码分割
       cssCodeSplit: true,
-      // 设置 chunk 大小警告限制（提高以避免过多警告）
-      chunkSizeWarningLimit: 2000,
+      // 本地搜索索引会生成一个约 10 MB 的静态 chunk，使用实际体量设置告警阈值。
+      chunkSizeWarningLimit: 12000,
       // 资源内联限制（小于 4KB 的资源内联为 base64）
       assetsInlineLimit: 4096,
       // 生成 source map（生产环境可关闭）
@@ -197,11 +197,21 @@ export default defineConfig({
                   items: [
                     { text: '路线总览', link: '/learning-paths/ai/' },
                     {
-                      text: '基础与大模型',
+                      text: '大模型与 API 基础',
                       collapsed: true,
                       items: [
                         { text: 'Prompt Engineering', link: '/learning-paths/ai/prompt-engineering' },
-                        { text: 'Claude API', link: '/learning-paths/ai/claude-api' }
+                        { text: '模型 API 通用原理', link: '/learning-paths/ai/model-api-overview' }
+                      ]
+                    },
+                    {
+                      text: '模型平台适配',
+                      collapsed: true,
+                      items: [
+                        { text: 'OpenAI / Responses API', link: '/learning-paths/ai/openai-responses' },
+                        { text: 'Anthropic / Claude API', link: '/learning-paths/ai/claude-api' },
+                        { text: 'Google / Gemini API', link: '/learning-paths/ai/gemini-api' },
+                        { text: '开源模型与本地推理', link: '/learning-paths/ai/open-source-local' }
                       ]
                     },
                     {
@@ -214,7 +224,7 @@ export default defineConfig({
                       ]
                     },
                     {
-                      text: '知识库与 RAG',
+                      text: 'RAG 与知识库',
                       collapsed: true,
                       items: [
                         { text: 'RAG 系统', link: '/learning-paths/ai/rag-systems' },
@@ -222,12 +232,20 @@ export default defineConfig({
                       ]
                     },
                     {
-                      text: '框架与协议',
+                      text: '框架与编排',
                       collapsed: true,
                       items: [
                         { text: 'LangChain', link: '/learning-paths/ai/langchain' },
-                        { text: 'LlamaIndex', link: '/learning-paths/ai/llamaindex' },
-                        { text: 'Claude MCP', link: '/learning-paths/ai/claude-mcp' }
+                        { text: 'LlamaIndex', link: '/learning-paths/ai/llamaindex' }
+                      ]
+                    },
+                    {
+                      text: '工具协议与平台',
+                      collapsed: true,
+                      items: [
+                        { text: 'MCP 协议', link: '/learning-paths/ai/claude-mcp' },
+                        { text: 'Codex SDK / App Server', link: '/learning-paths/ai/codex-platform' },
+                        { text: 'Codex MCP 兼容集成', link: '/learning-paths/ai/codex-mcp' }
                       ]
                     },
                     {
