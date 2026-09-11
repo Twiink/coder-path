@@ -1,73 +1,248 @@
 # Webpack 学习路线
 
-Webpack 是前端工程化的基石,模块打包器的事实标准(webpack 5 是当前大版本)。它把所有资源——JS、CSS、图片、字体——都当**模块**,从入口出发解析依赖图,最终产出优化后的静态资源。新项目已经默认 Vite 了,为什么还要学 Webpack?三个理由:海量存量项目还在用它(维护要会);它是理解"打包器原理"的最佳教材(面试必问 tree-shaking/代码分割);Module Federation 等高级能力仍无替代。配置确实繁琐,但**核心概念只有四个**,掌握了就一通百通。
+Webpack 是前端打包器里的老牌总管：它从入口出发建立模块图，再通过 Loader 读懂不同文件，通过 Plugin 参与构建全流程，最后输出浏览器或其他运行时需要的资产。它配置多，但配置多不等于过时；很多大型项目仍靠它精细管理复杂构建。
 
-这条线按 **核心概念 → 配置入门 → Loader 体系 → Plugin 体系 → 开发体验 → 性能优化 → 代码分割 → 多环境 → 自定义扩展 → Module Federation → 横向对比** 推进。
+这条路线是**索引和指引**，重点放在模块图、Loader、Plugin、代码分割、缓存、环境和排障。不要把学习目标定成“背完配置项”，要能解释每个构建决策对产物、开发体验和部署的影响。
 
-## 第一站:四大核心概念
+## 第一站：模块图与四大核心概念
 
-Webpack 的一切都围绕四个词:**Entry(入口)、Output(出口)、Loader(转换器)、Plugin(插件)**。
+欢迎来到 Webpack 的中央调度室：Entry 是出发站，Module 是线路，Loader 是翻译员，Plugin 是总调度，Output 负责把乘客送到目的地。配置看着像迷宫，但每一项都在回答“这张模块图要怎么走”。
 
-- **Entry**:告诉 Webpack"从哪个文件开始捋依赖"——单入口 `entry: './src/index.js'` 或多入口(对象形式,多页面应用每页一个入口)。
-- **Output**:打包产物去哪、叫什么——`path`(绝对路径,通常 `path.resolve(__dirname, 'dist')`)、`filename`(支持 `[name]`/`[contenthash]` 占位符)、**`publicPath`**(资源在浏览器里的公共 URL 前缀,部署到 CDN/子路径必配)。
-- **Loader**:Webpack 原生只懂 JS;**loader 把"非 JS 资源"转成模块**——CSS、图片、TS、Vue SFC 全靠它(处理顺序:数组从右往左,`use: ['style-loader', 'css-loader']` 先 css 后 style)。
-- **Plugin**:loader 管"单个文件转换",plugin 管"打包全流程的任意时刻"——优化、压缩、注入变量、生成 HTML,生命周期钩子上挂函数。
+**Entry 入口** ---- 认识单入口、多入口、动态入口和入口依赖；入口决定从哪里开始走图，不等于页面最终只有一个文件
 
-再加两个贯穿配置的:`mode`(development/production/none——production 自动开启压缩与 tree-shaking)、`devtool`(source map 策略)。配置文件 `webpack.config.js` 导出一个对象;不想建文件可以用 CLI 参数(`npx webpack --mode production`)。
+**Output 输出** ---- 关注文件名、路径、公共路径、资源目录和多入口命名；输出策略会直接影响部署与缓存
 
-**模块解析(resolve)**:`extensions: ['.js', '.jsx', '.ts', '.vue']`(import 时省略扩展名按序尝试)、`alias`(路径别名:`'@': path.resolve(__dirname, 'src')`,告别 `../../../`)、`modules`(模块搜索目录,默认 node_modules)、`mainFields`(包入口字段优先级)。**配置文件的坑**:路径用 `path.resolve(__dirname, ...)`(Node 的 __dirname 是配置文件的绝对路径),别写相对路径,否则换目录就废。
+**Module 模块** ---- 理解 JavaScript、CSS、图片、字体和 JSON 如何被视为模块；Webpack 的世界里，文件类型都可以参加模块图
 
-## 第二站:Loader 体系——按"链"理解
+**Loader 转换** ---- 了解 Loader 如何把源码转换成模块，关注链式执行、顺序和 Source Map；Loader 负责“读懂文件”
 
-Loader 按链工作,记住"**从右到左、从下到上**"的执行顺序。常用链:
+**Plugin 插件** ---- 认识插件如何参与构建生命周期、生成资源、优化模块和注入能力；Plugin 负责“改变流程”
 
-- **样式链**:`css-loader`(解析 CSS 中的 import/url)→ `style-loader`(把 CSS 以 `&lt;style&gt;` 注入 DOM,开发用)或 **`MiniCssExtractPlugin.loader`**(生产:提取成独立 .css 文件,配插件用);链路再加 `postcss-loader`(Autoprefixer/Tailwind 都在这层)、`sass-loader`/`less-loader`(预处理器,放最右先执行)。
-- **JS 链**:`babel-loader`(ES6+ → 兼容语法,配 `@babel/preset-env` + `preset-react`/`preset-typescript`;`cacheDirectory` 开缓存)、`ts-loader`(TS 检查 + 转译,慢;新项目用 babel 转译 + `fork-ts-checker` 单独检查)。
-- **资源模块(Webpack 5 内置)**:`asset/resource`(文件拷出给 URL,替代旧 file-loader)、`asset/inline`(转 base64 内联,替代 url-loader)、`asset`(自动:小文件内联,超阈值(`parser.dataUrlCondition.maxSize`)转文件)、`asset/source`(拿原文);规则里 `type` 字段配置。
-- **框架与杂项**:`vue-loader`(Vue SFC,必须配 VueLoaderPlugin)、`html-loader`(HTML 里引资源)、`markdown-loader`、`svg-sprite-loader`(SVG 雪碧图);loader 可以带 options((&#123; loader: 'babel-loader', options: &#123;...&#125; &#125;))。
+**Mode 与目标** ---- 区分 development、production、none、浏览器、Node 和 Web Worker 目标；构建目标决定默认优化与运行时假设
 
-## 第三站:Plugin 体系——全家桶地图
+**模块图思维** ---- 从入口追踪依赖、动态边界、公共依赖和副作用；所有优化都应该回到模块图上找证据
 
-**必备插件**:`HtmlWebpackPlugin`(自动生成 HTML 并注入打包后的 script/link——template 传自己的 HTML 模板,`title`/`meta`/`minify` 选项)、`MiniCssExtractPlugin`(配上面样式链)、`CopyWebpackPlugin`(public 静态资源拷进 dist)、`DefinePlugin`(构建期注入全局常量,`process.env.NODE_ENV` 的值替换——**注意值要 JSON.stringify**,否则变成变量引用)。
-**开发插件**:`HotModuleReplacementPlugin`(webpack-dev-server 的 `hot: true` 会自动开,一般不用手写)。**优化插件**:`TerserWebpackPlugin`(压缩 JS,production 默认启用,可配 `parallel`)、`CssMinimizerWebpackPlugin`(压缩提取出的 CSS)、`CompressionWebpackPlugin`(预生成 .gz/.br,配 Nginx gzip_static)、`BundleAnalyzerPlugin`(打包体积可视化,**找"谁把包撑大"的第一工具**)、`SpeedMeasurePlugin`(各 loader/plugin 耗时,构建慢定位)。
-插件的本质:带 `apply(compiler)` 方法的类,在 compiler 生命周期钩子上挂逻辑——理解这个,后面自定义插件就不难。
+**重点在这** ---- Entry 告诉它从哪出发，Loader 让它读懂，Plugin 改变旅程，Output 决定行李最后放哪；四件事混在一起，配置就会变成密室
 
-## 第四站:开发体验——DevServer、Source Map 与 HMR
+## 第二站：Loader 体系与源码转换
 
-**webpack-dev-server**:`devServer` 配置——`hot: true`(HMR)、`port`/`open`、**`proxy`**(('/api': &#123; target: 'http://localhost:3000', changeOrigin: true &#125;),跨域开发标准解)、**`historyApiFallback: true`**(SPA 路由刷新 404 的解:所有路径返回 index.html)、`static`(托管静态目录)、`overlay`(编译错误全屏提示)、`client` 配置。
-**Source Map**:`devtool` 选项是"速度 vs 质量"的权衡谱——`eval`(最快,只有行)、`source-map`(最慢最全)、`cheap-module-source-map`(开发推荐:够用且快)、`hidden-source-map`(生产:报错映射但源码不暴露给用户,配错误监控用)、`nosources-source-map`(线上排错安全版)。
-**HMR 原理**:模块更新时,dev server 推送更新 → 运行时**热替换模块而不刷新页面**(状态不丢)——框架集成:React Fast Refresh、Vue SFC 天然支持、样式由 style-loader 自动热更;自己写模块时用 `module.hot.accept('./dep', cb)` 声明接受热更新;HMR 失败会自动降级整页刷新。
+第二站是 Loader 翻译学院：JavaScript、TypeScript、CSS、图片和各种特殊文件都来申请入场。翻译员越多，顺序、缓存和 Source Map 越不能靠抽签，否则错误信息会像机器翻译一样离谱。
 
-## 第五站:性能优化——构建快 + 包小
+**Loader 链** ---- 理解从右到左或从后到前的执行顺序、每个阶段的输入输出和链式转换；顺序错了，错误会像翻译腔一样奇怪
 
-**构建性能(开发体验)**:loader 缩小范围(`include: path.resolve(__dirname, 'src')`,别让 babel 遍历 node_modules)、(cache: &#123; type: 'filesystem' &#125;)(Webpack 5 默认持久化缓存,二次构建飞起)、`thread-loader`(多线程跑重 loader,项目够大再用,有线程启动开销)、`externals`(把 react/vue 这类用 CDN 引入的库排除出打包,(externals: &#123; react: 'React' &#125;)——**注意与 tree-shaking/版本管理的权衡,现在不常用**);DLL 方案已过时(缓存替代了它)。
-**体积优化**:①**Tree Shaking**:ESM 静态分析删死代码——条件:代码必须 ESM(不能 CommonJS)、production 模式自动开、`package.json` 标 `"sideEffects": false`(或数组列出有副作用的文件,如全局 CSS——**sideEffects 配置错了会把样式摇没**,经典事故);②**代码分割**:动态 `import()` 自动拆 chunk + 路由级懒加载;③**SplitChunksPlugin**(Webpack 4+ 内置,替代老 CommonsChunkPlugin):`chunks: 'all'`(抽同步+异步公共代码)/`minSize`/`maxSize`/`minChunks`(最少被引用几次)/**`cacheGroups`**(自定义分组:把 react/vue 打成 vendor chunk、把 node_modules 大库单独拆——缓存策略的基础);④**Scope Hoisting**(production 自动,`ModuleConcatenationPlugin` 的效果):把能合并的模块提升成一个大函数,减少闭包开销——前提同样要 ESM;⑤压缩(Terser/CSS Minimizer)与 gzip/brotli。
-**运行性能(加载体验)**:`contenthash` 文件名(内容变 hash 变 → 配合强缓存,`filename: '[name].[contenthash].js'`;**runtime chunk 单独拆**避免业务代码一变 vendor 缓存全失效)、`preload`/`prefetch`(魔法注释 `import(/* webpackPreload: true */ ...)` 控制加载时机)、小资源内联(asset/inline 或 `data URI`)、关键 CSS 内联、CDN(publicPath 指到 CDN 域名)。
+**JavaScript 与 TypeScript** ---- 区分转译、类型检查、语法降级和模块处理；Loader 能把代码变成可打包形态，不一定负责证明类型正确
 
-## 第六站:代码分割实战
+**CSS 处理** ---- 覆盖样式导入、模块化、预处理器、自动前缀、提取与注入；开发体验和生产 CSS 的目标不同
 
-三招组合:①**入口分割**(多页应用天然多入口,(entry: &#123; home: ..., admin: ... &#125;) + 多 HtmlWebpackPlugin);②**动态导入**(`import()` 返回 Promise,路由懒加载/按需加载的语法基础;webpack 会为每个动态导入自动产出 chunk);③**SplitChunks 自动分割**(配 cacheGroups,如 (react: &#123; test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/, name: 'react-vendor', chunks: 'all' &#125;)——把框架代码锁进独立 chunk,业务更新不重新下载框架,这是"首屏优化 + 缓存命中"的经典组合)。验证成果:`npx webpack --profile` + BundleAnalyzerPlugin 看产物构成。
+**资源 Loader** ---- 了解图片、字体、媒体、数据文件和 WebAssembly 的处理；资源可以内联、复制、生成 URL 或进入模块图
 
-## 第七站:多环境配置
+**Babel 与转译** ---- 认识语法转换、目标环境、Polyfill 与运行时注入；转译语法不等于补齐所有 API
 
-一套配置走天下不现实:拆三份——`webpack.common.js`(公共:entry/output/loader/resolve)+ `webpack.dev.js`(devServer/sourcemap/HMR,`mode: 'development'`)+ `webpack.prod.js`(压缩/提取 CSS/contenthash/`mode: 'production'`),用 **`webpack-merge`**(`merge(common, &#123;...&#125;)`)合并;npm scripts 里 `webpack --config webpack.dev.js`;环境变量:`DefinePlugin` 注入 `process.env.NODE_ENV`(webpack 自身会按 mode 设置,业务代码里 `if (process.env.NODE_ENV !== 'production')` 会被编译期替换并摇掉死分支)、`dotenv` 加载 .env 文件;跨平台设置变量用 `cross-env`(Windows 兼容)。
+**Source Map** ---- 理解源码与产物映射、开发调试、生产保护和多段转换；没有准确映射，线上报错只能看压缩后的诗
 
-## 第八站:自定义 Loader 与 Plugin
+**Loader 上下文** ---- 了解资源路径、依赖声明、缓存、异步 Loader 和错误报告；自定义 Loader 要尊重构建器的依赖关系
 
-**自定义 Loader**:本质是"导出一个函数的 Node 模块",入参是源码字符串,返回处理后的代码:`module.exports = function(source) &#123; return source.replace(...) &#125;`;需要异步/多返回值时用 `this.callback(null, code, map)` 或 `this.async()`;**loader 之间传数据**用 `this` 上下文(webpack 注入的 loader API:this.query/this.resourcePath/this.emitFile……);**pitching 阶段**(loader.pitch,从左到右先跑,可短路)是高级玩法。
-场景:自定义模板语法、i18n 文案抽取、markdown 增强。**自定义 Plugin**:类 + `apply(compiler)`,核心对象 **Compiler**(整个构建周期,`compiler.hooks.emit/done` 等)与 **Compilation**(单次构建的模块图);事件系统基于 **Tapable**(同步/异步钩子);场景:产物处理、版权头注入、自动化部署前检查。
-写之前先看 Tapable 钩子类型(SyncHook/AsyncSeriesHook……),这是 webpack 插件面试的深水区。
+**自定义 Loader** ---- 适合 DSL、Markdown、代码生成和特殊资产；先定义输入输出和缓存，再考虑如何写实现
 
-## 第九站:Module Federation(微前端)
+**Loader 性能** ---- 控制 include、exclude、缓存、并行与大型依赖处理；让每个 Loader 都看完整个 node_modules，是一种昂贵的浪漫
 
-Webpack 5 的旗舰特性,**运行时模块共享**的微前端方案(不是 iframe、不是路由级微应用壳):宿主应用通过 `remotes` 引用远程应用暴露的模块(remote 用 `exposes` 声明共享哪些组件/页面),`shared` 声明共享依赖(react 只加载一份);子应用可以独立开发部署,运行时动态加载——**解决了"多团队技术栈一致、独立发布、运行时组合"**的问题;对比 qiankun(基于 single-spa 的 JS 沙箱 + 样式隔离方案,技术栈无关);MF 更"webpack 原生",生态(webpack 5 全系 + Vite 侧有 @originjs/vite-plugin-federation 兼容实现)。场景:大型中后台的插件化、多团队协作、灰度发布独立模块。
+**重点在这** ---- Loader 解决“文件怎么被理解”；遇到问题先看匹配范围、执行顺序、输入输出和 Source Map
 
-## 第十站:Webpack 5 变化与横向对比
+## 第三站：Plugin 生态与生命周期
 
-**Webpack 5 要点**(相对 4):资源模块内置(file/url/raw-loader 退役)、持久化缓存默认开、Module Federation、Terser 默认、移除了 Node polyfill(浏览器里用 `crypto` 等要手动配 `resolve.fallback`——老代码报 `Buffer is not defined` 的答案)、`output.clean` 替代 CleanWebpackPlugin。**横向对比**(面试常问):**Vite**——开发用原生 ESM 不打包(秒启动),生产用 Rollup;Webpack——dev/prod 都打包(慢但稳);**Rollup**——库打包(产物干净、tree-shaking 好);**esbuild**——极快但生态/产物优化有限(常被当"转译器"嵌入);**Turbopack**(Next.js 的 Rust 打包器,追赶中)。**什么时候还要 Webpack**:存量项目维护、需要 Module Federation、深度自定义构建、兼容极端老浏览器场景——其余新项目直接 Vite。
+第三站来到 Plugin 指挥部：它能在构建的多个时间点插手，生成 HTML、清理目录、注入变量、分析产物，甚至改变整个流程。权力越大，越要留下日志、边界和撤退路线。
+
+**生命周期钩子** ---- 认识编译开始、模块解析、资源生成、优化、输出和完成等阶段；钩子是构建时间线，不是随便插入的回调
+
+**Html 生成** ---- 处理模板、入口注入、资源引用、环境变量和多页面；HTML 是资源与缓存策略的最终落点之一
+
+**清理与复制** ---- 管理输出目录、静态资源、公共文件和版本产物；清理策略要避免误删用户上传或其他构建结果
+
+**环境注入** ---- 区分构建时常量、公开配置和敏感信息；能进浏览器的变量都不能再叫秘密
+
+**CSS 提取与优化** ---- 处理样式文件、顺序、重复、压缩和 Source Map；样式插件的顺序会影响最终层叠
+
+**定义与替换** ---- 了解编译期替换、功能开关和环境条件；替换发生在构建时，不是运行时动态配置
+
+**分析与可视化** ---- 用构建分析插件识别体积、依赖重复、公共块和模块来源；报告用来提问，不是用来收藏
+
+**自定义 Plugin** ---- 设计钩子、选项、日志、错误、兼容性和测试；插件应有清晰边界，不要把项目秘密藏进生命周期
+
+**插件冲突** ---- 排查顺序、重复处理、生成资源覆盖和版本兼容；多个插件修改同一对象时，最后写入者不一定是正确者
+
+**重点在这** ---- Plugin 解决“构建流程如何变化”；它可以让系统强大，也可以让系统没人敢升级
+
+## 第四站：开发服务器与 HMR
+
+第四站是本地演习场：Dev Server 负责监听文件、代理请求、热更新和展示错误，浏览器是前线，HMR 是快速补给。开发服务器不是生产服务器的 cosplay，但它决定你一天要等多少次。
+
+**开发服务器职责** ---- 区分内存产物、静态目录、监听文件和浏览器访问；开发服务器的输出不一定落在磁盘
+
+**Watch 模式** ---- 认识文件监听、轮询、忽略目录和容器环境；监听过多会慢，监听不到会让你以为代码在装傻
+
+**HMR** ---- 理解模块热替换、边界、状态保留、全量刷新和失效条件；热更新不是每次都能保留状态
+
+**开发代理** ---- 处理 API、跨域、路径重写、WebSocket、Cookie 和 HTTPS；开发代理不能代替生产网关
+
+**开发 HTTPS** ---- 了解证书、信任、Service Worker、Secure Cookie 和本地域名；浏览器安全上下文会影响很多 API
+
+**错误覆盖** ---- 设计编译错误、运行时错误、Source Map 和恢复；错误信息应帮助定位，不要只给一面红色幕布
+
+**静态资源目录** ---- 区分 public、构建资产、内存资产和公共路径；路径策略在开发与生产中要一致
+
+**容器与远程开发** ---- 处理监听地址、轮询、卷挂载、端口和网络；“在我电脑上”到了容器里可能换了户口本
+
+**重点在这** ---- 开发服务器应该让反馈快速、错误可见、代理可控；它不是生产服务器的临时 cosplay
+
+## 第五站：解析、别名与模块兼容
+
+第五站进入模块海关：扩展名、别名、package exports、CJS 和 ESM 都要排队验票。入口找不到或依赖突然换了人，通常不是文件凭空消失，而是解析规则没有对上暗号。
+
+**解析顺序** ---- 了解文件扩展名、目录、包入口、模块字段和条件解析；顺序决定“同一个名字最终指向谁”
+
+**Alias 别名** ---- 设计源码、共享包、测试和构建环境一致的别名；别名要有单一来源，避免工具各自认识一套路径
+
+**Extensions** ---- 配置扩展名简化导入，同时考虑歧义与解析成本；省几个字符不值得引入大范围模糊匹配
+
+**Node Modules 解析** ---- 认识 package.json、exports、main、module、browser 和依赖嵌套；包作者的字段会影响消费者的模块图
+
+**CJS 与 ESM** ---- 区分默认导出、命名导出、动态导入、互操作和运行时差异；模块格式不是换个后缀那么简单
+
+**浏览器字段与 Node 字段** ---- 处理浏览器替代模块、polyfill 和服务端依赖；不要把 Node 内置能力悄悄塞进浏览器
+
+**外部依赖** ---- 库构建可以 external 化依赖，应用构建通常需要打包；决定谁提供依赖，谁就负责兼容与版本
+
+**模块解析调试** ---- 使用解析日志、最小复现和入口检查定位问题；先确认路径，再讨论 Loader
+
+**重点在这** ---- 解析决定模块图的地基；路径不清时，后面的优化都像在漂浮的地板上摆家具
+
+## 第六站：代码分割与异步加载
+
+第六站是行李分拣中心：首屏只带关键装备，路由和功能按需取件，公共依赖单独打包。代码分割不是把文件切得越碎越有成就感，而是让用户先拿到真正要用的东西。
+
+**入口分割** ---- 多入口、页面入口和功能入口适用于不同场景；入口边界决定初始加载和公共依赖
+
+**动态导入** ---- 认识异步模块、加载时机、失败处理和预取；动态导入是用户路径上的承诺，要设计加载反馈
+
+**SplitChunks** ---- 理解公共依赖、缓存组、最小尺寸、重复与共享；公共块太大或太碎都可能拖慢用户
+
+**懒加载组件** ---- 按路由、权限和交互拆分组件；高频核心组件不必为了“懒加载”增加额外等待
+
+**预加载与预取** ---- 区分当前需要、很快可能需要和空闲时可能需要的资源；网络资源要有优先级
+
+**异步边界错误** ---- 处理加载失败、版本不一致、缓存旧 HTML 和离线；用户看到的应是可恢复提示
+
+**公共依赖与长期缓存** ---- 规划稳定依赖块与业务变化块；缓存收益来自稳定边界，不是文件名看着整齐
+
+**多页面应用** ---- 处理入口、公共块、独立部署和资源引用；每个入口都有自己的首屏预算
+
+**重点在这** ---- 分割是产品路径与模块图的交叉设计；先找用户关键路径，再决定代码在哪里晚一点来
+
+## 第七站：Tree Shaking 与副作用
+
+第七站请 Tree Shaking 上场剪枝：它想把没用的代码请出产物，但要相信静态模块结构和副作用声明。剪刀确实锋利，剪错一根树枝，线上功能就会突然学会隐身。
+
+**静态分析** ---- 理解 ESM 的静态导入、导出和可分析性；动态结构越多，构建器越难安全裁剪
+
+**副作用** ---- 认识模块加载时执行、全局注册、样式导入和副作用声明；一个“看起来没用”的导入可能负责重要初始化
+
+**sideEffects 配置** ---- 标记可安全裁剪的文件与例外；配置过宽会误删，配置过窄会失去优化
+
+**导入方式** ---- 比较整包导入、按需导入、命名导入和路径导入；是否能摇树与包本身的发布方式有关
+
+**CommonJS 限制** ---- 了解动态导出、运行时解析和兼容层如何削弱摇树；不是所有 npm 包都能被完美裁剪
+
+**CSS 副作用** ---- 样式导入通常有副作用，需要保证不被错误移除；逻辑优化不能把界面优化没了
+
+**库作者责任** ---- 正确发布模块格式、sideEffects、入口和类型；库的声明会影响所有消费者的构建
+
+**产物验证** ---- 用分析报告和真实运行验证裁剪结果；构建成功但功能消失，是最不幽默的优化
+
+**重点在这** ---- Tree Shaking 的核心是让工具敢删；你要给它可靠的静态结构和副作用信息
+
+## 第八站：缓存、压缩与构建性能
+
+第八站来到性能会计室：用户账本记首屏、交互和缓存，开发账本记构建、热更新和等待时间。Webpack 要两本账都算，不能为了开发快把用户包成压缩饼干，也不能为了小包让开发者每天喝冷咖啡。
+
+**内容指纹** ---- 用内容变化生成稳定文件名，支持长期缓存；入口 HTML 更新与静态资源缓存要配套
+
+**运行时与公共块** ---- 理解运行时代码、公共依赖和入口关系；拆分策略错误会让缓存失效范围变大
+
+**压缩** ---- 处理 JavaScript、CSS、HTML、图片和 Source Map；压缩降低体积，也会增加构建时间与调试成本
+
+**构建缓存** ---- 使用持久化缓存、依赖缓存和 CI 缓存；缓存应可失效、可验证，不能成为玄学黑盒
+
+**Loader 缓存** ---- 关注缓存条件、文件依赖和缓存失效；缓存旧转换结果会制造比慢更难受的问题
+
+**并行与增量** ---- 评估并行处理、模块数量、插件、类型检查和增量构建；并行不是把电脑风扇变成项目成员
+
+**Bundle 分析** ---- 识别大依赖、重复模块、公共块和未使用代码；先按体积和用户路径排序，再行动
+
+**性能预算** ---- 为首屏 JS、CSS、图片和构建时长设定预算；预算是提前报警，不是发布后才看的成绩单
+
+**重点在这** ---- 性能优化要可量化、可回滚、可解释；“感觉快了”应该升级为“哪个指标改善了”
+
+## 第九站：环境、目标与安全
+
+第九站进入环境安全局：开发、测试、生产、浏览器、Node、Worker 和多入口各有自己的通行规则。配置没有边界时，最先逃出去的往往不是 bug，而是密钥。
+
+**开发与生产配置** ---- 分离模式、调试、Source Map、压缩、错误覆盖和缓存；共享配置只放真正共享的内容
+
+**构建时变量** ---- 认识 Define 类插件、环境替换、常量折叠和客户端暴露；构建时注入的公开值会进入产物
+
+**服务端与浏览器目标** ---- 区分 target、polyfill、Node、浏览器和 Worker；目标不同，代码可用能力就不同
+
+**浏览器兼容** ---- 设计语法降级、运行时补丁、特性检测和目标浏览器矩阵；转译只解决一半问题
+
+**多环境发布** ---- 处理测试、预览、生产、区域、租户和功能开关；环境差异要能被测试覆盖
+
+**安全与供应链** ---- 关注依赖、构建脚本、Source Map、注入、许可证和密钥；构建工具拥有很大权限，不能随便装插件
+
+**可重复构建** ---- 固定锁文件、Node、环境、依赖和构建命令；同一提交产物应尽量可解释、可复现
+
+**重点在这** ---- 配置的终点是可预测与不泄密；浏览器能看到的东西不要叫秘密，构建能执行的插件不要盲信
+
+## 第十站：高级能力与生态迁移
+
+第十站打开高级装备库：多页面、库构建、微前端、SSR 和迁移都来报到。高级能力不是为了让配置文件长得像史诗，而是为了支撑真实团队、真实产品和真实的升级账单。
+
+**库构建** ---- 规划多格式输出、external、类型声明、CSS、Source Map 和发布字段；库的兼容性责任比应用更重
+
+**多入口与多应用** ---- 管理管理台、营销站、嵌入组件和共享依赖；入口边界要与部署和缓存一致
+
+**SSR 与预渲染** ---- 区分服务端入口、客户端入口、水合、构建时数据和运行时差异；服务器与浏览器要共享稳定契约
+
+**Worker 架构** ---- 处理计算、通信、构建入口和资产；Worker 不是把所有慢任务藏起来就结束
+
+**微前端边界** ---- 了解构建隔离、运行时加载、共享依赖和版本冲突；微前端解决组织问题，也引入治理问题
+
+**从 Webpack 迁移到 Vite** ---- 对比开发服务器、Loader、Plugin、模块解析、环境和生产构建；迁移要先梳理隐式行为
+
+**与框架 CLI 协作** ---- 理解 Vue、React、Angular 等框架对 Webpack 的封装层；修改配置前先确认框架允许的扩展边界
+
+**升级策略** ---- 关注 Webpack、Loader、Plugin、Node、浏览器和框架版本；升级按能力链验证，避免一次性改全世界
+
+**重点在这** ---- 高级构建能力的价值是支撑规模与组织；没有明确问题就加复杂度，最后只会得到一份特别有自信的配置文件
 
 ## 通关标准
 
-能独立做到:从零手写一份支持 React/Vue + TS + 样式 + 图片 + HMR + 代码分割 + 缓存优化 + 多环境的 webpack 配置(不用脚手架);说清 loader 与 plugin 的区别与执行顺序、tree-shaking 生效的三个条件、contenthash 缓存策略为什么这样设计、SplitChunks 的 cacheGroups 怎么配;能读懂并修改现有项目的 webpack 配置(而不是一报错就搜博客)——Webpack 主线通关。
+**Webpack 新手村能解释构建** ---- 能说清入口、模块图、Loader、Plugin、输出和模式。配置文件看起来像一堵墙，但你已经知道哪块砖负责把代码送进浏览器。
 
-Webpack 配置看起来复杂,但拆开就是 loader 与 plugin 的组合游戏:先把基础配置跑通,再按需加功能,最后用 BundleAnalyzer 与 SpeedMeasure 数据驱动优化——别一上来追求"完美配置"。Vite 很香,但 Webpack 的生态与稳定性在存量世界依然无可替代;更重要的是,搞懂 Webpack,你就搞懂了"前端构建"这件事本身,以后学任何打包器都是降维打击。
+**初级前端能处理资源** ---- 能组织 JavaScript、TypeScript、CSS、图片、字体、Worker 和静态文件。资源各走各的流水线，终于不用在入口文件门口排队吵架。
+
+**中级前端能做分割优化** ---- 能设计动态加载、公共块、Tree Shaking、缓存、压缩和性能预算。首屏不再背着整个应用出门，用户的流量套餐向你投来感激的目光。
+
+**高级前端能排查问题** ---- 能从解析、Loader、Plugin、缓存、环境和产物逐层定位。构建失败时不再随机注释配置，而是知道是哪位 Loader 先开始闹脾气。
+
+**Webpack 老兵能维护工程** ---- 能处理多环境、多入口、库构建、SSR、升级与迁移。复杂度仍然存在，但它终于有文档、有边界，也不会每次升级都召唤一只新 Bug。
+
+## 下一站去哪
+
+- **[Vite](/learning-paths/frontend/vite)** ---- 对比现代 ESM 开发服务器与轻量构建体验
+- **[HTML & CSS](/learning-paths/frontend/html-css)** ---- 回到资源、样式、布局和浏览器基础
+- **[JavaScript](/learning-paths/frontend/javascript)** ---- 深入模块、异步、运行时和浏览器 API
+- **[部署与监控](/learning-paths/fullstack/deployment)** ---- 把构建产物放进真实发布链路
+
+## 结语
+
+Webpack 像一座老牌但装备齐全的工厂：机器多、流程长，却能把复杂原料加工成稳定产品。学会它不是把每个 Loader 都背下来，而是能沿着模块图找到问题、沿着生命周期解释行为、沿着产物判断优化是否真的有效。

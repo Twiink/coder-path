@@ -1,87 +1,264 @@
 # Angular 学习路线
 
-Angular 是 Google 出品的企业级前端框架,和 React 的"自由组装"相反,它是**全家桶式的完整规范**:路由、HTTP、表单、依赖注入、测试,官方都给你配齐了方案。代价是学习曲线陡峭——装饰器、依赖注入、RxJS、模块系统,概念又多又绕;但回报是:大型项目里团队写出的是"同一种 Angular",而不是"各自的 React"。**Angular 深度依赖 TypeScript**,所以这条路线的第一站其实是 TS(基础见 [TypeScript 学习路线](/learning-paths/frontend/typescript),这里只讲 Angular 特有的部分)。
+Angular 是前端世界里的整套装备箱：组件、模板、依赖注入、路由、表单、HTTP、测试和构建工具都在同一套体系里。它不太鼓励“先随便写，未来再说”，更像一位认真负责的项目经理——入场手续多一点，但大型项目少一些惊喜。
 
-这条线按 **核心概念(组件/模板/指令)→ 依赖注入与服务 → 路由 → 表单 → HTTP 与 RxJS → 状态管理 → 变更检测与性能 → 构建与测试 → 新范式(Standalone/Signals/SSR)→ 生态** 推进。
+这条路线是**索引和指引**，不把每个装饰器写成复制手册。它同时覆盖 Angular 的主流 Standalone 方向、经典 NgModule 体系、RxJS、Signals、SSR 和工程化，让你知道该学什么、为什么学、深入时该去哪里查笔记。
 
-## 第一站:组件、模板与指令——Angular 的基本粒子
+## 第一站：组件、模板与应用结构
 
-**组件**由 `@Component` 装饰器声明:它把模板(HTML)、样式与类(逻辑)绑在一起,还带元数据——`selector`(标签名,`app-xxx` 前缀是规范)、`templateUrl`/`template`、`styleUrls`/`styles`、`standalone`(见第九站)、`changeDetection`、`encapsulation`。**视图封装**三模式要懂:Emulated(默认,给样式加属性选择器模拟隔离)、Shadow DOM(真影子 DOM,真隔离但外部样式进不来)、None(全局,样式会漏出去,慎用)。
+欢迎来到 Angular 的总装备部：组件是作战单位，模板是作战地图，元数据是档案，依赖注入是补给线，变更检测则像全城巡逻。这里不是只会拼页面就能通关的地方，体系感才是主武器。
 
-**模板语法**(和 Vue 的指令、React 的 JSX 都不同,第三套心智):插值 `&#123;&#123; expr &#125;&#125;`;**属性绑定 `[property]="value"`**(注意:绑的是 property 不是 attribute;`[class.active]`/`[style.color]`/`[attr.aria-label]` 各有语法,`[class]` 还能绑对象);**事件绑定 `(event)="handler($event)"`**(`$event` 是事件对象);**双向绑定 `[(ngModel)]`**(banana-in-a-box 语法糖 = 属性绑定 + 事件绑定,表单里用,需 FormsModule);**模板引用变量 `#var`**(拿 DOM/组件/指令的引用,`#form="ngForm"` 这种带导出值的写法是查表单状态的关键);**模板语句**与安全导航 `?.`、非空 `!`。
-**管道 pipe**:(&#123;&#123; date | date: 'yyyy-MM-dd' &#125;&#125;)、`| async`(订阅 Observable,自动退订,模板里处理异步的利器)、`| json`、`| uppercase`/`currency`/`percent`/`slice`;自定义管道 `@Pipe(&#123; name &#125;)` + `transform` 方法;**纯管道**(默认,输入不变就缓存,性能好)vs 非纯管道(`pure: false`,每次检测都跑);管道链式组合。
-注意管道是模板层的"格式化",复杂逻辑还是进组件/服务。
+**组件的组成** ---- 认识组件类、模板、样式、元数据和选择器；理解 Angular 如何把这些部分编译成可运行的视图
 
-**指令三大类**:①组件(带模板的指令);②**结构型指令** `*ngIf`/`*ngFor`/`*ngSwitch`(星号是微语法糖,展开成 `&lt;ng-template&gt;`;`*ngIf` 配 `else` 块(`<ng-template #elseBlock>`);`*ngFor` 的 `index`/`first`/`last`/`even` 与 **`trackBy`**(给列表项稳定的身份,避免全量重建——性能关键,对应 React 的 key);Angular 17+ 新增**内置控制流语法** `@if`/`@else`/`@for`/`@switch`(块级语法,性能更好,新代码优先用,`@for` 里 `@empty` 处理空列表);③**属性型指令** `ngClass`/`ngStyle`(动态样式,新写法 `[class]`/`[style]` 更推荐);**自定义指令**:`@Directive` + `@HostListener`(监听宿主事件)与 `@HostBinding`(绑定宿主属性)——封装 DOM 行为(点击外部关闭、拖拽、水印)的标准姿势。
+**Standalone 组件** ---- 掌握独立组件、直接导入依赖、应用启动和功能边界；Standalone 是现代主线，不等于 NgModule 一夜之间蒸发
 
-**组件通信**:`@Input`(父传子,可配别名与 required;input 值变化用 `ngOnChanges` 或 setter 拦截)、`@Output` + `EventEmitter`(子传父,`@Output() save = new EventEmitter&lt;User&gt;()`,模板里 `(save)="onSave($event)"`);`@ViewChild`/`@ViewChildren`(拿子组件/子元素,`static` 选项与 AfterViewInit 时机)、`@ContentChild`(投影内容);**内容投影 `ng-content`**(对应 Vue 插槽/React children,`select` 属性做具名投影);跨层共享走服务 + 依赖注入(第三站)。
-**生命周期钩子**(按序):`ngOnChanges`(输入变化,最先)、`ngOnInit`(首次初始化后,发请求的主场)、`ngDoCheck`(自定义变更检测,慎用)、`ngAfterContentInit`/`ngAfterContentChecked`、`ngAfterViewInit`(视图就绪,操作 DOM/子组件)、`ngAfterViewChecked`、`ngOnDestroy`(清理订阅/定时器——**RxJS 订阅泄漏的重灾区,必须 unsubscribe**)。
+**NgModule 体系** ---- 了解声明、导入、导出、提供者和引导模块；读懂存量项目的模块边界，迁移时才不会像拆老房子一样掉灰
 
-## 第二站:依赖注入与服务——Angular 的骨架
+**模板表达式** ---- 学习插值、属性绑定、事件绑定、双向绑定和模板引用；模板表达式有自己的执行约束，别把它当第二个 TypeScript 文件
 
-**服务**是 Angular 的"共享逻辑单元"(发请求、共享状态、工具函数),用 `@Injectable` 标记;**依赖注入(DI)**:组件/服务在构造函数里声明要什么,Angular 自动给——`constructor(private http: HttpClient) &#123;&#125;` 是 Angular 代码最经典的签名。
-**作用域(层级注入器)**:`providedIn: 'root'`(应用级单例,绝大多数场景)、模块级 `providers`、组件级 `providers`(每个组件实例一份——做"组件私有服务"实现真正的隔离共享);`@Optional`(可缺省)、`@Inject(TOKEN)` 配 **InjectionToken**(给非类依赖(配置对象)做类型安全的注入键)、`useClass`/`useValue`/`useFactory`/`useExisting` 四种 provider 写法(测试里用 useValue mock 服务的基础)。
-**服务间通信**:不止"组件 → 服务"单向,服务可以暴露 `Subject`/`BehaviorSubject` 让组件订阅(跨组件共享状态的第一阶段方案,状态管理章节再升级)。NgModule 出现前的纯服务 + `providedIn: 'root'` 是当代推荐姿势。
+**结构控制** ---- 理解条件、循环、模板块、追踪键和视图创建销毁；列表追踪不仅影响性能，也影响子组件状态是否被复用
 
-**模块系统**:`@NgModule` 曾是 Angular 的骨架——`declarations`(本模块的组件/指令/管道)、`imports`(引入其他模块,如 CommonModule/FormsModule/HttpClientModule)、`providers`(服务)、`exports`(对外开放)、`bootstrap`(根组件);根模块 AppModule + 特性模块(按业务域拆分,配路由懒加载)。**Angular 14+ 的 Standalone 组件正在"去模块化"**:组件自己 `imports` 依赖,不再需要 NgModule 包裹——新项目全 standalone,老项目渐进迁移,模块知识变成"看懂老代码"的考古学(但迁移大潮中你仍会遇到,别跳过)。
+**管道** ---- 区分纯管道、不纯管道、参数、链式转换和缓存；管道适合展示转换，不要把数据库查询伪装成格式化
 
-## 第三站:路由与导航
+**组件输入输出** ---- 掌握输入、输出、模型绑定和变更检测；理解新式输入输出能力与经典装饰器写法的关系
 
-**路由配置**:`Routes` 数组 + `RouterModule.forRoot(routes)`(根路由)/`forChild`(特性路由);每条路由 `path` + `component`(或 `loadChildren` 懒加载);`redirectTo` + `pathMatch: 'full'`(空路径重定向必须 full,经典坑);**`&lt;router-outlet&gt;`** 是路由出口(组件挂载点),`&lt;router-link&gt;` 不是 Angular 的——导航用 `routerLink` 指令(`/users`、`['/users', id]` 数组形式、(&#123; outlets: &#123;...&#125; &#125;) 命名出口)与 `routerLinkActive`(高亮,配 (routerLinkActiveOptions="&#123; exact: true &#125;"));编程导航 `router.navigate`/`navigateByUrl`。
-**参数**:路径参数 `:id` 经 `ActivatedRoute`(`route.snapshot.paramMap` 一次性读取 vs `route.paramMap` Observable 响应变化——**同一组件复用时的经典坑**:从 /user/1 导航到 /user/2 组件不重建,必须订阅 paramMap);查询参数 `queryParams`/`queryParamsHandling`。
-**嵌套路由 children**(父路由组件内再放 outlet,后台布局);**路由守卫**(接口:CanActivate 能不能进/CanActivateChild/CanDeactivate 能不能出(未保存提示)/CanLoad、Resolve(进入前预取数据,已不推荐,用 resolver 函数));守卫返回 boolean/Observable/Promise 或 UrlTree(重定向);**懒加载**:`loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)`(模块级代码分割,后台大应用的基本盘)+ **预加载策略**(PreloadAllModules 权衡:首屏后静默加载);路由事件(Router.events,做进度条/埋点);`provideRouter` + 函数式守卫是 v15+ 新写法(新项目用)。
+**内容投影** ---- 认识投影槽、选择器、默认内容和多槽布局；这是 Angular 版的组件组合能力，封装 UI 组件时非常关键
 
-## 第四站:表单——两套体系
+**模板引用与查询** ---- 了解元素、指令、组件、内容和视图查询；查询时机、静态选项和变更检测顺序是常见坑点
 
-Angular 有两套表单,都要会:
+**样式与封装** ---- 理解组件样式作用域、全局样式、主题、View Encapsulation 和样式穿透；样式封装不是把 CSS 变成隐形斗篷
 
-**模板驱动表单**(简单表单):模板里 `[(ngModel)]` + `name` 属性;验证用 HTML5 + `required`/`minlength`/`pattern` 指令;**`#form="ngForm"`** 拿整个表单引用,查 `form.valid`/`form.value`;**表单状态四件套**:`valid`/`invalid`(合法性)、`touched`/`untouched`(碰过没)、`dirty`/`pristine`(改过没)、`pending`——做"红框只在 touched 后显示"的体验全靠它们;错误信息用 `ngModel` 的 `errors` 对象 + `*ngIf` 展示。适合字段少、验证简单的场景。
+**重点在这** ---- 先建立组件树、模板树和依赖树三张地图；Angular 难的不是单个 API，而是三张树要同时对得上
 
-**响应式表单**(复杂表单,推荐主力):在类里建模——`FormControl`(单控件)/`FormGroup`(控件组,嵌套)/**`FormArray`**(动态数组:动态增删的地址列表/技能列表,`push`/`removeAt`);`FormBuilder`((fb.group(&#123; name: ['', [Validators.required, Validators.minLength(2)]] &#125;)))简化创建;验证器 `Validators` 内置(required/email/minLength/maxLength/pattern)与**自定义验证器**(返回 (&#123; errorName: true &#125;) 或 null 的纯函数;异步验证器做用户名查重);模板里 `[formGroup]` + `formControlName` 关联;提交 `form.value`(整个模型,类型安全);`valueChanges`/`statusChanges` Observable(联动、动态校验)。
-**选型**:字段多/动态/联动多/要单测 → 响应式;简单联系表单 → 模板驱动也够。响应式表单纯 TS 模型,可测试性完胜。
+## 第二站：变更检测与 Signals
 
-## 第五站:HTTP 与 RxJS——Angular 的响应式血脉
+第二站进入 Angular 的雷达站：变更检测像巡逻队，Zone 会报告动静，Signals 则把依赖关系画成更精确的地图。你要搞懂数据变了以后谁收到通知、哪棵树需要复查，而不是对着页面喊“更新一下”。
 
-**HttpClient**:`HttpClientModule`(standalone 用 `provideHttpClient()`)注入;`http.get/post/put/delete&lt;T&gt;(url, options)` 返回 **Observable**;options 里 `headers: new HttpHeaders()`、`params: new HttpParams()`(不可变,`set`/`append` 返回新对象)、`responseType`、`observe: 'response'`(要状态码/头时);**拦截器 HttpInterceptor**:`intercept(req, next)` 里统一加 token、统一错误处理、日志、缓存——"每个请求都带 Authorization"的唯一正确姿势(函数式 `provideHttpClient(withInterceptors(...))` 是新写法);**错误处理**:`catchError` 操作符(区分网络错/业务错,`throwError` 重新抛出)、`finalize`(关 loading);**竞态控制**靠 RxJS(见下);上传下载进度 `reportProgress` + `HttpEventType`;`withFetch` 用浏览器 fetch 替代 XHR。
+**变更检测心智模型** ---- 认识组件树检查、模板读取、更新提交和开发模式检查；区分重新检查、重新计算和真正的 DOM 更新
 
-**RxJS 必会清单**:Observable(惰性、可取消的数据流,与 Promise 的本质区别:可以多次发射、可以取消)、**Subject**(多播:一个源多个订阅者)、`BehaviorSubject`(带当前值,组件初始化就能拿到最新状态——服务共享状态的首选)、`ReplaySubject`(重放历史 n 个值)、`AsyncSubject`(只发最后一个);创建:`of`/`from`/`fromEvent`/`interval`/`timer`;操作符三族——转换:`map`/`switchMap`(取消前一个,搜索联想/竞态的答案)/`mergeMap`(并发扁平化)/`concatMap`(串行排队)/`exhaustMap`(进行中忽略新触发,刷新按钮防抖)/`scan`;过滤:`filter`/`take`/`takeUntil`(自动退订的黄金搭档:私有 Subject + ngOnDestroy 里 next)/`takeWhile`/`distinctUntilChanged`;组合:`forkJoin`(并发等全部,类似 Promise.all)/`combineLatest`/`withLatestFrom`;工具:`tap`(调试副作用)/`delay`/`debounceTime`(输入防抖)/`throttleTime`/`retry`/`catchError`;**错误与完成**:subscribe 的三个回调、`finalize`;**冷热 Observable** 概念(冷:每次订阅重新执行,http 是冷;热:共享执行,Subject 是热)——`shareReplay` 把冷变热(缓存请求结果)。
-模板里 `| async` 管道自动订阅退订,是"少写内存泄漏"的第一道防线;组件里手动 subscribe 必须配对 unsubscribe(takeUntil 模式)。
+**Zone 与无 Zone** ---- 了解 Zone.js 如何捕获异步任务，以及 zoneless 方向为什么需要更明确的更新通知；自动提醒很方便，自动提醒过多也会吵
 
-## 第六站:状态管理——从服务到 NgRx
+**OnPush 策略** ---- 理解输入引用、事件、可观察对象和显式标记如何触发检查；OnPush 不是性能开关，而是一份更严格的更新契约
 
-小应用:服务 + BehaviorSubject 就够(`get users$()`,组件 `| async`);**NgRx**(Redux 模式在 Angular 的官方实践,大应用/严格规范团队):**Store**(全局单一状态树,不可变)、**Actions**(动作,`createAction` + props,类型安全)、**Reducers**(纯函数:旧状态 + action → 新状态,用 `createReducer` + `on`)、**Effects**(副作用容器:监听 action → 调 API → 派发结果 action,`createEffect`,把异步与不可预测全挡在组件外)、**Selectors**(`createSelector`,记忆化派生查询)、`@ngrx/component-store`(局部状态管理,组件内用 NgRx 心智的轻量版)、DevTools(时间旅行调试)。
-其他方案:NGXS(装饰器风格,更少样板)、Akita/Elf(轻量响应式)。**选型**:跨模块共享 + 复杂交互 + 团队大 → NgRx;中小应用 → 服务 + BehaviorSubject 或轻量库,别让仪式感拖垮开发速度。
+**Signals 基础** ---- 认识 signal、computed、effect、读取依赖和写入通知；Signals 的重点是依赖图，不是把变量名字换成函数
 
-## 第七站:变更检测与性能
+**computed 与 effect** ---- 区分派生值和副作用；computed 应保持纯净，effect 才负责同步外部世界，别让两个角色互相串台
 
-**Zone.js** 是 Angular 的"心跳":它猴子补丁了浏览器异步 API(事件/setTimeout/Promise),任何异步发生都会触发**从根组件向下的全量变更检测**——这是"自动更新"的代价:默认策略下每次检测都要跑整棵组件树。优化三板斧:
+**Signal 与模板** ---- 理解模板读取如何建立依赖、更新如何定位组件和如何与 OnPush 协作；细粒度更新是目标，边界仍然要设计
 
-1. **ChangeDetectionStrategy.OnPush**:组件只在"输入引用变化 / 自身事件 / Observable 发射 / 手动标记"时检测——**配不可变数据**(每次更新返回新对象,别改原数组)才有效;这是 Angular 性能第一课;
-2. **ChangeDetectorRef**:`markForCheck`(OnPush 下手动标记,async pipe 内部就是它)/`detectChanges`(局部立即检测,慎用)/`detach`/`reattach`;
-3. **`trackBy`**(ngFor/新 @for 的 track)与**纯管道**(默认缓存)、**懒加载模块**、**预加载策略**、Web Worker(计算密集任务,`@angular/workers` 生态)。
+**RxJS 与 Signals 互操作** ---- 学习 Observable、Signal、输入输出和异步状态之间的转换；选择模型要看数据流性质，不要为了追潮流把所有流都改名
 
-**Signals(Angular 16+)是未来方向**:`signal(0)`/`computed(() => …)`/`effect(() => …)` 细粒度响应式——**不再需要 Zone.js 的全树扫描**,`input()`/`output()` 替代 @Input/@Output、`model()` 双向、`viewChild()`;新项目可以 Signals + zoneless 起步,官方正推动"signal-based components"成为默认;理解它之前先把 OnPush 玩透,两者心智同源(细粒度 + 不可变)。
+**不可变性与引用** ---- 认识对象引用、数组更新、深层修改和变更检测的关系；数据不变不是宗教，而是让更新边界可推理的工具
 
-**AOT 编译**(默认开启):模板在**构建期**编译成 JS(而非浏览器里 JIT),产物更小更快、模板错误构建期就报;相关开关:`strictTemplates`(模板里的类型检查,能查出"绑了个不存在的属性");构建优化:tree-shaking、budgets(包体积预算,超了构建失败)、`ng build --configuration production`;**懒加载 + 预加载**是运行时大头。
+**性能诊断** ---- 使用开发工具、性能时间线、变更检测分析和渲染统计定位问题；先知道谁在更新，再讨论怎么让它少更新
 
-## 第八站:CLI、测试与工程化
+**重点在这** ---- Angular 的性能来自清楚的依赖和更新边界；自动机制越多，越要理解它什么时候会被触发
 
-**Angular CLI**:`ng new`(交互式选 standalone/SSR/样式方案)、`ng generate`(component/service/pipe/guard/interceptor……一行生成带测试文件的代码,`--standalone`/`--inline-template` 选项)、`ng serve`(开发,`--port`)、`ng build`、`ng test`、`ng lint`、`ng add`(装库并自动配好,如 `ng add @angular/material`)、`ng update`(版本升级迁移);**Schematics**(代码生成器框架:CLI 的 generate 就是 schematics,团队可以写自己的模板脚手架)、Nx(monorepo 工具链:多应用多库共享代码、affected 增量构建——大型组织标配)。
+## 第三站：依赖注入与服务设计
 
-**测试**:单元测试 **Jasmine + Karma**(Angular 官方栈,`ng test`;Vitest 正在成为新选择);核心是 **TestBed**:`TestBed.configureTestingModule(&#123; declarations/imports/providers &#125;)` 搭测试环境,`fixture = TestBed.createComponent(XxxComponent)`、`fixture.detectChanges()`(触发变更检测)、`DebugElement`(`fixture.debugElement.query(By.css(...))`)、`nativeElement` 断言 DOM;服务测试:注入真实服务或 `useValue` mock;HTTP 用 `HttpTestingController`(`expectOne`/`flush` 模拟响应);组件交互:`fixture.componentInstance` 直接调方法 + 重新 detectChanges。
-**E2E**:Protractor 已废弃,现代方案 **Playwright / Cypress**(模拟真实用户)。**测试策略**:服务与纯逻辑(管道/验证器/工具)全测、组件测"输入输出契约"、路由守卫与拦截器值得测、E2E 覆盖核心流程。
+第三站来到依赖注入仓库：服务是物资，InjectionToken 是标签，注入器是仓库管理员，作用域决定这箱东西是全城共享还是每户一份。层级搞清楚，测试替身和业务边界就不再互相串门。
 
-## 第九站:SSR 与新范式
+**注入器层级** ---- 认识根注入器、环境注入器、组件注入器和元素注入器；依赖从哪里提供，决定实例是否共享、何时创建和何时销毁
 
-**Angular Universal / SSR**:`ng add @angular/nguniversal` 或新脚手架自带;服务端渲染首屏 HTML(SEO + 首屏速度),客户端 hydrate 接管交互;`provideClientHydration`(v17 起稳定);**预渲染(prerender)**:纯静态页面构建期生成 HTML(文档站/官网);水合不匹配的坑(时间/随机值)与处理;`TransferState`(把服务端数据传给客户端,避免重复请求——SSR 双请求问题的标准解)。**Standalone**(14+)与**Signals**(16+)已在各站讲过,这里串一下新项目模板:standalone 组件 + provideRouter/provideHttpClient/provideZoneChangeDetection + signal 状态 + 函数式守卫拦截器——这套"现代 Angular"比 2019 年的教程少一半样板。
+**服务与提供者** ---- 区分类服务、值提供者、工厂提供者、别名提供者和多值提供者；提供者配置是架构决策，不只是把类塞进数组
 
-## 第十站:UI 与生态
+**注入令牌** ---- 了解类令牌、字符串风险、InjectionToken、配置对象和多提供者；非类依赖需要清晰的令牌和类型边界
 
-**Angular CDK**(官方组件开发工具包:Overlay(弹层,自己写 Modal/Tooltip 的底子)、DragDrop、A11y(无障碍)、Platform、Portal)——Angular 生态的"积木层";**Angular Material**(官方 Material Design 组件库,配 CDK,主题定制 via Sass)、**PrimeNG**(企业级,组件最全)、**Ng-Zorro**(Ant Design 风格,国内后台常用)、Nebular/ngx-bootstrap;日期 dayjs/date-fns(替代老 Moment);图标 @angular/material-icons 或 iconfont;**Ionic**(用 Angular 技术栈写移动应用,Capacitor 打包原生);图表:ngx-charts/echarts;表格:AG Grid(重型企业表格)。
-**学习路径建议**:先 TS + RxJS(没有它 Angular 寸步难行)→ 组件/模板/指令 → DI 与服务 → 路由 → 表单 → HttpClient → OnPush 与 Signals → NgRx(需要时)。
+**注入修饰符** ---- 理解可选、跳过自身、限定宿主、从祖先查找等策略；修饰符改变的是查找范围和失败行为
+
+**依赖作用域** ---- 设计全局单例、路由级实例、组件级实例和请求级上下文；生命周期不匹配会造成状态串台或资源泄漏
+
+**服务职责** ---- 服务适合业务逻辑、数据访问、状态协调和平台能力；不要把所有东西都叫 Service，然后让它变成一整个应用的抽屉
+
+**配置与环境** ---- 处理运行环境、功能开关、API 地址和多应用配置；配置要可测试、可替换、不可把密钥打进前端
+
+**测试替身** ---- 通过注入替换真实服务、网络、时间和存储；依赖注入的价值之一，就是让测试不用把整座城市一起启动
+
+**动态注入** ---- 了解在函数、工厂、路由和运行时上下文中获取依赖；动态能力强，但依赖关系也更不明显，使用要留痕
+
+**重点在这** ---- 依赖注入要回答“谁创建、谁共享、谁销毁”；生命周期答不清，服务就会在项目里神秘繁殖
+
+## 第四站：RxJS 与异步数据流
+
+第四站上 RxJS 过山车：数据会来、会走、会完成、会报错，还可能在你处理上一条时再来十条。switch、merge、concat、exhaust 是四种排队脾气，选错一个，用户就会替你体验并发灾难。
+
+**Observable 心智模型** ---- 理解惰性、订阅、推送、完成、错误和取消；Observable 是一条可能持续很久的数据流，不是只能 resolve 一次的盒子
+
+**订阅生命周期** ---- 关注订阅创建、取消、完成、组件销毁和共享；忘记取消订阅，内存泄漏会在很远的地方向你挥手
+
+**操作符分类** ---- 区分创建、转换、过滤、组合、错误处理、重试、时间控制和多播操作符；先按意图分类，再去查具体名字
+
+**映射与并发策略** ---- 理解 switch、merge、concat、exhaust 等映射策略分别如何处理新旧任务；搜索框、提交按钮和批量任务不能用同一把扳手
+
+**组合数据流** ---- 学习合并、组合最新值、等待全部完成和按顺序执行；组合前先定义每条流的完成与错误语义
+
+**Subject 家族** ---- 认识 Subject、BehaviorSubject、ReplaySubject 和 AsyncSubject 的特点与风险；Subject 很灵活，也很容易成为隐藏的全局变量
+
+**错误与重试** ---- 设计 catch、重试、退避、降级、超时和最终失败；重试不是把网络问题按更多次回车键
+
+**背压与节流** ---- 处理高频输入、滚动、窗口变化和消息流；debounce、throttle、采样和缓冲各有语义，不要只凭名字选
+
+**多播与缓存** ---- 理解共享订阅、缓存结果、失效时机和重复请求；缓存一份数据很容易，解释它何时过期才是工作
+
+**RxJS 与模板** ---- 关注异步管道、自动订阅、错误展示和变更检测协作；模板能简化订阅，但不能替你设计数据流
+
+**重点在这** ---- RxJS 的核心是时间、并发和取消；先问“新数据来时旧任务怎么办”，再决定操作符
+
+## 第五站：路由与应用导航
+
+第五站进入 Angular 交通总局：URL 是路牌，路由出口是站台，守卫是检票员，解析器负责提前备货，懒加载负责分批发车。交通顺畅不等于权限完成，真正的安全还在服务器那边。
+
+**路由配置** ---- 认识静态路由、动态参数、通配路由、重定向和匹配顺序；路由表本身是一份应用信息架构
+
+**Standalone 路由** ---- 了解现代路由提供者、组件导入和应用启动；新项目优先理解这条主线，再回头看模块路由
+
+**嵌套路由与出口** ---- 用子路由表达布局、工作台和多区域页面；路由出口是视图插槽，层级设计要符合用户看到的结构
+
+**路由参数** ---- 区分路径参数、查询参数、片段和导航状态；可分享、可刷新、可缓存的状态通常更适合放进 URL
+
+**编程式导航** ---- 处理相对导航、绝对导航、替换历史和导航结果；导航是异步流程，失败和取消也要有用户体验
+
+**路由守卫** ---- 覆盖能否进入、能否离开、能否加载、解析数据和匹配路由；守卫负责体验与流程，真正授权仍需服务端确认
+
+**路由解析** ---- 在进入页面前准备数据，理解阻塞首屏、缓存、错误和取消；预加载不是越多越好，等太久用户会以为网站去度假了
+
+**懒加载** ---- 按功能、权限和访问频率拆分路由；处理预加载策略、加载失败和版本缓存
+
+**路由动画与滚动** ---- 关注页面切换、焦点、滚动恢复和可访问性；动画不能把键盘用户关在上一页
+
+**路由测试** ---- 验证参数、守卫、重定向、解析失败和深链接刷新；路由 bug 往往只在用户按下浏览器后退时露面
+
+**重点在这** ---- 路由连接 URL、组件、数据和权限；页面能显示只是起点，能被分享、刷新、返回和恢复才像应用
+
+## 第六站：表单与用户输入
+
+第六站是表单急救室：模板驱动像轻便急救包，响应式表单像带监护仪的手术台。字段会变脸、校验会异步、服务端会拒绝，真正要学的是如何让用户知道哪里不对、下一步怎么修。
+
+**模板驱动表单** ---- 认识模型绑定、表单状态、验证和模板引用；上手快，但复杂动态逻辑会逐渐挤满模板
+
+**响应式表单** ---- 掌握控件、控件组、数组、值变化和状态变化；表单模型在类中可组合、可测试、可动态生成
+
+**控件状态** ---- 理解 valid、invalid、pending、disabled、pristine、dirty、touched 和 untouched；状态是用户体验信息，不只是红色边框开关
+
+**同步验证** ---- 设计必填、长度、范围、格式、跨字段和业务规则；验证消息要告诉用户怎么修，不要只说“错了”
+
+**异步验证** ---- 处理用户名检查、远程唯一性、取消、去抖、竞态和 pending 状态；网络验证最容易把表单变成小型分布式系统
+
+**动态表单** ---- 用 FormArray、配置驱动和字段工厂处理重复项、条件字段和多步骤表单；动态不是任意生成，仍需要稳定的类型和错误路径
+
+**自定义控件** ---- 了解 ControlValueAccessor、禁用状态、触摸状态和验证集成；封装输入组件时要完整接入表单协议
+
+**表单提交** ---- 区分提交中、成功、失败、重置、重复提交和服务端错误；按钮禁用只是第一层防线
+
+**可访问性** ---- 标签、错误关联、焦点移动、键盘操作、公告和错误摘要都要纳入；表单不是只有鼠标用户
+
+**重点在这** ---- 表单是状态机，不是一堆输入框；值、验证、交互和提交结果要能被用户和代码共同理解
+
+## 第七站：HTTP、拦截器与服务端协作
+
+第七站来到 HTTP 海关：请求要验身份，响应要分错误，失败要决定重试还是撤退，旧请求还得及时取消。发请求只是递交材料，真正的工程活在边界处理里。
+
+**HttpClient 基础** ---- 认识请求方法、请求选项、响应类型、参数、请求头和 Observable 返回值；先建立请求生命周期，再堆业务 API
+
+**类型化响应** ---- 让响应模型、分页、错误联合和转换步骤清晰；类型声明不能验证服务器真的按文档办事
+
+**拦截器** ---- 处理认证头、日志、加载状态、错误映射、重试和请求追踪；拦截器要做横切关注点，别把业务流程藏在全局钩子里
+
+**认证与刷新** ---- 设计 Token、Cookie、刷新、并发请求、失败登出和重放策略；认证刷新是并发问题，不是简单地再发一次请求
+
+**取消与超时** ---- 处理页面离开、搜索变化、用户取消和网络超时；不能取消的请求会在后台坚持到天荒地老
+
+**错误分层** ---- 区分网络错误、认证错误、权限错误、校验错误、业务错误和未知异常；不同错误要有不同的恢复方式
+
+**缓存与重试** ---- 认识 HTTP 缓存、客户端缓存、幂等性、退避和重复请求；重试前先确认这个操作重复执行会不会闯祸
+
+**上传下载** ---- 覆盖进度、断点、文件类型、大小限制、预览和取消；上传文件是安全和体验的双重考试
+
+**服务端安全边界** ---- 前端不保存密钥、不信任用户输入、不把隐藏按钮当权限；真正的授权和数据校验必须在服务端完成
+
+**重点在这** ---- HTTP 层是全站的边界层；统一做得好，业务页面就能少写一半“请求出错怎么办”的重复剧本
+
+## 第八站：状态管理与性能
+
+第八站开状态管理议会：服务、Signals、RxJS、Component Store 和 NgRx 都来竞选，但没有谁自带“全局正确”。先看状态复杂度、更新频率和团队人数，再决定谁来当部长。
+
+**服务状态** ---- 适合简单共享、缓存和跨组件协调；要关注实例作用域、初始化时机和清理
+
+**Signal 状态** ---- 用细粒度依赖表达本地和共享状态；区分可变容器、派生值和副作用，避免把 effect 当万能 action
+
+**RxJS 状态** ---- 适合时间流、事件流和复杂异步组合；用明确的读写接口控制 Subject，避免任意组件直接 next
+
+**NgRx 思维** ---- 认识 Store、Action、Reducer、Selector、Effect 和实体状态；它适合大型、可追踪、事件复杂的系统，不是 Todo List 的毕业证
+
+**状态边界** ---- 区分组件状态、路由状态、会话状态、服务端缓存和表单状态；状态归属不清，架构就会开始互相甩锅
+
+**OnPush 与引用** ---- 用不可变更新、纯计算和精确通知降低检查成本；优化前先确认数据流是否清楚
+
+**列表与视图** ---- 关注 track、虚拟滚动、分页、懒加载和大表格；浏览器不是数据库，别把全年的订单一次性塞进 DOM
+
+**懒加载与预加载** ---- 按路由和功能切包，选择合适预加载策略；首屏、切页和缓存需要综合权衡
+
+**性能度量** ---- 使用 Angular DevTools、浏览器性能面板、网络分析和 Web Vitals；性能问题要有数字，不靠“感觉今天有点慢”
+
+**重点在这** ---- 状态设计先于状态库选择；最强的性能优化常常是减少状态、减少订阅、减少依赖和减少不必要的工作
+
+## 第九站：SSR、Hydration 与平台能力
+
+第九站办理 Angular 的跨平台签证：SSR 让服务器先把页面端上桌，Hydration 负责浏览器接管，边缘运行时还会检查你的行李里有没有偷偷塞 Node API。运行位置一换，生命周期和安全边界都要重新对账。
+
+**CSR、SSR 与预渲染** ---- 区分客户端渲染、请求时渲染和构建时生成；从首屏、SEO、数据新鲜度和服务器成本做选择
+
+**Hydration** ---- 理解服务端 HTML 如何被客户端接管，关注结构一致、事件恢复和重复请求；水合不一致是服务端与客户端没对上台词
+
+**平台抽象** ---- 处理浏览器、服务器、Web Worker 和测试环境的差异；使用平台服务和安全判断，不要让 window 在服务器上突然登场
+
+**服务端数据** ---- 设计首屏数据、序列化、请求隔离、缓存和用户会话；服务器请求不能把一个用户的数据带给下一个用户
+
+**SEO 与元信息** ---- 管理标题、描述、结构化数据、社交卡片和可访问内容；SEO 不是最后一天给页面贴标签
+
+**安全渲染** ---- 关注模板注入、动态 HTML、Cookie、CSRF、CSP 和敏感信息输出；服务端渲染让页面更快，也让泄漏更尴尬
+
+**重点在这** ---- SSR 是平台边界问题，不只是配置开关；先理解代码在哪里跑，再决定哪些 API 可以直接使用
+
+## 第十站：测试、构建与团队工程
+
+第十站进入 Angular 的出厂质检线：CLI 管流水线，测试抓回归，组件文档贴说明，构建和监控守着出厂门。能跑只是样机，能升级、能回滚、能让团队接班，才算正式量产。
+
+**组件测试** ---- 覆盖模板渲染、输入输出、事件、表单、异步状态和可访问性；测试用户观察到的契约，不要只测试私有字段
+
+**服务与注入测试** ---- 替换依赖、模拟 HTTP、控制时间和验证提供者作用域；注入体系本来就是为了可替换
+
+**路由与端到端测试** ---- 守住登录、权限、导航、表单和关键业务路径；端到端测试要少而关键，避免一场网络抖动毁掉全套测试
+
+**CLI 与构建** ---- 理解开发服务器、生产构建、环境配置、代码生成、迁移和分析报告；CLI 是工具，不是项目架构师，最终决策仍要靠人
+
+**代码分割与缓存** ---- 关注产物、懒加载、预加载、长期缓存和版本失配；部署后旧 HTML 加新 JS 是常见的“昨天没问题”来源
+
+**组件库与设计系统** ---- 评估 Angular Material、CDK、企业组件库和自研系统；关注无障碍、主题、升级成本和按需引入
+
+**升级策略** ---- 关注框架、CLI、RxJS、TypeScript 和构建器的版本关系；按迁移指南逐步升级，不要把多年债务一次性打包成惊喜
+
+**监控与发布** ---- 建立错误上报、性能指标、Source Map、健康检查和回滚；生产问题要能定位到用户路径和版本
+
+**重点在这** ---- 工程化是让框架能力可重复交付；规则不是为了约束灵感，而是为了让团队少靠记忆力工作
 
 ## 通关标准
 
-能独立做到:用 CLI 生成 + standalone 组件 + 响应式表单 + 路由守卫 + 拦截器 + OnPush 写一个带权限与错误处理的中型后台;说清 Zone.js 与 OnPush 的关系、switchMap 为什么能解决竞态、BehaviorSubject 与 Subject 的区别、`| async` 为什么不会泄漏;能写组件与服务单测(TestBed + mock);看得懂 NgRx 的 action/reducer/effect 流转——Angular 主线通关。
+**Angular 新手村能组装组件** ---- 会用模板、输入输出、内容投影、表单和服务做出功能页，知道依赖不是凭空掉下来的。NgModule 和 Standalone 还会偶尔撞车，但至少能认出它们。
 
-Angular 学习曲线确实陡峭:概念多、规范严、RxJS 劝退一大半人。但正是这些约束让大型项目十年后依然可维护——这是它在中大型企业应用里长盛不衰的原因。别被开头吓到,按官方文档顺序学:组件 → DI → 路由 → 表单 → RxJS,每过一关,之前的疑惑都会消掉一层。熬过前两个月的"什么都绕",你会感谢它的严谨。
+**初级前端能跑通业务** ---- 能组织路由、依赖注入、HTTP、基础状态和权限流程，能让表单从打开走到提交。面试问 Observable，你不会再把它说成“会多次 resolve 的 Promise”。
+
+**中级前端能管理更新** ---- 能解释 OnPush、Signals、RxJS、变更检测、缓存、取消和错误边界，能定位重复订阅与无效渲染。代码开始有秩序，注入器也不再像迷宫管理员。
+
+**高级前端能守住整座城** ---- 能做 SSR、水合、可访问性、测试、构建、迁移和团队规范，能按复杂度选择服务、Signals、RxJS 或 NgRx。Angular 的体系负责稳，你负责别把它配置成一座无人维护的城堡。
+
+## 下一站去哪
+
+- **[TypeScript](/learning-paths/frontend/typescript)** ---- 深入 Angular 类型、泛型和边界建模
+- **[RxJS 学习路线](/learning-paths/frontend/rxjs)** ---- 把异步数据流与并发控制学扎实
+- **[Vite](/learning-paths/frontend/vite)** ---- 理解现代前端开发服务器与构建工具
+- **[Web 性能](/learning-paths/performance/web-vitals)** ---- 把变更检测优化落到用户体验指标
+
+## 结语
+
+Angular 像一座规划完整的城市：路牌多、交通规则多，但大型项目不容易因为每个人都随手修路而失控。先接受它的体系，再理解它的机制；当你能说清“这份依赖由谁创建、这次更新为什么发生、这个错误应该在哪里处理”，Angular 就不再厚重，而是可靠。
