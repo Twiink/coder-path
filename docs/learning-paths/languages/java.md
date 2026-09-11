@@ -1,85 +1,233 @@
 # Java 学习路线
 
-Java,"一次编写,到处运行"——靠的不是魔法,是 **JVM(Java 虚拟机)**:同一份字节码在任何装了 JVM 的平台上跑。它语法严谨、生态庞大,是企业后端、大数据、Android 的中流砥柱,也是国内招聘量最大的语言之一。Java 的学习曲线是"先平后陡":基础语法好上手,但集合、并发、JVM 每一层都能挖得很深——**好 Java 程序员拼的不是 API 记忆,而是对 JVM 与并发的理解**。
+Java 是那位穿着西装、拿着工牌、却能连续加班很多年的工程师。它把“写一次、到处跑”交给 JVM，把复杂系统交给类型、集合、并发和庞大的生态；语法看起来规整，深处却藏着字节码、垃圾回收、内存模型和类加载器。
 
-这条线按 **环境与语法 → 面向对象 → 核心类库 → 集合框架 → 泛型 → 注解与反射 → I/O 与 NIO → 多线程与并发 → JVM → 新特性 → 工程与框架** 推进。版本建议:直接学 **LTS 版本**(17 或 21),新特性(record/switch 表达式/虚拟线程)会让代码脱胎换骨。
+这份路线是 **通用基础 → 编程语言 → Java** 的独立学习地图，不是 API 名录，也不要求把所有框架一次请进会议室。它会带你从语言地基走到 JVM 与工程实践，告诉你应该掌握什么、理解到哪一层、什么时候该继续下潜。
 
-## 第一站:环境与语法地基
+**适合谁** ---- 想进入企业后端、大数据、Android 或 JVM 生态，准备系统学习 Java，或想从“会写业务”进阶到“知道代码在 JVM 里怎么活”的开发者
 
-**环境**:装 JDK(不是 JRE——JDK 含编译器 javac;17+ 有 jpackage 打包);分清 JDK/JRE/JVM 三者(面试送分题);IDE 用 **IntelliJ IDEA**(社区版免费够用),命令行流程也要会:`javac Hello.java` → `java Hello`(main 方法签名 `public static void main(String[] args)` 是 JVM 入口约定)。
-**类型系统**:8 种基本类型(`byte/short/int/long`(默认 0)、`float/double`(默认 0.0,浮点精度问题用 BigDecimal)、`char`(16 位 Unicode)、`boolean`) + 引用类型(类/接口/数组/enum);基本类型存栈上、按值传递,引用类型按引用传递(**对象内容可变、引用本身按值**——"Java 只有值传递"是面试高频辨析)。
-**运算符**:算术/比较/逻辑(短路 &&/||)/位运算/三元;`==` 对引用比较的是地址(字符串比较必须 equals!);字符串拼接 `+` 在循环里会产生大量中间对象(用 StringBuilder)。**控制流**:if/else、`switch`(支持 String 与 enum;**switch 表达式** 14+ 用 `->` 与 yield,不再穿透)、for/增强 for/while;**数组**:定长(创建后长度不可变)、`int[]` vs `int[][]`、`Arrays` 工具类(sort/binarySearch/fill/copyOf/toString)、遍历用增强 for 或 Arrays.stream。
-**输入输出**:System.out.println、Scanner(System.in)、格式化 printf。
+**先记住一件事** ---- Java 的价值不在于会敲出一串类和方法，而在于能理解类型、对象、并发、内存和工具链怎样共同把系统托起来
 
-## 第二站:面向对象——Java 的立身之本
+**推荐总顺序** ---- 工具链与语法 → 面向对象 → 泛型与集合 → 异常与标准库 → 函数式与流 → 反射与类加载 → I/O 与网络 → 并发 → JVM → 工程与现代 Java
 
-**类与对象**:`class` + `new`;构造器(与类同名、可重载;不写也有默认无参);`this`(区分参数与字段、构造器互调 `this(...)`)。**封装**:访问修饰符四档 `private`(类内)< 默认(包内)< `protected`(包内+子类)< `public`;字段私有 + getter/setter(不是教条,是"留变更余地");**包 package** 与 import(域名反写命名)。
-**继承**:`extends` 单继承;方法重写(@Override 必须标——编译器帮查签名)、字段隐藏、`super`(调父类构造器/方法;**子类构造器第一行必须 super()**,不写编译器补默认);一切类继承 **Object**(其方法全要认识:equals/hashCode/toString/getClass/clone/finalize(已废弃)/wait/notify)。
-**多态**:向上转型(父类引用指向子类对象)、**动态绑定**(调哪个方法运行时决定——多态的精髓)、重载(编译期,看参数列表)vs 重写(运行期,看继承关系)。**final**:final 类不可继承(String 就是)、final 方法不可重写、final 变量不可变(常量);**static**:静态字段(类级共享)/静态方法(不能访问实例成员)/静态代码块(类加载时执行一次)/静态导入。
-**抽象与接口**:`abstract class`(可有实现,单继承限制)→ **interface**(Java 8+ 可以有 default/static/private 方法;一个类 implements 多个接口;同名 default 方法冲突必须重写解决;"接口是能力契约,抽象类是模板"是选型口诀)。
-**内部类四兄弟**:成员内部类(持外部类引用)、静态内部类(不持)、局部内部类、**匿名内部类**(一次性回调,`new Runnable()&#123;...&#125;`——Lambda 出现前的痛,现在读老代码常见);**枚举 enum**:天然单例、可带字段与构造器、switch 可用、`values()` 遍历——**用 enum 做常量集与状态机**;**record**(14+):一行定义不可变数据类(自动生成构造器/equals/hashCode/toString,组件访问器),替代大量 Lombok 场景。
-**Lambda 与函数式**(Java 8,放第十站新特性,但它是 OOP 世界的范式转换,早学早受益)。
+**本页怎么用** ---- 每站先建立模型，再用项目验证；遇到框架代码时，优先追问它调用了哪个语言机制、JVM 能力或并发原语。API 可以查，心智模型要自己养。
 
-## 第三站:核心类库
+## 第一站：工具链、类型与语法地基
 
-**String**:不可变(所有"修改"都返回新串;线程安全由此而来);**字符串常量池**(字面量入池,`new String` 不池——`==` 陷阱的根源);常用方法:length/charAt/substring/indexOf/contains/startsWith/endsWith/split/join/replace/trim/toUpperCase/compareTo;拼接用 **StringBuilder**(非线程安全,快)/StringBuffer(线程安全,慢,少用);`intern()` 手动入池(了解)。
-**包装类**:Integer/Double/Boolean 等;**自动装箱拆箱**(编译器插入 valueOf/xxxValue);**缓存坑**:Integer 缓存 -128~127,`Integer a = 127, b = 127; a == b` 是 true,128 就是 false——**包装类比较一律 equals**;拆箱空指针(包装类为 null 时自动拆箱 NPE,集合里取数注意)。
-**日期时间**(重点:用 **java.time**(Java 8)别用老的 Date/Calendar):LocalDate/LocalTime/LocalDateTime(无时区)/Instant(时间戳)/ZonedDateTime(带时区)/Duration 与 Period(时间差)/DateTimeFormatter(线程安全,格式化解析)/`LocalDate.now().plusDays(1)` 这种流畅 API;老代码里的 Date/SimpleDateFormat(线程不安全)要能看懂。
-**BigDecimal**:金额计算必用(构造用字符串 `new BigDecimal("0.1")`,别传 double!);`setScale(2, RoundingMode.HALF_UP)` 四舍五入;比较用 compareTo 不用 equals(equals 看精度)。**异常体系**:`Throwable` → `Error`(JVM 级,别 catch)与 `Exception` → 分**受检异常 checked**(编译期强制处理:IOException/SQLException——设计上"可恢复")与**非受检 unchecked**(RuntimeException 系:NPE/IndexOutOfBounds/IllegalArgumentException/ClassCastException——"程序 bug");处理:`try-catch-finally`(finally 总会执行,注意 finally 里 return 会覆盖 try 的 return)、多重 catch、**try-with-resources**(`try (var in = new FileInputStream(...))`,自动 close,资源类要实现 AutoCloseable——现代首选)、`throw` 抛与 `throws` 声明、**自定义异常**(继承 Exception 或 RuntimeException,一般带几个构造器)、异常链(cause)。
-**其他**:Math、System、Runtime、Objects(requireNonNull)、Optional(见新特性)。
+Java 的第一位老师是编译器，第二位是 JVM。前者会在出门前检查证件，后者负责把字节码带到不同平台；两位都不太接受“差不多”。
 
-## 第四站:集合框架——数据结构标准库
+**JDK、JRE 与 JVM** ---- 区分开发工具、运行时库、虚拟机、编译器、调试器和打包工具，理解源码、字节码和机器执行之间的分工
 
-**体系图**(面试必画):Collection(List/Set/Queue)→ Map。**List**:**ArrayList**(动态数组,默认容量 10,扩容 1.5 倍(Arrays.copyOf);随机访问 O(1),中间插入删除 O(n))vs **LinkedList**(双向链表,插入删除 O(1) 但实际因缓存不友好常更慢;还实现 Deque);Vector 是同步老古董(别用)。
-**Set**:**HashSet**(基于 HashMap,无序,**依赖 hashCode 与 equals**——重写 equals 必须重写 hashCode,否则去重失效,头号坑)/LinkedHashSet(插入序)/TreeSet(红黑树,自然排序或 Comparator,**元素需可比较**)。
-**Map**:**HashMap**(核心中的核心:数组+链表+红黑树;put 流程、hash 扰动、负载因子 0.75、扩容翻倍、**链表超 8 转红黑树**、key 要不可变(用 String/Integer));LinkedHashMap(插入序/访问序——**实现 LRU 缓存**);TreeMap(有序);Hashtable 已废(全方法同步太慢)。
-**Queue/Deque**:ArrayDeque(双端,当栈/队列用,比 Stack/LinkedList 好)、**PriorityQueue**(二叉堆,自动按优先级出队,`Comparator` 定制——TopK 问题);**BlockingQueue** 见并发章节。**迭代**:Iterator(hasNext/next/remove)与增强 for; **fail-fast 机制**(遍历中结构修改抛 ConcurrentModificationException——删除元素要用 iterator.remove 或 collect 后批量删);**Collections 工具**:sort(传入 List)/binarySearch/reverse/shuffle/unmodifiableXxx(只读视图)/synchronizedXxx(同步包装)/singletonXxx;`Arrays.asList`(固定长度视图,add 会炸)与 `List.of`(9+,真不可变)。
-**排序接口**:`Comparable`(类自身自然序,compareTo)vs `Comparator`(外部比较器,Lambda 写 `Comparator.comparing(User::getAge).thenComparing(...)`)。
+**编译、运行与模块路径** ---- 掌握编译、类路径、模块路径、依赖解析、资源文件、源码映射和不同启动方式
 
-## 第五站:泛型——编译期的安全带
+**基本类型与引用类型** ---- 理解整数、浮点、字符、布尔、数组、类、接口、枚举和引用的表示、默认值、装箱与拆箱
 
-**泛型类/接口/方法**:`class Box&lt;T&gt;`、`<T extends Number>` 上界约束、泛型方法 `&lt;T&gt; T get(...)`。**类型擦除**(理解泛型的关键):泛型信息只存在于编译期,运行时全部擦成原始类型(Object/上界)——所以 `List&lt;String&gt;` 与 `List&lt;Integer&gt;` 运行时是同一个类;由此推出:不能 `new T()`、不能 `T.class`、不能建泛型数组、静态成员不能引用类泛型、重载 `f(List&lt;String&gt;)` 与 `f(List&lt;Integer&gt;)` 编译冲突;桥接方法(擦除后编译器生成的保持多态的方法,反射能看到)。
-**通配符**:**`? extends T`(上界:只读不写,`List<? extends Number>` 能取 Number 不能 add——编译器不知道具体子类)**与 **`? super T`(下界:只写不读,`List<? super Integer>` 能 add Integer,取出来是 Object)**;**PECS 原则**:Producer Extends,Consumer Super(从容器读数据用 extends,往容器写数据用 super);无界 `?`。
-**泛型方法 vs 通配符**的选择;`var`(10+)与泛型的配合。
+**值传递与对象可变性** ---- 解释 Java 始终按值传参、引用值如何指向对象、对象内容如何被修改，避免把“引用传递”当成语言事实
 
-## 第六站:注解与反射——框架的魔法
+**表达式与控制流** ---- 覆盖运算符、短路、类型转换、条件、循环、switch 表达式、模式匹配、数组和字符串
 
-**注解(Annotation)**:本质是"标记接口",不自己做事,等着被工具/框架读取。内置:@Override/@Deprecated/@SuppressWarnings/@FunctionalInterface;**元注解**:**@Target**(能用在哪:类型/方法/字段/参数……)、**@Retention**(保留到何时:SOURCE(编译期丢弃,如 Lombok)/CLASS(字节码,默认)/**RUNTIME(反射可读——自定义业务注解几乎都用它)**)、@Documented/@Inherited/@Repeatable;**自定义注解**:`@interface` + 成员(带 default);**注解处理器**:运行时反射读取 + 编译期 Annotation Processor(生成代码,Lombok/Builders 的原理,进阶)。
-**反射(Reflection)**:`Class` 对象三种获取(类名.class/实例.getClass()/Class.forName("全限定名"));`getConstructors/getMethods/getDeclaredFields`(getDeclared 拿私有的,`setAccessible(true)` 破封装——**有风险,框架才用**);动态调用:constructor.newInstance/method.invoke/field.get/set;应用:Spring 的组件扫描与注入、MyBatis 的 Mapper 代理、序列化框架;**动态代理**:JDK 的 `Proxy.newProxyInstance` + InvocationHandler(**只能代理接口**)vs CGLIB(子类继承代理,可代理类)——**Spring AOP 两种代理方式的区别**是面试高频。
-反射的代价:慢(有缓存/性能敏感场景慎用)、破坏封装、难调试。**模块化(JPMS,9+)**:module-info.java 与 exports/requires——库作者与巨型应用才需要,了解。
+**包、可见性与命名** ---- 学习 package、import、public、protected、包可见、private、静态成员和初始化顺序
 
-## 第七站:I/O 与 NIO
+**重点解释** ---- 这一站通关是能从源码、编译器、字节码和 JVM 入口解释一个 Java 程序如何启动，而不是只会点击运行按钮
 
-**经典 IO(阻塞流)**:按单位分**字节流**(InputStream/OutputStream:FileInputStream/FileOutputStream/BufferedInputStream/DataInputStream/ObjectInputStream……)与**字符流**(Reader/Writer:FileReader/FileWriter/BufferedReader(带 readLine)/PrintWriter……);字节 ↔ 字符靠**转换流** InputStreamReader/OutputStreamWriter(指定编码,`UTF-8` 显式写!);**缓冲流**是性能基本盘(FileReader 逐字符读很慢,BufferedReader 包一层);**序列化**:实现 Serializable + **serialVersionUID 必须显式声明**(不写则随类结构变化而变,反序列化 InvalidClassException);transient 跳过字段;序列化安全风险(反序列化攻击——别反序列化不可信数据);**try-with-resources** 管理所有流。
-**现代文件 API**:`java.nio.file.Files/Paths`(readAllLines/write/lines 流式/move/copy/walk 遍历)——新代码用它,别用 File 老 API。**NIO(非阻塞,New IO)**:三大件 **Buffer**(数据容器,flip/clear 语义)/**Channel**(FileChannel/SocketChannel,双向)/**Selector**(多路复用器:一个线程监控多个 Channel 的就绪事件——**Java 高并发的底层模型**,对应操作系统的 epoll);**内存映射文件** MappedByteBuffer(大文件高效读写);NIO 2 的异步通道(AsynchronousSocketChannel,回调式);**Netty**:基于 NIO 的工业级网络框架(见 backend 路线),理解"阻塞 vs 非阻塞 vs 多路复用"的演进是前提。
+## 第二站：类、接口与面向对象
 
-## 第八站:多线程与并发——面试主战场
+Java 的类像一栋有门牌、房间和访客规则的楼。封装负责关门，继承负责认亲，接口则站在门口问：“你会做这件事吗？”
 
-**线程基础**:创建三种方式(继承 Thread(不推荐,单继承浪费)/实现 Runnable(推荐,无返回)/实现 Callable(有返回 + Future));生命周期六态:NEW/RUNNABLE(含运行与就绪)/BLOCKED/WAITING/TIMED_WAITING/TERMINATED(与 OS 五态对应);常用:sleep(不释放锁)/yield(让出 CPU)/join(等线程结束);**中断机制**:interrupt() 只是打标记,配合 isInterrupted/InterruptedException 协作式取消(别用已废弃的 stop)。
-**同步**:`synchronized` 三种用法(同步实例方法锁 this/静态方法锁 Class/代码块锁指定对象);锁的底层(偏向锁→轻量级锁→重量级锁升级,见 JVM 章);**wait/notify/notifyAll**(必须在 synchronized 块内,配 while 条件防虚假唤醒)与 **Condition**(Lock 的等待通知,更精细);**Lock 家族**:ReentrantLock(可重入、可中断 lockInterruptibly、可超时 tryLock、公平锁参数——**比 synchronized 灵活,但记得 finally unlock**)、ReadWriteLock(读读并发)、StampedLock(乐观读,高级);**volatile**:保证可见性 + 禁止指令重排,**不保证原子性**(i++ 问题);**原子类**:AtomicInteger/AtomicLong/AtomicReference——底层 **CAS**(比较并交换,乐观锁思想,无锁编程;**ABA 问题**用 AtomicStampedReference);**ThreadLocal**:线程私有变量(SimpleDateFormat 线程安全方案、事务上下文),**内存泄漏坑**(线程池场景必须 remove);**JMM(Java 内存模型)**:主内存 + 工作内存,三大特性(原子性/可见性/有序性),**happens-before 规则**(程序顺序/锁/unlock-lock/volatile 写读/线程 start/join 等)——并发面试的理论地基。
+**类与对象** ---- 掌握字段、方法、构造器、this、static、final、初始化块、对象创建和初始化顺序
 
-**线程池**(生产必用,禁止手动 new Thread):**ThreadPoolExecutor 七大参数**要能背:corePoolSize/maximumPoolSize/keepAliveTime/unit/workQueue(任务队列)/threadFactory/RejectedExecutionHandler(四种拒绝策略:AbortPolicy 抛异常(默认)/CallerRunsPolicy(调用者线程跑)/DiscardPolicy/DiscardOldestPolicy);执行流程:核心线程 → 队列 → 最大线程 → 拒绝;**submit vs execute**(submit 返回 Future 能拿结果与异常);优雅关闭 shutdown(等已提交任务)与 shutdownNow;`Executors` 工厂的坑:newFixedThreadPool 与 newSingleThreadExecutor 用无界队列(任务堆积 OOM)、newCachedThreadPool 最大线程无限——**《阿里手册》禁止 Executors 工厂,手动 new ThreadPoolExecutor**;ForkJoinPool(分治并行,parallelStream 的底)。
-**并发容器**:ConcurrentHashMap(**1.8 起 CAS + synchronized 锁桶头,放弃分段锁**;size 用 baseCount+CouterCell;迭代弱一致)、CopyOnWriteArrayList(写时复制,读多写少:监听器列表)、**BlockingQueue 家族**(ArrayBlockingQueue 有界/ LinkedBlockingQueue/ SynchronousQueue(直接交接)/ DelayQueue/ PriorityBlockingQueue——**生产者-消费者模式与线程池队列的地基**)。
-**并发工具**:CountDownLatch(倒数门闩,等 N 个任务完成,一次性的)vs **CyclicBarrier**(循环栅栏,N 个线程互相等齐,可复用——区别是经典面试题)、Semaphore(信号量,限流)、Exchanger(两线程交换数据);**CompletableFuture**(异步编排神器:supplyAsync/thenApply/thenCompose(扁平化)/allOf/anyOf/exceptionally——链式异步代码,现代 Java 异步主力,替代回调地狱)。
+**封装与可见性** ---- 理解访问修饰符、不可变对象、属性方法、验证逻辑、暴露接口和内部实现的边界
 
-## 第九站:JVM——Java 的灵魂
+**继承与重写** ---- 学习 extends、super、方法重写、字段隐藏、final、Object、动态绑定和构造器调用链
 
-**运行时数据区**:程序计数器(线程私有)、**虚拟机栈**(线程私有,栈帧:局部变量表/操作数栈/动态链接/返回地址——**StackOverflowError 的由来**)、本地方法栈、**堆**(线程共享,对象与数组的家,GC 主战场;分代:Eden + 两个 Survivor(8:1:1) + 老年代)、**方法区**(类元信息/常量/静态变量;JDK8 起叫**元空间 Metaspace**,本地内存,不再永久代 OOM);直接内存(DirectByteBuffer,NIO 用)。
-**对象创建流程**:类加载检查 → 分配内存(指针碰撞/空闲列表)→ 初始化零值 → 设置对象头(哈希码/GC 分代年龄/锁状态)→ 构造方法。**垃圾回收**:判定存活(可达性分析,GC Roots:栈引用/静态引用/JNI);**回收算法**:标记-清除(碎片)/复制(新生代,浪费空间换效率)/标记-整理(老年代);**收集器演进**:Serial(单线程)→ Parallel(默认,吞吐优先)→ CMS(并发低延迟,标记-清除导致碎片,JDK9 废弃)→ **G1(区域化 Region、可预测停顿、默认)** → ZGC(超低延迟,JDK15+ 可用,JDK21 默认转正?);GC 触发与日志(-Xlog:gc);**调优参数**:-Xms/-Xmx(堆初始与最大,生产设相等防抖动)/-Xmn(新生代)/-XX:MaxMetaspaceSize/-XX:+HeapDumpOnOutOfMemoryError;**OOM 四类**:堆溢出(对象太多,调大或查泄漏)/栈溢出(递归无底)/元空间(类太多)/直接内存;**调优工具**:命令行 jps/jstat(GC 情况)/jmap(堆转储)/jstack(线程栈——**查死锁与线程卡住的利器**) + 图形 VisualVM/Arthas(阿里,线上诊断神器);**类加载机制**:加载→验证→准备→解析→初始化 五阶段;**双亲委派模型**:启动类加载器 → 扩展类加载器 → 应用类加载器,子先问父——**为什么:防止核心类被篡改 + 避免重复加载**;破坏双亲委派(SPI/Tomcat/热部署,了解)。
-**JIT**:热点代码编译成机器码(C1/C2),分层编译;逃逸分析与锁消除(高级优化,了解)。
+**抽象类与接口** ---- 区分共享实现、能力契约、默认方法、静态接口方法、接口冲突和多实现
 
-## 第十站:Java 8+ 新特性(现代 Java 的日常)
+**多态与设计取舍** ---- 理解重载与重写、编译期与运行期绑定、里氏替换、组合优于继承和依赖倒置
 
-**Java 8(改变最大的一代)**:Lambda 表达式(`(参数) -> 表达式`,配**函数式接口**(只有一个抽象方法,@FunctionalInterface):四大内置 Predicate(判)/Function(转)/Consumer(消费)/Supplier(生产));方法引用(类::静态方法/对象::方法/类::new);**Stream API**:集合的声明式流水线——创建(stream()/of/iterate)、中间操作(filter/map/flatMap/distinct/sorted/limit/skip/peek)、终止操作(forEach/collect(toList/toMap/groupingBy 分组/partitioningBy/joining)/reduce/count/max/min/anyMatch)、**惰性求值**(中间操作不执行,终止才跑)、并行流 parallelStream(小心:线程安全与性能,小数据别用);**Optional**:显式表达"可能为空",正确用法(ifPresent/orElse/orElseThrow/map 链),别拿它当字段;接口 default/static 方法;新日期 API(见第三站)。
-**9~21 滚动更新**:9 模块化与集合工厂(List.of);10 局部变量 var;11 HTTP Client 与 String 新方法(isBlank/lines/strip);**14 record、switch 表达式、instanceof 模式匹配(16 完善)**;**15 文本块**;**16 流 toList**;**17 密封类 sealed/permits**(限制继承);**21 虚拟线程(Project Loom)**:轻量级线程(百万级),阻塞 IO 场景直接替代线程池,新项目尝鲜——**Java 的未来方向:结构化并发**。
+**内部类与枚举** ---- 认识成员类、静态嵌套类、局部类、匿名类、enum、枚举状态和枚举单例
 
-## 第十一站:工程与框架
+**record、sealed 与模式匹配** ---- 掌握不可变数据载体、受限继承、解构式判断和现代 Java 的数据建模方向
 
-**构建**:Maven(约定目录、pom.xml、依赖坐标、生命周期;见 [Maven 学习路线](/learning-paths/build-tools/maven))与 Gradle(灵活、快;见 [Gradle 学习路线](/learning-paths/build-tools/gradle));**日志**:接口 **SLF4J** + 实现 **Logback**(或 Log4j2)——代码只面向 slf4j,`logger.info("用户 &#123;&#125; 登录", userId)` 占位符(别字符串拼接);级别与生产配置;**JSON**:Jackson(主流:ObjectMapper/注解 @JsonProperty/@JsonIgnoreProperties、JavaTimeModule 处理 LocalDateTime)或 Gson/Fastjson(注意安全漏洞史);**测试**:JUnit 5(@Test/@BeforeEach/@AfterEach/@ParameterizedTest/@DisplayName,断言 Assertions.assertThat? 那是 AssertJ) + Mockito(模拟依赖:when/thenReturn/verify,@Mock/@InjectMocks)+ JaCoCo 覆盖率;测试金字塔与"测试接口行为而非实现";**设计模式**:GoF 23 种在 JDK 里的影子(单例:枚举与双重检查;工厂:valueOf;建造者:StringBuilder;适配器:Arrays.asList;装饰:IO 流套娃;代理:动态代理;观察者:监听器;模板:AbstractList……)——先学"用得上"的 8-10 种,见 [Spring Boot 学习路线](/learning-paths/backend/spring-boot) 应用;**主流框架**:Spring/Spring Boot(容器 IoC + AOP,完整体系见 [Spring Boot 学习路线](/learning-paths/backend/spring-boot))、MyBatis/JPA(持久层)、Netty(网络)。
-**书籍**:入门《Java 核心技术》、进阶《Effective Java》(必读)、《深入理解 Java 虚拟机》(JVM 圣经)、《Java 并发编程实战》(并发权威)。
+**重点解释** ---- 这一站要能解释一个对象如何创建、一个方法如何绑定、一个接口如何实现，以及为什么某些继承树应该在长高前停下来
+
+## 第三站：泛型、集合与数据结构
+
+集合框架是 Java 的仓库管理员：List 按顺序排货，Set 负责去重，Map 记住钥匙，Queue 维持队伍。管理员很勤快，但选错仓库仍然会让系统搬家。
+
+**泛型基础** ---- 掌握泛型类、接口、方法、类型参数、边界、类型推断和泛型 API 设计
+
+**类型擦除** ---- 理解泛型信息在运行时的消失、桥接方法、不可创建泛型数组、重载限制和反射看到的真实类型
+
+**通配符与 PECS** ---- 学习上界、下界、无限通配符、生产者/消费者原则、协变直觉和 API 可用性
+
+**List、Set 与 Map** ---- 比较动态数组、链表、哈希集合、树集合、哈希映射、链式/树化桶、插入顺序和有序映射
+
+**队列、堆与阻塞队列** ---- 认识双端队列、优先队列、堆、阻塞队列和生产者消费者模型
+
+**哈希与相等契约** ---- 深入 hashCode、equals、不可变键、碰撞、负载因子、扩容和并发集合的差异
+
+**排序与迭代** ---- 掌握 Comparable、Comparator、Iterator、fail-fast、弱一致迭代和集合视图
+
+**重点解释** ---- 这一站通关是能根据访问、更新、顺序、并发和内存需求选择集合，并解释它为什么不是“随便一个 HashMap 都行”
+
+## 第四站：异常、日期、I/O 与标准库
+
+Java 的异常像一套邮政系统：有的信件可以处理，有的信件必须上交，有的则来自 JVM 的紧急广播。文件和时间也各有脾气，不能只靠直觉相处。
+
+**异常体系** ---- 理解 Throwable、Error、受检异常、非受检异常、异常链、传播、捕获顺序和自定义异常
+
+**资源与 try-with-resources** ---- 掌握 AutoCloseable、关闭顺序、抑制异常、失败清理和资源所有权
+
+**java.time 日期时间** ---- 学习日期、时间、时区、Instant、Duration、Period、格式化、解析、夏令时和旧 API 兼容
+
+**字符与字节 I/O** ---- 区分字节流、字符流、缓冲、编码、Reader/Writer、Files、Path、通道和大文件处理
+
+**序列化与数据格式** ---- 了解 Java 序列化、serialVersionUID、transient、JSON、兼容性和不可信反序列化风险
+
+**日志、配置与进程** ---- 掌握 logging 抽象、系统属性、环境变量、配置文件、Process、退出码和信号边界
+
+**重点解释** ---- 这一站要能让资源在成功、异常和取消路径都体面退场，并能说明日期、编码和序列化在边界处会损失什么
+
+## 第五站：Lambda、函数式接口与 Stream
+
+Java 曾经凡事都要先写一个类，后来它请来了 Lambda 和 Stream，代码开始学会表达“我要什么”。但声明式不等于没有执行成本，流也不是水龙头，开大了会淹家。
+
+**函数式接口** ---- 掌握 Predicate、Function、Consumer、Supplier、Unary/BinaryOperator、自定义函数式接口和目标类型
+
+**Lambda 与方法引用** ---- 理解捕获变量、有效 final、this、方法引用、类型推断和异常处理边界
+
+**Stream 生命周期** ---- 学习创建、中间操作、终止操作、惰性求值、短路、状态操作和一次性消费
+
+**映射、扁平化与聚合** ---- 覆盖 map、flatMap、filter、distinct、sorted、reduce、collect、分组和分区
+
+**并行流** ---- 理解 ForkJoinPool、拆分合并、顺序、共享状态、阻塞操作和并行流不适用的场景
+
+**Optional 与空值** ---- 学习 Optional 的表达边界、链式转换、异常路径和不适合用作字段/参数的场景
+
+**重点解释** ---- 这一站通关是能读懂函数式代码的执行时机、数据流和并行代价，不把一串链式调用误认为性能许可证
+
+## 第六站：反射、注解与类加载
+
+框架之所以像会魔法，常常是因为它们在背后翻箱倒柜：扫描类、读取注解、创建对象、调用方法。反射很方便，也很容易把封装和调试一起请出门。
+
+**Class 与反射对象** ---- 掌握 Class 获取、字段、方法、构造器、访问权限、动态调用和泛型信息读取
+
+**注解体系** ---- 理解元注解、保留策略、目标、继承、重复注解、自定义注解和注解处理器
+
+**动态代理** ---- 区分 JDK 接口代理、子类代理、调用处理器、代理边界、性能和调试成本
+
+**类加载过程** ---- 学习加载、验证、准备、解析、初始化、类加载器层次和类身份
+
+**双亲委派与破坏** ---- 理解核心类保护、重复加载、线程上下文类加载器、SPI、容器隔离和热部署
+
+**模块系统** ---- 认识模块描述、requires、exports、opens、服务发现和强封装
+
+**重点解释** ---- 这一站要能读懂依赖注入、ORM、序列化和插件框架的底层动作，并知道“动态”会带来哪些不可见成本
+
+## 第七站：并发、线程与异步编排
+
+并发是 Java 的主战场。线程像一群同时赶工的工人，内存模型负责规定他们什么时候能看见黑板，线程池则负责防止工人无限增殖。
+
+**线程生命周期** ---- 掌握创建、运行、阻塞、等待、终止、中断、join、sleep 和协作式取消
+
+**Java 内存模型** ---- 理解原子性、可见性、有序性、happens-before、内存屏障和安全发布
+
+**synchronized 与 Lock** ---- 比较监视器、可重入锁、公平性、可中断、超时、读写锁、StampedLock 和条件队列
+
+**volatile 与原子类** ---- 掌握可见性、禁止重排、CAS、ABA、原子引用和 volatile 不保证复合操作原子性
+
+**并发集合与队列** ---- 学习 ConcurrentHashMap、CopyOnWriteArrayList、BlockingQueue、弱一致性和无锁/低锁设计
+
+**线程池** ---- 理解核心线程、最大线程、队列、拒绝策略、线程工厂、Future、关闭与任务堆积
+
+**CompletableFuture 与结构化任务** ---- 掌握异步编排、组合、异常、超时、取消、执行器和上下文传播
+
+**虚拟线程** ---- 了解轻量线程、阻塞 I/O、调度器、线程局部变量、固定线程池替代边界和不适合的 CPU 场景
+
+**重点解释** ---- 这一站通关是能回答任务在哪里执行、如何同步、如何取消、何时可见、怎样关闭，并能识别“并发越多越快”的幻觉
+
+## 第八站：JVM 内存、GC 与执行引擎
+
+JVM 是 Java 的幕后剧场：堆里住对象，栈里记调用，元空间保存类信息，垃圾回收器负责清场，JIT 则会把高频台词改成机器语言。
+
+**运行时数据区** ---- 掌握程序计数器、虚拟机栈、本地方法栈、堆、元空间、直接内存和线程私有/共享边界
+
+**对象布局与分配** ---- 理解对象头、指针压缩、对齐、TLAB、逃逸分析、栈上替代和分配路径
+
+**可达性与垃圾回收** ---- 学习 GC Roots、引用类型、标记清除、复制、整理、分代和并发回收
+
+**收集器与停顿** ---- 认识 Serial、Parallel、G1、ZGC 等收集器的目标、区域化、并发阶段和选择依据
+
+**类元数据与卸载** ---- 理解类加载器、元空间、类卸载、动态生成类和元空间压力
+
+**JIT 与运行时优化** ---- 掌握解释执行、热点编译、分层编译、内联、去优化、锁消除和逃逸分析
+
+**诊断工具** ---- 了解线程栈、堆转储、GC 日志、JFR、jcmd、jmap、jstack、VisualVM 和线上诊断边界
+
+**重点解释** ---- 这一站要能从 JVM 的内存、GC、JIT 和类加载解释延迟、OOM、死锁与性能波动，而不是只会调大堆内存
+
+## 第九站：工程、测试与安全
+
+Java 项目一大，代码会和构建、依赖、日志、测试、漏洞一起生活。它们不是附属家具，而是决定项目能否被别人安装、验证和安全升级的基础设施。
+
+**构建与依赖** ---- 掌握 Maven/Gradle、生命周期、依赖冲突、传递依赖、插件、构建缓存、模块和制品
+
+**测试与替身** ---- 学习 JUnit、参数化、Mock、集成测试、契约测试、覆盖率和测试行为而非实现
+
+**代码质量** ---- 建立格式化、静态分析、SpotBugs/Checkstyle 类工具、代码审查和持续集成门禁
+
+**日志与观测** ---- 关注日志级别、结构化字段、trace ID、JFR、指标、告警和敏感信息脱敏
+
+**安全边界** ---- 防范反序列化、SQL 注入、路径穿越、命令执行、SSRF、依赖漏洞、秘密泄露和不安全默认值
+
+**性能工程** ---- 结合基准、剖析、GC、锁、数据库、网络和尾延迟，先测量再优化
+
+**重点解释** ---- 这一站通关是能让一个 Java 项目可构建、可测试、可观测、可升级、可审计，而不是只在本地 IDE 里发光
+
+## 第十站：现代 Java 与生态选择
+
+Java 还在持续进化：模块、record、sealed、模式匹配、文本块、集合工厂和虚拟线程陆续来报到。新语法会变年轻，JVM 和工程原则仍然要稳。
+
+**现代语言特性** ---- 了解局部变量类型推断、record、sealed class、模式匹配、文本块、switch 表达式和新集合工厂
+
+**模块化与兼容** ---- 理解模块边界、旧类路径、反射开放、版本迁移和库兼容策略
+
+**Web 与服务端方向** ---- 认识 Spring Boot、Jakarta、响应式、虚拟线程、配置、事务、观测和服务边界
+
+**数据与大数据方向** ---- 了解 JDBC、JPA、消息、流处理、Spark/Flink 等生态与 JVM 的关系
+
+**Android 与桌面方向** ---- 认识 Java 在 Android、JavaFX、桌面工具和嵌入场景中的位置
+
+**学习取舍** ---- 先打牢语言、集合、并发和 JVM，再按工作目标选择框架；框架可以轮换，底层能力会长期收租
+
+**重点解释** ---- 这一站的目标是能根据运行时、团队、数据、性能和部署约束选择 Java 生态，而不是把所有框架都收藏成浏览器标签
+
+## 学习路径建议：从能写到能扛
+
+**第一阶段：语言与对象** ---- 完成前两站，能清楚解释类型、对象、封装、继承、接口和初始化
+
+**第二阶段：集合与标准库** ---- 完成第三至第五站，能根据数据和控制流选择集合、异常、I/O、日期和函数式工具
+
+**第三阶段：反射与并发** ---- 完成第六至第七站，理解框架魔法的来源，并能设计可取消、可关闭的并发任务
+
+**第四阶段：JVM 与工程** ---- 完成第八至第九站，把性能、GC、测试、构建、日志和安全放回真实项目
+
+**第五阶段：生态分叉** ---- 根据目标进入 Web、数据、大数据、Android 或工具开发，保持语言与运行时底座持续更新
 
 ## 通关标准
 
-能独立做到:不查文档写一个多线程 + 集合 + 异常处理完整的小程序;画得出集合体系图并说清 HashMap 原理与 ConcurrentHashMap 的区别;能讲 synchronized 与 ReentrantLock、CountDownLatch 与 CyclicBarrier、== 与 equals 的区别;会用 Stream 与 Optional 写出干净的现代代码;看过 jstack 能找出死锁;能解释一次 new 对象在 JVM 里的完整旅程(类加载 → 内存分配 → GC 视角)——Java 主线通关。
+**语言通关** ---- 能解释值/引用、类型、泛型擦除、集合、异常、I/O、Lambda 和对象生命周期
 
-Java 的学习之路漫长但回报扎实:它语法"啰嗦",但啰嗦换来的是工程上的稳定与团队协作的清晰;它版本迭代快,但 LTS 稳住节奏即可。记住:好的 Java 程序员不是记住了多少 API,而是理解了 JVM、并发与设计的本质。坚持写、坚持看源码(JDK 源码是最好的教材),你会成为值钱的 Java 工程师。
+**运行时通关** ---- 能解释类加载、字节码、JVM 内存、GC、JIT、线程和 Java 内存模型
+
+**工程通关** ---- 能完成依赖、构建、测试、日志、观测、性能、安全和持续集成闭环
+
+**并发通关** ---- 能为共享状态、线程池、异步编排、虚拟线程、取消和关闭设计边界
+
+**生态通关** ---- 能按问题和约束选择 Java 技术栈，并说出它的代价与风险
+
+## 结语
+
+Java 像一位可靠但要求明确的同事：你给它类型，它给你秩序；你给它线程，它要求同步；你给它堆内存，它会问 GC 计划。它不靠一句“应该没问题”维持稳定，而是靠一层层可解释的机制。
+
+当你能从业务代码一路追到字节码、JVM、线程和数据库，Java 就不再是庞大的 API 城市，而是一座有道路、有交通规则、也有维修手册的工程城市。

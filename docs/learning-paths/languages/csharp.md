@@ -1,78 +1,197 @@
 # C# 学习路线
 
-C# 是微软的亲儿子,也是"集大成者"语言:它从 Java 学了严谨的 OOP,从 C++ 学了性能控制,从函数式语言吸收了 LINQ 与不可变思想,又用 async/await 把异步做成了一等公民。配合 .NET(如今完全开源、跨平台,统一了 Web/桌面/移动/游戏/云),C# 在企业应用、游戏(Unity)与云原生里都是主力。它每年迭代一次,越写越现代——**学 C# 别学老写法,直接从最新 LTS(.NET 8)+ 现代语法起步**。
+C# 是 .NET 家族里那位穿着运动鞋的全能工程师：有 Java 的秩序、C++ 的控制力、函数式编程的表达能力，还把异步、模式匹配和工具链安排得相当体面。它可以做 Web、桌面、云、游戏和跨平台应用，但不会替你决定架构。
 
-这条线按 **环境与基础 → 面向对象 → 委托/事件/Lambda → 泛型与集合 → LINQ → 异常与文件 → 异步与并发 → 反射与元编程 → 内存与性能 → 现代 C# 特性 → 工程与生态** 推进。
+这份路线是 **通用基础 → 编程语言 → C#** 的独立学习地图，重点从语言本体走到 CLR、内存、异步、性能、工程与生态，不是 API 速查表。
 
-## 第一站:环境与语法地基
+**适合谁** ---- 想进入 .NET Web、企业软件、Unity、桌面、云原生或跨平台开发，或希望系统理解现代 C# 而不是停留在老式类和接口的人
 
-**环境**:装 **.NET SDK**(跨平台,Windows/macOS/Linux 通吃);CLI 是主力:`dotnet new console`(模板:console/webapi/mvc/blazor/xunit……)/`dotnet run`/`dotnet build`/`dotnet test`/`dotnet add package`;IDE:Visual Studio(Windows 全家桶)/Rider(跨平台)/VS Code + C# Dev Kit。
-现代模板默认**顶级语句**(Program.cs 从一行 `Console.WriteLine("Hello");` 开始,没有 class Program 仪式——老教程的 Main 样板认识即可)。**类型系统**(C# 的根基,与 Java 最大不同):**值类型**(存栈/内联:int/double/bool/char/**decimal(128 位高精度,金融计算内置**)/enum/struct)与**引用类型**(string/数组/class/interface——存堆,变量持引用);`var`(类型推断,右侧类型可见时用);常量 const/readonly;**可空值类型 `int?`**(Nullable&lt;T&gt;,配 `?.`/`??`/`??=` 空安全三件套——C# 对 null 的处理是语言级设计)。
-**运算符**:算术/比较/逻辑、`is`(类型检查 + **模式匹配**:`x is int i` 同时取出来)/`as`(安全转换,失败得 null)/`typeof`;switch **语句**(古老)与 **switch 表达式**(8+,`=>` 写法+模式,现代首选)。**数组**:一维、多维 `int[,]`(矩形)、**交错 `int[][]`**(数组的数组,更常用);`Length` 属性与 `for`/**foreach**(迭代器)。
-**字符串**:不可变;`$"插值 &#123;x&#125;"`(现代主力,比 + 拼接优雅);verbatim `@"C:\path"`(原样字符串,路径正则福音);`"""` 原始字符串(11+);字符串方法家族与 **StringBuilder**(循环拼接必用)。**方法**:参数传递三件套是 C# 特色——值传递(默认)/**`ref`(引用传递,改原变量)/`out`(输出参数,不读只写,`TryParse` 模式)/`in`(只读引用)**;可选参数(带默认值)/命名参数(`f(b: 2)`);`params int[]`(可变参数);表达式体方法 `=>`(一行方法);本地函数(方法内定义方法,闭包)。
-**注释**:`//`、`///` XML 文档注释(生成文档与 IDE 提示)。
+**先记住一件事** ---- C# 既能替你自动管理内存，也允许你走进 unsafe 区域；安全默认是起点，理解边界才是能力
 
-## 第二站:面向对象
+**推荐总顺序** ---- .NET 工具链与类型 → 面向对象与模式 → 委托事件与集合 → 泛型与 LINQ → 异常与 I/O → async/await → CLR 与内存 → 反射与生成 → 性能测试 → 现代 .NET 工程
 
-**类**:字段 + **属性 Property**(C# 的招牌:封装不靠 getter/setter 方法,靠属性语法)——自动属性 `public string Name &#123; get; set; &#125;`、只读 `&#123; get; &#125;`(构造器里赋值)/**`init`**(9+,仅初始化期可设)、**计算属性**(只有 get 体,动态算)、属性初始化器与**对象初始化器** `new Person &#123; Name = "x" &#125;`(少写构造器重载);构造器(可重载、`this(...)` 链);**访问修饰符五档**:public/private/protected/internal(同程序集)/protected internal,还有 file(12);static 类(工具类,如 Math)/static 成员;**扩展方法**(static 类里 `this T` 首参——**LINQ 就是扩展方法**!自己写扩展方法是 C# 日常);`nameof`(拿标识符字符串,防硬编码)。
-**继承与多态**:`sealed`(禁继承,如 string)、`virtual` 方法 + `override` 重写(必须显式标,防拼错)、`base`、抽象类 abstract(不能实例化,含抽象成员)、**接口**:可多实现、**显式接口实现**(同名冲突)、默认接口方法(8+,给接口加默认实现,演进友好);**多态三要素**:继承/重写/父类引用。
-**record**(9+,C# 对不可变数据类的答案):`record Person(string Name, int Age);`——主构造器自动生成属性、**值相等**(按内容比较,不同于 class 的引用相等)、`with &#123; &#125;` 非破坏更新(拷贝并改)、解构;`record struct`(10)。
-**结构体 struct**:值类型、轻量数据;什么时候用:小、不可变、高频创建(见内存章节)。**运算符重载**:==/!=/+ 等(record 自动);**枚举 enum**(可带值,配 switch 模式)。
+**本页怎么用** ---- 先理解语言语义和运行时，再选 ASP.NET、Unity、MAUI 或其他方向；框架会换衣服，CLR 的骨架会继续工作。
 
-## 第三站:委托、事件与 Lambda
+## 第一站：.NET、CLR 与语言地基
 
-**委托 delegate**:类型安全的函数指针——`delegate int Op(int a, int b);`,实例化传方法、`op(1, 2)` 调用;**多播委托**(`+=` 链多个方法,按序调用;`-=` 移除);**内置委托三件套**(现代基本不用自建 delegate):`Action`(无返回)/`Func&lt;T, TResult&gt;`(有返回,泛型 0~16 参)/`Predicate&lt;T&gt;`(返回 bool);**Lambda**:`(x) => x * 2`——闭包(捕获外部变量)、语句体 lambda;方法组转换(`list.Where(IsEven)` 直接传方法名)。
-**事件 event**:`event EventHandler&lt;EventArgs&gt;` 声明(本质是受限委托:外部只能 +=/-=,不能直接调用/赋值——封装回调的规范姿势);`+=` 订阅、自定义 EventArgs 传数据、`?.Invoke(...)` 安全触发;**发布-订阅模式**是 WinForms/WPF/ASP.NET 的骨架(按钮点击就是事件)。
-理解"委托是回调的抽象、事件是安全的委托"这一层,读任何框架代码都不怵。
+程序要先经过 .NET SDK 的工地，再交给 CLR 运行。编译器负责检查，运行时负责执行，垃圾回收器则负责在角落里整理残局。
 
-## 第四站:泛型与集合
+**SDK、运行时与 CLI** ---- 区分 SDK、运行时、CLR、编译器、NuGet、项目文件和目标框架
 
-**泛型**:泛型类/方法/接口;约束 `where T : class`(引用)/`struct`(值)/`new()`(可无参构造)/基类/接口/`notnull`;泛型的实现是**真泛型**(不像 Java 擦除——值类型特化,List&lt;int&gt; 与 List&lt;string&gt; 是不同机器码,性能好);**协变与逆变**:`out` 协变(只能返回:`IEnumerable<out T>`,`IEnumerable&lt;string&gt;` 能赋给 `IEnumerable&lt;object&gt;`)与 `in` 逆变(只能接收:`Action<in T>`——Func/Action 的类型参数就是这么标的),**可变性安全**是面试点。
-**可空引用类型(NRT,8+)**:项目里 `&lt;Nullable&gt;enable</Nullable>`,`string?` 声明可空——编译器全量静态分析,把"百万美元错误"变成编译警告;**现代 C# 必须开**,老代码补这个最痛苦。**集合**(都实现 IEnumerable&lt;T&gt;):`List&lt;T&gt;`(动态数组,默认)/`Dictionary&lt;TKey,TValue&gt;`(哈希)/`HashSet&lt;T&gt;`(去重)/`Queue&lt;T&gt;`/`Stack&lt;T&gt;`/`LinkedList&lt;T&gt;`/`SortedDictionary`;接口层次:`IEnumerable&lt;T&gt;`(只读遍历,foreach 只需要它)→ ICollection → IList/IDictionary;只读视图 `IReadOnlyList&lt;T&gt;`(API 设计用);**集合初始化器** `new List&lt;int&gt; &#123; 1, 2 &#125;`;非泛型 ArrayList/Hashtable 是古董(装箱+类型不安全,别用)。
+**值类型与引用类型** ---- 理解 struct、class、record、enum、数组、装箱、拆箱、栈/堆直觉和复制语义
 
-## 第五站:LINQ——C# 的杀手锏
+**可空性** ---- 掌握 nullable reference types、Nullable value types、空合并、空条件、流分析和运行时 null 风险
 
-**LINQ(语言集成查询)** 让"查集合"像写 SQL 一样自然,是现代 C# 日常的 30%:两种语法——**方法语法**(链式,主流):`list.Where(x => x.Age > 18).OrderBy(x => x.Name).Select(x => x.Email).ToList()`;**查询语法**(`from x in list where x.Age > 18 select x`,编译成方法链,类 SQL,老代码多)。
-**操作符地图**:过滤 Where/OfType(按类型滤);投影 Select/SelectMany(摊平嵌套集合);排序 OrderBy/ThenBy/OrderByDescending;分组 GroupBy(→ IGrouping);联接 Join(内联)/GroupJoin;聚合 Aggregate/Count/Sum/Min/Max/Average;元素 First/FirstOrDefault/Single/SingleOrDefault(取唯一,多则炸)/Last/ElementAt;量词 Any/All/Contains;分页 Skip/Take(每页十条就是 `Skip(n*10).Take(10)`);去重 Distinct;转换 ToList/ToArray/ToDictionary/ToLookup;`Range`/`Repeat`/`Empty` 生成。
-**延迟执行(面试必考)**:查询只是"配方",**遍历时才执行**——所以 Where 后改原集合结果会变、无限序列 `Range` 不会炸;`ToList()` 等是立即执行的"拍照"。**LINQ to Objects**(内存)/**LINQ to XML**/**LINQ to SQL → EF Core**:IQueryable 把"配方"编译成表达式树,由 EF Core 翻译成 SQL 在数据库执行——**写 LINQ 就是写查询,这是 EF Core 好用之源**。
+**表达式与模式** ---- 覆盖运算符、switch 表达式、属性/类型/关系/列表模式、解构和范围
 
-## 第六站:异常、文件与序列化
+**参数与方法** ---- 学习值传递、ref、in、out、params、可选/命名参数、局部函数和表达式体
 
-**异常**:try/catch/finally/throw;异常类型体系(继承 Exception;SystemException/ApplicationException 是历史包袱,别自定义继承它们);自定义异常(继承 Exception,名字以 Exception 结尾);**异常过滤器 `when`**(6+,`catch (HttpException e) when (e.Status == 404)`——按条件分流,比内部 if 优雅);最佳实践:catch 具体类型、别吞异常、用 finally 或 using 清理;**`using` 语句**(释放 IDisposable:文件/连接/HttpClient——`using (var f = File.Open...) &#123;&#125;` 老式,`using var f = ...;` 声明式 8+,块结束自动释放)。
-**文件与 IO**:静态 `File`/`Directory`(一次性操作:ReadAllText/WriteAllText/Exists)vs 实例 `FileInfo`/`DirectoryInfo`(多次操作持句柄);`Path`(Combine/GetExtension——**别手动拼路径**)/`Environment`(GetFolderPath 等);**流**:FileStream/MemoryStream(字节流基操,配 `StreamReader`/`StreamWriter`(文本)/`BinaryReader`/`BinaryWriter`);大文件流式读写配异步。
-**序列化**:现代首选 **System.Text.Json**(内置:JsonSerializer.Serialize/Deserialize、`[JsonPropertyName]`、JsonSerializerOptions(驼峰/忽略 null)、**源生成器**性能优化)与遗留 Newtonsoft.Json(老项目多,会读);XML 用 XmlSerializer(配置/互操作场景)。
+**字符串与编码** ---- 理解不可变字符串、插值、原始字符串、StringBuilder、Unicode、Rune 和格式化
 
-## 第七站:异步与并发
+**重点解释** ---- 这一站通关是能区分值、引用、可空、装箱和模式匹配，知道编译器检查与 CLR 运行时不是同一位同事
 
-**async/await**(C# 5 起,现代 C# 的核心能力,面试主战场):`async Task&lt;int&gt; GetAsync()` + `await`;规矩:**async 方法返回 Task/Task&lt;T&gt;/ValueTask**,`async void` 只有事件处理器能用(异常会崩进程);**await 不阻塞线程**(状态机:线程回到池中,完成后续跑——UI 不卡、服务器线程不占);同步与异步混合的坑:`.Result`/`.Wait()` 会死锁(UI 上下文)——**一路 async 到底(Async All the Way)**;库代码加 `ConfigureAwait(false)`;取消:`CancellationToken`(协作式:token.ThrowIfCancellationRequested,配 `CancelAfter` 超时);并发:`Task.WhenAll`(等全部)/`Task.WhenAny`(等最先);`Task.Run`(把 CPU 工作丢线程池);**异步流 IAsyncEnumerable&lt;T&gt;**(8+,`await foreach` 消费分页数据/流式行);ValueTask(高频异步路径零分配,进阶)。
-**多线程与并行**(老 API 认识即可):Thread(远古)、ThreadPool(池)、`lock` 语句(Monitor 语法糖,**锁引用类型**,用私有 object 当锁);Mutex(跨进程)/Semaphore(限流)/ReaderWriterLockSlim(读多写少);`Interlocked`(原子自增,替代锁的轻量路)/volatile(了解即可,现代代码用 Interlocked/锁);线程安全集合:ConcurrentDictionary/ConcurrentQueue/BlockingCollection(生产者消费者);**Parallel.For/ForEach**(数据并行,CPU 密集)+ PLINQ(`AsParallel()`——**注意线程安全与开销,默认别用**);现代管道:**Channel&lt;T&gt;**(生产者-消费者首选,无锁队列 + 异步读写);async 与 Parallel 的选择:IO 密集 → async/await;CPU 密集 → Task.Run/Parallel;混用小心上下文。
+## 第二站：类、记录、接口与类型设计
 
-## 第八站:反射、特性与元编程
+C# 的类型们很会开会：class 负责共享身份，struct 负责轻量数据，record 关心值相等，interface 则负责能力合同。
 
-**反射**:`typeof(T)`/`obj.GetType()` 拿 **Type**(类型的元数据入口);`Assembly.GetTypes()` 扫程序集(插件加载);`Activator.CreateInstance`(动态建对象);MethodInfo.Invoke 动态调用——**慢,框架才用**;**特性 Attribute**(C# 的注解):`[Obsolete]`/`[Serializable]` 内置;自定义:`[MyAttr] class`——定义继承 Attribute 的类 + `[AttributeUsage]`(Targets/AllowMultiple/Inherited)标明可用位置;读取:`GetCustomAttribute&lt;T&gt;()`;**特性 + 反射 = 框架魔法**:ASP.NET 的 `[HttpGet]`/`[Authorize]`、EF 的 `[Key]`、序列化控制、数据校验,全是特性在起作用——**"代码标记 + 框架读取"是理解 .NET 一切约定的钥匙**。
-**表达式树**(高级):`Expression<Func<T, bool>>` 把 lambda 存成**数据结构**(不是可执行代码),可遍历/改写/编译——**EF Core 把 C# 查询翻译成 SQL 的原理**、动态查询构造、规则引擎的基石;`Expression.Compile()` 又变回委托(性能优化用)。
-**dynamic**(4.0,运行时绑定:DLR、ExpandoObject 动态加属性、与 COM/Python 互操作)——方便但**丢了类型安全与智能提示,业务代码慎用**。
+**类与成员** ---- 掌握字段、属性、构造器、初始化器、索引器、静态成员、访问修饰符和嵌套类型
 
-## 第九站:内存管理与性能
+**属性与封装** ---- 理解 get/set/init、计算属性、验证、不可变对象、nameof 和公开 API 边界
 
-**.NET GC**:托管堆自动回收(分代:Gen0(新对象,回收最勤)/Gen1/Gen2;**大对象堆 LOH**(≥85KB,不压缩);GC 是"代际假说"驱动的——短命对象多;`GC.Collect()` 手动调是反模式(生产别调);非托管资源(文件句柄/数据库连接/网络流)实现 **IDisposable + using**(Dispose 模式:Dispose(bool) + 终结器兜底,读得懂即可,现代用 `SafeHandle` 少写终结器)。
-**值类型 vs 引用类型的性能语义**(C# 工程师的必修):struct 存栈/内联(数组里连续,**缓存友好**),class 存堆(引用、GC 追踪);**装箱拆箱**:值类型转 object/接口时复制进堆——`ArrayList.Add(1)` 每次装箱,**性能陷阱**;泛型集合避免了装箱(List&lt;int&gt; 内部就是 int[])。
-**现代高性能三板斧**:`readonly struct`/`ref struct`、**`Span&lt;T&gt;`**(任意连续内存的只读视图:数组/字符串/栈,零拷贝切片解析——高性能文本/网络解析的标配)、`stackalloc`(栈分配);`ArrayPool&lt;T&gt;`(高频数组复用,JSON/网络库内部都在用);**BenchmarkDotNet**(性能测试事实标准——"我觉得快"不算数,跑基准);unsafe + 指针(互操作与极致场景,了解);内存诊断:dotnet-counters/dotnet-dump/Visual Studio 诊断工具。
+**继承与多态** ---- 学习 virtual、override、abstract、sealed、base、隐藏、动态绑定和组合取舍
 
-## 第十站:现代 C# 特性时间线(新代码的日常)
+**接口** ---- 掌握多接口、默认实现、显式实现、接口隔离和版本演进
 
-**C# 6**:字符串插值 `$""`、null 条件 `?.`、表达式体成员、自动属性初始化器;**C# 7**:元组 `(int, string)`(ValueTuple,多返回值)、模式匹配 `is`、out var、本地函数、ref 返回;**C# 8**:可空引用类型、**范围与索引** `arr[1..^1]`(切片/倒数,`^` 从尾数)、**switch 表达式**、异步流、using 声明、默认接口方法;**C# 9**:record、init、**顶级语句**、模式增强(`is not null` 成为主流判空!);**C# 10**:全局 using、文件级命名空间、`record struct`;**C# 11**:原始字符串 `"""`、required 成员、列表模式;**C# 12**:主构造函数、集合表达式 `[..]`、`nameof` 泛型参数。
-**.NET 版本节奏**:Framework(Windows 遗留)→ .NET Core → 统一 .NET 5,此后每年一发,偶数 LTS(6/8/10)——**新项目用 LTS**;`dotnet --version`/global.json 管版本。
+**record 与 struct** ---- 区分引用记录、值记录、readonly struct、record struct、值相等和复制
 
-## 第十一站:工程与生态
+**委托与事件预告** ---- 认识委托类型、闭包、事件发布/订阅、取消订阅和生命周期
 
-**.NET 生态地图**(按方向选主线):**Web 后端 ASP.NET Core**(事实主力:Web API + MVC、Minimal API(小服务几行一个接口)、中间件管道、依赖注入内建、配置系统——可对照 [全栈路线](/learning-paths/fullstack/overview) 学习整体架构);**EF Core**(ORM:Code First 迁移、LINQ 即 SQL、导航属性);**Blazor**(C# 写前端:Server 模式实时、WASM 模式浏览器跑);**SignalR**(实时通信);**gRPC**(高性能 RPC);**桌面**:WPF(Windows 企业应用,XAML)/WinForms(遗留);**跨平台移动/桌面**:.NET MAUI(原 Xamarin.Forms);**游戏**:Unity(C# 脚本,游戏开发最大入口);**云**:Azure Functions/App Service + 容器(K8s 见 [DevOps 路线](/learning-paths/devops/kubernetes));**微服务**:Dapr、MassTransit。
-**依赖注入**:Microsoft.Extensions.DependencyInjection(ASP.NET Core 内建):生命周期三兄弟 AddSingleton/AddScoped(每请求)/AddTransient(每次)——**选错生命周期 = 诡异 bug**(Scoped 服务被 Singleton 捕获是经典坑)。
-**测试**:xUnit(主流)/NUnit/MSTest;Moq 或 NSubstitute(mock);FluentAssertions(可读断言);`dotnet test` 一键跑;TDD 与测试金字塔。**设计原则**:SOLID 五原则(单一职责/开闭/里氏替换/接口隔离/依赖倒置)在 C# 生态讲得最透;Clean Architecture(分层:Presentation/Application/Domain/Infrastructure)是 .NET 企业项目的默认架构。
-**书籍**:《C# 本质论》(权威教材)、《深入理解 C#》(特性原理)、《C# in a Nutshell》(手册)、《Concurrency in C# Cookbook》(异步并发实战)。
+**重点解释** ---- 这一站要能按身份、值语义、可变性和扩展边界选择类型，而不是所有东西都先建一个 class
+
+## 第三站：泛型、集合、委托与事件
+
+集合是 C# 的后勤部门，泛型给每个箱子贴上准确标签，委托负责传递工作安排，事件则提醒大家“有人发生事情了”。
+
+**泛型与约束** ---- 掌握类型参数、where 约束、泛型方法、泛型接口、协变/逆变和运行时泛型
+
+**数组与集合** ---- 比较数组、List、LinkedList、Dictionary、HashSet、SortedSet、SortedDictionary、Immutable 集合
+
+**队列与并发集合** ---- 认识 Queue、Stack、PriorityQueue、Channel、ConcurrentDictionary 和生产者消费者
+
+**迭代器与 yield** ---- 理解 IEnumerable、IEnumerator、惰性、一次性消费、资源释放和异步迭代
+
+**委托模型** ---- 掌握 Action、Func、Predicate、自定义委托、闭包、捕获变量和方法组转换
+
+**事件模型** ---- 学习事件封装、订阅/取消、弱事件、线程安全、内存泄漏和发布订阅边界
+
+**重点解释** ---- 这一站通关是能根据类型安全、变异、访问、并发和生命周期选择集合与回调模型
+
+## 第四站：LINQ 与声明式数据处理
+
+LINQ 是那位喜欢把复杂查询整理成句子的同事：它让数据处理更像描述需求，但每次迭代、延迟执行和闭包捕获都可能在账单上留下痕迹。
+
+**查询与方法语法** ---- 理解查询表达式、扩展方法、委托参数、类型推断和链式组合
+
+**惰性与物化** ---- 掌握 deferred execution、ToList、ToArray、流式消费、重复枚举和副作用风险
+
+**投影与过滤** ---- 覆盖 Select、Where、SelectMany、OfType、分组、连接、分区和聚合
+
+**排序与分页** ---- 学习稳定排序、ThenBy、Skip/Take、游标思想、内存分页和数据库下推
+
+**表达式树** ---- 认识 Expression、可翻译表达式、编译、缓存和 ORM 查询边界
+
+**并行 LINQ** ---- 了解 PLINQ、分区、合并、顺序、线程安全和何时并行反而更慢
+
+**重点解释** ---- 这一站要能追踪查询什么时候执行、数据在哪里执行、是否重复枚举，以及一行 LINQ 真实要搬多少数据
+
+## 第五站：异常、I/O、序列化与资源
+
+异常会带着堆栈来敲门，Stream 会要求你负责开关，序列化则会把对象打包寄走。它们都不喜欢“用完再说”，生命周期要提前安排。
+
+**异常体系** ---- 掌握 Exception、聚合异常、过滤器、传播、自定义异常和失败分类
+
+**资源释放** ---- 理解 IDisposable、IAsyncDisposable、using、终结器、SafeHandle 和异常安全
+
+**文件与流** ---- 学习文件系统、缓冲、异步 I/O、Pipe、Stream、编码、路径和临时资源
+
+**序列化** ---- 认识 System.Text.Json、JSON 契约、版本兼容、源生成、循环引用和不可信数据
+
+**配置与日志** ---- 掌握配置层、选项、环境变量、结构化日志、范围和敏感字段
+
+**进程与网络基础** ---- 了解进程、HttpClient 生命周期、连接池、超时、取消和响应流
+
+**重点解释** ---- 这一站通关是能让异常、文件、网络和序列化在成功、失败、取消路径上都完成清理
+
+## 第六站：async/await、Task 与并发
+
+async/await 让异步代码看起来像同步散步，但底下其实有状态机、任务、调度器和取消令牌在忙着搬家具。语法优雅，生命周期不能偷懒。
+
+**Task 模型** ---- 理解 Task、ValueTask、状态、结果、异常、Continuation 和调度器
+
+**async/await 语义** ---- 掌握状态机、上下文捕获、ConfigureAwait、同步完成、异步迭代和异步资源
+
+**取消与超时** ---- 学习 CancellationToken、协作式取消、链接令牌、截止时间、清理和部分完成
+
+**并发编排** ---- 认识 WhenAll、WhenAny、并发上限、Channel、数据流和背压
+
+**锁与原子操作** ---- 掌握 lock、Monitor、SemaphoreSlim、ReaderWriterLockSlim、Interlocked 和竞态
+
+**线程池与 CPU 工作** ---- 区分 I/O 异步、线程池、Parallel、Task.Run、CPU 密集和阻塞调用
+
+**重点解释** ---- 这一站通关是能回答任务在哪执行、谁能取消、异常去哪、上下文是否捕获，以及如何避免线程池被堵成停车场
+
+## 第七站：CLR、GC、Span 与性能
+
+CLR 是 C# 的幕后管家：它执行 IL、管理对象、回收垃圾、处理异常，也会在性能关键处要求你看一眼分配和复制。
+
+**IL 与 JIT** ---- 了解 C#、IL、JIT、Tiered Compilation、内联、去优化和运行时特化
+
+**GC 与堆** ---- 掌握托管堆、代际 GC、大对象堆、固定对象、终结队列、暂停和内存压力
+
+**分配与装箱** ---- 识别闭包、迭代器、委托、装箱、字符串、LINQ 和临时对象带来的分配
+
+**Span 与内存视图** ---- 理解 Span、ReadOnlySpan、Memory、数组切片、栈数据、生命周期和异步边界
+
+**unsafe 与互操作** ---- 认识指针、固定、P/Invoke、COM、源生成互操作、结构布局和安全边界
+
+**性能观测** ---- 使用 BenchmarkDotNet、Profiler、EventPipe、dotnet-counters、dump 和火焰图
+
+**重点解释** ---- 这一站要能区分 CPU、分配、GC、锁、I/O 和序列化瓶颈，知道 Span 不是性能护身符而是边界工具
+
+## 第八站：反射、源生成与工程质量
+
+反射像一位会翻档案的侦探，源生成则像一台提前写好重复劳动的机器。它们都能减少手工活，但也会改变调试、构建和版本的节奏。
+
+**反射与元数据** ---- 掌握 Type、成员、属性、泛型、动态调用、可见性和反射缓存
+
+**依赖注入与装配** ---- 理解服务注册、生命周期、作用域、构造注入、工厂和循环依赖
+
+**源生成与编译期工具** ---- 了解 Roslyn、增量生成、分析器、代码生成和生成代码的可调试性
+
+**测试** ---- 建立 xUnit/NUnit、Mock、集成、契约、属性、并发和性能测试
+
+**构建与发布** ---- 掌握 SDK 风格项目、NuGet、目标框架、RID、单文件、裁剪、AOT 和容器
+
+**安全与供应链** ---- 关注反序列化、依赖漏洞、秘密、路径、命令、TLS、日志和最小权限
+
+**重点解释** ---- 这一站通关是能把 C# 项目从源码送到可验证制品，知道生成、反射和裁剪分别把复杂度放在哪里
+
+## 第九站：现代 .NET 与生态分叉
+
+现代 .NET 把 Web、桌面、云、游戏和移动端请进了同一栋楼，但每层的电梯规则不同。选方向时看运行环境和目标，不要只看宣传海报。
+
+**ASP.NET Core** ---- 了解请求管线、依赖注入、配置、日志、认证、Minimal API、MVC、SignalR 和部署
+
+**桌面与跨平台** ---- 认识 WPF、WinUI、MAUI、Avalonia 和 UI 线程边界
+
+**游戏开发** ---- 了解 Unity、脚本生命周期、主线程、资源、GC 和帧时间
+
+**云与服务** ---- 掌握容器、健康检查、遥测、配置、弹性、消息和后台服务
+
+**Native AOT 与边缘** ---- 理解启动、体积、反射限制、裁剪兼容和运行时能力取舍
+
+**重点解释** ---- 这一站的目标是能根据平台、延迟、内存、团队和部署约束选择 .NET 方向
+
+## 学习路径建议：从类型到运行时
+
+**第一阶段：语言与类型** ---- 完成第一至第三站，建立值语义、引用、可空、面向对象、集合和泛型基础
+
+**第二阶段：数据与异步** ---- 完成第四至第六站，理解 LINQ、资源、I/O、Task、取消和并发
+
+**第三阶段：运行时与工程** ---- 完成第七至第八站，掌握 GC、性能、反射、生成、测试和发布
+
+**第四阶段：生态闭环** ---- 选择 Web、桌面、游戏、云或跨平台方向完成项目
 
 ## 通关标准
 
-能独立做到:用顶级语句 + record + LINQ + async/await 写一个完整的小工具;说清值类型与引用类型、可空引用类型、async void 为什么危险、延迟执行是什么;能讲 LINQ 与 EF Core 的关系(IQueryable → SQL);会写自定义 Attribute 并用反射读取;能用 BenchmarkDotNet 验证一次"哪种写法快"的争论;搭一个 ASP.NET Core Web API 并说明依赖注入生命周期——C# 主线通关。
+**语言通关** ---- 能解释值/引用、可空、泛型、委托、事件、模式匹配、LINQ 和记录类型
 
-C# 是一门不断进化的语言,微软每年带来新特性,但万变不离其宗:类型系统、LINQ、async、DI 这些"底层乐高"才是值钱的部分。学它别背 API——**理解 .NET 的运行时(GC/泛型/异步状态机)与设计理念(特性+反射、约定、依赖注入),你就掌握了整个微软技术栈的钥匙**。从 `dotnet new webapi` 开始,让 C# 带你看一看"优雅与强大可以兼得"是什么体验。
+**运行时通关** ---- 能解释 IL、JIT、GC、分配、Span、线程池和异步状态机
+
+**工程通关** ---- 能完成测试、构建、NuGet、日志、诊断、容器和安全检查
+
+**生态通关** ---- 能按约束选择 .NET 方向，并说明自动化、性能和部署代价
+
+## 结语
+
+C# 像一个很会整理房间的同事：它会帮你收垃圾、分文件、标类型，但如果你把所有东西都塞进一个抽屉，最后还是找不到钥匙。理解语言和 CLR 的边界，才能真正享受 .NET 的效率。

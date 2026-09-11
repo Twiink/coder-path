@@ -1,48 +1,202 @@
 # Gradle 学习路线
 
-Gradle 是新一代构建工具:Maven 用 XML"声明",Gradle 用 **Groovy/Kotlin DSL"编程"**——更简洁、更灵活、更快(**增量构建/构建缓存/守护进程**三件套让速度碾压 Maven),且是 **Android 官方与 Spring 新项目的默认**。**定位**:不是 Maven 的简单替代,而是"构建即代码"的新思维——声明式配置保留简洁,编程能力带来灵活。**学习捷径**:先通关 [Maven](/learning-paths/build-tools/maven)(概念同源:坐标/依赖/生命周期),Gradle 只是"换语法 + 加强度"。
+Gradle 是构建工具里那位穿运动鞋的工程师：它不满足于照着固定菜单做饭，而是把构建过程本身变成可组合、可编程、可缓存的系统。Groovy DSL 和 Kotlin DSL 是它的表达方式，任务图、增量构建、构建缓存和守护进程是它的动力系统。灵活很爽，但灵活过头也会让 `build.gradle` 长出第二套业务逻辑；所以 Gradle 的核心不是“会写几行 DSL”，而是会控制复杂度。
 
-## 第一站:安装、Wrapper 与第一个项目
+这是一条独立的 Gradle 学习地图，从 Wrapper 和项目模型走到任务图、依赖治理、多项目、插件、缓存、测试、发布与 CI。每一站都覆盖最常用的操作、容易踩到的边界和值得深挖的运行机制；代码只保留少量关键词，重点放在构建决策。
 
-**安装**:官网/SDKMAN 装 Gradle;验证 `gradle -v`。**Gradle Wrapper(最重要的事,先于一切)**:项目里带 `gradlew` 脚本 + `gradle-wrapper.properties`(版本)——**团队构建版本统一、成员无需装 Gradle;生成方式:`gradle wrapper`;Wrapper 文件必须提交 git**(见 [Git](/learning-paths/tools/git) 章)。
-**第一个项目**:`gradle init`(选 application/library);构建脚本两个:`settings.gradle(.kts)`(项目名与模块:include)——与 `build.gradle(.kts)`(构建逻辑);源码目录同 Maven(src/main/java);命令:`gradle build`(全量:编译+测试+打包)/`gradle run`(跑应用,配 mainClass)/`gradle test`。
-**Groovy DSL vs Kotlin DSL**:老项目 Groovy(灵活但无类型),**新项目一律 Kotlin DSL(build.gradle.kts:类型安全/IDE 补全/重构友好)——本页以 Kotlin DSL 为准**。
+路线按 **项目模型 → DSL → 任务图 → 依赖 → 多项目 → 增量与缓存 → 插件 → 测试与发布 → CI → 性能治理** 推进。
 
-## 第二站:构建脚本语法与配置块
+## 第一站：Wrapper、项目模型与第一次构建
 
-**Kotlin DSL 基础(看着像代码,因为就是代码)**:`plugins &#123; id("java") &#125;`(声明插件)/`repositories &#123; mavenCentral() &#125;`(仓库)/(dependencies &#123; implementation("group:artifact:version") &#125;)(依赖)/`tasks.register&lt;T&gt;("name") &#123; &#125;`(任务)——**字符串插值、类型推断、Lambda 全用上,比 XML 少一半量且编译期检查**。
-**配置块(脚本的骨架)**:plugins/repositories/dependencies/tasks/`configurations`(依赖配置管理)/publishing(发布)。**依赖配置(Maven scope 的精细化,必懂)**:`implementation`(本模块编译运行用,**不传递**——默认,Maven compile 的现代替代)/`api`(对外暴露,库项目用——**依赖它的人也能拿到**)/`compileOnly`(≈provided)/`runtimeOnly`/`testImplementation`(测试)/`annotationProcessor`(Lombok 等)——**"implementation vs api"是 Gradle 的经典面试点:库项目对外 API 用到才用 api,否则 implementation(封装性更好、编译更快)**。
+欢迎来到 Gradle 的施工现场。Wrapper 是统一工牌，Settings 是总平面图，Build 文件是施工方案；先让每台机器用同一把尺子，再讨论谁的 DSL 写得更漂亮。
 
-## 第三站:任务系统——构建即代码
+**Gradle Wrapper** ---- 掌握 `gradlew`、Wrapper JAR、版本属性和校验意识，让项目固定构建版本并减少“我电脑上的 Gradle 比你新”的争论
 
-**任务是 Gradle 的最小执行单元**:`tasks.register("hello") &#123; doLast &#123; println("Hi") &#125; &#125;`;**任务依赖**:dependsOn(先跑它)/finalizedBy(收尾:test 完跑 report);**任务类型(内置常用)**:Copy/Zip/Delete/Exec(执行命令)/JavaCompile——`tasks.register&lt;Copy&gt;("copyRes") &#123; from("src"); into("build") &#125;`;**增量构建(性能核心)**:给自定义任务声明**输入输出注解(@Input/@OutputFile)**——**输入输出没变,任务标记 UP-TO-DATE 直接跳过**:Gradle 快的一半秘密在这里(另一半是缓存与守护进程)。**自定义任务进阶**:继承 DefaultTask + @TaskAction(写插件级任务才需要)。
+**Settings 文件** ---- 理解根项目名称、模块包含、插件管理、仓库声明和项目发现；大型项目的边界通常先在这里露出轮廓
 
-## 第四站:依赖管理进阶
+**Build 文件** ---- 区分项目配置、任务注册、插件应用和依赖声明，知道配置脚本虽然像代码，却承担着可复现构建的责任
 
-**依赖类型**:外部(坐标)/**项目依赖 `implementation(project(":module"))`**(多模块)/文件依赖(files("libs/x.jar")——少用)。**版本管理三件套**:①`platform("org.springframework.boot:spring-boot-dependencies:3.x")`(导入 BOM 锁版本,同 Maven 的 dependencyManagement)/enforcedPlatform(强制);②**Version Catalog(版本目录,Gradle 7+ 现代标准)**:`gradle/libs.versions.toml` 集中管版本(`[versions]` + `[libraries]`),脚本里 `implementation(libs.spring.web)`——**全项目版本单一来源,IDE 补全友好**;③依赖约束 constraints(进阶)。
-**冲突解决**:默认**取最高版本**(与 Maven 的就近不同);排查:`gradle dependencies`(依赖树)/`gradle dependencyInsight --dependency xxx`(某个依赖为什么是这个版本——**冲突排查神器**);排除 exclude/强制 force。
-**依赖纪律同 Maven**:别用动态版本、锁定可复现、定期查漏洞。
+**构建目录与产物** ---- 认识 `src`、`build`、缓存目录、报告和发布构件，区分可提交的构建逻辑与可删除的中间产物
 
-## 第五站:多项目构建
+**常用任务** ---- 会读懂清理、编译、测试、检查、打包和运行任务的关系，理解任务名背后的任务图而不是死记命令
 
-**结构**:根 `settings.gradle.kts` 里 `include(":common", ":service", ":web")`;根与子项目各有 build.gradle.kts;**共享配置两种姿势**:`subprojects &#123; &#125;`/`allprojects &#123; &#125;`(简单粗暴,老写法)与**约定插件(现代推荐:在 buildSrc 或独立构建里定义插件,子项目 `plugins &#123; id("my-conventions") &#125;` 一行套用——**"一处定义,处处复用"的构建逻辑共享**)**;模块依赖 `implementation(project(":common"))`;**构建顺序**:Gradle 自动按依赖拓扑排序 + **按需构建(只构建被请求的模块)**;加速:`--parallel`(多模块并行)/`--configuration-cache`(缓存配置阶段,重复构建极大提速——**新版默认推进中**)。
+**重点在这** ---- 先做到“任何成员拉取项目后都能用 Wrapper 构建出同样的入口”，再开始追求脚本的魔法感
 
-## 第六站:实战:Java/Spring/Android 项目
+## 第二站：Kotlin DSL、Groovy DSL 与配置模型
 
-**Java 插件三选**:`java`(基础)/`java-library`(库项目:解锁 api 配置)/`application`(可执行:mainClass);Java 版本:`java &#123; toolchain &#123; languageVersion = JavaLanguageVersion.of(17) &#125; &#125;`(toolchain:自动找/装对应 JDK——现代姿势);**测试**:`tasks.test &#123; useJUnitPlatform() &#125;`(JUnit5)/useTestNG;**Spring Boot**:插件 `id("org.springframework.boot")` + `id("io.spring.dependency-management")`——**bootJar 出可执行 jar**(见 [Spring Boot](/learning-paths/backend/spring-boot) 部署章);**Android(Android 的官方构建就是 Gradle)**:`com.android.application` 插件 + compileSdk/minSdk/buildTypes(debug/release)/productFlavors(渠道风味:免费/付费 → 变体矩阵)/signingConfigs(签名,密码走环境变量——**别提交仓库**)/R8 混淆(minifyEnabled,配 mapping 文件)。
-**发布**:maven-publish 插件(publications + repositories——发私服/中央,配 signing 签名)。
+第二站来到 Gradle 的语言教室。Groovy 像一位随手就能 improvisation 的演员，Kotlin DSL 像戴着类型检查护腕的工程师；两者都能上台，但团队要先约定台词。
 
-## 第七站:性能优化——Gradle 快在哪
+**Groovy 与 Kotlin DSL** ---- 了解语法、类型提示、IDE 支持、迁移成本和生态差异；新项目通常偏向 Kotlin DSL，存量项目要尊重上下文而不是强行改造
 
-**四板斧(面试/优化必答)**:①**增量构建**:任务声明输入输出,不变即 UP-TO-DATE 跳过(见第三站);②**构建缓存(--build-cache)**:任务结果按输入哈希缓存——**换分支/清目录后还能命中**(CI 与本地共享);③**守护进程(默认开)**:后台常驻 JVM,免每次启动开销(`gradle --stop` 停);④**配置缓存(--configuration-cache)**:配置阶段只跑一次——**大项目从"每次等配置"到"秒级"**。辅助:并行(--parallel)/离线(--offline)/`gradle build --scan`(构建扫描:性能分析报告——**"构建慢"用数据说话**)。**质量插件**:checkstyle/pmd/jacoco(覆盖率)/SonarQube/detekt(Kotlin)。
+**插件块** ---- 掌握插件应用、插件版本、插件别名和插件管理，理解插件是注入约定、任务和扩展的入口
 
-## 第八站:CI、Docker 与最佳实践
+**扩展与配置块** ---- 区分 extension、property、task configuration 和 provider，理解“看起来赋值”的 DSL 背后是延迟配置模型
 
-**CI(GitHub Actions)**:官方 `gradle/gradle-build-action`(含缓存:依赖与构建缓存都命中——**CI 构建速度的钥匙**)+ `./gradlew build`(Wrapper 保证版本一致,见 [CI](/learning-paths/devops/github-actions));**Docker 多阶段**:gradle 镜像构建 → 精简 JRE 运行(见 [Docker](/learning-paths/devops/docker));**最佳实践清单**:①**Wrapper 提交 git,缓存目录(.gradle/build)忽略**;②Kotlin DSL + Version Catalog + 约定插件(现代三件套);③依赖最小化与锁定(gradle.lockfile 可复现);④构建脚本别硬编码(属性/环境变量);⑤**大项目开启 build-cache + configuration-cache**。
-**学习资源**:官方文档(Getting Started 系列是业内公认好教程)、Gradle 插件门户、Android 项目的 build.gradle 是最好范本。
+**Provider API** ---- 认识惰性值、映射、折叠和属性读取，避免在配置阶段过早求值，让配置缓存和增量能力提前阵亡
+
+**命名与约定** ---- 让任务、配置、版本和模块命名保持可预测；脚本越灵活，越需要像 API 一样有稳定的名字
+
+**重点在这** ---- 能判断一段 DSL 是声明项目意图、注册任务还是立即执行副作用，少把“配置时间”误认成“执行时间”
+
+## 第三站：任务系统与任务图
+
+第三站进入 Gradle 的调度中心。任务是工位，依赖是路线，任务图是当天的施工计划；Gradle 会按图安排执行，不会因为你把代码写在上面就立刻跑起来。
+
+**任务注册与配置** ---- 掌握惰性注册、任务类型、任务命名和配置动作，优先使用可延迟配置的方式减少大型项目的启动成本
+
+**任务依赖** ---- 区分 `dependsOn`、最终化任务、输入输出关系和任务排序；“先后顺序”与“真正依赖”不是一回事
+
+**任务类型** ---- 认识复制、归档、删除、执行命令、编译和测试等常见任务类型，复用已有类型比手写一段脚本更容易被 Gradle 理解
+
+**任务输入与输出** ---- 声明文件、属性、目录和产物边界，让 Gradle 判断任务是否需要重新执行；没有输入输出，增量构建只能靠猜
+
+**跳过与失败** ---- 理解条件执行、禁用、失败后继续和最终化任务，确保清理、报告和资源释放在失败场景也能按预期发生
+
+**任务图诊断** ---- 学会从任务依赖、执行顺序和日志反推“为什么它跑了/为什么它没跑”，别一上来就把缓存清空当万能钥匙
+
+**重点在这** ---- 能画出一个构建的任务图，并说明每个任务的输入、输出、依赖、缓存资格和失败后的收尾行为
+
+## 第四站：依赖管理与版本目录
+
+第四站是依赖的户籍大厅。依赖会带来传递依赖，插件也会带来自己的家族；Gradle 允许你更灵活地控制它们，但灵活不等于可以不做版本治理。
+
+**配置与可见性** ---- 理解 `implementation`、`api`、`compileOnly`、`runtimeOnly`、测试配置和插件类路径，控制什么进入编译、运行和消费者边界
+
+**传递依赖** ---- 读取依赖图，识别来源、冲突、能力和不必要的传递包；依赖图是调查现场，不是装饰性树盆景
+
+**版本约束** ---- 区分严格版本、首选版本、动态版本、丰富版本和平台约束，理解冲突解决结果与声明意图可能不同
+
+**Version Catalog** ---- 用版本目录集中管理库、插件和 bundle，让依赖命名统一；目录是导航，不是替代架构判断的自动售货机
+
+**平台与 BOM** ---- 使用 Java Platform、BOM 和约束统一生态版本，理解“平台提供约束”和“模块实际依赖”是两件事
+
+**依赖锁定** ---- 为可复现构建使用依赖锁、变更审查和升级窗口，处理动态版本带来的漂移
+
+**重点在这** ---- 处理一次冲突时能说清声明、选择、运行时类路径和升级策略，而不是只把某个版本硬按下去
+
+## 第五站：多项目、复合构建与边界
+
+第五站把工程变成一座小城：根项目是市政厅，子项目是街区，复合构建是几座暂时连起来的城市。规划得好，团队各走各的路；规划得差，所有模块都来根项目门口堵车。
+
+**多项目构建** ---- 组织根项目、子项目、共享配置和模块依赖，理解 Gradle 如何发现并排序项目
+
+**约定插件** ---- 把 Java、测试、发布和质量规则收进可复用的 convention plugin，减少复制粘贴与根脚本条件分支
+
+**共享配置边界** ---- 区分真正的公共约定与某个模块的特殊需求，避免 `subprojects` 大扫荡把所有项目抹成同一张脸
+
+**复合构建** ---- 使用 included build 管理独立构建、插件开发和本地替换，理解它与多项目构建在依赖、发布和隔离上的差异
+
+**项目依赖与发布依赖** ---- 分清源码联编、已发布构件和测试夹具的关系，避免本地便利掩盖真实消费路径
+
+**模块化与 Java Module System** ---- 了解模块路径、导出、开放、反射和类路径兼容，构建工具的模块边界要与代码架构互相照应
+
+**重点在这** ---- 能判断配置应该下沉到约定插件、留在模块，还是拆成独立构建；共享不是越多越先进
+
+## 第六站：增量构建、缓存与配置缓存
+
+第六站进入 Gradle 的速度实验室。它会努力记住上次做过什么，但只有在输入、输出和环境边界说清楚时，记忆才可靠；否则缓存会变成一位自信但记错事的同事。
+
+**增量任务** ---- 声明输入、输出、路径敏感性和运行时参数，理解 UP-TO-DATE 判断以及误报和漏报风险
+
+**构建缓存** ---- 区分本地缓存、远程缓存和任务输出缓存，理解缓存命中条件、缓存键、跨机器复用与污染风险
+
+**Gradle Daemon** ---- 了解守护进程复用 JVM、类加载器和配置状态带来的收益与问题，知道何时需要诊断而不是盲目重启
+
+**配置缓存** ---- 理解配置阶段的可缓存约束、禁止访问的外部状态和懒加载边界，避免在配置脚本里读取当前时间、环境秘密或任意文件
+
+**文件系统监视** ---- 认识变更检测、连续构建和文件监听的适用场景，处理网络文件系统、容器和编辑器临时文件的边界
+
+**缓存安全** ---- 防止把秘密、机器路径和不可信生成物写进可共享缓存，明确缓存读写权限与失效策略
+
+**重点在这** ---- 速度提升必须建立在正确性证据上：构建更快了，但输出是否仍然正确、失败是否仍然可诊断
+
+## 第七站：插件、构建逻辑与生态
+
+第七站是 Gradle 的插件市场。插件可以把复杂能力打包成约定，也可以把一个简单项目变成配置考古；选择插件时要看维护、边界和退出成本。
+
+**插件生命周期** ---- 理解插件应用、扩展创建、任务注册、配置回调和执行阶段，知道插件什么时候只是声明，什么时候开始改变任务图
+
+**预编译脚本插件** ---- 使用类型安全、可复用的约定插件承载团队规则，避免把所有逻辑塞进一个根脚本
+
+**自定义任务与插件** ---- 从简单任务、预编译脚本到二进制插件逐级选择，只有真正需要复用、测试和发布时才升级抽象层级
+
+**插件隔离** ---- 关注插件类路径、版本冲突、类加载器和插件间共享状态；构建插件也会产生依赖地狱，只是地狱穿了 DSL 外套
+
+**生态插件选型** ---- 评估语言、框架、测试、代码质量、发布和容器插件的维护活跃度、配置模型、兼容矩阵和安全记录
+
+**插件测试** ---- 使用 TestKit 验证任务图、输出、失败消息和配置行为，让构建逻辑也能拥有回归测试
+
+**重点在这** ---- 插件的价值是减少项目差异，不是增加魔法；能从插件配置追到任务、输入、输出和版本边界，才算真正会用
+
+## 第八站：测试、质量与发布
+
+第八站是构建系统的体检与出库合并柜台。Gradle 可以同时跑测试、静态检查、覆盖率和发布，但流水线越强，越不能把质量责任藏到一个 `check` 任务后面。
+
+**测试分层** ---- 组织单元、集成、端到端和冒烟测试，利用 source set、标签和任务分离速度与风险
+
+**测试平台** ---- 了解 JUnit Platform、测试引擎、参数和并发配置，避免“发现不到测试”和“测试跑了两遍”
+
+**质量检查** ---- 接入覆盖率、静态分析、格式化、许可证和依赖漏洞检查，定义哪些是提示、哪些是门禁
+
+**测试夹具与测试资源** ---- 管理共享测试代码、临时目录、外部服务和生命周期，确保并行测试互不踩脚
+
+**打包与发布** ---- 处理 JAR、分发包、源码、文档、发布元数据和仓库凭据，分清构建产物与发布动作
+
+**签名与供应链** ---- 为构件建立签名、校验、来源和权限链路，避免让 CI 以全能账号替团队盖章
+
+**重点在这** ---- 能把一次 `build` 拆成编译、测试、检查、打包、扫描和发布证据，知道每一步失败意味着什么
+
+## 第九站：Java、Spring 与 Android 场景
+
+第九站把 Gradle 放进真实生态。Java 项目关心类路径和发布，Spring 项目关心可运行构件，Android 项目还要面对变体、资源和设备；同一把工具，三套脾气。
+
+**Java 应用与库** ---- 配置 Java 插件、工具链、库发布、API/实现边界和兼容性，理解编译与运行时的 JDK 差异
+
+**Spring Boot 构建** ---- 认识可执行 JAR、依赖管理、分层归档、启动类路径和容器运行边界，避免把开发依赖打进生产胖包
+
+**Android 变体** ---- 了解 build type、product flavor、variant、资源合并和签名配置，知道一个源码目录为何能生成许多不同 APK 或 App Bundle
+
+**原生工具链** ---- 关注 C/C++、NDK、外部命令、操作系统和架构差异，处理跨平台构建的编译器与链接器边界
+
+**发布兼容性** ---- 评估 Java、Android、插件和设备版本矩阵，建立升级验证与回滚方案
+
+**重点在这** ---- 场景插件可以替你省力，但不能替你解释最终构件里有什么；构建完要会拆包、检查和追溯
+
+## 第十站：CI、故障诊断与生产治理
+
+最后一站来到 Gradle 的控制塔。这里要同时照顾反馈速度、构建确定性、权限边界和故障证据；跑得快但没人知道跑了什么，只是更快地制造迷雾。
+
+**CI 环境固定** ---- 固定 Wrapper、JDK、操作系统镜像、依赖仓库和缓存策略，减少本地与 CI 的行为分叉
+
+**流水线分层** ---- 先跑快速编译与单测，再跑集成、质量、打包、扫描和发布；把昂贵检查放在合适的风险闸门后
+
+**构建扫描与诊断** ---- 使用构建日志、任务报告、依赖报告、性能剖析和失败堆栈定位慢点与异常配置
+
+**资源与并发** ---- 规划 worker、JVM 内存、测试并行、文件句柄和容器 CPU，避免并行开满后每个任务都像堵在收费站
+
+**凭据与权限** ---- 让仓库、签名和发布使用短期、最小权限凭据，杜绝把密钥写入脚本、日志和缓存
+
+**升级与回滚** ---- 按 Gradle、插件、JDK、依赖和构建逻辑分层升级，保留基线、兼容矩阵和快速回退路径
+
+**重点在这** ---- 生产级 Gradle 项目应当可复现、可缓存、可诊断、可审计、可发布、可回滚；会写 DSL 只是获得了施工证
 
 ## 通关标准
 
-能独立做到:用 Kotlin DSL + Version Catalog 建多模块项目(插件/依赖/共享配置组织清晰);说清 implementation/api 区别与增量构建原理(输入输出);用 dependencyInsight 解决一次冲突、用 --build-cache 让 CI 提速;给 Spring Boot 项目配好 bootJar 与发布;理解 Wrapper 与配置缓存的必要性——Gradle 主线通关。
+**Gradle 新手能搭建项目** ---- 能使用 Wrapper、读懂 Settings 和 Build 文件，跑通编译、测试、检查与打包。
 
-Gradle 的学习曲线比 Maven 陡(它首先是门"小语言"),但掌握后**构建从负担变成可编程的能力**:任务、缓存、约定插件——你想让构建做什么,它都能表达。**学习顺序建议:先 Maven 懂概念,再 Gradle 学表达**;新项目(尤其 Spring Boot 3+/Android)直接 Gradle + Kotlin DSL,老项目 Maven 维护也不慌——**双修是 Java 构建的完整形态**。下一步:版本目录与多模块实战见 [Spring Boot](/learning-paths/backend/spring-boot),构建之外看 [Make](/learning-paths/build-tools/make) 认识另一种构建哲学。
+**初级工程师能管依赖** ---- 能处理配置、传递依赖、版本目录、BOM、冲突与仓库，不靠删除缓存解决所有问题。
+
+**中级工程师能维护多项目** ---- 能设计约定插件、任务输入输出、测试分层和发布流程，知道共享配置的边界。
+
+**高级工程师能治理构建系统** ---- 能推动缓存、可复现构建、供应链安全、性能基线、升级矩阵与 CI 证据链。
+
+## 下一站去哪
+
+- **[Maven](/learning-paths/build-tools/maven)** ---- 对比约定式生命周期、POM 与插件生态
+- **[Make](/learning-paths/build-tools/make)** ---- 回到依赖图、增量构建和 Unix 工具链的源头
+- **[JUnit 测试路线](/learning-paths/testing/junit)** ---- 深入 Java 测试平台、替身与集成测试
+- **[Java 学习路线](/learning-paths/languages/java)** ---- 补齐 JVM、并发、内存和语言地基
+
+## 结语
+
+Gradle 的强大来自它能把构建当作系统来设计：任务有输入输出，依赖有边界，配置有时机，缓存有证据，插件有责任。先把模型学清，再享受 DSL 的灵活；先让构建正确，再让它飞快。等你能解释一次构建为什么只跑了这些任务、为什么命中了缓存、为什么 CI 与本地不同，Gradle 就不再是会变形的脚本，而是你可以治理的工程平台。
