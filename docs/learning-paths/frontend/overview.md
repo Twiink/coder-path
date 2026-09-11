@@ -4,6 +4,8 @@
 
 这份总览是前端路线的地图，不是某个框架的教程。它负责告诉你先学什么、各条路线解决什么问题、什么时候该深入浏览器底层，什么时候该选择一个框架开始交付。具体技术会在对应路线页里展开，路线页再继续指向更细的学习内容。
 
+**导航更新** ---- JavaScript 与 TypeScript 的语言核心统一放在[编程语言](/learning-paths/languages/overview)；浏览器 API、DOM、网络、可访问性与 PWA 则拆为前端专题。Next.js、Nuxt、SvelteKit、Astro 和 React Router Framework Mode 属于全栈 Web 框架，仍是前端学习者的自然下一站。
+
 ## 第一站：先把浏览器当成运行环境
 
 欢迎来到前端开发的新手村：浏览器不是一块会听话的画布，而是一台有解析器、渲染器、网络栈、事件系统和安全边界的复杂机器。先知道它如何工作，后面遇到“为什么页面没更新”时，才不会只会刷新浏览器。
@@ -50,7 +52,7 @@ JavaScript 是前端的发动机，也是很多前端项目里最会突然改变
 
 **深层运行时** ---- 了解原型链、this、垃圾回收、任务调度、渲染协作、闭包泄漏和常见性能陷阱
 
-**路线入口** ---- [JavaScript 学习路线](/learning-paths/frontend/javascript)
+**路线入口** ---- [JavaScript 学习路线](/learning-paths/languages/javascript)
 
 ## 第四站：TypeScript 路线
 
@@ -66,7 +68,7 @@ TypeScript 是给 JavaScript 项目加上的类型护栏：它不能替你验证
 
 **工程配置** ---- 理解编译目标、模块解析、严格模式、项目引用、声明文件、类型测试和库发布
 
-**路线入口** ---- [TypeScript 学习路线](/learning-paths/frontend/typescript)
+**路线入口** ---- [TypeScript 学习路线](/learning-paths/languages/typescript)
 
 ## 第五站：选择一个 UI 框架
 
@@ -84,7 +86,7 @@ TypeScript 是给 JavaScript 项目加上的类型护栏：它不能替你验证
 
 **选型原则** ---- 看团队背景、项目规模、生态、招聘、部署、迁移和长期维护，不要只看首页动效和基准图表
 
-**路线入口** ---- [Vue](/learning-paths/frontend/vue)、[React](/learning-paths/frontend/react)、[Angular](/learning-paths/frontend/angular)、[Svelte](/learning-paths/frontend/svelte)
+**路线入口** ---- [Vue](/learning-paths/frontend/vue)、[React](/learning-paths/frontend/react)、[Angular](/learning-paths/frontend/angular)、[Svelte](/learning-paths/frontend/svelte)、[SolidJS](/learning-paths/frontend/solidjs)、[Qwik](/learning-paths/frontend/qwik)
 
 ## 第六站：状态、路由与应用工程
 
@@ -104,7 +106,9 @@ TypeScript 是给 JavaScript 项目加上的类型护栏：它不能替你验证
 
 **重点在这** ---- 应用工程的核心不是选择一个状态库，而是明确数据的拥有者、生命周期、失败状态和用户可观察行为
 
-## 第七站：Next.js 与 Nuxt.js
+**路线入口** ---- [前端状态管理](/learning-paths/frontend/state-management)、[Redux Toolkit](/learning-paths/frontend/redux-toolkit)、[Pinia](/learning-paths/frontend/pinia)、[TanStack Query](/learning-paths/frontend/tanstack-query)、[RxJS](/learning-paths/frontend/rxjs)
+
+## 第七站：全栈 Web 框架
 
 当客户端应用开始需要 SEO、服务端数据、静态生成、服务端接口或更完整的发布能力，就会走进全栈前端框架的车站。它们不是“框架加一点 SSR”，而是把渲染位置、缓存和部署一起搬上了桌面。
 
@@ -118,7 +122,7 @@ TypeScript 是给 JavaScript 项目加上的类型护栏：它不能替你验证
 
 **全栈能力** ---- 了解服务端函数、API、表单动作、认证、数据库和部署平台的边界
 
-**路线入口** ---- [Next.js](/learning-paths/frontend/nextjs)、[Nuxt.js](/learning-paths/frontend/nuxtjs)
+**路线入口** ---- [Next.js](/learning-paths/fullstack/frameworks/nextjs)、[Nuxt](/learning-paths/fullstack/frameworks/nuxt)、[SvelteKit](/learning-paths/fullstack/frameworks/sveltekit)、[React Router Framework Mode](/learning-paths/fullstack/frameworks/react-router)、[Astro](/learning-paths/fullstack/frameworks/astro)
 
 ## 第八站：样式系统与构建工具
 
@@ -132,7 +136,7 @@ TypeScript 是给 JavaScript 项目加上的类型护栏：它不能替你验证
 
 **资源与包体** ---- 关注图片、字体、CSS、动态加载、重复依赖、首屏和缓存策略
 
-**路线入口** ---- [Tailwind CSS](/learning-paths/frontend/tailwind)、[Vite](/learning-paths/frontend/vite)、[Webpack](/learning-paths/frontend/webpack)
+**路线入口** ---- [Tailwind CSS](/learning-paths/frontend/tailwind)、[Vite](/learning-paths/build-tools/vite)、[Webpack](/learning-paths/build-tools/webpack)
 
 ## 第九站：质量、性能与交付
 
@@ -160,7 +164,7 @@ TypeScript 是给 JavaScript 项目加上的类型护栏：它不能替你验证
 
 **第三阶段：工程能力** ---- Vite → 样式系统 → 性能、可访问性、错误监控和持续交付
 
-**第四阶段：全栈延伸** ---- Next.js 或 Nuxt.js → 服务端渲染、数据缓存、认证和部署
+**第四阶段：全栈延伸** ---- Next.js、Nuxt、SvelteKit、Astro 或 React Router Framework Mode → 服务端渲染、数据缓存、认证和部署
 
 **第五阶段：横向补强** ---- 根据岗位和项目需要，再补 Angular、Svelte、Webpack 或其他生态
 

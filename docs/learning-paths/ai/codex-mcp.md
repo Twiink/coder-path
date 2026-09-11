@@ -2,7 +2,7 @@
 
 这一页讲的是兼容集成，而不是重新发明一套“Codex 专属 MCP”。如果现有系统仍依赖旧的 MCP Server 入口，应把它看成迁移与兼容边界：先确认现有客户端为什么需要它，再评估 Codex SDK、App Server 与通用 MCP 客户端的组合。
 
-前置建议先看 [MCP 协议](/learning-paths/ai/claude-mcp) 的 Host、Client、Server、Tools、Resources 和传输模型，再看 [Codex SDK / App Server](/learning-paths/ai/codex-platform) 的任务与工作区边界。本页不把历史命令当成长期 API，具体入口以当前官方文档为准。
+前置建议先看 [MCP 协议](/learning-paths/ai/mcp) 的 Host、Client、Server、Tools、Resources 和传输模型，再看 [Codex SDK / App Server](/learning-paths/ai/codex-platform) 的任务与工作区边界。本页不把历史命令当成长期 API，具体入口以当前官方文档为准。
 
 这条线按 **兼容层定位 → 现状盘点 → 权限迁移 → 协议与事件 → 错误恢复 → 验证与发布 → 何时移除** 推进。
 
@@ -110,7 +110,7 @@
 
 ## 下一站去哪
 
-**还在盘点阶段** ---- 先去 [MCP 协议](/learning-paths/ai/claude-mcp)，把 Host、Client、Server 和工具边界画清楚
+**还在盘点阶段** ---- 先去 [MCP 协议](/learning-paths/ai/mcp)，把 Host、Client、Server 和工具边界画清楚
 
 **准备迁移执行** ---- 去 [Codex SDK / App Server](/learning-paths/ai/codex-platform)，将任务、工作区、审批和事件换成受控平台能力
 

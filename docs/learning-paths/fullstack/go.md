@@ -296,7 +296,7 @@ Go 全栈的气质很明确：语法克制、编译器较严格、并发模型�
 
 ## 下一站去哪
 
-- **[Go + Gin](/learning-paths/backend/golang)** ---- 深入语言、并发、HTTP、数据访问与项目结构
+- **[Go + Gin](/learning-paths/backend/go-web)** ---- 深入语言、并发、HTTP、数据访问与项目结构
 - **[Vue](/learning-paths/frontend/vue)** / **[React](/learning-paths/frontend/react)** ---- 补齐复杂前端、状态与用户体验
 - **[PostgreSQL](/learning-paths/database/postgresql)** / **[MySQL](/learning-paths/database/mysql)** / **[Redis](/learning-paths/database/redis)** ---- 深挖数据、事务、索引与缓存
 - **[全栈协作](/learning-paths/fullstack/collaboration)** / **[全栈测试](/learning-paths/fullstack/testing)** ---- 固化契约和质量

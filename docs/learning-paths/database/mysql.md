@@ -453,7 +453,7 @@ MySQL 学到这里，数据库这张地图就从“会查”长成了“能设�
 - **[MongoDB](/learning-paths/database/mongodb)** ---- 研究文档模型、聚合、复制集、分片与关系模型之外的取舍
 - **[Kafka](/learning-paths/middleware/kafka)** / **[RabbitMQ](/learning-paths/middleware/rabbitmq)** ---- 进入消息、削峰、重试、顺序、幂等与最终一致性的世界
 - **[Elasticsearch](/learning-paths/middleware/elasticsearch)** ---- 把全文检索、倒排索引、相关性和搜索架构单独学深
-- **[微服务模式](/learning-paths/microservices/microservices-patterns)** ---- 继续研究服务边界、数据所有权、Saga、Outbox 与分布式系统的代价
+- **[微服务模式](/learning-paths/architecture/microservices/patterns)** ---- 继续研究服务边界、数据所有权、Saga、Outbox 与分布式系统的代价
 - **[全链路性能](/learning-paths/fullstack/performance)** ---- 把浏览器、服务、缓存、数据库、网络和基础设施串成一条性能证据链
 
 ## 结语

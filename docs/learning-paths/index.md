@@ -26,7 +26,7 @@
 如果你是第一次接触编程，别纠结，按下面这条线走，每一步都给你备好了路线页：
 
 1. **先见见网页长什么样**：HTML 和 CSS——它们不算是编程语言，更像是"搭积木 + 化妆"，成就感来得最快。[HTML & CSS 学习路线](/learning-paths/frontend/html-css)
-2. **让页面活过来**：JavaScript，前端的灵魂，也是本文档里坑和梗最多的一门语言，值得认真对待。[JavaScript 学习路线](/learning-paths/frontend/javascript)
+2. **让页面活过来**：JavaScript，前端的灵魂，也是本文档里坑和梗最多的一门语言，值得认真对待。[JavaScript 学习路线](/learning-paths/languages/javascript)
 3. **挑一个框架当主武器**：React 或 Vue 二选一，别贪。学完一个，另一个上手会快得让你惊讶。[React 学习路线](/learning-paths/frontend/react) ｜ [Vue 学习路线](/learning-paths/frontend/vue)
 4. **学会存档和读档**：Git 版本控制 + 终端基本操作，这是每个开发者的肌肉记忆，越早练越好。[Git 学习路线](/learning-paths/tools/git) ｜ [终端学习路线](/learning-paths/tools/terminal)
 5. **摸到后端的大门**：选一门语言往后端走——想少学一门语言就选 Node.js（还是 JavaScript），想看看另一片天空可以试试 Python。[Node.js 学习路线](/learning-paths/backend/nodejs) ｜ [Python 学习路线](/learning-paths/languages/python)
@@ -37,41 +37,38 @@
 
 ## 完整地图：三大区域
 
-侧边栏把全部路线分成了三大区域，对应三个成长阶段：
+侧边栏现在收录 400 条互不重复的路线：114 条已完成正文、286 条待扩写的专题入口。它们不是按“难度高低”混排，而是按职业方向、共用基础和工程能力组织；先选一条主线，再按需要横向补课。
 
 ### 方向路线：你的职业主线
 
-选定一个方向深耕，这是你的主职业。
+选定一个方向深耕，这是你的主职业。除了 Web、移动和桌面，现在也纳入 AI 应用、机器学习、数据、游戏、嵌入式、系统、机器人、图形和 Web3 等路线。
 
 | 方向 | 一句话介绍 | 入口 |
 | --- | --- | --- |
-| 全栈开发 | 前后端通吃，一个人顶一支小分队 | [路线总览](/learning-paths/fullstack/overview) |
 | 前端开发 | 所有用户看得见的部分，都是你的战场 | [HTML & CSS](/learning-paths/frontend/html-css) 起手 |
 | 后端开发 | 处理数据、业务与并发，用户看不见但离不开 | [Node.js](/learning-paths/backend/nodejs) 等 |
-| AI 开发 | 让程序学会"理解"和"自主行动" | [AI Agent 基础](/learning-paths/ai/agent-basics) |
+| 全栈开发 | 前后端通吃，一个人顶一支小分队 | [路线总览](/learning-paths/fullstack/overview) |
+| 生成式 AI 应用开发 | 让模型、工具、知识与 Agent 变成可交付的产品 | [路线总览](/learning-paths/ai/) |
 | 移动端开发 | 把应用装进每个人的口袋 | [路线总览](/learning-paths/mobile/overview) |
 | 桌面端开发 | 让应用跑在每个人的电脑上 | [路线总览](/learning-paths/desktop/overview) |
+| 数据与模型方向 | 训练、分析、管道与数据平台 | [机器学习与模型工程](/learning-paths/machine-learning/overview) ｜ [数据工程](/learning-paths/data-engineering/overview) |
+| 专项方向 | 游戏、IoT、系统、机器人、图形与区块链 | [专项方向入口](/learning-paths/game-development/overview) |
 
 ### 通用基础：人人要修的公共课
 
 不管走哪条主线，这些技能早晚用得上，建议在主线卡关时穿插学习，当"支线任务"刷。
 
-- **计算机科学基础**：数据结构与算法、计算机组成原理、操作系统、计算机网络——不绑定任何技术栈的内功心法，决定你的职业天花板，建议从入门第一天就并行开刷，每天一小时，长期见效。[数据结构与算法](/learning-paths/cs-basics/data-structures-algorithms) ｜ [计算机组成原理](/learning-paths/cs-basics/computer-organization) ｜ [操作系统](/learning-paths/cs-basics/operating-systems) ｜ [计算机网络](/learning-paths/cs-basics/computer-networks)
-- **编程语言**：语言入口在此汇总，覆盖全部主流语言——Java、JavaScript、TypeScript、Python、Go、C++、C#、Rust、PHP、Ruby、Swift、Kotlin。其中 JavaScript/TypeScript 的完整路线在前端分组、Go/Rust 在后端分组，这里只做入口归集。语言是工具，但第一门语言塑造你的思维方式。
-- **工具与工作流**：Git、VS Code、终端、Claude Code——工欲善其事，必先利其器。
-- **构建工具**：Maven、Gradle、Make——读懂别人的项目，从读懂构建脚本开始。
-- **测试框架**：Jest、Pytest、JUnit、Selenium、Cypress——会写测试的工程师，才敢说自己"完成"了功能。
-- **安全基础**：Web 安全、认证授权、密码学——不懂安全的开发者，是行走的漏洞。
+- **计算机科学与数学**：算法、系统、网络、理论、离散数学、线性代数、概率与统计提供跨领域的共同语言。[计算机科学基础](/learning-paths/cs-basics/overview) ｜ [数学基础](/learning-paths/mathematics/overview)
+- **编程语言**：JavaScript、TypeScript、Go 和 Rust 现在拥有独立的语言入口；后端框架页只讨论服务端实践，不再重复导航。[编程语言总览](/learning-paths/languages/overview)
+- **工具、构建与依赖**：Git、编辑器、调试、AI 编程工具、包管理和构建系统组成日常工作流。[工具与工作流](/learning-paths/tools/overview) ｜ [构建与依赖](/learning-paths/build-tools/overview)
 
-### 架构进阶：老玩家的高难地图
+### 工程与架构：把功能变成可维护系统
 
-有一定经验后再进这片区域，每一张都是硬仗，但打完收获巨大。
+这里覆盖数据、集成、云原生、可观测性、软件工程与系统架构。它并非只能等到“高级”才学：测试、质量、安全与可靠性应当从第一份项目开始进入日常。
 
-- **数据库**：MySQL、PostgreSQL、MongoDB、Redis——从"会查"到"会设计、会优化、会扛住高并发"。
-- **中间件**：Kafka、RabbitMQ、Elasticsearch、Nginx 等——大型系统的"血管"与"骨架"。
-- **微服务架构**：拆分、网关、服务治理——单体应用长大后的必经之路。
-- **DevOps**：Linux、Docker、Kubernetes、CI/CD——让交付自动化，让发布不再心惊胆战。
-- **云原生**：云原生模式、Serverless、服务网格——面向未来的架构形态。
+- **数据库与中间件**：从数据模型、事务、索引到消息、搜索与对象存储。[数据库与存储](/learning-paths/database/overview) ｜ [中间件与集成](/learning-paths/middleware/overview)
+- **架构与云原生**：从模块边界、事件驱动到容器、网络、云平台和服务网格。[架构与分布式系统](/learning-paths/architecture/overview) ｜ [云原生](/learning-paths/cloud-native/overview)
+- **质量与可靠性**：测试、观测、性能、容量、安全和发布一起决定系统是否真的能运行。[测试与质量工程](/learning-paths/testing/overview) ｜ [可观测性、性能与可靠性](/learning-paths/observability/overview)
 
 ## 学到什么程度算过关
 

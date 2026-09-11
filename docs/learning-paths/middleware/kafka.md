@@ -251,7 +251,7 @@ Kafka 学到这里，可以按目标继续前进：
 - **[RabbitMQ](/learning-paths/middleware/rabbitmq)** ---- 对照学习 AMQP 路由、确认、死信和业务任务队列
 - **[RocketMQ](/learning-paths/middleware/rocketmq)** ---- 深入顺序消息、事务消息、延时消息和业务型消息治理
 - **[Redis 深入](/learning-paths/middleware/redis-advanced)** ---- 研究内存数据结构、Stream、持久化和高可用
-- **[微服务模式](/learning-paths/microservices/microservices-patterns)** ---- 把 Outbox、Saga、事件驱动和最终一致性放回业务架构
+- **[微服务模式](/learning-paths/architecture/microservices/patterns)** ---- 把 Outbox、Saga、事件驱动和最终一致性放回业务架构
 - **[全链路性能](/learning-paths/fullstack/performance)** ---- 将生产、消费、网络、磁盘和下游处理串成可观测的性能链路
 
 ## 结语

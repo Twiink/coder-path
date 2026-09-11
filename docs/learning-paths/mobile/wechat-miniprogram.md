@@ -266,7 +266,7 @@
 
 ## 下一站去哪
 
-- **[JavaScript](/learning-paths/frontend/javascript)** / **[TypeScript](/learning-paths/frontend/typescript)** ---- 补齐语言、异步、模块和类型
+- **[JavaScript](/learning-paths/languages/javascript)** / **[TypeScript](/learning-paths/languages/typescript)** ---- 补齐语言、异步、模块和类型
 - **[Vue.js](/learning-paths/frontend/vue)** ---- 若走 uni-app，深入组件、响应式和组合式 API
 - **[uni-app](/learning-paths/mobile/uniapp)** ---- 把小程序能力扩展到 App 与 H5
 - **[前后端协作](/learning-paths/fullstack/collaboration)** ---- 建立接口、错误、鉴权、版本和联调契约

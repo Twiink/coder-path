@@ -198,7 +198,7 @@ Cypress 是现代 Web 测试里那位住在浏览器里的前端工程师：命�
 
 - **[Selenium](/learning-paths/testing/selenium)** ---- 进入 WebDriver、Grid 和跨浏览器自动化的元老世界
 - **[Jest](/learning-paths/testing/jest)** ---- 把逻辑、异步和组件测试下沉到更快的反馈层
-- **[TypeScript 学习路线](/learning-paths/frontend/typescript)** ---- 补齐类型、模块和测试工具链边界
+- **[TypeScript 学习路线](/learning-paths/languages/typescript)** ---- 补齐类型、模块和测试工具链边界
 - **[Web 安全](/learning-paths/security/web-security)** ---- 将 XSS、CSRF、注入和越权纳入页面测试
 
 ## 结语

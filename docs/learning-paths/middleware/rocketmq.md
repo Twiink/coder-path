@@ -263,7 +263,7 @@ RocketMQ 学到这里，可以继续沿着问题深入：
 - **[Kafka](/learning-paths/middleware/kafka)** ---- 对照学习分区日志、ISR、位移、流处理和高吞吐回放
 - **[RabbitMQ](/learning-paths/middleware/rabbitmq)** ---- 对照学习 AMQP 交换机、确认、死信、Quorum 与复杂路由
 - **[Redis 深入](/learning-paths/middleware/redis-advanced)** ---- 研究 Stream、持久化、高可用、锁和内存调优
-- **[微服务模式](/learning-paths/microservices/microservices-patterns)** ---- 把事务消息、Outbox、Saga、补偿与事件驱动放回业务边界
+- **[微服务模式](/learning-paths/architecture/microservices/patterns)** ---- 把事务消息、Outbox、Saga、补偿与事件驱动放回业务边界
 - **[数据库与分布式数据](/learning-paths/database/mysql)** ---- 继续研究本地事务、唯一约束、日志和跨系统一致性
 
 ## 结语

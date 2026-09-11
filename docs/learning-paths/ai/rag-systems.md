@@ -2,7 +2,7 @@
 
 RAG（Retrieval-Augmented Generation，检索增强生成）让模型先从外部知识源找证据，再基于证据生成回答。它适合解决知识更新、私有资料、可追溯回答和领域检索问题，但不会自动消除幻觉：资料没找到、权限过滤错、上下文拼坏或模型没用上证据，答案依然会出问题。
 
-前置建议先掌握 [Prompt Engineering](/learning-paths/ai/prompt-engineering) 与 [模型 API 通用原理](/learning-paths/ai/model-api-overview)。本页讲 RAG 的完整数据与质量管道；框架实现可对照 [LlamaIndex](/learning-paths/ai/llamaindex) 与 [LangChain](/learning-paths/ai/langchain)，存储选型见 [向量数据库](/learning-paths/ai/vector-databases)。
+前置建议先掌握 [Prompt Engineering](/learning-paths/ai/prompt-engineering) 与 [模型 API 通用原理](/learning-paths/ai/model-api-overview)。本页讲 RAG 的完整数据与质量管道；框架实现可对照 [LlamaIndex](/learning-paths/ai/llamaindex) 与 [LangChain](/learning-paths/ai/langchain)，存储选型见 [向量数据库](/learning-paths/database/vector-databases)。
 
 这条线按 **问题边界 → 数据摄取 → 切分 → Embedding 与索引 → 检索 → 重排与上下文 → 生成与引用 → 评估 → 生产治理 → 高级形态** 推进。
 
@@ -182,7 +182,7 @@ RAG（Retrieval-Augmented Generation，检索增强生成）让模型先从外�
 
 ## 下一站去哪
 
-**想研究存储和索引** ---- 去 [向量数据库](/learning-paths/ai/vector-databases)，学习 ANN、过滤、量化、备份和选型
+**想研究存储和索引** ---- 去 [向量数据库](/learning-paths/database/vector-databases)，学习 ANN、过滤、量化、备份和选型
 
 **想用框架搭管道** ---- 去 [LlamaIndex](/learning-paths/ai/llamaindex)，学习数据接入、节点、查询引擎和后处理
 

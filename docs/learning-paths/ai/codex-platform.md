@@ -2,7 +2,7 @@
 
 Codex 更适合按“编码 Agent 平台”来理解，而不是当作模型 API 旁边又一套聊天接口。它的核心问题是：如何让一个 Agent 在受控工作区里理解代码、使用工具、修改文件、运行验证，并把过程和结果交给用户或更大的业务系统。
 
-前置建议先掌握 [AI Agent 基础](/learning-paths/ai/agent-basics)、[Agent 开发](/learning-paths/ai/agent-development) 与 [MCP 协议](/learning-paths/ai/claude-mcp)。本页讲平台集成的边界和学习顺序，不替代当前 SDK、App Server 或宿主应用的版本文档。
+前置建议先掌握 [AI Agent 基础](/learning-paths/ai/agent-basics)、[Agent 开发](/learning-paths/ai/agent-development) 与 [MCP 协议](/learning-paths/ai/mcp)。本页讲平台集成的边界和学习顺序，不替代当前 SDK、App Server 或宿主应用的版本文档。
 
 这条线按 **编码 Agent 心智模型 → 任务与工作区 → SDK 会话 → App Server 边界 → 工具与审批 → 事件与恢复 → 评估与治理 → 练习项目** 推进。
 
@@ -142,7 +142,7 @@ Codex 更适合按“编码 Agent 平台”来理解，而不是当作模型 API
 
 ## 下一站去哪
 
-**想接更多工具** ---- 去 [MCP 协议](/learning-paths/ai/claude-mcp)，学习通用工具、资源与权限边界
+**想接更多工具** ---- 去 [MCP 协议](/learning-paths/ai/mcp)，学习通用工具、资源与权限边界
 
 **手里有旧入口** ---- 去 [Codex MCP 兼容集成](/learning-paths/ai/codex-mcp)，做兼容层盘点、迁移和退役
 

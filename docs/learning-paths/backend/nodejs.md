@@ -134,6 +134,8 @@ Node.js 是把 JavaScript 带出浏览器之后，发现它很适合处理网络
 
 第七站来到 Node 的 Web 服务大厅：Express 让路由和中间件变得顺手，但它不会强迫你采用目录结构、响应格式或错误规范。自由很好，只是每个团队都要自己决定哪种自由值得长期维护。
 
+**框架选型入口** ---- 本页只处理 Node.js 运行时与 HTTP 基础。需要专门比较框架时，进入 [Express](/learning-paths/backend/express)、[Fastify](/learning-paths/backend/fastify)、[NestJS](/learning-paths/backend/nestjs) 或 [Hono](/learning-paths/backend/hono)；不要把它们误认为 Node.js 的同义词。
+
 **HTTP 服务基础** ---- 建立方法、状态码、Header、Cookie、内容类型、缓存、幂等和请求生命周期的完整模型
 
 **路由设计** ---- 按资源、版本、功能域组织路由，处理路径参数、查询、方法匹配、嵌套路由和冲突
@@ -281,6 +283,7 @@ Node.js 是把 JavaScript 带出浏览器之后，发现它很适合处理网络
 ## 下一站去哪
 
 - **TypeScript** ---- 强化类型、泛型、模块和工程配置
+- **Express / Fastify / Hono** ---- 按团队约束选择轻量、中高性能或多运行时 Web 框架
 - **NestJS** ---- 进入模块化、依赖注入和企业级 Node 架构
 - **数据库** ---- 深入 SQL、事务、索引、连接池和数据建模
 - **实时与消息** ---- 学习 WebSocket、队列、事件和分布式系统

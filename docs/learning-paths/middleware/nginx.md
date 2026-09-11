@@ -222,7 +222,7 @@ Nginx 是互联网入口处那位永远站得笔直的门卫：静态文件来�
 
 ## 下一站去哪
 
-想补网络基础，去看 [计算机网络](/learning-paths/cs-basics/computer-networks)；想把入口接入服务治理，继续走 [微服务架构](/learning-paths/microservices/microservices-patterns) 与 [Kubernetes](/learning-paths/devops/kubernetes)；想深入可观测与告警，继续走可观测性方向。
+想补网络基础，去看 [计算机网络](/learning-paths/cs-basics/computer-networks)；想把入口接入服务治理，继续走 [微服务架构](/learning-paths/architecture/microservices/patterns) 与 [Kubernetes](/learning-paths/devops/kubernetes)；想深入可观测与告警，继续走可观测性方向。
 
 ## 结语
 

@@ -254,10 +254,10 @@ Angular 是前端世界里的整套装备箱：组件、模板、依赖注入、
 
 ## 下一站去哪
 
-- **[TypeScript](/learning-paths/frontend/typescript)** ---- 深入 Angular 类型、泛型和边界建模
+- **[TypeScript](/learning-paths/languages/typescript)** ---- 深入 Angular 类型、泛型和边界建模
 - **[RxJS 学习路线](/learning-paths/frontend/rxjs)** ---- 把异步数据流与并发控制学扎实
-- **[Vite](/learning-paths/frontend/vite)** ---- 理解现代前端开发服务器与构建工具
-- **[Web 性能](/learning-paths/performance/web-vitals)** ---- 把变更检测优化落到用户体验指标
+- **[Vite](/learning-paths/build-tools/vite)** ---- 理解现代前端开发服务器与构建工具
+- **[Web 性能](/learning-paths/observability/web-vitals)** ---- 把变更检测优化落到用户体验指标
 
 ## 结语
 

@@ -1,8 +1,10 @@
-# AI 开发路线总览
+# 生成式 AI 应用开发路线总览
 
 AI 开发不是背一串模型名称，也不是把“智能”两个字贴在普通 CRUD 上。完整能力链是：**理解模型 → 稳定调用 → 接入知识 → 组织工具 → 控制 Agent → 评估与上线**。每一步都能单独做成项目，连起来才是一条能交付的 AI 应用路线。
 
 这页是地图，不是教程。它负责告诉你每个模块解决什么问题、应该先学什么、什么时候换路线；具体概念和工程细节放在各专题页。建议先读本页，再按自己的项目选择一条主线，别把侧边栏当自助餐厅每道都夹一勺，最后只记得自己吃撑了。
+
+这条路线聚焦于把现有模型接入真实产品：模型调用、检索、工具、Agent、评估和上线。若目标是训练、微调、服务或运维模型，应转向[机器学习与模型工程](/learning-paths/machine-learning/overview)；若目标是分析数据、实验和洞察，应转向[数据科学](/learning-paths/data-science/overview)。三条路线会在数据、评估和部署上交汇，但不把彼此的基础任务混成一页清单。
 
 ## 第一站：先建立 AI 应用的全景图
 
@@ -44,7 +46,7 @@ AI 开发不是背一串模型名称，也不是把“智能”两个字贴在�
 
 每位冒险者的任务都不一样：有人要造知识库，有人要养 Agent，有人只想让本地显卡别闲着。先看任务公告，再选路线；从最热门的库出发，通常会在第三个教程里迷路并开始怀疑人生。
 
-**想做知识库问答** ---- 模型 API → [RAG 系统](/learning-paths/ai/rag-systems) → [向量数据库](/learning-paths/ai/vector-databases) → [LlamaIndex](/learning-paths/ai/llamaindex) 或 [LangChain](/learning-paths/ai/langchain)
+**想做知识库问答** ---- 模型 API → [RAG 系统](/learning-paths/ai/rag-systems) → [向量数据库](/learning-paths/database/vector-databases) → [LlamaIndex](/learning-paths/ai/llamaindex) 或 [LangChain](/learning-paths/ai/langchain)
 
 **想做工具型助手** ---- [Prompt Engineering](/learning-paths/ai/prompt-engineering) → [Agent 基础](/learning-paths/ai/agent-basics) → [Agent 开发](/learning-paths/ai/agent-development) → MCP 与工作流编排
 
@@ -54,7 +56,7 @@ AI 开发不是背一串模型名称，也不是把“智能”两个字贴在�
 
 **想在本地运行模型** ---- 通用 API → [开源模型与本地推理](/learning-paths/ai/open-source-local) → RAG/Agent 评估；先证明质量与运维成本，再决定是否为了“本地”承担完整基础设施
 
-**想做编码 Agent** ---- Agent 基础 → [Codex SDK / App Server](/learning-paths/ai/codex-platform) → [MCP 协议](/learning-paths/ai/claude-mcp) → [Codex MCP 兼容集成](/learning-paths/ai/codex-mcp)
+**想做编码 Agent** ---- Agent 基础 → [Codex SDK / App Server](/learning-paths/ai/codex-platform) → [MCP 协议](/learning-paths/ai/mcp) → [Codex MCP 兼容集成](/learning-paths/ai/codex-mcp)
 
 ## 第四站：阶段产物与验收方式
 
@@ -96,7 +98,7 @@ AI 开发不是背一串模型名称，也不是把“智能”两个字贴在�
 
 **还在新手村** ---- 先去 [模型 API 通用原理](/learning-paths/ai/model-api-overview) 和 [Prompt Engineering](/learning-paths/ai/prompt-engineering)，学会让模型听懂任务
 
-**想让 AI 查资料** ---- 去 [RAG 系统](/learning-paths/ai/rag-systems) 和 [向量数据库](/learning-paths/ai/vector-databases)，给它一张靠谱的知识地图
+**想让 AI 查资料** ---- 去 [RAG 系统](/learning-paths/ai/rag-systems) 和 [向量数据库](/learning-paths/database/vector-databases)，给它一张靠谱的知识地图
 
 **想让 AI 动手** ---- 去 [Agent 基础](/learning-paths/ai/agent-basics) 与 [Agent 开发](/learning-paths/ai/agent-development)，给它工具，但别把家门钥匙一起交出去
 

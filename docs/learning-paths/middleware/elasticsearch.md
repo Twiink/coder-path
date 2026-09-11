@@ -206,7 +206,7 @@ Elasticsearch 是那位把“我想搜一下”听成“请帮我建立分布式
 
 ## 下一站去哪
 
-如果你要把搜索接进业务，下一站去看 [消息系统与事件驱动](/learning-paths/middleware/kafka) 或 [微服务架构](/learning-paths/microservices/microservices-patterns)，补上索引投影、重放和一致性边界；如果主要处理日志与指标，继续走可观测性方向；如果要做语义检索，再进入 [RAG 系统](/learning-paths/ai/rag-systems)。
+如果你要把搜索接进业务，下一站去看 [消息系统与事件驱动](/learning-paths/middleware/kafka) 或 [微服务架构](/learning-paths/architecture/microservices/patterns)，补上索引投影、重放和一致性边界；如果主要处理日志与指标，继续走可观测性方向；如果要做语义检索，再进入 [RAG 系统](/learning-paths/ai/rag-systems)。
 
 ## 结语
 

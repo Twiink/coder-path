@@ -136,7 +136,7 @@ Gemini 是 Google 的模型平台，学习价值通常集中在多模态输入�
 
 **想让模型使用工具** ---- 去 [Agent 基础](/learning-paths/ai/agent-basics)，把 Function Calling 变成受控循环
 
-**想接入工具生态** ---- 去 [MCP 协议](/learning-paths/ai/claude-mcp)，学习通用工具发现、权限和审计
+**想接入工具生态** ---- 去 [MCP 协议](/learning-paths/ai/mcp)，学习通用工具发现、权限和审计
 
 ## 结语
 

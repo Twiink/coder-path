@@ -12,6 +12,8 @@
 
 **如何使用本页** ---- 先用站点确认知识地图，再选择一条技术栈路线作为主线；每完成一站都要留下可验证的项目产出，路线是导航，不是收藏夹
 
+**全栈 Web 框架** ---- [Next.js](/learning-paths/fullstack/frameworks/nextjs)、[Nuxt](/learning-paths/fullstack/frameworks/nuxt)、[SvelteKit](/learning-paths/fullstack/frameworks/sveltekit)、[React Router Framework Mode](/learning-paths/fullstack/frameworks/react-router) 和 [Astro](/learning-paths/fullstack/frameworks/astro) 统一收在全栈开发下；它们需要前端基础，却同时负责服务端、路由、数据和交付边界。
+
 ## 第一站：理解全栈的能力边界
 
 先把“全栈”这个词从简历滤镜里拿下来。全栈不是每件事都做到专家级，而是能理解层与层之间的协议、责任和代价，知道什么时候自己解决，什么时候把问题交给更专业的工具或同事。
@@ -266,6 +268,7 @@
 - **补齐协作能力** ---- 学习 [前后端协作](/learning-paths/fullstack/collaboration)，把接口、类型、错误、版本和联调变成显性契约
 - **补齐质量能力** ---- 学习 [全栈测试](/learning-paths/fullstack/testing)，把测试从发布前仪式变成开发过程中的安全网
 - **补齐线上能力** ---- 学习 [全栈性能](/learning-paths/fullstack/performance) 与 [部署和监控](/learning-paths/fullstack/deployment)，从能跑走到能稳定交付
+- **补齐架构能力** ---- 学习 [全栈 Monorepo](/learning-paths/fullstack/monorepo) 与 [BFF 架构](/learning-paths/fullstack/bff)，在多应用、类型共享与前端聚合层出现后再引入对应复杂度
 
 ## 结语
 

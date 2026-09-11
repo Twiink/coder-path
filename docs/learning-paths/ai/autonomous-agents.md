@@ -174,7 +174,7 @@
 
 **想让 Agent 有靠谱资料** ---- 去 [RAG 系统](/learning-paths/ai/rag-systems)，给研究任务接上可引用的知识管道
 
-**想让它操作外部工具** ---- 去 [MCP 协议](/learning-paths/ai/claude-mcp)，学习发现、权限、审批与供应链
+**想让它操作外部工具** ---- 去 [MCP 协议](/learning-paths/ai/mcp)，学习发现、权限、审批与供应链
 
 ## 结语
 

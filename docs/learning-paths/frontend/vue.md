@@ -234,10 +234,10 @@ Vue 是一套“先让你做出东西，再慢慢揭开魔法”的渐进式框�
 
 ## 下一站去哪
 
-- **[TypeScript](/learning-paths/frontend/typescript)** ---- 给组件、数据和边界装上更可靠的类型护栏
-- **[Nuxt.js](/learning-paths/frontend/nuxtjs)** ---- 把 Vue 推向 SSR、全栈路由、Server API 和部署
-- **[Vite](/learning-paths/frontend/vite)** ---- 理解 Vue 项目背后的开发服务器与构建流水线
-- **[Web 性能](/learning-paths/performance/web-vitals)** ---- 从组件更新走向真实用户体验指标
+- **[TypeScript](/learning-paths/languages/typescript)** ---- 给组件、数据和边界装上更可靠的类型护栏
+- **[Nuxt.js](/learning-paths/fullstack/frameworks/nuxt)** ---- 把 Vue 推向 SSR、全栈路由、Server API 和部署
+- **[Vite](/learning-paths/build-tools/vite)** ---- 理解 Vue 项目背后的开发服务器与构建流水线
+- **[Web 性能](/learning-paths/observability/web-vitals)** ---- 从组件更新走向真实用户体验指标
 
 ## 结语
 

@@ -334,7 +334,7 @@ Electron 用 Chromium 负责界面，用 Node.js 连接操作系统，让前端�
 
 ## 下一站去哪
 
-- **[JavaScript](/learning-paths/frontend/javascript)** / **[TypeScript](/learning-paths/frontend/typescript)** ---- 补齐语言、异步、类型、模块和工程化能力
+- **[JavaScript](/learning-paths/languages/javascript)** / **[TypeScript](/learning-paths/languages/typescript)** ---- 补齐语言、异步、类型、模块和工程化能力
 - **[Node.js](/learning-paths/backend/nodejs)** ---- 深入运行时、文件、网络、进程、流和服务端工程
 - **[前端开发](/learning-paths/frontend/overview)** ---- 加固组件、状态、路由、可访问性和浏览器性能
 - **[Tauri](/learning-paths/desktop/tauri)** ---- 对照 Rust + 系统 WebView 的轻量桌面路线

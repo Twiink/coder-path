@@ -287,7 +287,7 @@ Redis 深入到这里，可以按问题继续走：
 - **[Kafka](/learning-paths/middleware/kafka)** ---- 研究长期保留、分区日志、回放、流处理和大规模积压治理
 - **[RabbitMQ](/learning-paths/middleware/rabbitmq)** ---- 学习 AMQP 路由、确认、死信、Quorum 和业务任务队列
 - **[RocketMQ](/learning-paths/middleware/rocketmq)** ---- 对照学习顺序、延时、事务消息和业务事件治理
-- **[微服务模式](/learning-paths/microservices/microservices-patterns)** ---- 把缓存一致性、Outbox、事件、锁和补偿放回服务架构
+- **[微服务模式](/learning-paths/architecture/microservices/patterns)** ---- 把缓存一致性、Outbox、事件、锁和补偿放回服务架构
 
 ## 结语
 

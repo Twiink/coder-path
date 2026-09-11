@@ -287,7 +287,7 @@
 - **[全栈测试](/learning-paths/fullstack/testing)** ---- 将构建、迁移、发布、性能和恢复纳入测试
 - **[全链路性能](/learning-paths/fullstack/performance)** ---- 用指标和剖析找到浏览器、服务、数据库与网络瓶颈
 - **[JavaScript 全栈](/learning-paths/fullstack/javascript)** / **[Python 全栈](/learning-paths/fullstack/python)** / **[Java 全栈](/learning-paths/fullstack/java)** / **[Go 全栈](/learning-paths/fullstack/go)** ---- 回到具体运行时完成生产部署
-- **[Docker](/learning-paths/devops/docker)** / **[GitHub Actions](/learning-paths/devops/github-actions)** / **[监控](/learning-paths/devops/monitoring)** ---- 深入容器、流水线与观测平台
+- **[Docker](/learning-paths/devops/docker)** / **[GitHub Actions](/learning-paths/devops/github-actions)** / **[监控](/learning-paths/observability/prometheus-grafana)** ---- 深入容器、流水线与观测平台
 - **[前后端协作](/learning-paths/fullstack/collaboration)** ---- 把版本、变更、验收和事故沟通固定下来
 
 ## 结语

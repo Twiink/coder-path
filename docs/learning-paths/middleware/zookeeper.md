@@ -186,7 +186,7 @@ ZooKeeper 是分布式系统里那位拿着小本本的协调员：它不替你�
 
 ## 下一站去哪
 
-想学习同类现代协调服务，下一站去 [etcd 学习路线](/learning-paths/middleware/etcd)；想把选举、锁和服务发现接入微服务，继续看 [微服务架构](/learning-paths/microservices/microservices-patterns)；想补一致性协议基础，可回到 [计算机网络](/learning-paths/cs-basics/computer-networks) 与分布式系统相关章节。
+想学习同类现代协调服务，下一站去 [etcd 学习路线](/learning-paths/middleware/etcd)；想把选举、锁和服务发现接入微服务，继续看 [微服务架构](/learning-paths/architecture/microservices/patterns)；想补一致性协议基础，可回到 [计算机网络](/learning-paths/cs-basics/computer-networks) 与分布式系统相关章节。
 
 ## 结语
 

@@ -4,6 +4,8 @@
 
 这份总览是后端路线的地图，不替你选择唯一正确的语言，也不把某个框架写成教程。它负责解释后端能力的共同骨架、不同生态的性格和推荐学习顺序；具体技术路线再进入 Django、FastAPI、Node.js、Spring Boot、Go、Rust、Laravel 等页面深入。
 
+**导航更新** ---- 后端基础、API 设计、GraphQL、gRPC、缓存、后台任务与实时通信都有独立专题；JavaScript / TypeScript 路线也把 Node.js 运行时和 Express、Fastify、NestJS、Hono 等 Web 框架分开，避免把框架选择混进运行时基础。
+
 ## 第一站：先建立服务器与 HTTP 心智模型
 
 欢迎来到后端开发的新手村：请求从客户端出发，经过网络和代理，进入应用，访问数据，再带着状态码和响应返回。后端不是坐在数据库旁边等前端喊话，而是在一条充满超时、重试和失败的流水线上维持秩序。
@@ -24,7 +26,7 @@
 
 不要同时学八种后端语言，然后拥有八个半成品。先选一条主线做出完整服务，再横向比较其他生态；真正可迁移的是请求、数据、并发、授权、测试和部署这些共同问题。
 
-**JavaScript 与 TypeScript** ---- Node.js 适合 I/O 密集、实时、网关和前后端同构；NestJS 适合在 Node 上建立更强的模块与依赖边界
+**JavaScript 与 TypeScript** ---- Node.js 适合 I/O 密集、实时、网关和前后端同构；Express、Fastify、NestJS 与 Hono 分别覆盖自由组合、高性能 Schema、模块化企业架构与多运行时/边缘场景。[Node.js](/learning-paths/backend/nodejs) ｜ [Express](/learning-paths/backend/express) ｜ [Fastify](/learning-paths/backend/fastify) ｜ [NestJS](/learning-paths/backend/nestjs) ｜ [Hono](/learning-paths/backend/hono)
 
 **Python** ---- Django 适合全家桶、数据驱动应用和管理后台，FastAPI 适合类型驱动 API、异步服务和 AI 应用，Flask 适合轻量与自由组合
 
@@ -162,7 +164,7 @@
 
 **想用 JavaScript 或 TypeScript 全栈** ---- 看 [Node.js](/learning-paths/backend/nodejs) 和 [NestJS](/learning-paths/backend/nestjs)，一条语言主线贯穿浏览器与服务器
 
-**想做云原生与高并发服务** ---- 看 [Go Web](/learning-paths/backend/golang)，从标准库、并发、服务和可观测性逐层深入
+**想做云原生与高并发服务** ---- 看 [Go Web](/learning-paths/backend/go-web)，从标准库、并发、服务和可观测性逐层深入
 
 **想做企业级 Java 后端** ---- 看 [Spring Boot](/learning-paths/backend/spring-boot)，重点学习容器、事务、安全、消息和生产体系
 

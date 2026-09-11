@@ -257,7 +257,7 @@
 - **[全栈测试](/learning-paths/fullstack/testing)** ---- 把性能基准、容量和失败场景纳入质量保障
 - **[全栈部署与监控](/learning-paths/fullstack/deployment)** ---- 把指标、日志、追踪、告警、灰度和回滚接入生产
 - **[JavaScript 全栈](/learning-paths/fullstack/javascript)** / **[Python 全栈](/learning-paths/fullstack/python)** / **[Java 全栈](/learning-paths/fullstack/java)** / **[Go 全栈](/learning-paths/fullstack/go)** ---- 回到具体运行时深入性能边界
-- **[数据库路线](/learning-paths/database/)** / **[缓存与 Redis](/learning-paths/database/redis)** ---- 继续深挖查询、事务、索引、缓存与扩展
+- **[数据库路线](/learning-paths/database/overview)** / **[缓存与 Redis](/learning-paths/database/redis)** ---- 继续深挖查询、事务、索引、缓存与扩展
 
 ## 结语
 

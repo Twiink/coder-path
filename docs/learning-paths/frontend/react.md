@@ -218,10 +218,10 @@ React 的核心思想可以浓缩成一句话：UI 是状态的函数。听起�
 
 ## 下一站去哪
 
-- **[TypeScript](/learning-paths/frontend/typescript)** ---- 给 Props、Hooks、事件和数据边界加上类型护栏
-- **[Next.js](/learning-paths/frontend/nextjs)** ---- 进入 React 的全栈、服务端组件和 App Router 世界
-- **[Vite](/learning-paths/frontend/vite)** ---- 理解 React 项目的开发与构建基础设施
-- **[Web 性能](/learning-paths/performance/web-vitals)** ---- 从渲染机制走向用户真实体验
+- **[TypeScript](/learning-paths/languages/typescript)** ---- 给 Props、Hooks、事件和数据边界加上类型护栏
+- **[Next.js](/learning-paths/fullstack/frameworks/nextjs)** ---- 进入 React 的全栈、服务端组件和 App Router 世界
+- **[Vite](/learning-paths/build-tools/vite)** ---- 理解 React 项目的开发与构建基础设施
+- **[Web 性能](/learning-paths/observability/web-vitals)** ---- 从渲染机制走向用户真实体验
 
 ## 结语
 

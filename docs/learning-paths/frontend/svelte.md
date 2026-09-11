@@ -188,9 +188,9 @@ Svelte 的风格很有意思：把更多工作放到构建阶段，让浏览器�
 
 ## 下一站去哪
 
-- **[TypeScript](/learning-paths/frontend/typescript)** ---- 给 Svelte 组件和服务端边界补上类型契约
-- **[Vite](/learning-paths/frontend/vite)** ---- 理解 Svelte 编译开发背后的工具链
-- **[Web 性能](/learning-paths/performance/web-vitals)** ---- 把编译优势转化为用户能感知的速度
+- **[TypeScript](/learning-paths/languages/typescript)** ---- 给 Svelte 组件和服务端边界补上类型契约
+- **[Vite](/learning-paths/build-tools/vite)** ---- 理解 Svelte 编译开发背后的工具链
+- **[Web 性能](/learning-paths/observability/web-vitals)** ---- 把编译优势转化为用户能感知的速度
 - **[Node.js](/learning-paths/backend/nodejs)** ---- 深入 SvelteKit 服务端 API 与运行时
 
 ## 结语

@@ -182,11 +182,11 @@ Agent 框架和平台迭代很快，本页优先讲工程模式。裸 SDK、Lang
 
 **想把流程画成图** ---- 去 [LangChain](/learning-paths/ai/langchain)，学习 Runnable、Middleware、LangGraph 和可观测编排
 
-**想让 Agent 查知识** ---- 去 [RAG 系统](/learning-paths/ai/rag-systems) 与 [向量数据库](/learning-paths/ai/vector-databases)，把证据管道补齐
+**想让 Agent 查知识** ---- 去 [RAG 系统](/learning-paths/ai/rag-systems) 与 [向量数据库](/learning-paths/database/vector-databases)，把证据管道补齐
 
 **想挑战长任务** ---- 去 [自主 Agent](/learning-paths/ai/autonomous-agents)，研究计划、任务队列、反思和多 Agent
 
-**想连接外部工具** ---- 去 [MCP 协议](/learning-paths/ai/claude-mcp)，学习通用工具发现与权限治理
+**想连接外部工具** ---- 去 [MCP 协议](/learning-paths/ai/mcp)，学习通用工具发现与权限治理
 
 ## 结语
 

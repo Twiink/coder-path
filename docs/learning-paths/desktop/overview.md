@@ -10,6 +10,8 @@
 
 **四条主线** ---- Electron 复用 Web 与 Node.js，Tauri 复用 Web 并下沉 Rust，Flutter Desktop 复用 Widget 与 Dart，Qt、.NET、Swift 等原生路线追求平台深度
 
+**扩展入口** ---- 侧边栏现将 [Qt](/learning-paths/desktop/qt)、[.NET 桌面开发](/learning-paths/desktop/dotnet-desktop)、[macOS 与 SwiftUI](/learning-paths/desktop/macos-swiftui)、[JavaFX](/learning-paths/desktop/javafx) 与桌面架构、打包签名和更新专题分开，便于按目标系统和交付要求选择。
+
 **本页怎么用** ---- 先按团队技能、系统能力、包体、内存、性能、生态与发布渠道选主线；每站粗体条目是后续学习笔记的索引，不是 API 背诵比赛
 
 ## 第一站：桌面应用与选型边界

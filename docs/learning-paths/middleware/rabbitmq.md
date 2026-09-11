@@ -247,7 +247,7 @@ RabbitMQ 学到这里，可以继续沿着不同目标深入：
 - **[Kafka](/learning-paths/middleware/kafka)** ---- 研究分区日志、位移、回放、流处理和高吞吐集群
 - **[RocketMQ](/learning-paths/middleware/rocketmq)** ---- 对照学习事务、延时、顺序和业务消息治理
 - **[Redis 深入](/learning-paths/middleware/redis-advanced)** ---- 学习 Stream、持久化、缓存一致性和分布式锁
-- **[微服务模式](/learning-paths/microservices/microservices-patterns)** ---- 把 Outbox、Saga、补偿和事件驱动放回服务架构
+- **[微服务模式](/learning-paths/architecture/microservices/patterns)** ---- 把 Outbox、Saga、补偿和事件驱动放回服务架构
 - **[全链路性能](/learning-paths/fullstack/performance)** ---- 继续追踪连接、网络、磁盘、消费者和下游的性能证据
 
 ## 结语

@@ -2,7 +2,7 @@
 
 LlamaIndex 专注于让 LLM 访问、索引和理解你的数据。如果说 LangChain 更像组件编排工具房，LlamaIndex 更像知识数据管道：它关心数据从哪里来、如何解析成节点、怎样建立索引、如何检索、如何合成答案，以及这些过程如何被评估。
 
-前置建议先读 [RAG 系统](/learning-paths/ai/rag-systems) 了解检索增强的原理，再看 [向量数据库](/learning-paths/ai/vector-databases) 的存储与选型。本页讲 LlamaIndex 的抽象地图和学习顺序，不把版本敏感的导入路径当成长期知识；具体 API 以当前官方文档为准。
+前置建议先读 [RAG 系统](/learning-paths/ai/rag-systems) 了解检索增强的原理，再看 [向量数据库](/learning-paths/database/vector-databases) 的存储与选型。本页讲 LlamaIndex 的抽象地图和学习顺序，不把版本敏感的导入路径当成长期知识；具体 API 以当前官方文档为准。
 
 这条线按 **数据抽象 → 摄取管道 → 索引与存储 → 查询引擎 → 后处理与 Agent → 评估 → 生产治理 → 生态组合** 推进。
 
@@ -58,7 +58,7 @@ LlamaIndex 专注于让 LLM 访问、索引和理解你的数据。如果说 Lan
 
 **Storage Context** ---- 管理文档、节点、索引、向量库和持久化；生产环境要把索引版本、备份、恢复和一致性写进运维流程
 
-**外部向量库** ---- 原型可使用本地存储，生产按规模、过滤、事务、托管、备份和运维选择 pgvector、Qdrant、Milvus、Weaviate 等；选型见 [向量数据库](/learning-paths/ai/vector-databases)
+**外部向量库** ---- 原型可使用本地存储，生产按规模、过滤、事务、托管、备份和运维选择 pgvector、Qdrant、Milvus、Weaviate 等；选型见 [向量数据库](/learning-paths/database/vector-databases)
 
 **重点在这** ---- 索引是数据资产，不是一次性构建脚本；它需要版本、更新、删除、回滚和质量基线
 
@@ -150,7 +150,7 @@ LlamaIndex 专注于让 LLM 访问、索引和理解你的数据。如果说 Lan
 
 **想补 RAG 原理** ---- 去 [RAG 系统](/learning-paths/ai/rag-systems)，把切分、召回、重排、引用和评估学深
 
-**想研究存储** ---- 去 [向量数据库](/learning-paths/ai/vector-databases)，理解索引、过滤、更新和选型
+**想研究存储** ---- 去 [向量数据库](/learning-paths/database/vector-databases)，理解索引、过滤、更新和选型
 
 **想做复杂 Agent** ---- 去 [LangChain](/learning-paths/ai/langchain)，让 LlamaIndex 管数据，让编排框架管流程
 

@@ -304,7 +304,7 @@ JavaScript 全栈的招牌很诱人：浏览器里写 JavaScript，服务器上�
 
 第十一站进入全栈框架的高架路。Next.js 与 Nuxt 把页面、服务端逻辑、路由、构建与部署放进同一个应用，效率很高；代价是运行位置更多，边界也更容易藏起来。
 
-**框架选型与路线** ---- React 生态优先看 [Next.js 学习路线](/learning-paths/frontend/nextjs)，Vue 生态优先看 [Nuxt.js 学习路线](/learning-paths/frontend/nuxtjs)；先理解分离式前后端，再用同构框架提效，避免把约定当原理
+**框架选型与路线** ---- React 生态优先看 [Next.js 学习路线](/learning-paths/fullstack/frameworks/nextjs)，Vue 生态优先看 [Nuxt.js 学习路线](/learning-paths/fullstack/frameworks/nuxt)；先理解分离式前后端，再用同构框架提效，避免把约定当原理
 
 **CSR、SSR、SSG 与 ISR** ---- 分清客户端渲染、服务端渲染、静态生成、增量生成、按需重验证和边缘渲染的请求时机、缓存位置与适用场景
 
@@ -486,10 +486,10 @@ JavaScript 全栈的招牌很诱人：浏览器里写 JavaScript，服务器上�
 
 JavaScript 全栈毕业后，可以按兴趣继续分叉：
 
-- **[TypeScript](/learning-paths/frontend/typescript)** ---- 把类型、泛型、工程配置与跨层契约再做深
+- **[TypeScript](/learning-paths/languages/typescript)** ---- 把类型、泛型、工程配置与跨层契约再做深
 - **[Node.js](/learning-paths/backend/nodejs)** / **[NestJS](/learning-paths/backend/nestjs)** ---- 深挖运行时、模块、流、并发、服务边界与企业级架构
 - **[React](/learning-paths/frontend/react)** / **[Vue](/learning-paths/frontend/vue)** ---- 深入组件系统、渲染机制、状态与用户体验
-- **[Next.js](/learning-paths/frontend/nextjs)** / **[Nuxt.js](/learning-paths/frontend/nuxtjs)** ---- 进入同构、SSR、缓存、边缘与全栈框架设计
+- **[Next.js](/learning-paths/fullstack/frameworks/nextjs)** / **[Nuxt.js](/learning-paths/fullstack/frameworks/nuxt)** ---- 进入同构、SSR、缓存、边缘与全栈框架设计
 - **[PostgreSQL](/learning-paths/database/postgresql)** / **[MongoDB](/learning-paths/database/mongodb)** / **[Redis](/learning-paths/database/redis)** ---- 把数据模型、查询、事务、缓存与扩展做深
 - **[前后端协作](/learning-paths/fullstack/collaboration)** ---- 把契约、联调、错误和版本管理变成团队习惯
 - **[全栈测试](/learning-paths/fullstack/testing)** / **[部署与监控](/learning-paths/fullstack/deployment)** / **[性能优化](/learning-paths/fullstack/performance)** ---- 从“能跑”升级到“能交付、能观察、能恢复”

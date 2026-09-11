@@ -241,7 +241,7 @@ Tailwind CSS 把“写一个新类名”换成了“组合一组原子工具类�
 - **[HTML & CSS](/learning-paths/frontend/html-css)** ---- 回到盒模型、层叠、布局和可访问性的地基
 - **[Vue](/learning-paths/frontend/vue)** ---- 在组件框架中建立更完整的样式与状态边界
 - **[React](/learning-paths/frontend/react)** ---- 将工具类体系接入组件、状态和设计系统
-- **[Vite](/learning-paths/frontend/vite)** ---- 理解 Tailwind 在开发与构建阶段如何被处理
+- **[Vite](/learning-paths/build-tools/vite)** ---- 理解 Tailwind 在开发与构建阶段如何被处理
 
 ## 结语
 

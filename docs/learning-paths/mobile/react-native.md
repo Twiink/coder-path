@@ -224,8 +224,8 @@ React Native 用 JavaScript 和 React 描述界面，再把组件交给 iOS 与 
 
 ## 下一站去哪
 
-- **[React](/learning-paths/frontend/react)** / **[JavaScript](/learning-paths/frontend/javascript)** ---- 补齐组件、状态、异步和语言地基
-- **[TypeScript](/learning-paths/frontend/typescript)** ---- 建立跨页面、跨模块和跨原生边界的类型契约
+- **[React](/learning-paths/frontend/react)** / **[JavaScript](/learning-paths/languages/javascript)** ---- 补齐组件、状态、异步和语言地基
+- **[TypeScript](/learning-paths/languages/typescript)** ---- 建立跨页面、跨模块和跨原生边界的类型契约
 - **[Android 原生](/learning-paths/mobile/android-native)** / **[iOS 原生](/learning-paths/mobile/ios-native)** ---- 深入平台能力和原生模块
 - **[Flutter](/learning-paths/mobile/flutter)** ---- 对照自绘引擎与 Dart 的跨平台路线
 - **[全栈测试](/learning-paths/fullstack/testing)** / **[全栈部署与监控](/learning-paths/fullstack/deployment)** ---- 把质量、观测和发布做完整

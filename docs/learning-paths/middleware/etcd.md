@@ -202,7 +202,7 @@ etcd 是云原生世界那位把集群状态贴在保险柜里的协调员：Kub
 
 ## 下一站去哪
 
-如果你的目标是理解云原生控制面，下一站去看 [Kubernetes](/learning-paths/devops/kubernetes)；如果想比较另一套经典协调原语，回到 [ZooKeeper 学习路线](/learning-paths/middleware/zookeeper)；如果要把一致性能力放进服务治理，再看 [微服务架构](/learning-paths/microservices/microservices-patterns) 与可观测性方向。
+如果你的目标是理解云原生控制面，下一站去看 [Kubernetes](/learning-paths/devops/kubernetes)；如果想比较另一套经典协调原语，回到 [ZooKeeper 学习路线](/learning-paths/middleware/zookeeper)；如果要把一致性能力放进服务治理，再看 [微服务架构](/learning-paths/architecture/microservices/patterns) 与可观测性方向。
 
 ## 结语
 

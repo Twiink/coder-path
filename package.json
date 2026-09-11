@@ -9,9 +9,7 @@
     "preview": "vitepress preview docs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "optimize:images": "bash scripts/optimize-images-simple.sh",
-    "analyze": "vitepress build docs && node scripts/analyze-bundle.js"
+    "docs:preview": "vitepress preview docs"
   },
   "repository": {
     "type": "git",

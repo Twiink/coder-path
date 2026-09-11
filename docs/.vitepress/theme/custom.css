@@ -84,10 +84,22 @@ body {
   color: #218d70;
 }
 
-/* 正文重点与行内代码保持中性，避免“绿色加粗”抢走阅读焦点。 */
-.vp-doc strong,
-.vp-doc strong a {
+/* 正文重点保持黑色；链接无论是否加粗都沿用统一的绿色。 */
+.vp-doc strong {
   color: var(--vp-c-text-1);
+}
+
+.vp-doc strong a {
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc a strong {
+  color: inherit;
+}
+
+.vp-doc strong a:hover,
+.vp-doc a:hover strong {
+  color: var(--vp-c-brand-2);
 }
 
 .vp-doc :not(pre, h1, h2, h3, h4, h5, h6) > code,

@@ -478,7 +478,7 @@ LangChain 是一套把模型、提示词、工具、检索和 Agent 组装起来
 - **[AI Agent 开发](/learning-paths/ai/agent-development)** ---- 继续学习生产级工具、工作流、安全和评估
 - **[RAG 系统](/learning-paths/ai/rag-systems)** ---- 深入数据处理、检索质量、引用和知识库治理
 - **[LlamaIndex](/learning-paths/ai/llamaindex)** ---- 从数据连接与索引视角比较另一套生态
-- **[MCP 协议](/learning-paths/ai/claude-mcp)** ---- 学习把外部工具和数据接入 Agent 的通用协议
+- **[MCP 协议](/learning-paths/ai/mcp)** ---- 学习把外部工具和数据接入 Agent 的通用协议
 - **[模型 API 通用原理](/learning-paths/ai/model-api-overview)** ---- 回到供应商无关的模型调用、适配层和可靠性
 
 ## 结语

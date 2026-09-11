@@ -10,6 +10,8 @@
 
 **四条主线** ---- Android 原生、iOS 原生、React Native、Flutter、uni-app 与微信小程序各自有独立路线；不要同时把所有分支当主线，知识树会先把你变成盆栽
 
+**扩展入口** ---- 跨平台路线新增 [Expo](/learning-paths/mobile/expo)、[Kotlin Multiplatform](/learning-paths/mobile/kotlin-multiplatform)、[.NET MAUI](/learning-paths/mobile/dotnet-maui) 和 [HarmonyOS](/learning-paths/mobile/harmonyos)；架构、离线同步与发布分发也拆成独立工程专题。
+
 **本页怎么用** ---- 先按目标平台与团队背景选一条主线，再用通用能力补短板；每站的粗体条目是学习笔记索引，不是要求在本页背完所有 API
 
 ## 第一站：移动端的约束与产品视角

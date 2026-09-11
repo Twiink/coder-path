@@ -197,7 +197,7 @@ Jest 是 JavaScript 测试世界里那位装备齐全的巡检员：断言、Moc
 ## 下一站去哪
 
 - **[Cypress](/learning-paths/testing/cypress)** ---- 进入浏览器内运行的端到端与组件测试
-- **[TypeScript 学习路线](/learning-paths/frontend/typescript)** ---- 补齐类型、模块和工程边界
+- **[TypeScript 学习路线](/learning-paths/languages/typescript)** ---- 补齐类型、模块和工程边界
 - **[Pytest](/learning-paths/testing/pytest)** / **[JUnit](/learning-paths/testing/junit)** ---- 对比不同语言测试框架的共同心法
 - **[Web 安全](/learning-paths/security/web-security)** ---- 把输入、权限和攻击路径纳入测试设计
 

@@ -279,7 +279,7 @@ uni-app 的卖点很朴素：用 Vue 的开发方式，把一套业务代码送�
 ## 下一站去哪
 
 - **[Vue.js](/learning-paths/frontend/vue)** ---- 补齐组件、响应式、组合式 API 和工程化地基
-- **[JavaScript](/learning-paths/frontend/javascript)** / **[TypeScript](/learning-paths/frontend/typescript)** ---- 把语言、异步、类型和错误处理做深
+- **[JavaScript](/learning-paths/languages/javascript)** / **[TypeScript](/learning-paths/languages/typescript)** ---- 把语言、异步、类型和错误处理做深
 - **[微信小程序](/learning-paths/mobile/wechat-miniprogram)** ---- 深入平台原生约束、分包、审核、支付和生态能力
 - **[Flutter](/learning-paths/mobile/flutter)** / **[React Native](/learning-paths/mobile/react-native)** ---- 对照另一套跨平台思路，扩大选型视野
 - **[前后端协作](/learning-paths/fullstack/collaboration)** ---- 把接口、错误、类型、版本和联调变成明确契约

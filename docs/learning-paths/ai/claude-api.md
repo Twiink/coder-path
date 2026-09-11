@@ -144,7 +144,7 @@ Claude 是 Anthropic 的模型平台，常被用于长文本、代码、写作�
 
 ## 下一站去哪
 
-**想接外部工具** ---- 去 [MCP 协议](/learning-paths/ai/claude-mcp)，把工具、资源和提示模板接进 Claude
+**想接外部工具** ---- 去 [MCP 协议](/learning-paths/ai/mcp)，把工具、资源和提示模板接进 Claude
 
 **想做知识库** ---- 去 [RAG 系统](/learning-paths/ai/rag-systems)，学习长文档与检索的组合策略
 

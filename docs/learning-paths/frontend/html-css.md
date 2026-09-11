@@ -328,11 +328,11 @@ HTML 是网页的骨架，CSS 是网页的皮肤——这对搭档就像乐高�
 
 HTML 和 CSS 是前端的地基，地基打牢了才能往上建：
 
-- **[JavaScript](/learning-paths/frontend/javascript)** ---- 加上逻辑和交互让页面动起来，前端三大件的第三件
-- **[TypeScript](/learning-paths/frontend/typescript)** ---- 类型安全的 JavaScript 大厂标配
+- **[JavaScript](/learning-paths/languages/javascript)** ---- 加上逻辑和交互让页面动起来，前端三大件的第三件
+- **[TypeScript](/learning-paths/languages/typescript)** ---- 类型安全的 JavaScript 大厂标配
 - **[Tailwind CSS](/learning-paths/frontend/tailwind)** ---- 原子化 CSS 框架不用写 CSS 类名直接用工具类
 - **[React](/learning-paths/frontend/react)** / **[Vue](/learning-paths/frontend/vue)** ---- 组件化开发现代前端框架
-- **[Vite](/learning-paths/frontend/vite)** ---- 现代构建工具开发体验极佳
+- **[Vite](/learning-paths/build-tools/vite)** ---- 现代构建工具开发体验极佳
 
 往深了学：CSS 预处理器 Sass Less Stylus 变量嵌套混合，PostCSS 插件生态自动添加浏览器前缀，CSS-in-JS styled-components Emotion 组件内写样式。往工程化方向：设计系统 Design System 统一设计语言，组件库开发 Storybook 组件文档和测试，CSS 架构 BEM OOCSS SMACSS 命名和组织方法论。
 
