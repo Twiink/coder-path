@@ -1,70 +1,347 @@
 # Spring Boot 学习路线
 
-Spring Boot 是 Java 企业级开发的事实标准:它把 Spring 框架(IoC/AOP/事务……)打包成"开箱即用"——内嵌 Tomcat、自动配置、starter 依赖管理,**不用 XML,不用纠结版本,约定优于配置**。金融、电商、企业软件,哪里都有它的身影。学习曲线比 Node/Python 框架陡(容器、代理、事务的概念密度大),但掌握后你会发现它的设计极其优雅,而且**岗位量与生态成熟度让这份投入非常值**。前置:扎实的 [Java](/learning-paths/languages/java) 基础(集合/反射/注解/多线程)与 SQL 基础。
+Spring Boot 是 Java 企业级后端里的大型交通枢纽：IoC 负责调度 Bean，自动配置负责把常见设施装上，Spring MVC 负责接待 HTTP，事务负责守住数据边界，Spring Security 则在门口认真核验证件。它的学习曲线比轻量框架陡，但这些概念会反复出现在金融、电商、企业系统和微服务里。Boot 不是替你消灭复杂度，而是把复杂度组织成一套可以长期维护的工程语言。
 
-这条线按 **快速开始 → 自动配置原理 → IoC 与 DI → REST API → 数据访问 → AOP → 事务 → 异常处理 → Spring Security → 缓存/异步/定时 → 消息与事件 → 监控 → 测试 → 部署与源码** 推进。
+这条路线是**指引和索引**，不是注解大全、配置手册或源码抄写。它会覆盖 Java 与 Spring 的基础、容器、代理、事务、数据、安全、消息、测试、监控和部署，既列出高频能力，也标出容易被忽略的深层机制；具体注解、接口和代码示例，后续再按知识点展开。路线页先负责导航，不把绿色代码块铺满地图。
 
-## 第一站:快速开始
+路线按 **Java 与项目启动 → 自动配置 → IoC 与依赖注入 → REST API → 数据访问 → AOP → 事务 → 异常 → 安全 → 缓存异步调度 → 消息事件 → 监控文档 → 测试 → 部署性能与源码** 推进。
 
-**项目生成**:start.spring.io 或 IDEA 内置 Initializr——选依赖(Web/Validation/Data JPA/Security……)即得可运行项目;**启动类**:`@SpringBootApplication`(= @SpringBootConfiguration + **@EnableAutoConfiguration** + @ComponentScan)+ `main` 里 `SpringApplication.run(XxxApplication.class)`;**配置**:`application.yml`(端口/数据源/日志……),`spring-boot-devtools` 开发热重启;**依赖**:starter 机制(`spring-boot-starter-web` 一个坐标带齐 web 全家——版本由 Boot BOM 统一管理,不写版本号);目录结构(src/main/java + resources、启动类放根包——**组件扫描的边界**)。
-第一个接口:Controller + @GetMapping 返回 JSON。
+## 第一站：Java 基础与项目启动
 
-## 第二站:自动配置与 Starter 原理——"零配置"的秘密
+欢迎来到 Spring Boot 的企业园区：Java 是地基，Maven 或 Gradle 是采购系统，启动类是园区大门，Starter 依赖则像一箱已经配好的工具。先把语言、构建和项目启动弄清楚，不要第一天就钻进自动配置源码然后迷路。
 
-Boot 凭什么不写配置就能连数据库?答案:**自动配置类 + 条件注解**。启动时 `@EnableAutoConfiguration` 加载 `META-INF/spring/...AutoConfiguration.imports`(Boot 3;2.x 是 spring.factories)里注册的自动配置类(DataSourceAutoConfiguration、JpaRepositoriesAutoConfiguration……);每个自动配置类用**条件注解**按需生效:`@ConditionalOnClass`(classpath 有驱动才配)、`@ConditionalOnMissingBean`(你自定义了就不覆盖)、`@ConditionalOnProperty`(按配置开关)——**"有才配、你配了我不动"是自动配置的黄金法则**。
-**@ConfigurationProperties**(强类型配置绑定):`@ConfigurationProperties(prefix = "app.jwt")` + 类字段,自动绑定 yml——比 @Value 散装注入优雅;开启 @EnableConfigurationProperties 或 @Component 注册;**自定义 Starter**(给团队/公司写公共组件时):命名规范 `xxx-spring-boot-starter`、自动配置类 + imports 文件 + spring.factories(旧)——会写 starter 才算真懂自动配置。
+**Java 语言地基** ---- 补齐集合、泛型、异常、反射、注解、I/O、并发、对象模型和 JVM 基础；Spring 的很多“魔法”都建立在这些能力上
 
-## 第三站:IoC 容器与依赖注入
+**构建工具** ---- 掌握 Maven 或 Gradle 的依赖、插件、生命周期、仓库、锁定、配置和多模块项目
 
-**Bean 注册**:@Component 族(通用/@Service 业务/@Repository 数据/@Controller 控制——**语义注解,扫描与代理有区别**)与 @Configuration + @Bean(第三方类:RestTemplate/RedisTemplate);**注入**:构造器注入(推荐:final 字段、不可变、易测——**Spring 官方也推荐**)vs 字段 @Autowired(简洁但难测、隐藏依赖)vs setter;多实现选择:@Qualifier("name")/@Primary(默认优先);@Value 注配置;**作用域**:singleton(默认,一个容器一个——**无状态服务 bean**)/prototype(每次新)/request/session(Web);**生命周期**:@PostConstruct(初始化,依赖注入完成后)/@PreDestroy(销毁前)/InitializingBean;BeanPostProcessor(bean 创建后置处理——AOP 代理的注入点);**为什么 Controller/Service 常配接口**:JDK 动态代理需要接口(事务/AOP 生效的前提之一);**循环依赖**(两个 bean 互相依赖):Spring 用**三级缓存**(singletonObjects(成品)/earlySingletonObjects(半成品)/singletonFactories(工厂))解决 setter/字段循环;**构造器循环无解**(bean 都没建完没法给对方)——解法 @Lazy;这些是 Spring 面试的深水区,但理解它们能解释 90% 的"启动失败/代理不生效"。
+**项目生成** ---- 了解 Initializr、启动类、资源目录、测试目录、配置文件和默认目录边界
 
-## 第四站:REST API 开发
+**Starter 与版本管理** ---- 理解 Starter、BOM、传递依赖、版本对齐和依赖冲突；依赖少写几行不代表冲突自动消失
 
-**@RestController**(= @Controller + @ResponseBody,方法返回值直接 JSON);**路由**:@RequestMapping + 快捷注解(@GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping),路径变量 @PathVariable、查询 @RequestParam(required/defaultValue)、请求体 @RequestBody(自动 JSON 反序列化)、@RequestHeader;DTO 校验:@Valid 触发(spring-boot-starter-validation):DTO 字段加 @NotNull/@NotBlank/@Size/@Email/@Pattern——**请求入口全校验**(Bean Validation 标准);**响应**:ResponseEntity&lt;T&gt;(状态码/响应头/Location)或统一 Result&lt;T&gt;(code/message/data——团队约定,别混用);业务分层:Controller(薄:参数与响应)→ Service(@Service,事务与业务)→ Repository;**API 规范**:资源复数/状态码语义/版本化(见 [全栈路线](/learning-paths/fullstack/overview))。
+**应用启动** ---- 建立主方法、应用运行、上下文创建、环境准备和服务器启动的总体流程
 
-## 第五站:数据访问
+**配置文件** ---- 区分属性与 YAML、多环境配置、配置优先级、环境变量、命令行覆盖和敏感信息
 
-**Spring Data JPA**(Java 持久层标准,基于 Hibernate):**Entity**:@Entity + @Table + @Id @GeneratedValue + @Column + @Enumerated;**Repository**:接口继承 JpaRepository&lt;User, Long&gt; 即得 CRUD——**方法命名查询**(findByEmailAndStatus、countByXxx、existsBy——Spring 按方法名解析 SQL)、**@Query**(JPQL 或 nativeQuery=true 原生 SQL)、分页(Pageable/Page)、Specification 或 QueryDSL(多条件动态查询:筛选列表);**关系映射**:@OneToMany/@ManyToOne/@ManyToMany(mappedBy、joinTable)+ **fetch = LAZY**(默认一对多懒加载——**懒加载发生在事务外会 LazyInitializationException**,经典坑)+ **N+1 问题**(循环里查库:join fetch / @EntityGraph 预加载);**实体与 DTO 转换**:MapStruct(编译期生成,性能好)或手动(别把 Entity 直接吐给前端——密码/内部字段泄露与循环引用);**事务**见第七站;**国产替代 MyBatis-Plus**(国内互联网公司极流行:注解 SQL/XML 分离/代码生成器——会 JPA 后按需补);**连接池**:默认 HikariCP(性能最好,配置 maximum-pool-size 等)。
+**开发与生产** ---- 认识开发热重载、调试日志、生产打包、外置配置和运行参数；本地能启动只是园区还没开始接待客户
 
-## 第六站:AOP——切面编程
+**重点在这** ---- Spring Boot 的“开箱即用”来自构建、容器和自动配置的协作；先理解启动链路，再享受默认值
 
-**AOP(Aspect Oriented)**:把横切逻辑(日志/鉴权/事务/耗时/审计)从业务里抽出来——**切面 Aspect(切点+通知)、切点 Pointcut(匹配哪些方法:execution(* com.demo.service.*.*(..)) 表达式、@annotation(xxx) 匹配注解)、通知 Advice:@Before/@After/@AfterReturning/@AfterThrowing/@Around(最强:ProceedingJoinPoint 手动控制,日志与耗时统计用它)**;实战:**自定义注解 + @annotation 切点**(@OperationLog 注解标方法、切面里记录操作日志——中后台系统标配);**原理**:Spring AOP 基于**动态代理**——有接口用 JDK 动态代理(Proxy),无接口用 **CGLIB(Boot 2+ 默认,基于继承)**——所以 final 方法/类无法被代理、同类内自调用不走代理(**事务/AOP 失效头号原因**,要注入 self 或用 AopContext.currentProxy())。
+## 第二站：自动配置与 Starter 原理
 
-## 第七站:事务管理
+第二站进入 Boot 的自动售货机：Classpath 上有什么、配置里写了什么、容器里已经有什么 Bean，都会影响自动配置是否出货。看起来是零配置，实际上是大量条件判断在后台排队工作。
 
-**@Transactional**(Spring 声明式事务的核心):默认**运行时异常(RuntimeException)回滚、受检异常不回滚**——要全回滚写 `rollbackFor = Exception.class`(经典坑:catch 住异常再抛出导致不回滚/事务失效);**传播机制(propagation)七种**:REQUIRED(默认:有事务加入,没有新建)/REQUIRES_NEW(挂起当前、开新事务——**日志表独立提交**场景)/NESTED(嵌套保存点,内层回滚不影响外层已提交部分)/SUPPORTS/MANDATORY/NOT_SUPPORTED/NEVER——前三种是面试核心;**隔离级别**(isolation):与数据库概念对应(读未提交/读已提交/可重复读/串行化,见 [MySQL 路线](/learning-paths/database/mysql));**失效场景大全**(面试必考):同类自调用、private 方法、异常被 try-catch 吞掉、多线程里调(@Transactional 绑线程)、非 Spring 管理的对象;**编程式事务**:TransactionTemplate(细粒度控制);**分布式事务**:Seata/2PC/TCC(微服务场景,见 [微服务路线](/learning-paths/microservices/spring-cloud))。
+**自动配置入口** ---- 理解启用自动配置、自动配置导入、配置类解析和不同版本的注册机制
 
-## 第八站:全局异常处理
+**条件注解** ---- 掌握按类存在、按 Bean 缺失、按属性、按资源和按 Web 环境生效的条件；自动配置的黄金法则是“有才配、你配了我不抢”
 
-**@RestControllerAdvice + @ExceptionHandler**(全局异常中心,替代每个 Controller try-catch):`@ExceptionHandler(BizException.class)` 返回统一错误码;`@ExceptionHandler(MethodArgumentNotValidException.class)`(DTO 校验失败 → 400/422 + 字段错误明细——**前端表单报错的标准数据源**);**自定义业务异常**:继承 RuntimeException + code(如 UserNotFoundException extends BizException)——业务里 throw,切面外统一兜;**统一响应结构**(Result&lt;T&gt; + 错误码表 + i18n 消息)。
-**过滤器与拦截器**(请求链路的两个层次):`Filter`(Servlet 级,最早最外:编码、CORS 预检、请求日志——注册 @Component 或 FilterRegistrationBean)vs `HandlerInterceptor`(Spring MVC 级:preHandle(登录校验/权限)/postHandle/afterCompletion——注册到 WebMvcConfigurer)——面试常问区别与顺序:Filter → DispatcherServlet → Interceptor → Controller。
+**配置优先级** ---- 认识默认配置、应用配置、环境变量、命令行、测试覆盖和自定义 Bean 对结果的影响
 
-## 第九站:Spring Security 与认证授权
+**Starter 设计** ---- 理解依赖聚合、版本管理、自动配置模块、条件边界和团队公共 Starter 的设计方式
 
-**Spring Security**(Java 安全标准,学习曲线最陡的一站):**核心概念**:SecurityFilterChain(过滤器链:每个请求过一组安全过滤器)、Authentication(认证信息)、SecurityContext(当前线程上下文)、UserDetailsService(查用户)、PasswordEncoder(BCrypt——**永远别明文**);**JWT 无状态认证架构**(现代 API 标配):登录接口用 AuthenticationManager 校验 → 签发 JWT(github 的 jjwt 或 java-jwt)→ **JwtAuthenticationFilter**(OncePerRequestFilter:解析 Authorization: Bearer → 验证签名与过期 → 塞 SecurityContext)→ 后续接口从 SecurityContext 拿当前用户;**SecurityFilterChain 配置**:`authorizeHttpRequests`(放行白名单:/api/auth/**,其余 authenticated)、sessionCreationPolicy STATELESS、csrf disable(无状态 API)、cors、exceptionHandling(401/403 JSON);**方法级安全**:@EnableMethodSecurity + @PreAuthorize("hasRole('ADMIN')")/@Secured;`spring-boot-starter-oauth2-resource-server`(官方 JWT 资源服务器姿势,含 JWK 校验);OAuth2 登录(第三方)/SSO 概念见 [认证授权路线](/learning-paths/security/auth)。
+**配置属性绑定** ---- 使用类型化配置对象表达层级、默认值、校验和元数据，避免散落在业务里的字符串读取
 
-## 第十站:缓存、异步与定时
+**自动配置调试** ---- 学会查看条件评估、识别为什么某个 Bean 生效或没有生效，避免面对启动日志只会滚动鼠标
 
-**缓存抽象**(spring-boot-starter-cache + Redis):@Cacheable(cacheNames + key SpEL——**击穿/穿透/雪崩的应对**:空值缓存/随机过期/互斥锁,见 [Redis 路线](/learning-paths/database/redis))、@CachePut(更新)、@CacheEvict(失效,allEntries 清空)、@Caching 组合;RedisCacheManager 配置(序列化 Jackson/JSON、TTL、key 前缀);**异步 @Async**:@EnableAsync + 方法加 @Async(默认 SimpleAsyncTaskExecutor——**生产必须自定义线程池**:核心/最大/队列/拒绝策略;异步方法同类自调用同样失效;异常默认丢失,配 AsyncUncaughtExceptionHandler);CompletableFuture 编排(见 [Java 路线](/learning-paths/languages/java));**定时 @Scheduled**:@EnableScheduling + @Scheduled(cron 六段式/fixedDelay(上次结束算)/fixedRate(上次开始算))——**默认单线程,任务重叠会排队**:长任务自己吃线程;多实例部署会重复执行(分布式锁 Redisson/`ShedLock` 保证单点);复杂调度 Quartz。
+**自定义自动配置** ---- 了解导入声明、条件顺序、用户覆盖、配置属性和测试隔离；自动配置要礼貌，不能把用户显式配置踩平
 
-## 第十一站:消息与事件驱动
+**重点在这** ---- 自动配置不是魔法，而是条件化的 Bean 注册；读懂条件和优先级，就能解释大多数“为什么它突然有了”
 
-**消息队列集成**:spring-boot-starter-amqp(RabbitMQ:RabbitTemplate 发、@RabbitListener 收——交换机/队列/死信见 [RabbitMQ 路线](/learning-paths/middleware/rabbitmq))与 spring-kafka(@KafkaListener/生产者——见 [Kafka 路线](/learning-paths/middleware/kafka))——**异步解耦/削峰**的架构级工具;**Spring 事件**(应用内解耦,比 MQ 轻):ApplicationEventPublisher.publishEvent + @EventListener 监听(默认同步——监听器抛错影响主流程,注意)/@Async 异步事件/@TransactionalEventListener(phase = AFTER_COMMIT:**事务提交后才发事件**——解决"事件发了但事务回滚"的经典问题,领域事件的标准姿势)、@Order 控制顺序。
+## 第三站：IoC 容器与依赖注入
 
-## 第十二站:日志、监控与文档
+第三站来到 Spring 的中央调度室：Bean 是园区里的员工，容器负责招聘、组装、管理和退休，依赖注入负责把同事安排到正确岗位。这个系统很强大，也很容易被注入成一张无人能解释的关系网。
 
-**日志**:默认 Logback——logback-spring.xml(级别/格式/滚动 RollingFileAppender(按天+大小)/**AsyncAppender(异步写,别让日志拖慢接口)**);**MDC**(日志链路追踪:过滤器里 MDC.put("traceId", UUID) → 日志 pattern 输出 %X&#123;traceId&#125;——排查一次请求的全链路日志,分布式用 OpenTelemetry/SkyWalking);**Actuator(生产监控)**::management.endpoints.web.exposure.include=health,info,metrics,env(prometheus)——**/actuator/health(探针:数据库/Redis 存活探测,K8s 就靠它)、自定义 HealthIndicator(业务依赖状态)、Micrometer 指标 + micrometer-registry-prometheus(/actuator/prometheus → Prometheus → Grafana 看板)**、/env 暴露配置(生产脱敏!)、Spring Boot Admin(多实例可视化管理);**API 文档**:springdoc-openapi(swagger-ui:自动从 Controller 与 DTO 生成——@Tag/@Operation/@Schema 完善;knife4j 国内增强 UI),**文档与代码同源**。
+**Bean 注册** ---- 区分组件扫描、配置类、Bean 方法、导入、条件 Bean 和手动注册，理解 Bean 名称与类型
 
-## 第十三站:测试
+**注解语义** ---- 认识组件、服务、仓储、控制器等注解的语义与实际注册差异；标签是给人看的，容器最终看的是 Bean 定义
 
-**测试金字塔的 Spring 版**:@SpringBootTest(全容器集成测试:起真实上下文,配 @ActiveProfiles("test") + H2 或 **Testcontainers**(真实 MySQL/Redis 容器——现代集成测试标配));**切片测试**(只起需要的层,快):@WebMvcTest(只测 Controller 层,自动 mock 下层 @MockBean)+ **MockMvc**(mockMvc.perform(get("/api/users/1")).andExpect(status().isOk())——接口测试的标准姿势)、@DataJpaTest(只测 Repository);**Mockito**(when/thenReturn/verify——mock 外部依赖)、AssertJ(流畅断言);覆盖率 JaCoCo;**测试策略**:Service 业务逻辑全覆盖、Controller 测契约(状态码/JSON 结构/校验 400)、安全规则测 401/403、事务回滚场景必测。
+**构造器注入** ---- 理解构造器注入、不可变依赖、必需依赖和测试便利性；依赖写在构造器里，类的真实需求更诚实
 
-## 第十四站:部署、性能与源码
+**多实现选择** ---- 使用限定名、首选 Bean、集合注入和自定义条件解决多个实现的选择问题
 
-**部署**:`mvn package` 出可执行 JAR(`java -jar app.jar`,内嵌 Tomcat——WAR 外置已是历史)、Docker 多阶段镜像(或 spring-boot-maven-plugin 的 build-image/jib 分层镜像——**分层缓存让 Java 镜像构建不再痛苦**)、K8s 部署(actuator 探针 + ConfigMap 配置,见 [K8s 路线](/learning-paths/devops/kubernetes))、CI/CD;**性能**:HikariCP 连接池参数、索引与 N+1、Redis 缓存、响应压缩、JVM 参数(-Xmx/GC,见 [Java 路线](/learning-paths/languages/java) 的 JVM 章);**WebFlux**(响应式编程:Netty + 非阻塞——高并发 IO 赛道的另一选择,与 MVC 二选一,了解概念即可);**微服务**:Spring Cloud 生态(注册发现 Nacos/Eureka、网关、配置中心、熔断——见 [Spring Cloud 路线](/learning-paths/microservices/spring-cloud));**源码阅读(进阶)**:从 `SpringApplication.run()` 出发:prepareEnvironment → createApplicationContext → **refresh()(容器启动的核心:BeanFactory 创建与注册 → BeanPostProcessor → 单例实例化(三级缓存解循环)→ 事件发布)**;自动配置(ConfigurationClassPostProcessor 处理 @Configuration/AutoConfigurationImportSelector);AOP 代理创建时机(BeanPostProcessor 在 bean 初始化后包代理)——建议配合"手写迷你 Spring"类教程,把 IoC/AOP 各实现一遍,胜过读十遍源码。
+**作用域** ---- 掌握单例、原型、请求、会话和自定义作用域，理解线程安全与状态隔离
+
+**生命周期** ---- 关注实例化、依赖注入、初始化、后置处理、销毁和容器关闭；初始化顺序错了，启动日志会像一封很长的投诉信
+
+**后置处理器** ---- 理解 BeanPostProcessor、工厂后置处理器和代理创建的位置，建立 AOP 与容器生命周期的联系
+
+**循环依赖** ---- 认识单例缓存、早期引用、构造器循环和延迟注入；能绕过去不代表设计合理，优先修复依赖方向
+
+**模块边界** ---- 组织配置、领域、基础设施和接口层，避免所有 Bean 都能互相注入成为一张蜘蛛网
+
+**重点在这** ---- IoC 的价值是管理依赖与生命周期，不是让所有类都加组件注解；容器越强，边界越要清楚
+
+## 第四站：REST API 与 Web 层
+
+第四站来到 Spring MVC 的服务台：Controller 接收请求，DTO 负责数据形状，Service 处理业务，Repository 负责数据访问，ResponseEntity 负责把结果包装好。控制器越薄，服务越容易测试；控制器越胖，前台就越像仓库。
+
+**请求映射** ---- 掌握控制器、HTTP 方法、路径参数、查询参数、请求体、Header、Cookie 和内容类型
+
+**参数绑定** ---- 处理字符串到类型、集合、日期、枚举、嵌套对象和缺失值，理解绑定失败的错误路径
+
+**DTO 设计** ---- 区分创建、更新、列表、详情、内部和公共输出对象；实体不应该未经审查直接变成 API 响应
+
+**Bean Validation** ---- 覆盖必填、长度、范围、格式、嵌套校验、跨字段校验和自定义约束
+
+**响应设计** ---- 统一状态码、响应头、分页、空值、错误结构、资源位置和版本兼容
+
+**分层架构** ---- 让 Controller 做协议适配，Service 做业务与事务协调，Repository 做数据访问；分层是为了隔离变化，不是为了凑文件数量
+
+**内容协商** ---- 理解 JSON、文件、流式响应、压缩、语言、媒体类型和客户端能力
+
+**API 版本** ---- 设计路径、Header 或媒体类型版本，处理字段新增、弃用、兼容窗口和迁移通知
+
+**接口文档** ---- 让参数、响应、错误、认证和示例形成可验证契约，避免联调阶段靠两边各自猜测
+
+**重点在这** ---- REST API 的完成度不在于返回 JSON，而在于输入、输出、错误、权限和兼容策略都可预测
+
+## 第五站：数据访问与持久化
+
+第五站进入 Spring 的数据仓库：JPA 让实体像对象，Hibernate 负责把对象翻译成 SQL，Spring Data 负责提供熟悉的仓库入口。对象模型很舒服，数据库执行计划却不会因为舒服而打折，必须同时学习两种视角。
+
+**JPA 与 Hibernate** ---- 理解实体、持久化上下文、一级缓存、脏检查、延迟加载和 flush 时机
+
+**实体建模** ---- 覆盖字段、主键、生成策略、枚举、时间、嵌入对象、约束和索引；实体是持久化模型，不一定是领域模型的全部
+
+**Repository** ---- 认识 CRUD、方法命名查询、JPQL、原生查询、投影、规格查询和动态条件
+
+**关系映射** ---- 处理一对一、一对多、多对多、拥有方、级联、孤儿删除和抓取策略；关系注解越漂亮，循环与查询问题也可能越漂亮地隐藏
+
+**懒加载与事务** ---- 理解懒加载初始化、事务边界、会话关闭和常见懒加载异常
+
+**N+1 查询** ---- 识别循环取关系造成的重复 SQL，使用 join fetch、实体图、批量抓取和投影改善查询
+
+**分页与排序** ---- 设计页码、游标、排序白名单、复杂筛选和大数据量读取
+
+**实体与 DTO 转换** ---- 使用映射层过滤密码、内部字段和关系，避免实体直接暴露导致泄露或循环引用
+
+**连接池** ---- 理解 Hikari 等连接池的大小、超时、空闲、泄漏检测和数据库容量上限
+
+**迁移管理** ---- 比较数据库迁移工具、自动更新和生产迁移的风险；开发环境的自动建表不是生产发布策略
+
+**重点在这** ---- Spring Data 让持久化很顺手，但必须能从 Repository 跳到 SQL、事务和执行计划看真实成本
+
+## 第六站：AOP 与代理机制
+
+第六站进入 Spring 的隐形剧场：日志、事务、权限和审计都可以被切面包住，代理则负责在方法前后悄悄加戏。问题在于，代理不是分身术；同类自调用、私有方法和最终方法经常会让切面在门外等不到人。
+
+**横切关注点** ---- 识别日志、耗时、事务、审计、权限和缓存等不属于单个业务方法的共性逻辑
+
+**切面组成** ---- 理解切面、切点、连接点、通知、环绕通知和切点表达式的职责
+
+**注解切面** ---- 用自定义注解标记审计、幂等、权限和操作日志，保持业务方法与横切能力的边界
+
+**动态代理** ---- 对比 JDK 接口代理与基于子类的代理，理解代理对象、目标对象和方法调用路径
+
+**自调用陷阱** ---- 识别同类内部调用、私有方法、最终方法、非容器对象和代理绕过导致的切面失效
+
+**顺序与异常** ---- 处理多个切面、执行顺序、异常传播、返回值、耗时统计和日志重复
+
+**编译期与运行时** ---- 了解代理、字节码增强、反射和运行时成本，知道什么时候应该用显式代码代替魔法
+
+**重点在这** ---- AOP 适合横切问题，不适合隐藏核心业务流程；代理能增强方法，但不能改变你对调用路径的理解
+
+## 第七站：事务管理与一致性
+
+第七站来到数据安全区：事务像一份合同，传播决定是否加入已有合同，隔离级别决定彼此能看到什么，回滚规则决定失败时谁承担损失。事务注解很短，业务后果一点也不短。
+
+**声明式事务** ---- 理解事务拦截、开启、提交、回滚和代理边界，知道事务真正作用在哪个对象上
+
+**回滚规则** ---- 区分运行时异常、检查型异常、错误、捕获后再抛出和异常转换；吞掉异常再说“没事了”，事务通常不会被感动
+
+**传播行为** ---- 掌握加入、挂起、新建、嵌套、必须存在和禁止事务等传播语义，重点理解事务边界如何改变
+
+**隔离级别** ---- 理解脏读、不可重复读、幻读、数据库默认隔离和并发写入的实际影响
+
+**锁与并发** ---- 处理乐观锁、悲观锁、版本字段、死锁、重试和超时；事务保证原子性，不保证你永远不会互相等待
+
+**事务失效场景** ---- 识别同类自调用、私有方法、非容器对象、多线程、异步方法和异常被吞等常见陷阱
+
+**编程式事务** ---- 了解需要细粒度控制、局部重试、分段提交和复杂补偿时的编程式事务
+
+**分布式一致性** ---- 认识本地事务、Outbox、最终一致性、补偿、Saga、两阶段提交和 TCC 的适用边界
+
+**事件与事务** ---- 处理事务提交前后发送事件、任务和消息的顺序，避免发布了一个后来回滚的事实
+
+**重点在这** ---- 事务不是给方法贴上的稳定贴纸，而是业务不变量、并发、失败和外部副作用的综合设计
+
+## 第八站：全局异常、过滤器与拦截器
+
+第八站进入请求链路的维修中心：过滤器站在 Servlet 门口，拦截器站在 Spring MVC 门口，异常处理器负责把事故翻译成统一响应。层次不同，生命周期不同，别因为名字都叫“拦截”就让它们抢同一把扳手。
+
+**全局异常处理** ---- 统一业务异常、参数校验、类型转换、资源不存在、权限失败和未知异常
+
+**错误结构** ---- 设计错误码、消息、字段明细、追踪标识、时间和版本；对外清晰，对内保留根因
+
+**过滤器** ---- 处理编码、跨域预检、请求日志、原始请求、认证前置和 Servlet 层横切逻辑
+
+**拦截器** ---- 处理控制器前后检查、登录校验、耗时、审计和完成回调，理解它与过滤器的顺序差异
+
+**参数绑定异常** ---- 覆盖缺失参数、类型转换、格式、Bean Validation 和消息国际化
+
+**异常传播** ---- 处理异步、事务、代理、线程和响应已提交等情况下的异常边界
+
+**错误页面与 API 错误** ---- 区分浏览器页面、公共 API、内部服务和管理接口的错误格式
+
+**重点在这** ---- 过滤器、拦截器和异常处理器各有生命周期；分清层级，才能让错误统一而不把所有逻辑堆到一个 Advice 里
+
+## 第九站：Spring Security 与认证授权
+
+第九站是企业应用的门禁大厅：SecurityFilterChain 是过滤器长廊，Authentication 是身份凭证，SecurityContext 是当前请求的身份上下文，PasswordEncoder 则负责不让密码裸奔。安全配置看起来像链条，真正要学的是链条背后的信任边界。
+
+**安全过滤链** ---- 理解请求如何经过安全过滤器、认证、异常处理、会话和授权决策
+
+**用户加载与密码** ---- 组织用户查询、密码哈希、密码升级、禁用、锁定、过期和登录失败处理
+
+**Session 认证** ---- 设计会话创建、固定会话防护、过期、并发登录、登出和跨站策略
+
+**JWT 无状态认证** ---- 理解登录、签发、解析、过期、刷新、撤销、密钥轮换和资源服务器验证
+
+**SecurityContext** ---- 认识当前身份如何进入线程或请求上下文，异步与线程切换时如何传递或清理
+
+**授权模型** ---- 区分 URL 权限、方法级权限、角色、权限、对象权限和租户权限
+
+**401 与 403** ---- 理解未认证、认证失败、认证成功但无权限和资源不存在的语义
+
+**OAuth2 与 OIDC** ---- 建立授权码、客户端、资源服务器、身份提供商、Scope 和单点登录的概念
+
+**CSRF 与 CORS** ---- 根据 Cookie 或令牌认证方式配置跨站防护，不要把关闭 CSRF 当作解决跨域
+
+**安全审计** ---- 记录登录、权限变化、敏感操作和异常访问，避免日志本身泄露凭证
+
+**重点在这** ---- Spring Security 的难点不是记住配置，而是把认证、授权、会话、令牌和对象边界分别设计清楚
+
+## 第十站：缓存、异步与定时任务
+
+第十站来到 Spring 的后勤中心：缓存负责快速取件，异步负责把工作交给其他线程，定时任务负责日历提醒。三个能力都容易让响应变快，也都容易让状态变得难以解释，尤其在多实例部署之后。
+
+**缓存抽象** ---- 了解缓存注解、缓存管理器、键、TTL、序列化、空值和不同后端的差异
+
+**缓存一致性** ---- 处理读写策略、主动失效、穿透、击穿、雪崩、热点和并发重建
+
+**分布式缓存** ---- 规划 Redis、序列化格式、前缀、版本、锁和多实例共享状态
+
+**异步执行** ---- 理解异步注解、线程池、队列、拒绝策略、上下文和异常处理；生产环境不要把默认线程池当成无限停车场
+
+**CompletableFuture** ---- 组织串行、并行、组合、超时、异常恢复和线程池选择
+
+**定时任务** ---- 处理固定延迟、固定频率、Cron、时区、错过执行、任务重叠和多实例重复
+
+**分布式锁** ---- 认识锁超时、续期、故障、幂等和调度协调；锁不是把重复执行自动变成安全
+
+**任务队列边界** ---- 判断什么时候异步线程够用，什么时候需要持久化队列、重试、死信和任务监控
+
+**重点在这** ---- 异步让工作换地方，缓存让数据换住址，定时让时间变成触发器；变化了位置之后，追踪和失败策略更重要
+
+## 第十一站：消息与事件驱动
+
+第十一站进入企业系统的邮局：RabbitMQ 负责可靠投递，Kafka 负责日志式流，Spring 事件负责应用内通知。消息把服务解耦，也把“现在发生了什么”变成“稍后可能发生什么”，所以顺序、重复、积压和补偿必须提前安排。
+
+**消息模型** ---- 理解生产者、消费者、主题、队列、交换、分区、偏移、确认和消费组
+
+**RabbitMQ 与 Kafka** ---- 比较队列、路由、持久化、顺序、回放、吞吐和消费模型的差异
+
+**消息可靠性** ---- 处理确认、重试、死信、重复消费、顺序、积压和消息丢失
+
+**幂等消费** ---- 使用业务键、去重表、状态机、唯一约束和可重放设计抵抗至少一次投递
+
+**应用事件** ---- 区分同步事件、异步监听器、领域事件、集成事件和事务提交后事件
+
+**事务事件顺序** ---- 处理事务提交前发布、提交后发布和事务回滚，避免消息描述一个不存在的事实
+
+**事件版本** ---- 设计字段演进、兼容消费者、事件弃用、重放和历史消息处理
+
+**消息观测** ---- 监控队列长度、消费延迟、失败率、重试、死信和业务处理结果
+
+**重点在这** ---- 事件驱动不是把方法改成监听器，而是接受时间、顺序和失败的复杂度，并为它们建账
+
+## 第十二站：日志、监控与 API 文档
+
+第十二站来到 Spring Boot 的控制室：日志告诉你发生过什么，指标告诉你正在变坏，追踪告诉你慢在哪一跳，Actuator 负责把健康状况摆到仪表盘上。监控不是上线后才接的摄像头，而是系统设计的一部分。
+
+**日志体系** ---- 理解级别、格式、滚动、异步写入、结构化字段、异常根因和敏感数据脱敏
+
+**MDC 与请求追踪** ---- 传递请求 ID、用户、租户和 trace 标识，处理线程池、异步和消息边界
+
+**Actuator** ---- 区分健康、信息、指标、环境、配置、线程、日志和自定义健康指标的暴露风险
+
+**Micrometer 指标** ---- 观察请求量、延迟、错误率、JVM、GC、线程、数据库、缓存、队列和业务指标
+
+**Prometheus 与看板** ---- 理解指标采集、标签基数、聚合、告警和可视化，避免把用户 ID 当成无限标签
+
+**分布式追踪** ---- 串联网关、服务、数据库、消息和第三方调用，理解采样与隐私边界
+
+**OpenAPI 文档** ---- 描述接口、DTO、校验、认证、错误、示例、版本和废弃状态，让文档与代码同源
+
+**健康检查** ---- 区分存活、就绪、依赖检查和业务检查，设计故障时摘流量还是重启的策略
+
+**重点在这** ---- 可观测性不是“加几个日志”，而是让系统能被理解、定位、告警和恢复
+
+## 第十三站：测试与质量反馈
+
+第十三站进入 Spring 的质检车间：切片测试检查局部零件，MockMvc 检查 HTTP 契约，集成测试检查容器和数据库，Testcontainers 则让测试环境少一点“我电脑上可以”。测试层次越清楚，反馈速度越快。
+
+**单元测试** ---- 覆盖领域规则、服务、转换、校验、异常和边界，隔离数据库、时间、消息和第三方依赖
+
+**Web 切片测试** ---- 使用 MVC 切片和请求客户端验证路由、参数、响应、错误和控制器契约
+
+**数据访问测试** ---- 覆盖 Repository、查询、关系、迁移、事务、分页和真实数据库差异
+
+**安全测试** ---- 建立未登录、角色不足、对象越权、令牌过期、CSRF 和安全响应头的测试矩阵
+
+**集成测试** ---- 启动必要的 Spring 上下文，验证配置、Bean、数据库、缓存、消息和外部适配器装配
+
+**Testcontainers** ---- 了解真实数据库、Redis、消息中间件容器的启动、复用和数据隔离
+
+**事务与回滚测试** ---- 验证异常、传播、锁、并发和提交后事件的行为；事务问题不能只靠单元测试猜
+
+**契约与端到端测试** ---- 覆盖 API 兼容、关键业务链路、消息消费者和跨服务协作
+
+**覆盖率与持续集成** ---- 结合格式、静态检查、依赖审计、覆盖率、构建和发布门禁
+
+**重点在这** ---- 测试不是证明所有代码都被执行，而是确保最贵的错误能在生产前被发现
+
+## 第十四站：部署、性能与源码理解
+
+最后一站来到 Spring Boot 的生产车站：可执行 JAR 让应用方便出发，容器负责搬运，JVM 负责运行，Actuator 负责报平安。到这里不只要会部署，还要能解释启动、代理、事务和性能问题从哪里来。
+
+**生产打包** ---- 理解可执行 JAR、分层镜像、构建缓存、配置外置和版本标识
+
+**容器与编排** ---- 设计多阶段构建、非 root、健康检查、优雅关闭、配置注入、滚动发布和回滚
+
+**JVM 性能** ---- 关注堆、垃圾回收、线程、类加载、JIT、容器内存和启动时间
+
+**连接与线程池** ---- 调整数据库连接池、Web 线程、异步线程、队列和外部客户端，避免一个池子拖垮另一个池子
+
+**WebFlux 边界** ---- 理解响应式、非阻塞、背压和 Netty，知道它与 MVC 的模型差异，不要为了“高并发”强行全站改写
+
+**发布与迁移** ---- 处理数据库兼容、配置变更、灰度、滚动、停机窗口和回滚
+
+**源码阅读路线** ---- 从应用启动、环境准备、上下文刷新、自动配置、Bean 后置处理器和代理创建逐步追踪，不要一上来就啃完整源码森林
+
+**性能诊断** ---- 使用日志、指标、追踪、线程转储、JVM 分析、数据库计划和压测数据定位瓶颈
+
+**重点在这** ---- Spring Boot 的生产能力来自应用、JVM、数据库、消息和部署流程的合奏；源码阅读要服务于解释问题，而不是收集名词
 
 ## 通关标准
 
-能独立做到:用 Initializr 搭项目并写出分层完整、带 DTO 校验、全局异常、统一响应的 CRUD API;说清自动配置的条件注解机制、构造器注入 vs 字段注入、三级缓存解决的是什么;@Transactional 的失效场景能列全并解释为什么;会用 JwtAuthenticationFilter + SecurityFilterChain 配出无状态 JWT 认证并保护路由;AOP 自定义注解切面做操作日志;会写 @SpringBootTest/MockMvc/Mockito 三层测试;把 actuator + Prometheus 接上——Spring Boot 主线通关。
+**Spring Boot 新手村能启动应用** ---- 能用 Java、构建工具、Starter、配置和控制器启动一个服务，知道自动配置不是凭空召唤出来的。
 
-Spring Boot 是 Java 生态的集大成者:它替你决策(自动配置),也把最难的决策留给你(事务边界、安全模型、代理原理)——所以"会用"只需一周,"用对"需要数年。别被陡峭的学习曲线劝退:每搞懂一个概念(容器、代理、事务传播),你的 Java 后端能力就上一个台阶;而这些概念在 Spring Cloud、任何 Java 中间件源码里全都复用。从 start.spring.io 的第一个接口开始,一步一步,你会理解为什么企业级 Java 二十年不倒。
+**初级后端能交付业务** ---- 能完成 DTO 校验、分层 CRUD、数据访问、全局异常和基础认证，知道实体、服务和 Controller 各自应该站在哪里。
+
+**中级后端能解释机制** ---- 能说清 IoC、生命周期、代理、AOP、事务传播、懒加载、N+1、权限和缓存边界，启动失败时不再只删缓存。
+
+**高级后端能稳定扩展** ---- 能设计消息、事件、异步、定时、分布式一致性、可观测性、集成测试和兼容发布，能处理重复、超时、失败和回滚。
+
+**Spring Boot 老兵能负责生产** ---- 能在抽象、性能、JVM、数据库、安全和团队交付之间做取舍，知道什么时候接受自动配置，什么时候明确覆盖默认值。注解很多，判断更重要。
+
+## 下一站去哪
+
+- **Java** ---- 深入集合、并发、JVM、反射和语言特性
+- **数据库** ---- 深入 SQL、事务、索引、连接池和数据建模
+- **微服务与云原生** ---- 进入服务发现、网关、配置、容错和容器编排
+- **消息系统** ---- 学习 Kafka、RabbitMQ、事件驱动和最终一致性
+- **Web 安全** ---- 建立认证、授权、输入输出和供应链安全
+
+## 结语
+
+Spring Boot 的学习曲线陡，是因为它把企业后端常见的复杂问题都摆到了台面上：容器、代理、事务、安全、消息和部署一个也没躲。先从一个接口和一条数据链路出发，再逐层理解自动配置、Bean 生命周期、事务边界和生产观测；当你能解释“为什么这个注解失效、这个事务没回滚、这个查询突然变慢”，Spring Boot 才真正从框架变成了工程能力。

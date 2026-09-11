@@ -1,71 +1,271 @@
 # Laravel 学习路线
 
-Laravel 是 PHP 界的"艺术品"与事实标准:优雅的语法、全功能全家桶(ORM/模板/认证/队列/调度/通知/测试)、活跃的社区与丰富的包生态,让"PHP 过时了"的说法不攻自破——WordPress 代表老派 PHP,Laravel 代表**现代 PHP**。适合快速开发 Web 应用、内容/电商/后台系统与 API;哲学是"**让开发者快乐**"。前置:先把 [PHP 语言](/learning-paths/languages/php) 学扎实(Composer/PSR/命名空间/OOP)。
+Laravel 是 PHP Web 开发里那位把工具箱整理得很漂亮的管家：路由、控制器、Blade、Eloquent、验证、认证、队列、缓存和任务调度都有成熟的入口。它让常见业务流程很快变得顺手，也因此容易让人产生“框架已经替我思考完了”的错觉。实际上，数据模型、事务、权限和部署仍然会按时来收账。
 
-这条线按 **环境与项目 → 路由 → 控制器与请求响应 → 中间件与 Blade → Eloquent 与迁移 → 关系与查询 → 认证授权 → 队列调度与通知 → 缓存存储日志 → API 与测试 → 部署与生态** 推进。
+这条路线是**指引和索引**，不是 Laravel Facade 大全，也不把每个方法的参数逐条抄一遍。它会覆盖从项目启动到生产运维的广度，再把容器、ORM、队列、事件、缓存和安全等深层概念标出来；具体 API、组件细节和代码示例，应在后续学习笔记中按关键词展开。路线页先帮你找方向，不把代码贴成墙纸。
 
-## 第一站:环境与项目结构
+路线按 **项目与 Artisan → 路由 → 控制器与请求 → Blade → Eloquent 与迁移 → 关系与查询 → 中间件与容器 → 认证授权 → 队列与事件 → 缓存存储日志 → API 测试部署** 推进。
 
-**安装**:Composer 是前提——`composer create-project laravel/laravel blog` 或全局 Installer(`laravel new blog`);**开发环境三选**:本地 PHP + `php artisan serve`、Valet(macOS 轻量)、**Sail(Docker 全家:PHP/MySQL/Redis——官方推荐,一条命令起全套)**。
-**目录结构**(约定优于配置,先认路):`routes/`(web.php 页面路由、api.php API 路由——**Laravel 的路由全在这,没有 Django 式 urls 分散**)、`app/Http/Controllers`、`app/Models`、`database/migrations + seeders + factories`、`resources/views`(Blade)、`config/`(按文件分配置)、`public/`(唯一 Web 根)、`.env`(环境变量——**密钥/数据库配置都在此,别提交**)。
-**Artisan CLI(Laravel 的瑞士军刀)**:`php artisan serve`/`make:model -m`(模型+迁移)/`make:controller --resource`/`make:migration`/`migrate`/`tinker`(交互式 REPL——试 Eloquent 查询神器)/`route:list`(看全部路由)/`make:request/job/mail/notification`……**"先用 Artisan 生成,再改代码"是 Laravel 工作流**。
+## 第一站：环境、项目与 Artisan
 
-## 第二站:路由
+欢迎来到 Laravel 的项目工坊：Composer 是采购员，Artisan 是万能工具车，服务容器是后勤调度，配置目录则像总电闸。先把项目启动、环境变量和命令行工作流理清楚，别还没写业务就开始和缓存玄学摔跤。
 
-`Route::get('/users', ...)`(post/put/delete/any 全家);**参数**:`&#123;id&#125;` 必选/`&#123;id?&#125;` 可选 + 默认/正则约束 `->where('id', '[0-9]+')`;**命名**:`->name('users.show')`,视图与代码里 `route('users.show', $user)`(**永不硬编码 URL**);**分组**:`Route::prefix('admin')->middleware('auth')->group(...)`、name 前缀;控制器写法:`Route::get('/users', [UserController::class, 'index'])`;**资源路由**(CRUD 极速通道):`Route::resource('posts', PostController::class)` 一条命令注册 7 条 RESTful 路由(可用 `->only(['index','show'])` 裁剪,`apiResource` 是 API 版);**路由模型绑定**(Laravel 的优雅):`Route::get('/users/&#123;user&#125;', fn (User $user) => ...)`——**类型提示模型,框架自动按 id 查好并注入**(404 自动),还能自定义绑定字段(按 slug);`fallback`(404)、`view` 路由。
+**PHP 与 Composer 基础** ---- 掌握 PHP 版本、扩展、Composer 依赖、自动加载、版本约束和锁文件；依赖可重复安装是团队协作的第一道护栏
 
-## 第三站:控制器、请求与响应
+**项目结构** ---- 认识应用代码、配置、路由、资源、数据库、公共目录、存储目录和测试目录的职责；约定是导航，不是禁止思考的围栏
 
-**控制器**:`php artisan make:controller UserController --resource`;控制器方法里**依赖注入**:`public function store(StoreUserRequest $request)`——Laravel 自动解析注入;**Request 取数**:`$request->input('name')`/`all()`/`query()`/`json()`、`has()` 判断、`$request->user()`(当前登录用户);**文件上传**:`$request->file('avatar')` → `store('avatars', 'public')`(存储抽象,见缓存站);**表单验证**(两档):控制器里 `$this->validate($request, ['email' => 'required|email'])` 快速档,或 **FormRequest 类(现代标准)**:`php artisan make:request StoreUserRequest`——`rules()`(验证规则:required/email/unique:users/confirmed/max 与数组/自定义 Rule)、`authorize()`(授权:能不能执行此操作)、`messages()` 中文错误;验证失败自动重定向回表单带错误($errors 在视图可用;API 模式自动返回 422 JSON)。
-**响应**:`response()->json($data, 201)`/`view('posts.show', compact('post'))`/`redirect()->route('posts.index')->with('success', '创建成功')`(flash 消息:一次性 session)/`download()`/`streamDownload()`;统一 API 响应结构(自定义 response 宏或 Resource 层,见 API 站)。
+**环境配置** ---- 理解环境文件、配置缓存、应用密钥、数据库连接、缓存驱动、队列驱动和不同环境的差异
 
-## 第四站:中间件与 Blade
+**Artisan 命令** ---- 覆盖项目检查、生成模型与控制器、迁移、填充、清缓存、队列、调度、测试和自定义命令；命令行是 Laravel 的维修间
 
-**中间件**:`php artisan make:middleware CheckAdmin`——`handle($request, Closure $next)` 里 `$next($request)` 之前是前置逻辑(校验/限流)、之后是后置(加头);注册:`app/Http/Kernel.php`($middleware 全局/$middlewareGroups(web/api 组)/$routeMiddleware 别名——注意 Laravel 11 新结构 bootstrap/app.php);路由用 `->middleware('auth')`(内置:auth/guest/throttle(限流)/verified/can);**中间件与控制器构造器**:`__construct` 里 `$this->middleware('auth')->except('index')`(老写法,Laravel 11 建议路由内联)。
-**Blade 模板**(服务端渲染年代的主力,API 模式可跳过):`&#123;&#123; $name &#125;&#125;`(**自动转义防 XSS**)/`&#123;!! $html !!&#125;`(原样输出,危险品)/`@if/@foreach/@auth/@guest`、布局 `@extends('layouts.app')` + `@section/@yield` 或现代 **`&lt;x-layout&gt;` 组件**(Blade 组件与匿名组件:`<x-alert type="error">`——Laravel 组件系统是 Blade 的现代姿势)、`@csrf`(表单安全令牌)、`@error`(显示字段错误)、自定义指令;前后端分离项目用不到 Blade,学 API 模式即可。
+**应用启动流程** ---- 了解入口、服务提供者、容器绑定、路由加载、中间件装配和请求进入应用的阶段
 
-## 第五站:Eloquent 与迁移
+**服务提供者** ---- 理解注册阶段与启动阶段、扩展注册、事件监听、容器绑定和启动副作用；提供者不是万能垃圾桶
 
-**Eloquent ORM(Laravel 的灵魂)**:模型约定——`User` 模型对应 `users` 表(蛇形复数)、主键 id、自动维护 `created_at/updated_at`(可关);**`$fillable` 白名单(mass assignment 防护核心**——`User::create($request->all())` 只写入白名单字段,防用户塞 `is_admin`;`$guarded = ['*']` 反向;**软删除**:`use SoftDeletes` + deleted_at(查询默认排除,`withTrashed()/onlyTrashed()/restore()`——唯一索引与软删除的坑注意);**访问器/修改器**:模型上虚拟字段(`getFullNameAttribute` → `$user->full_name`)与写入前处理(`setPasswordAttribute` 自动 bcrypt——**密码哈希放模型,别散落在控制器**);**查询作用域**:`scopeActive` → `User::active()->get()`(业务查询条件收进模型);**模型事件**:creating/created/updating 钩子(审计/自动填充 slug——与 Django 信号同思路)。
-**迁移**(表结构版本化):`Schema::create('users', function (Blueprint $table) &#123; $table->id(); $table->string('email')->unique(); ... &#125;)`——字段类型(string/text/integer/foreignId/dateTime/json/enum……)、索引/外键 `->constrained()->cascadeOnDelete()`;`php artisan migrate`(执行)/`migrate:rollback`(回滚最近一批)/`migrate:fresh`(重建,危险:清数据)/`migrate:status`;修改已有表用新迁移(Schema::table),**别手改数据库**。
+**开发与生产边界** ---- 区分本地服务器、生产进程、调试页面、配置缓存、日志级别和错误展示；生产环境不应该把整个厨房结构发给访客
 
-## 第六站:关系与查询
+**重点在这** ---- Laravel 的约定让你很快进入业务，但必须知道哪些约定属于框架启动阶段，哪些属于应用自己的设计
 
-**Eloquent 关系全家**(定义在模型方法里):一对一 `hasOne/belongsTo`(用户→资料)、一对多 `hasMany`(文章→评论)、多对多 `belongsToMany`(用户↔角色:自动中间表,可带 pivot 字段/`withPivot`)、`hasManyThrough`(国家→通过用户→文章)、**多态 `morphMany/morphTo`**(同一张 comments 表挂文章和视频——`morphs` 迁移);**关联即查询**:`$user->posts()->where('published', 1)->get()`(关系方法返回查询构建器——还能继续链)、`$user->posts` 魔法属性(直接取集合);**预加载(防 N+1 的核心)**:`Post::with('author', 'comments.user')->get()`——**Laravel 面试必问**:循环里访问 `$post->author` 会每条查一次库(100 条 = 101 条 SQL),with 预加载后 3 条;`load()` 延迟加载、`withCount`(关联计数,列表页"评论数"零额外查询)。
-**查询构建器**(DB::table,离开 Eloquent 的 SQL 层):`where('age', '>', 18)`/`orWhere`/`whereBetween`/`whereIn`/`whereNull`、`orderBy/latest`、`groupBy/having`、**分页**:`paginate(15)`(页面式,带 ?page=)/`cursorPaginate`(游标式,无限滚动现代推荐)/`simplePaginate`;聚合 count/sum/avg;**事务**:`DB::transaction(function () &#123; ... &#125;)`(闭包内异常自动回滚——扣库存/转账必用);原生 `DB::select` 少用(参数绑定)。
-**Seeder + Factory**:`php artisan make:factory PostFactory` 定义假数据(名称/段落/随机)、`User::factory()->count(10)->hasPosts(3)->create()`(关联工厂)、DatabaseSeeder 组织,`php artisan db:seed`——**测试与本地开发的弹药库**。
+## 第二站：路由、资源与导航
 
-## 第七站:认证与授权
+第二站是 Laravel 的交通局：路由是门牌，资源控制器是标准公交线路，模型绑定是自动找人的快递员，中间件则负责验票。路由写得快很爽，路由写得乱则会让所有请求都迷路。
 
-**登录脚手架**(别手写认证):**Breeze**(轻量:登录/注册/密码重置/邮箱验证,UI 可选 Blade/Livewire/React/Vue——小项目起步标配)与 **Jetstream**(全家:双因素认证/团队管理/API 令牌,功能全但重),后端引擎 **Fortify**(无 UI 的认证服务,可自配前端);核心机制:Session 登录 + 内置路由;别忘了 **`php artisan make:auth` 是古董**(Laravel 6 时代),新项目用 Breeze/Jetstream。
-**授权两件套**:Gate(闭包:`Gate::define('update-post', fn (User $u, Post $p) => ...)`)与 **Policy(资源授权类**:`php artisan make:policy PostPolicy --model=Post`,方法 update/delete……);使用:控制器里 `$this->authorize('update', $post)`、Blade `@can('update', $post)`、中间件 `->can('update', $post)`——**写清楚"谁能改这个资源"是 Laravel 应用的安全骨架**。
-**API 认证**(无状态):**Laravel Sanctum(官方标准)**:个人访问令牌(Sanctum::createToken——移动端/第三方)、SPA 会话认证(同域 Cookie——Inertia 应用)、token 能力(abilities 细粒度);OAuth2 服务端(第三方登录授权)才用 **Passport**(重,基于 League OAuth2)——原理见 [认证授权路线](/learning-paths/security/auth)。
+**路由匹配** ---- 掌握静态路径、动态参数、参数约束、命名路由、路由前缀、域名路由和匹配顺序
 
-## 第八站:队列、调度、事件与通知
+**资源路由** ---- 理解资源控制器的增删改查约定、嵌套资源、自定义动作和何时不该强行套 CRUD
 
-**队列(异步化重活)**:驱动 config/queue.php(默认 database,生产 **Redis**);`php artisan make:job SendWelcomeEmail` → 控制器里 `SendWelcomeEmail::dispatch($user)` 或 `$user->notify(...)` 队列化;**延迟/优先级**:`->delay(now()->addMinutes(10))`;失败处理:failed_jobs 表 + `queue:retry` + `queue:failed`;`php artisan queue:work`(**生产必须常驻进程**,Supervisor 守护,重启才生效新代码——部署流程的一环);`queue:monitor`/Horizon(Redis 队列仪表盘+监控,生产推荐)。
-**任务调度**(应用内 cron,替代散落 crontab):`app/Console/Kernel.php` 的 `schedule` 里 `$schedule->command('report:send')->dailyAt('09:00')`——服务器只需一条 `* * * * * php artisan schedule:run` 每分钟触发;`withoutOverlapping()` 防任务重叠(长任务没跑完不触发下次)。
-**事件与监听**(应用内解耦):Event + Listener(`php artisan make:event OrderShipped` + 监听器),EventServiceProvider 注册;监听器实现 `ShouldQueue` 自动异步;**事件广播**(Realtime:echo + Reverb(官方 WebSocket 服务器)/Pusher——订单状态实时推送)。
-**通知系统**(多渠道一次发):`php artisan make:notification OrderShipped`——一个通知类定义 mail/短信(SMS 服务商)/Slack/数据库渠道;**数据库通知**(站内信:notifications 表 + 前端轮询/广播),`notify()` 与 `Notification::send($users, ...)`。
+**路由分组** ---- 使用前缀、名称、域名、中间件和版本分组组织业务域；分组应反映边界，不要只为了少写几次字符串
 
-## 第九站:缓存、存储与日志
+**路由模型绑定** ---- 区分隐式绑定、显式绑定、自定义键、软删除对象和未找到时的行为；自动找对象不等于自动完成授权
 
-**缓存**:驱动 file/redis/数据库;`Cache::put('key', $value, 600)`/`get`/`remember`(回调自动算并缓存——**热点查询一行缓存**)/`forget`;**缓存标签**(Redis 支持:批量失效一组 `Cache::tags(['posts'])->flush()`);**原子锁 `Cache::lock('stock', 10)->get()`**(分布式锁:扣库存/防并发提交——队列任务防重的现代答案);缓存失效:模型事件里 forget(updated 后清相关缓存)。
-**文件存储(Storage 抽象)**:`Storage::disk('public')`(storage/app/public + `php artisan storage:link` 软链)/`s3`/`oss`——**换云存储不改业务代码**;上传 `store('avatars', 'public')`、可见性(public/private)、URL、流式(大文件 `streamDownload`);**日志**:`Log::info('订单创建', ['order' => $order->id])`——通道 config/logging.php(单文件 stack/每日 daily/自定义,生产 JSON + 轮转 + Sentry 集成)。
+**命名与反向生成** ---- 让控制器、Blade、重定向和 API 客户端依赖命名契约，降低路径调整的影响范围
 
-## 第十站:API 开发与测试
+**限流与路由缓存** ---- 理解路由缓存的限制、限流器、按用户或按 IP 限制和动态配置的边界
 
-**API 模式**(Laravel 既是全栈框架也是优秀 API 框架):路由 `api.php`(自动 /api 前缀)+ `apiResource`;**API Resource(输出控制层)**:`php artisan make:resource UserResource`——`toArray` 里定义返回哪些字段/怎么变形(隐藏敏感、格式化日期)、`whenLoaded('posts')` 条件包含关系、`when` 条件属性、集合 `UserResource::collection($users)`(分页自动包装 data)、**meta 元数据**(分页信息);**输出与输入的对称设计**:Request(输入校验)与 Resource(输出裁剪)是 Laravel API 的两道门。
-**测试**(PHPUnit 集成,功能测试为主):`php artisan test`;测试类继承 TestCase:**HTTP 测试**——`$this->get('/api/posts')`/`postJson('/api/posts', $data)`/`actingAs($user)`(模拟登录)/断言 `assertStatus(201)`/`assertJson(['data' => [...]])`/`assertDatabaseHas`;**RefreshDatabase**(每测试迁移,测试库独立);工厂造数;**Fake 断言(测试精髓)**:`Queue::fake()` + `Queue::assertPushed(SendEmail::class)`、`Mail::fake()`/`Event::fake()`/`Notification::fake()`——**测"该派的派了、该发的发了",不真发**;浏览器 E2E 用 Laravel Dusk;覆盖率 phpunit --coverage。
-测试策略:表单验证(非法输入 302/422)、授权边界(他人资源 403)、核心业务状态流转。
+**路由调试** ---- 掌握查看路由、识别中间件、检查命名冲突和定位优先级问题的方法；路由没进控制器时，先查地图，不要先重装依赖
 
-## 第十一站:部署与性能
+**重点在这** ---- URL 是外部协议，路由表要表达资源与权限边界；能访问只是结果，能被长期维护才是设计
 
-**部署清单**:`.env` 生产配置(APP_ENV=production/APP_DEBUG=false/APP_KEY 生成)、`composer install --no-dev --optimize-autoloader`、**优化命令**:`php artisan config:cache`(**注意:配置缓存后 .env 改动不生效,要 config:clear**)/`route:cache`/`view:cache`、`php artisan migrate --force`;**Nginx 配置核心:root 指向 public/**(别把整个 Laravel 目录暴露,`.env` 泄露事故就是这么来的)+ PHP-FPM;队列 worker(supervisor 守护,失败自动拉起);调度 cron 行;零停机(容量池/Environments 工具 Forge/Envoyer 或 K8s)。
-**性能三板斧**:①预加载灭 N+1(见关系站);②Redis 缓存热点与全页缓存;③**Octane**(Swoole/RoadRunner 常驻内存——应用常驻后吞吐提升数倍,现代高性能部署方向,注意静态属性状态与连接管理);辅助:查询索引、Debugbar/Telescope(开发期看 SQL 与耗时——**Telescope 是排查神器**:每请求的 SQL/异常/队列/邮件全记录)、响应 gzip、CDN;**生态地图**:Filament(现代后台管理,人气王)/Nova(官方付费后台)、Livewire(无 JS 的交互全栈)与 Inertia(前后端同仓:Vue/React SPA 数据直通——现代全栈三选一:Blade 传统 / Livewire 简单交互 / Inertia 重前端)、Lighthouse(GraphQL)、Cashier(支付 Stripe/Paddle)、Socialite(第三方登录 OAuth 全家)、Scout(全文搜索,配 Meilisearch/ES)。
+## 第三站：控制器、请求与响应
+
+第三站来到 Laravel 的服务台：控制器接待请求，Form Request 负责验货，Resource 负责打包，响应负责把结果送回客户端。控制器的工作是协调，不是把整个公司搬进一个方法。
+
+**控制器职责** ---- 区分路由适配、输入接收、业务调用、事务协调和响应生成；复杂流程下沉到服务或领域对象
+
+**请求数据** ---- 处理路径、查询、表单、JSON、Header、Cookie、文件、用户和请求上下文；输入来源不同，信任边界也不同
+
+**响应类型** ---- 覆盖视图、JSON、重定向、文件、下载、流式响应、状态码和响应头；结果的协议语义不能靠客户端猜
+
+**Form Request** ---- 用独立请求类组织授权、字段规则、准备数据、失败消息和验证后数据；验证类不是把所有业务都塞进去的储物柜
+
+**API Resource** ---- 设计输出字段、嵌套资源、分页元数据、条件字段和敏感字段过滤；数据库模型不该未经审查直接变成公共响应
+
+**依赖注入** ---- 让控制器通过构造函数或方法接收服务、接口和请求对象，理解容器如何解析依赖
+
+**事务协调** ---- 识别控制器与服务层的事务边界，处理异常、回滚、事件和外部副作用的顺序
+
+**响应一致性** ---- 统一成功、失败、验证、未授权、未找到和限流响应的格式；不要一会儿返回对象，一会儿返回一句“出错啦”
+
+**重点在这** ---- 控制器应该像交通警察，负责让数据和业务通过路口，而不是亲自建桥、修路、收停车费
+
+## 第四站：Blade、资源与页面边界
+
+第四站进入 Blade 的页面剧场：模板继承搭舞台，组件负责道具，槽位负责换景，转义负责安保。Blade 很方便，但方便不意味着可以把 SQL、权限和复杂循环藏进一页模板。
+
+**模板变量与指令** ---- 掌握插值、条件、循环、包含、输出转义、旧输入和错误展示；模板表达页面，不负责决定业务真相
+
+**布局与继承** ---- 用布局、区块和组件组织页面结构，减少复制和局部漂移；页面骨架要集中维护
+
+**组件与插槽** ---- 设计可复用按钮、表单、卡片、表格和提示组件，理解属性透传、插槽和组件输入边界
+
+**表单体验** ---- 处理旧输入、验证错误、CSRF、上传、禁用状态、重复提交和成功提示；用户体验不是验证通过后才开始
+
+**静态资源** ---- 认识资源入口、构建、版本指纹、开发服务器、生产缓存和公共目录；浏览器拿到的资源也需要发布策略
+
+**国际化与格式化** ---- 覆盖语言、时区、复数、日期、数字和货币格式；显示格式是产品规则，不只是模板里的小修饰
+
+**自动转义与富文本** ---- 理解 HTML 转义、可信内容、富文本清洗和开放输出的风险；不要把 safe 当成“我今天心情不错”的开关
+
+**模板性能** ---- 关注视图准备数据、模板内隐式查询、组件重复渲染、分页和片段缓存
+
+**重点在这** ---- Blade 要让页面结构可读、输出安全、资源可部署；业务规则离开模板，模板才不会长成会发脾气的控制器
+
+## 第五站：Eloquent、模型与迁移
+
+第五站来到 Eloquent 的数据仓库：模型是领域对象，迁移是结构版本，查询构建器是和数据库谈判的翻译官。Eloquent 让查询很像在和对象聊天，但数据库并没有因此停止计算成本。
+
+**模型与字段** ---- 覆盖文本、数值、日期、布尔、枚举、JSON、UUID、文件和自定义转换；路线建立分类和选择意识，具体类型细节留给后续笔记
+
+**模型属性与转换** ---- 理解类型转换、访问器、修改器、隐藏字段、追加字段、时间戳和序列化；便利属性不应掩盖真实数据库行为
+
+**迁移结构** ---- 掌握表、列、索引、约束、默认值、可空、重命名和删除，理解迁移的版本顺序与生产风险
+
+**填充与工厂** ---- 用工厂和填充构造开发、测试和演示数据，关注隐私、幂等和数据关系；测试数据不是随手撒的随机豆子
+
+**软删除** ---- 理解软删除、恢复、默认查询范围、唯一性和数据清理；删了但还在，是产品需求，也是查询陷阱
+
+**模型事件** ---- 认识创建、更新、删除和保存事件的时机，谨慎处理隐式副作用、递归触发和事务一致性
+
+**原生查询边界** ---- 知道何时使用 Eloquent、查询构建器或原生 SQL，始终关注参数绑定、可维护性和执行计划
+
+**模型与 API 分离** ---- 避免把模型内部字段、密码、关系和业务状态直接暴露给客户端；持久化对象不是公共协议
+
+**重点在这** ---- ORM 的价值是表达业务与查询，数据库的真相仍然是约束、索引、事务和执行计划
+
+## 第六站：关系、查询与事务
+
+第六站是 Eloquent 的关系交通枢纽：一对多像公交线，多对多像换乘站，预加载像提前安排车辆，N+1 则像每位乘客都单独叫一辆车。关系写得漂亮不等于查询便宜，必须同时看对象模型和 SQL。
+
+**关系类型** ---- 掌握一对一、一对多、多对多、远程关系、反向关系和多态关系，明确关系拥有者与生命周期
+
+**中间表** ---- 处理额外字段、唯一约束、排序、状态和时间信息；多对多不是两个数组握手结束
+
+**关系加载** ---- 区分懒加载、预加载、条件预加载和禁止懒加载，识别访问关系时何时发出查询
+
+**N+1 排查** ---- 使用查询日志、调试工具和测试断言发现列表页重复查询；页面数量一变，查询次数不应该跟着坐火箭
+
+**查询组合** ---- 覆盖条件、嵌套条件、存在关系、聚合、分组、排序、分页、游标和批量处理
+
+**作用域** ---- 设计局部作用域、全局作用域、租户范围和软删除范围，避免隐式条件让结果“神秘地少了几条”
+
+**事务边界** ---- 理解原子事务、异常回滚、嵌套调用、锁、隔离级别和提交后副作用
+
+**并发更新** ---- 处理库存、余额、计数、唯一竞争、乐观锁、悲观锁和幂等；“用户不会同时点击”不算并发设计
+
+**批量与大数据** ---- 使用批量插入、批量更新、分块读取、游标和队列，避免一次把整个数据库搬进 PHP 内存
+
+**重点在这** ---- Eloquent 的高级能力不只是会写关系，而是能预估查询数量、事务范围、内存消耗和并发结果
+
+## 第七站：容器、中间件、认证与授权
+
+第七站来到 Laravel 的后台调度室：服务容器负责组装对象，中间件负责请求关卡，认证负责认人，授权负责判定动作。Facade 让调用很顺手，但顺手不代表依赖消失了，它只是换了一件外套。
+
+**服务容器** ---- 理解绑定、单例、上下文绑定、接口到实现、自动解析和生命周期；容器是依赖关系的登记处，不是全局变量的豪华版
+
+**服务提供者** ---- 区分注册与启动阶段，组织容器绑定、事件、宏和第三方扩展；启动副作用要有明确位置
+
+**依赖注入与 Facade** ---- 对比构造注入、方法注入、Facade、辅助函数和静态调用在可测试性与可读性上的差异
+
+**中间件链** ---- 处理认证、CSRF、限流、维护模式、请求 ID、日志和响应头，理解全局、中间件组和路由中间件的顺序
+
+**认证流程** ---- 覆盖登录、登出、会话、令牌、密码重置、记住登录、禁用用户和多设备策略
+
+**Guard 与 Provider** ---- 理解不同认证入口、用户来源、会话存储和认证驱动之间的关系
+
+**授权策略** ---- 使用门、策略、角色、权限和对象检查表达“谁能对哪个对象做什么”，不要只依赖界面隐藏
+
+**多租户边界** ---- 处理租户识别、查询范围、管理员例外、跨租户操作和后台审计；租户条件漏一次，数据就会替你发邮件
+
+**重点在这** ---- 容器解决对象组装，中间件解决横切流程，认证解决身份，授权解决动作；四者职责清楚，应用才不会到处藏魔法
+
+## 第八站：队列、调度、事件与通知
+
+第八站来到 Laravel 的后勤中心：请求是前台柜台，队列是后仓，调度器是日历，事件是广播，通知是快递。耗时工作不该堵在用户面前，但搬到后台也不代表问题自动消失，它只是换了一个更需要监控的房间。
+
+**队列模型** ---- 理解任务、连接、消费者、失败任务、重试、超时、优先级和死信；队列的第一课是任务至少可能执行一次
+
+**任务设计** ---- 为邮件、报表、图片、导入导出和第三方同步设计幂等、重试、去重、延迟和失败处理
+
+**事务与任务** ---- 处理数据库提交与任务派发的先后关系，避免 worker 比数据库更早收到“数据已经存在”的消息
+
+**调度器** ---- 认识周期任务、时区、重叠、锁、错过调度和多实例重复执行；定时任务最可怕的不是没跑，而是跑了三遍
+
+**事件系统** ---- 区分同步事件、异步监听器、领域事件和基础设施事件，关注监听器失败是否影响主流程
+
+**通知与广播** ---- 设计邮件、短信、数据库通知、广播、渠道失败和用户偏好；“发出去”不等于“对方收到”
+
+**队列监控** ---- 观察等待长度、执行耗时、失败率、重试次数和积压，建立重放、暂停和清理操作
+
+**重点在这** ---- 异步系统的核心是时间、顺序、重复和失败；能说清一项任务如何重试，比会生成一个任务类更重要
+
+## 第九站：缓存、文件、邮件与日志
+
+第九站进入 Laravel 的后勤仓库：缓存负责快速取件，文件存储负责搬货，邮件负责外送，日志负责留下监控录像。它们都属于基础设施，业务代码要依赖抽象，不要把自己焊死在某一台机器上。
+
+**缓存抽象** ---- 区分文件、内存、Redis、数据库和阵列缓存，理解 key、TTL、标签、前缀和命名空间
+
+**缓存一致性** ---- 设计读写策略、主动失效、热点击穿、缓存穿透、雪崩、空值和并发重建
+
+**锁与限流** ---- 使用分布式锁、原子计数和限流器保护任务、库存、登录和昂贵操作；锁要有超时，也要有失败后的路径
+
+**文件存储** ---- 理解本地盘、对象存储、磁盘与云端抽象、公开与私有文件、临时 URL、上传策略和清理
+
+**图片与大文件** ---- 关注尺寸、格式、压缩、分片、流式传输、断点、病毒扫描和异步处理
+
+**邮件系统** ---- 处理模板、队列、附件、重试、退信、速率限制和敏感信息；邮件服务失败时，用户流程不能悄悄卡死
+
+**日志** ---- 配置渠道、级别、结构化字段、上下文、轮转、脱敏和集中收集；日志是证据，不是情绪记录
+
+**外部服务抽象** ---- 为支付、短信、对象存储、邮件和搜索服务定义可替换接口，避免业务层到处判断供应商
+
+**重点在这** ---- 缓存、文件和日志都可以替换，业务不应该依赖某个具体驱动的偶然行为
+
+## 第十站：API、测试与安全质量
+
+第十站进入 Laravel 的质检车间：API 资源负责契约，测试客户端负责复现请求，策略负责权限，安全检查负责寻找“正常用户不会这样做”的入口。绿色测试不是免检通行证，尤其当所有断言都只检查状态码为 200。
+
+**API 资源设计** ---- 组织输入、输出、资源、分页、嵌套、字段过滤、版本和错误格式；模型不应未经审查直接变成公共接口
+
+**API 认证** ---- 了解会话、令牌、OAuth、JWT、服务间凭证和令牌撤销，区分认证成功与权限通过
+
+**请求验证** ---- 覆盖字段、跨字段、条件必填、文件、批量、幂等和数据库约束，验证规则要靠近输入边界
+
+**测试分层** ---- 区分单元、Feature、HTTP、数据库、队列、事件、通知、认证和端到端测试的职责
+
+**数据库测试** ---- 关注事务回滚、迁移、工厂、关系、并发、真实数据库差异和测试数据隔离
+
+**队列与事件测试** ---- 验证任务是否派发、监听器是否触发、失败如何处理和外部服务是否被正确替换
+
+**安全测试** ---- 覆盖 CSRF、XSS、SQL 注入、越权、开放重定向、文件上传、敏感字段和限流
+
+**静态与持续集成** ---- 结合格式化、类型分析、依赖审计、覆盖率、迁移检查和持续集成形成反馈闭环
+
+**重点在这** ---- 测试守住行为，策略守住权限，验证守住输入，日志解释现场；四块护栏缺一块，业务就会开始摇晃
+
+## 第十一站：部署、性能与生产运维
+
+最后一站来到 Laravel 的生产车站：PHP 进程、反向代理、数据库、队列、缓存、对象存储、定时任务和监控要一起排班。上线不是把 public 目录丢给服务器，而是让每个运行部件知道自己何时启动、何时退出、坏了怎么恢复。
+
+**生产运行时** ---- 理解 PHP-FPM、队列 worker、定时调度、进程管理、进程重启和优雅停止
+
+**反向代理与 HTTPS** ---- 处理 TLS、代理头、静态资源、请求体大小、上传、压缩和缓存
+
+**配置与密钥** ---- 管理环境变量、配置缓存、应用密钥、数据库凭证、第三方令牌和日志脱敏
+
+**数据库发布** ---- 设计迁移顺序、备份、恢复、连接池、索引、兼容发布和回滚；数据结构变更要先留退路
+
+**队列与调度部署** ---- 规划 worker 数量、超时、重试、优先级、积压、单实例调度和失败任务处理
+
+**容器化** ---- 关注镜像、非 root 用户、持久卷、健康检查、日志输出、进程信号和多服务编排
+
+**性能诊断** ---- 从查询、N+1、缓存命中、队列等待、PHP 内存、响应时间和外部服务耗时定位瓶颈；先测量，再优化
+
+**可观测性** ---- 建立请求 ID、结构化日志、错误上报、队列指标、数据库指标、业务指标和告警
+
+**容量与回滚** ---- 根据请求、连接、队列、CPU 和内存调整资源，设计发布验证、降级和快速回滚
+
+**重点在这** ---- Laravel 的生产能力来自应用、PHP 运行时、数据库、队列和运维流程的合奏；框架帮你铺路，不能替你开车
 
 ## 通关标准
 
-能独立做到:用迁移 + Factory + Seeder 建数据层,写出带 FormRequest 校验、Policy 授权、Resource 输出的完整 CRUD(路由模型绑定 + 预加载);说清 fillable 与 mass assignment、预加载为什么防 N+1、队列 worker 为什么必须常驻、config:cache 与 .env 的关系;会用 Sanctum 给 API 上认证并用 Queue::fake 写断言测试;用 Breeze 起步的登录体系能讲出完整流程——Laravel 主线通关。
+**Laravel 新手村能搭出页面** ---- 能完成项目初始化、路由、控制器、Blade、迁移和一个最小 CRUD。页面能出来只是第一关，Artisan 还没开始考你命令。
 
-Laravel 教会你的不止是 PHP:它把"开发者体验"做成了产品——Artisan 生成、优雅 ORM、测试友好,让写后端第一次有了"行云流水"的感觉。它也有自己的代价(魔法多、性能需优化),但配上队列、缓存、Octane 后完全能撑起生产。PHP 的岗位里,Laravel 工程师是其中最体面的一档——从 `laravel new` 开始,体验一下"让开发者快乐"不是口号。
+**初级后端能交付业务** ---- 能用 Eloquent、Form Request、认证、权限、Admin 或自定义后台完成一条完整业务链，知道模型不是公共 API 的快捷复制键。
+
+**中级后端能守住边界** ---- 能设计事务、关系查询、缓存、文件、队列、事件、统一错误和测试，能定位 N+1、越权和重复任务。代码不只会跑，还知道什么时候不该跑。
+
+**高级后端能稳定扩展** ---- 能设计版本化 API、多租户、对象权限、任务重试、可观测性和兼容发布，能判断什么时候使用框架约定，什么时候引入独立服务。
+
+**Laravel 老兵能负责生产** ---- 能完成安全配置、数据库发布、队列运维、性能分析、容器部署和回滚，知道漂亮的 Facade 背后仍然有真实的连接、事务和失败。
+
+## 下一站去哪
+
+- **PHP** ---- 补齐语言、类型、对象、并发和工程基础
+- **Django** ---- 对比另一套全家桶式 Web 开发约定
+- **数据库** ---- 深入 SQL、事务、索引、连接池和数据建模
+- **Web 安全** ---- 建立认证、授权、输入输出和供应链安全
+- **容器与部署** ---- 把应用、队列和调度送进可恢复的生产环境
+
+## 结语
+
+Laravel 的优势是把常见 Web 业务的路径铺得很顺，但顺路不代表没有悬崖。先掌握路由、请求、模型、验证和认证，再理解容器、事件、队列、缓存和部署背后的生命周期；当你知道每个便利功能如何工作、如何失败、如何替换，Laravel 才真正从“好用的框架”变成了可控的工程系统。

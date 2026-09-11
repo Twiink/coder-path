@@ -710,7 +710,8 @@ export default defineConfig({
 
   // 头部配置 - 添加预加载和资源提示
   head: [
-    ['link', { rel: 'icon', href: '/images/coderpath-rocket-pixel.png' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/images/coderpath-c-icon.png' }],
+    ['link', { rel: 'apple-touch-icon', href: '/images/coderpath-c-icon.png' }],
     ['meta', { name: 'theme-color', content: '#2ca985' }],
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
     ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }],
