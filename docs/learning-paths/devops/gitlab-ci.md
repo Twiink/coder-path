@@ -1,56 +1,193 @@
 # GitLab CI/CD 学习路线
 
-GitLab CI/CD 是"长在 GitLab 里的一体化 DevOps":代码托管、CI 流水线、容器镜像仓库、环境部署、安全扫描全在一个平台(还支持自托管,数据可控),`一个 .gitlab-ci.yml` 文件从提交跑到生产。它与 [GitHub Actions](/learning-paths/devops/github-actions) **心智相通、语法不同**——概念(流水线/Job/缓存/环境/Secret)学会一套,另一套只是"翻译";选型的差别常在"团队用 GitHub 还是 GitLab、要不要自托管、要不要内置安全能力"。本页按 GitLab 的语法体系讲,并随时标注与 GitHub Actions 的对应关系。
+GitLab CI/CD 是代码仓库里那位会排班、会记账、还会给每个任务分配 Runner 的项目经理。一次提交可以变成一张 Pipeline，Pipeline 再拆成 Job、Artifact、Environment 和部署动作；它的力量在于把代码、制品、权限与发布放进同一个可审计流程，代价是规则多到足以让 YAML 长出自己的个性。
 
-这条线按 **概念与第一个 Pipeline → Runner → 构建测试与质量 → 流水线控制(rules/needs)→ 变量与环境 → 部署实战 → 安全与选型** 推进。
+这条路线从 Pipeline、Stage、Job、Runner 的基本模型开始，覆盖执行器、DAG、rules、needs、缓存与制品、变量与 OIDC、环境发布、资源组、子流水线、安全、观测、成本和演进。重点不是记住关键字，而是知道一项任务何时触发、由谁执行、得到什么资源、留下什么证据。
 
-## 第一站:核心概念与第一个 Pipeline
+**推荐顺序** ---- Pipeline 与 Job → Runner 与执行器 → 构建测试与质量 → rules、needs 与调度 → 缓存、Artifact 与依赖 → 变量、环境与身份 → 发布与回滚 → 子流水线与复用 → 安全与供应链 → 可靠性、观测、成本与演进
 
-**概念家族(GitLab 的命名)**:**Pipeline(流水线)**:一次提交触发的一整条流程;由**阶段(stages)与 Job** 组成——**默认:阶段按声明顺序串行,同阶段内的 Job 并行**;Job = 一个任务(script 命令 + 环境);**Runner = 执行器**(跑 Job 的机器,见下一站);**Artifact(产物)** 与 **Cache(缓存)** 见第三站。
-**最小例子**(`.gitlab-ci.yml` 放仓库根):`stages: [test, deploy]` → 两个 job:(test-job: &#123; stage: test, script: [npm ci, npm test] &#125;) 与 (deploy-job: &#123; stage: deploy, script: [echo deploy], only: [main] &#125;)——push 代码后,CI/CD → Pipelines 页能看到两阶段依次执行。
-**与 GitHub Actions 对照(背这张表就通了两套)**:workflow ≈ pipeline;job ≈ job;step ≈ `script:` 列表(每行一个命令);`uses: actions/xxx` ≈ `image:` + 模板/脚本;**runs-on ≈ tags(挑 runner)**;on 触发 ≈ `rules`。
-**Job 基本字段**:`image`(跑在哪个 Docker 镜像里——Node/Python 项目一行切环境)、`script`(必填,shell 命令)、`stage`(归属阶段)、`before_script/after_script`(前后置钩子:装依赖/清理)、`tags`(指定 runner)、`only/except`(老语法:分支过滤——**新项目一律用 rules 替代,见第三站**)、`allow_failure`(红了不阻塞阶段)、`timeout`(超时保护)。
-**新手坑**:YAML 缩进(Tab 不行)、script 每行是一个独立 shell 命令(要 cd 用 `cd xxx &&` 或 before_script)、Job 名不能重复、**CI 变量要用 `$VAR` 且注意 shell 转义**。
+## 第一站：Pipeline、Stage、Job 与执行模型
 
-## 第二站:Runner——谁来跑
+第一站先认识 GitLab 流水线的排班表。Pipeline 是一次完整演出，Stage 是幕次，Job 是演员，Runner 是剧场；同一幕的演员通常可以并行，但下一幕要不要等所有人谢幕，得由依赖关系说了算。
 
-**Runner 三形态**:①GitLab 托管(免配置,额度有限);②**共享 Runner**(实例级,大家用);③**专用 Runner(项目级/组级)**:自己注册——`Settings → CI/CD → Runners` 拿注册 token,装 gitlab-runner 后 `gitlab-runner register`(填 URL+token+executor)。
-**tags 机制**:注册时给 runner 打标签(如 `docker`/`deploy-server`/`gpu`),Job 里写 `tags: [deploy-server]` 指定由谁执行——**"让部署 Job 只跑在能连内网的专用 runner 上"的标准做法**(也用于绕开共享 runner 的隔离限制)。
-**executor 选型**:`docker`(主流:每个 Job 一个干净容器,`image` 字段才生效)、`shell`(直接在 runner 机器上跑——快但脏,环境要自己管)、`kubernetes`(runner 动态起 Pod——弹性,进阶)、`ssh`(远程机执行)。**自托管动机**:内网访问需求、特殊硬件、额度、数据合规——**注意安全:runner 能碰代码与密钥,注册到可信项目即可**。
+**Pipeline** ---- 一次由提交、合并请求、标签、定时器、API 或手工动作触发的流程；它有状态、来源、提交、变量、产物和执行历史
 
-## 第三站:构建、测试与质量门禁
+**Stage** ---- 用于表达粗粒度阶段与默认顺序；同一 Stage 内的 Job 可并行，但 Stage 过多或过少都会影响反馈速度和可读性
 
-**语言项目通用配方**(与 GitHub Actions 页同套路):`image: node:20` → `before_script: [npm ci]`(每 Job 装依赖前可省——**建议在需要时用 cache 加速**)→ script 里 lint/单测/构建;**services(数据库容器)**:`services: [mysql:8]`——集成测试的数据库即代码;**artifacts(产物,跨 Job 传递的关键)**:测试报告与构建包声明 (artifacts: &#123; paths: [dist/], expire_in: 1 week, reports: &#123; junit: test-results.xml &#125; &#125;)——**JUnit 报告能直接显示在 Merge Request 页面**(测试结果进 MR 讨论区的体验是 GitLab 卖点);**cache(依赖缓存)**:(cache: &#123; key: &#123; files: [package-lock.json] &#125;, paths: [node_modules/] &#125;)——**key 随 lock 文件变化而失效,依赖没变就命中**(pipeline 间与 Job 间共享);**cache vs artifacts 的分工**:cache 是"可再生的依赖"可随时清,artifacts 是"要交付的产物"。
-**代码质量与安全(内置模板是 GitLab 的差异化卖点)**:直接 include 官方模板启用——**SAST(静态应用安全测试:代码漏洞)、Dependency Scanning(依赖漏洞)、Container Scanning(镜像漏洞)、Secret Detection(密钥泄露)、License Compliance(许可证合规)、Code Quality(代码质量报告进 MR)**——"安全左移"开箱即用,对比 GitHub Actions 要自己拼第三方 Action。
-**MR 质量门禁**:MR 页配"流水线必须通过才可合并"——**绿了才让合,CI 的价值就在这道闸**。
+**Job** ---- 由脚本、镜像、变量、规则、依赖、制品和执行策略构成的任务；Job 应有单一职责，便于重试、缓存和定位
 
-## 第四站:流水线控制——rules、needs 与高级形态
+**Runner** ---- 注册到 GitLab 的执行器，按 tags、权限、平台和容量接收 Job；共享 Runner 方便但隔离较弱，专用 Runner 更可控但需要维护
 
-**rules(现代条件语法,必学)**:Job 级 `rules:` 数组,按顺序匹配:`- if: $CI_COMMIT_BRANCH == "main"`(分支条件)、`- if: $CI_PIPELINE_SOURCE == "merge_request_event"`(MR 触发)、`- changes: [src/**]`(路径过滤:只改文档不跑)、`- when: manual`(变成手动 Job)、`- when: never`(跳过)——**"什么情况跑、什么时候要人点"全靠 rules;老 only/except 认识即可,新写用 rules**。
-**needs(DAG 流水线)**:默认 Job 只等"上一阶段全部完成"——用 `needs: ["build-job"]` 让 Job 直接依赖指定 Job(**不等无关阶段:提速利器**,多模块并行构建后各自部署);**注意 needs 与 stages 的关系与限制**(GitLab 文档有细则)。
-**实用控制字段**:`parallel: 5`(一个 Job 分 5 片并行——大测试集拆分)、`retry: 2`(失败自动重试,配 when 限定)、`interruptible: true`(**新提交自动取消正在跑的旧 pipeline——防资源浪费,强烈建议**)、`allow_failure`(警告类 Job 红了不阻塞)。
-**高级流水线形态**:**父-子流水线(parent-child)**:父 pipeline 动态生成子 pipeline(按目录/模块拆分——monorepo 福音);**多项目流水线(Multi-project)**:下游仓库完成触发上游(微服务 A 发布后触发 B 的集成测试——跨仓库编排)。
-**Pipeline 编辑器**:GitLab 自带可视化编辑器(可看 stages 图/校验语法)——写复杂 yml 时先在校验器里过一遍。
+**Executor** ---- 了解 Shell、Docker、Kubernetes、虚拟机等执行器的隔离、缓存、网络、特权和清理差异；执行器决定“脚本在哪种现实里运行”
 
-## 第五站:变量与环境
+**流水线状态** ---- 认识 created、pending、running、success、failed、canceled、skipped、manual 和 blocked；状态显示的是流程层结果，不能替代应用健康判断
 
-**变量体系(优先级从低到高:全局 → 组 → 项目 → Job 级)**:预定义变量(CI_COMMIT_SHA 提交号/CI_PROJECT_PATH/CI_REGISTRY 镜像仓/CI_PIPELINE_SOURCE 触发源——**rules 全靠它**);项目 Settings → CI/CD → Variables 配自定义(勾 **Protected: 只在受保护分支/标签可见** 与 **Masked: 日志掩码**——**生产密钥:Protected + Masked + 只在受保护分支的部署 Job 用**);`.gitlab-ci.yml` 里 `variables:`(默认值)。
-**Environments(环境:dev/staging/production)**:Job 里 (environment: &#123; name: production, url: https://... &#125;)——效果:①CI/CD → Environments 页看到**部署历史(每版谁部署的、什么 commit)与一键回滚按钮**;②与 **manual Job 组合 = 人工审批闸**:`rules: - if: $CI_COMMIT_BRANCH == "main"; when: manual` + `environment: production`——**"主干自动部署到 staging,生产要人点一下"的 GitLab 标准姿势**(对应 GitHub Actions 的 environment 审批)。
-**回滚**:点环境页的回滚 = 重新部署上一版本——**版本化部署让"出问题先回滚"成为可能**。
+**YAML 与默认值** ---- 理解顶层 default、variables、stages、workflow、include 与 Job 覆盖关系；配置合并复杂时使用 CI Lint 和展开后的配置验证
 
-## 第六站:部署实战
+## 第二站：Runner、镜像与资源隔离
 
-**配方一:服务器部署**:SSH 密钥存项目变量 → `script: [ssh deploy@host "docker pull ... && docker compose up -d"]`(配 [Docker](/learning-paths/devops/docker))。**配方二:GitLab Container Registry(内置镜像仓,一体化卖点)**:Job 里 `docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD` → build → **push 标签用 `$CI_COMMIT_SHA`(可追溯)+ `$CI_COMMIT_TAG`(发版)**。
-**配方三:Kubernetes**:`kubectl set image deployment/xxx app=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA` 或 Helm upgrade(配 [K8s](/learning-paths/devops/kubernetes))。
-**配方四:发布策略(进阶)**:蓝绿/金丝雀(新旧版本并存按流量切——K8s/网关层做)、**Feature Flags(GitLab 内置特性开关:代码合入但功能开关控制灰度——"发布代码 ≠ 发布功能"的现代实践)**。**Auto DevOps**:官方"开箱即用"模板(自动检测语言→测试→构建→部署到 K8s——了解即可,定制化项目还是手写)。
-**多环境策略**:dev(每次提交自动部署)/staging(合并自动)/production(手动闸)——**环境即流水线的一部分,是 CI/CD 成熟度的标志**。
+第二站拜访 Runner 机房。Runner 像接单司机：标签不对它不会接，资源不够它会堵车，工作区没清理干净还可能把上个乘客的秘密带给下个乘客。
 
-## 第七站:安全、性能与选型
+**标签与调度** ---- 用 tags 选择特定平台、架构、GPU、网络区或工具链；标签缺失会让 Job 永久 pending，标签过宽会让 Job 跑到错误环境
 
-**安全清单**:生产密钥 = Protected+Masked 变量,只在受保护分支的受保护 Job 使用;Runner 注册 token 别外泄;启用内置安全扫描模板(见第三站)并把漏洞阈值当门禁;**别在 script 里 echo 密钥**(日志会留);自托管 GitLab 注意备份(含 CI 配置)。**性能优化排序**:cache 命中(依赖秒装)→ `needs`(DAG 去空等)→ `parallel`(大测试分片)→ interruptible(防堆积)→ 镜像层缓存(docker build 的 cache-from)。**GitHub Actions vs GitLab CI(选型小结)**:GitHub(生态 Action 海量、公共仓库免费、与 GitHub 社区一体);GitLab(一体化 DevOps:代码+CI+镜像仓+环境+安全扫描一个平台、**自托管数据可控、内置安全模板强**、无公共仓库免费 CI 但有慷慨私有额度)——**判断依据:代码放哪/要不要自托管/安全合规需求**,而不是功能差距(两者都能干 95% 的活)。
+**共享与专用 Runner** ---- 比较 GitLab 托管、共享、自托管、项目级、组级和实例级 Runner；按信任边界决定哪些代码可以共享执行器
+
+**Docker executor** ---- 理解镜像、服务容器、网络、卷、特权模式、工作目录和清理；固定镜像版本，避免 `latest` 让同一提交每天活成不同的人
+
+**Kubernetes executor** ---- 每个 Job 通常以 Pod 运行，资源请求、命名空间、ServiceAccount、网络策略、节点调度和 Pod 生命周期都会影响 CI；CI 需要的权限不应等于集群管理员
+
+**Shell 与虚拟机执行器** ---- Shell 共享宿主机边界，速度快但隔离弱；虚拟机隔离强但启动慢、镜像维护贵，适合高风险或专用工具链
+
+**Runner 工作区** ---- 关注源码 checkout、缓存目录、临时文件、Docker socket、工具凭据和 Job 结束清理；持久工作区能加速，也会增加串任务污染风险
+
+**并发与容量** ---- 观察 Runner 在线数、队列长度、执行时长、CPU、内存、磁盘和网络；扩容前先区分等待是资源不足、标签不匹配还是 Job 自身没有被创建
+
+## 第三站：构建、测试与质量门禁
+
+第三站由质量经理审核剧本。它不满足于“脚本返回成功”，还要看测试是否覆盖正确提交、生成的报告是否可读、失败是否阻断发布，以及依赖和构建环境是否可重现。
+
+**分层流水线** ---- 安排格式化、静态分析、单元、集成、端到端、性能、许可证和安全扫描；快速且高确定性的检查优先反馈，昂贵检查按风险分层
+
+**服务依赖** ---- 用 services、临时环境或测试容器提供数据库、缓存和消息服务；固定版本、初始化数据、健康等待和清理必须明确
+
+**构建制品** ---- 编译包、镜像、二进制、前端静态文件和 SBOM 都应作为制品管理；制品要关联提交、构建器、依赖、签名和过期策略
+
+**测试报告** ---- 上传 JUnit、覆盖率、截图、日志、性能结果和失败转储；让合并请求直接看到结果，减少“本地说通过、流水线说不清”的争执
+
+**质量门禁** ---- 让关键测试、类型检查、漏洞阈值、许可证规则和人工评审成为显式条件；例外需要负责人、原因、期限和追踪记录
+
+**重试与不稳定测试** ---- 对网络、镜像仓库等瞬态错误有限重试，对断言失败保留原始现场；隔离和治理 flaky test，不要用无限重试把红灯染成绿灯
+
+**可复现构建** ---- 锁定包版本、基础镜像、编译器、时区和构建参数；在不同 Runner 上复跑同一提交，验证产物与测试不依赖机器私藏
+
+## 第四站：workflow、rules、needs 与高级调度
+
+第四站是流水线交通警察。`workflow: rules` 决定整条流水线要不要出生，Job 级 `rules` 决定谁上场，`needs` 决定谁可以提前出发；规则打架时，最常见的结果是重复跑或根本不跑。
+
+**Pipeline 创建规则** ---- 用 workflow rules 按来源、分支、标签或变更决定是否创建 Pipeline；防止 push 与 merge request 同时为同一次变更生成重复流水线
+
+**Job rules** ---- 用 if、changes、exists、when 和 allow_failure 控制 Job；把规则写成业务意图，避免多个正则互相覆盖而无人敢改
+
+**needs 与 DAG** ---- `needs` 让 Job 只等待真正依赖的上游并尽早开始；DAG 能显著缩短反馈，但需要明确制品和失败传播
+
+**manual、delayed 与 protected** ---- 手动 Job 适合生产闸门，延迟 Job 可做观察窗口，protected 分支与环境限制谁能触发；人工闸门不能代替自动健康检查
+
+**并发与 resource_group** ---- 用 interruptible、auto-cancel 和 resource_group 控制重复流水线与互斥部署；同一环境一次只允许一个变更，避免两条 Pipeline 互相踩脚
+
+**父子与多项目流水线** ---- child pipeline 适合按目录或组件拆分，multi-project pipeline 适合跨仓库联动；传递提交、制品、变量和失败状态要形成清晰契约
+
+**计划任务与 API 触发** ---- 定时、API、触发令牌和上游完成事件都可能造成重复执行；任务要幂等、可审计并限制触发权限
+
+## 第五站：缓存、Artifacts 与制品流
+
+第五站是仓储管理员的工作间。Cache 负责“下次可能还用到的加速材料”，Artifact 负责“这次构建正式交给下游的结果”；混用它们，最终会拿着一袋缓存去生产发布。
+
+**Cache** ---- 缓存依赖下载、编译中间产物和工具目录，设计 key、fallback、分支隔离和失效策略；缓存丢失不应导致流水线不正确，只应变慢
+
+**Artifact** ---- 保存构建包、报告、镜像元数据、部署清单和诊断材料，设置 expire_in、访问权限与下载关系；正式发布物要有更长生命周期和不可变标识
+
+**dependencies 与 needs:artifacts** ---- 显式声明 Job 下载哪些上游制品，减少无关传输和隐式耦合；DAG 加速后尤其要检查制品是否已经准备好
+
+**制品命名与版本** ---- 用项目、提交、标签、架构、环境和构建号组成可追溯名称；部署使用摘要或校验和，不依赖“同名文件刚好是最新版”
+
+**仓库与镜像** ---- 认识 GitLab Package Registry、Container Registry、外部仓库的权限、保留、跨区域拉取和清理；仓库成本也属于流水线成本
+
+**供应链证明** ---- 生成 SBOM、签名、构建来源和扫描结果，并在下游部署前验证；制品流要能回答“谁构建、用什么输入、是否被改过”
+
+## 第六站：变量、环境与身份
+
+第六站让变量们排队登记。普通变量、保护变量、环境变量、文件变量和外部身份各有用途；把所有东西都塞进变量抽屉，最后连秘密和普通配置都分不清。
+
+**变量优先级** ---- 理解实例、组、项目、环境、Pipeline、Job、dotenv 报告和脚本变量的覆盖关系；配置冲突时查看展开结果，别凭记忆猜最终值
+
+**Masked 与 Protected** ---- masked 防止常见日志泄露，protected 限制在受保护分支或标签使用；二者都不是加密数据库，脚本仍需避免回显与拼接
+
+**环境与部署变量** ---- 用 Environment 区分 staging、production 和 review app，定义 URL、审批和停止策略；环境应连接真实权限、资源和审计，而不只是一个下拉菜单
+
+**OIDC 与短期凭证** ---- 使用 GitLab 工作负载身份向云平台换取短期令牌，按项目、分支、环境和声明限制信任；长期密钥应逐步退出流水线
+
+**ServiceAccount 与云权限** ---- Kubernetes executor、云部署和 Runner 各自需要不同身份；按动作授权，禁止把 Runner 注册令牌、集群管理员凭证和应用密钥混在一起
+
+**dotenv 与输出** ---- 用 dotenv artifact 传递少量结构化动态变量，控制来源和下载权限；不要把秘密写进报告、制品或调试输出
+
+**配置漂移** ---- 记录变量、Runner 镜像、执行器、工具链和部署目标的版本；流水线依赖的隐形配置越多，重跑越像抽签
+
+## 第七站：环境发布、渐进交付与回滚
+
+第七站是发布经理的舞台。Environment 是“这次把什么送到哪里”的合同，review app 是临时展厅，生产环境是需要审批和证据的正式剧院；部署成功不等于用户体验成功。
+
+**环境模型** ---- 设计开发、测试、预发布、review app 和生产的变量、网络、数据、权限与生命周期；临时环境要有自动停止和资源回收
+
+**部署制品** ---- 只部署已测试、扫描、签名并记录来源的制品；部署 Job 不应偷偷重新编译或拉取未固定的依赖
+
+**滚动、蓝绿与金丝雀** ---- 通过平台、负载均衡、Kubernetes 或发布控制器逐步切流；按错误率、延迟、业务转化、容量和日志观察，再决定扩大或暂停
+
+**迁移与兼容** ---- 数据库和消息 schema 使用扩展、回填、切换、收缩的兼容步骤；应用回滚前确认数据不会被新版本单向改变
+
+**protected environment 与审批** ---- 生产环境用受保护分支、审批人、部署权限和变更记录形成闸门；审批者应看到测试、扫描、差异、风险和回滚方式
+
+**回滚与前进修复** ---- 保留上一版本制品、配置、基础设施计划和迁移方案；判断快速回滚、暂停流量、修复后继续还是恢复数据，避免机械化执行回滚
+
+**部署锁与并发** ---- 用 resource_group 防止同一环境同时部署，用 cancel/interruptible 清理过期验证；不可中断迁移和发布切换要单独设计
+
+## 第八站：复用、模板与大型项目组织
+
+第八站让流水线开始搭积木。include、模板、组件、父子 Pipeline 能消灭复制粘贴，但抽象太深会让改一个变量像穿越十层地下室；复用接口要小、稳、可测试。
+
+**include 与模板** ---- 复用公共 Job、规则、变量和安全扫描配置，理解本地、远程、项目与模板来源的信任边界；远程模板要固定版本并审查变更
+
+**extends 与锚点** ---- 用 extends 继承 Job 结构，谨慎使用 YAML anchor；显式覆盖优先，避免多层合并后没人能说清最终脚本
+
+**组件与输入输出** ---- 把共享流水线设计成有输入、输出、权限和版本的组件；调用方可以升级、回滚和验证，不必复制内部实现
+
+**父子 Pipeline** ---- 按服务、目录、平台或团队拆分大型 Pipeline；聚合状态、制品、变量、取消和失败原因要在父子边界上传递
+
+**多项目流水线** ---- 编排前端、后端、基础设施和部署仓库的依赖；跨项目触发要使用明确令牌或身份，并记录上游提交与下游版本
+
+**模板治理** ---- 设定默认安全策略、最低 Runner、报告格式和弃用周期；平台模板需要文档、示例、测试 Pipeline 和逃生通道
+
+## 第九站：安全、可观测性与可靠性
+
+第九站是流水线的安全与值班室。红灯不一定是代码错，绿灯也不一定安全；要把执行身份、变更来源、制品、日志、指标和部署结果串成一条证据链。
+
+**CI/CD 安全边界** ---- 区分不可信合并请求、受保护分支、生产部署和自托管 Runner；不可信代码不应接触部署密钥、Docker socket 或内部网络
+
+**最小权限与供应链** ---- 限制 Runner、Job、云身份、Registry、Package Registry 和 Kubernetes 的权限；固定镜像、扫描依赖、生成 SBOM、签名并验证制品
+
+**日志与审计** ---- 保存 Pipeline、Job、Runner、变量变更、审批、部署和 API 操作记录；日志脱敏、权限、保留期和导出策略要满足审计需求
+
+**关键指标** ---- 关注队列时间、执行时间、成功率、失败分类、重试率、制品延迟、部署频率、变更失败率和恢复时间；按阶段和 Runner 分组定位瓶颈
+
+**幂等与可重试** ---- 构建、发布、迁移和基础设施变更都要明确重跑语义；任务中断后能清理、续跑或安全失败，不能留下半套环境
+
+**故障恢复** ---- 为 GitLab、Runner、Registry、缓存、制品、部署目标和密钥准备恢复路径；至少演练一次“流水线服务不可用但需要回滚”的场景
+
+**告警与通知** ---- 只对影响发布、生产稳定性、安全或关键 SLO 的事件告警；通知内容带项目、提交、环境、制品、日志和下一步，不要只喊“Pipeline failed”
+
+## 第十站：资源、成本与平台演进
+
+最后一站是平台财务会议。Runner 分钟、云主机、缓存、制品、日志、镜像、网络和人工维护都会计入账单；流水线越快不一定越便宜，关键是单位交付的成本和风险一起下降。
+
+**资源优化** ---- 用 DAG、并行、缓存、预装工具、合适的镜像和路径规则减少无效执行；先测队列与执行瓶颈，再决定扩 Runner 还是优化 Job
+
+**矩阵与并发成本** ---- 控制矩阵维度、取消过期 Pipeline、合并重复检查；为生产部署保留资源，为低风险分支使用更轻的验证组合
+
+**制品与日志生命周期** ---- 设定缓存淘汰、制品过期、镜像清理、日志保留和跨区复制策略；安全审计需要留存的内容与普通调试输出应分开
+
+**Runner 扩缩** ---- 使用自动注册、弹性 Runner、节点池和 Spot/抢占资源时，评估启动延迟、任务中断、镜像拉取和数据安全；便宜的 Runner 若让发布频繁失败，实际并不便宜
+
+**平台边界** ---- GitLab CI 适合代码驱动的构建、测试和发布；长期编排、复杂业务工作流、超大规模数据处理或强实时调度可交给专用系统
+
+**版本与演进** ---- 跟踪 GitLab、Runner、执行器、模板、API、镜像和弃用字段的兼容性；先在非生产项目升级，再逐步扩大范围并保留回滚版本
 
 ## 通关标准
 
-能独立做到:写"stages 分阶段 + rules 分支控制 + cache/artifacts"的完整 .gitlab-ci.yml(test 与 deploy 分离);说出与 GitHub Actions 的概念对应并能"翻译"一个工作流;注册并 tag 一个专用 Runner 让部署 Job 只在它上面跑;配 Protected+Masked 变量并在 Environment 页完成一次带手动闸的生产部署与回滚;启用过至少一个安全扫描模板——GitLab CI 主线通关。
+能独立设计一条 GitLab Pipeline：说明 Pipeline 创建规则、Stage 与 DAG、Runner 标签和执行器、资源边界、缓存与 Artifact、变量优先级、OIDC、质量门禁、Environment、审批、渐进发布和回滚；能解释 Job pending、缓存污染、制品缺失、重复 Pipeline、权限失败和 Runner 隔离问题；能用日志、指标、审计和版本映射还原一次失败；能以吞吐、可靠性、安全和成本为依据演进 Runner 与模板平台。
 
-GitLab CI 的招牌是"**一体化**":从提交到生产再到安全扫描都在一个平台、一个文件里讲完——它教会你的与 GitHub Actions 是同一件事:**流水线思维(阶段/门禁/产物)与"环境即代码、发布可回滚"**。这套心智换到 Jenkins/Argo CD 同样成立。学的时候对照 [GitHub Actions](/learning-paths/devops/github-actions) 页做"双栏笔记",两套一起拿下,任何团队的 CI 你都能上手。下一步:[Kubernetes](/learning-paths/devops/kubernetes) 部署目标,或 [Argo CD/GitOps] 让发布再进一步。
+## 下一站去哪
+
+将 GitLab CI 与 Docker、Kubernetes、镜像签名和监控接起来，形成从提交到集群的闭环；如果团队使用 GitHub，则对照学习 GitHub Actions 的事件、权限、复用工作流和 Runner 模型。
+
+## 结语
+
+GitLab CI/CD 的成熟标志不是 Pipeline 越长，而是每个 Job 的责任、身份、资源、制品和失败证据都清楚。让规则控制重复劳动，让人只在真正需要判断的地方审批；这样流水线才会从排班表变成可靠的发布系统。

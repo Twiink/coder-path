@@ -1,65 +1,229 @@
 # Nginx 学习路线
 
-Nginx 是**互联网基础设施的基石**:高性能 Web 服务器、反向代理、负载均衡器、HTTP 缓存、API 网关——一个软件全包。它是 **C10K 问题(单机万级并发连接)的终结者**:异步事件驱动架构(epoll),用极少的进程与内存扛住海量并发。今天它是全球使用率第一的 Web 服务器,也是每个后端工程师早晚要亲手配的"流量入口"。学它之前建议先过 [计算机网络](/learning-paths/cs-basics/computer-networks) 的 HTTP 章(状态码/缓存头/HTTPS 是配置的地基)。实践:`nginx` 装一个(apt/brew/docker 都行),`nginx -t` + `nginx -s reload` 改配置不中断服务。
+Nginx 是互联网入口处那位永远站得笔直的门卫：静态文件来它发，动态请求来它转，流量太大时它限，后端暂时打盹时它还得决定给不给旧缓存。它的高并发能力来自事件驱动、多进程和尽量少的数据复制，但“快”不是一组神奇参数，而是网络协议、连接生命周期、代理缓冲、内核资源和后端行为共同配合的结果。
 
-这条线按 **架构与原理 → 配置结构 → server/location → 反向代理 → 负载均衡 → HTTP 缓存 → HTTPS 与 HTTP/2 → 限流与安全 → 性能调优 → 实战架构** 推进。
+**推荐顺序** ---- 进程与事件模型 → 配置上下文 → server/location 路由 → 反向代理 → 负载均衡 → 缓存 → TLS 与 HTTP 版本 → 限流安全 → 性能观测与容量 → 架构定位
 
-## 第一站:架构——为什么 Nginx 这么快
+**这条线怎么用** ---- 每一站都先画请求从客户端到 Nginx、再到上游、最后回到客户端的路径，然后再写少量配置验证。配置能启动不等于行为正确；尤其要把超时、重试、缓存、真实 IP 和优雅重载放进故障场景里一起看。
 
-**进程模型**:一个 **master 进程**(读配置、管理 worker、不处理请求)+ 多个 **worker 进程**(真正干活,数量建议 = CPU 核数)+ cache 进程(缓存加载/管理)——**多进程而非多线程:进程隔离,一个 worker 崩了不影响其他**。**快的原因(面试必答)**:①**异步非阻塞事件驱动**:worker 用 epoll(Linux)/kqueue(macOS)同时监听数千连接,**不阻塞等待 IO**(对比 Apache 的"一连接一线程/进程",线程一多就崩);②内存池(预分配减少 malloc);③**sendfile 零拷贝**(静态文件直接内核→网卡);④C 语言轻量。
-**横向对比**:Apache(阻塞模型,模块生态与 .htaccess 灵活,老牌动态托管)、Nginx(静态/高并发/反代王者)、**Caddy(自动 HTTPS,配置极简,个人站友好)**、Envoy(云原生数据面,服务网格——见 [服务网格](/learning-paths/cloud-native/service-mesh));**定位**:Nginx 处理"入口流量",业务逻辑给后端——**静态文件/反代/负载均衡/LB 是它的主场,动态渲染不是**。
+## 第一站：进程、事件与网络底层
 
-## 第二站:配置结构
+第一站先认识 Nginx 的工作方式。它不像“每来一个连接就请一个线程”的热闹餐厅，更像一个经验丰富的调度员：一个 worker 同时盯住很多 socket，谁能读写就先服务谁，不在空等某个客人翻菜单。
 
-**配置文件层级**(`/etc/nginx/nginx.conf`):`main`(全局:user/worker_processes)→ **`events`**(worker_connections 等连接参数)→ **`http`**(HTTP 服务通用配置:gzip/日志/上游)→ `server`(虚拟主机)→ `location`(URL 路由)→ `upstream`(后端服务器组,写在 http 内)。**继承与覆盖规则**:子块继承父块、同名指令子块覆盖;**数组类指令是"累加"不是覆盖**(如 proxy_set_header 多处都生效);**模块化**:主配置 `include /etc/nginx/conf.d/*.conf` 与 sites-enabled——**每个站点一个文件,别把一切堆在 nginx.conf**。**日常命令**:`nginx -t`(语法检查,改配置必跑)/`nginx -s reload`(优雅重载:不中断现有连接)/`-s stop/quit`;日志:error_log(排查入口)与 access_log。
+**Master 与 Worker** ---- master 负责读取配置、创建监听 socket、启动和管理 worker，worker 才真正处理连接与请求；多进程隔离减少单个 worker 故障的影响，也让平滑升级成为可能
 
-## 第三站:虚拟主机与 location 匹配
+**事件驱动循环** ---- worker 使用 epoll、kqueue 等事件通知机制等待可读写事件，以非阻塞方式处理大量连接；它解决的是 I/O 等待和调度成本，不会让慢后端凭空变快
 
-**server(虚拟主机)**:按域名区分站点——`server_name example.com www.example.com`(精确/泛域名 `*.example.com`/正则 `~^www\..+`);`listen 80`(端口/IP/default_server 标记默认站)。**location 匹配规则(面试必考顺序)**:①`= /path` 精确匹配(优先最高);②`^~ /prefix` 前缀匹配且**命中后不再尝试正则**;③`~`/`~*` 正则匹配(按配置文件书写顺序,第一个命中生效);④普通前缀(最长匹配兜底)——**口诀:先精确、再 ^~、再正则、最后最长前缀**。
-**静态文件三指令**:`root`(**拼接**路径:root /var/www + /img/a.png → /var/www/img/a.png)vs `alias`(**替换**路径:alias 常用于 location 内,尾斜杠坑多——搞混 404 是新手第一课);`index`(默认首页)、`autoindex`(目录列表)、**`try_files $uri $uri/ /index.html`(SPA 前端路由回退的核心:找不到文件就回 index.html,交给前端路由)**、`expires 30d`/`add_header Cache-Control`(静态资源缓存头)、`gzip on`(压缩见性能站)。
+**连接、请求与上游连接** ---- 一个客户端 TCP 连接可能承载多个 HTTP 请求，一个客户端请求又可能对应一个上游连接；容量计算必须把两边连接、keepalive、WebSocket 和长轮询分别算进去
 
-## 第四站:反向代理——后端服务的统一入口
+**C10K 与内核资源** ---- 理解文件描述符、监听队列、backlog、端口、TCP 状态和内核连接表；worker_connections 不是机器能承受的总用户数，文件描述符和上游连接会共同消耗它
 
-**基本形态**:(location /api/ &#123; proxy_pass http://backend; &#125;)——客户端只认识 Nginx,后端地址被隐藏。**关键细节**:①**proxy_pass 有无 URI 的语义**(`proxy_pass http://backend;` 原样转发 vs `proxy_pass http://backend/;` 带路径会替换匹配部分——**尾斜杠差异是 404 事故高发区**);②**请求头三件套(后端拿真实客户端信息全靠它)**:`proxy_set_header Host $host`(后端虚拟主机正确)、`X-Real-IP $remote_addr` 与 **`X-Forwarded-For $proxy_add_x_forwarded_for`(代理链上的真实 IP 列表——后端日志/风控要读它)**,HTTPS 下游还要 `X-Forwarded-Proto https`(后端才知道请求原本是 https);③超时:`proxy_connect_timeout`(连后端)/`proxy_read_timeout`(等后端响应——**SSE/长轮询要调大**)/`proxy_send_timeout`;④**缓冲**:`proxy_buffering on` 默认把上游响应攒齐再发(吞吐好);**流式场景(SSE/大文件下载)要 `proxy_buffering off`**(否则客户端等不到增量);`client_max_body_size`(上传大小,**默认仅 1MB——上传 413 的答案**);⑤**WebSocket 反代**:`proxy_http_version 1.1` + `Upgrade`/`Connection` 头转发 + read_timeout 调大;⑥故障转移:`proxy_next_upstream error timeout http_500`(**注意:非幂等请求(POST)默认不重试——避免重复下单**,只对 GET/HEAD 安全重试)。
+**sendfile 与零拷贝** ---- 静态文件可通过 sendfile 减少用户态复制，tcp_nopush、aio、directio 等能力要结合文件大小、磁盘和内核版本验证；开启某个指令不等于所有请求都更快
 
-## 第五站:负载均衡
+**accept_mutex 与 reuseport** ---- 多 worker 抢同一监听 socket 时要理解惊群、连接分配和内核复用策略；accept_mutex、reuseport 的选择取决于平台、版本和流量形态，应以压测与指标决定
 
-**upstream 组 + 策略**:(upstream backend &#123; server 10.0.0.1:8080 weight=3; server 10.0.0.2:8080; server 10.0.0.3:8080 backup; &#125;)——策略:**轮询(默认)/weight 加权轮询(机器强弱)/ip_hash(同 IP 固定同后端——session 保持的土办法)/least_conn(最少连接)/hash(一致性哈希,第三方)**。
-**server 参数**:weight、**max_fails + fail_timeout(被动健康检查:10 秒内失败 1 次,标记不可用 10 秒)**、backup(备用机,全挂才上)、down(手动下线)、max_conns。**健康检查**:开源版只有被动检查(靠真实请求失败);主动周期探测要商业版或第三方模块;**生产一般交给云 LB/K8s(见 [Kubernetes](/learning-paths/devops/kubernetes))或注册中心层做**。
-**架构分层(重要认知)**:Nginx 是"入口/流量层"负载均衡;应用内还有注册中心 + 客户端负载均衡(Spring Cloud LoadBalancer/OpenFeign——见 [Spring Cloud](/learning-paths/microservices/spring-cloud))——**两层 LB:入口按机器分,应用层按服务实例分**。
+**进程权限与资源隔离** ---- master 可能以高权限绑定低端口，worker 通常降权运行；PID、临时目录、缓存目录、日志目录和文件权限必须明确，别让“能启动”掩盖“谁都能写”
 
-## 第六站:HTTP 缓存——Nginx 也能当缓存层
+**HTTP 不是唯一入口** ---- http 上下文处理 HTTP，stream 可以代理 TCP/UDP，mail 模块处理邮件协议；四层透传无法理解 HTTP 路径和用户身份，选择它就意味着把更多治理责任留给上游
 
-**配置**:`proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=mycache:10m max_size=10g inactive=60m;`(磁盘缓存路径 + **内存元数据区 keys_zone(1MB 约 8000 个 key)**)+ `location` 里 `proxy_cache mycache;`;`proxy_cache_key`(默认 scheme+host+uri——**带查询参数的 URL 会各自成 key,注意**);**有效期**:`proxy_cache_valid 200 302 10m;`(按状态码);`proxy_cache_methods`。
-**控制细节**:`proxy_cache_bypass`(带登录 cookie 的请求跳过读缓存)、`proxy_no_cache`(不缓存动态页)、**`proxy_cache_lock`(同 key 并发只放一个回源,其余等——防缓存击穿)**、**`proxy_cache_use_stale error timeout updating`(上游挂了/更新中先给旧缓存——高可用的保命技)**、`proxy_cache_min_uses`。
-**调试**:响应头加 `add_header X-Cache-Status $upstream_cache_status;`——值 MISS/HIT/EXPIRED/STALE/UPDATING 一目了然。**架构认知**:Nginx 缓存适合"公开的读多接口/静态资源"(边缘缓存,无业务逻辑);带用户态的缓存(登录/个性化)用 Redis(见 [Redis](/learning-paths/database/redis));**CDN 本质 = 分布式的 Nginx 缓存**——回源到你的 Nginx 再套一层。
+## 第二站：配置文件与运行生命周期
 
-## 第七站:HTTPS、HTTP/2 与跳转
+第二站进入配置厨房。Nginx 配置像一棵会继承的树，指令放错上下文就像把门牌贴到厨房：语法可能不认识，或者认识了却在你没想到的地方生效。
 
-**证书配置**:`listen 443 ssl;` + `ssl_certificate`(证书链)+ `ssl_certificate_key`(私钥);**证书用 certbot 自动签发续期(Let's Encrypt),别手动抠证书文件**;`ssl_protocols TLSv1.2 TLSv1.3;`(别开 TLS1.0/1.1 与 SSL);性能:`ssl_session_cache shared:SSL:10m`(会话复用,握手少一大半)、`ssl_session_timeout`;HTTP/2:`listen 443 ssl http2;`(多路复用/头压缩——**HTTP/1.1 的队头阻塞在 HTTP/2 解决,现代站点标配**;HTTP/3 概念见 [网络](/learning-paths/cs-basics/computer-networks));**跳转与安全头**:80 端口 `return 301 https://$host$request_uri;`(全站 HTTPS)、`add_header Strict-Transport-Security`(HSTS——**告诉浏览器以后只走 HTTPS**);`server_tokens off`(隐藏版本号)。
-**反代场景的 HTTPS 语义**:与后端之间可走 HTTP(Nginx 终结 TLS 的"SSL 卸载"——证书集中在这层管理,后端不碰证书是常见架构)。
+**配置上下文** ---- 熟悉 main、events、http、server、location、upstream、stream 等块的职责与可用指令；先确认指令允许出现在哪个上下文，再讨论参数值
 
-## 第八站:限流、访问控制与重写
+**继承与覆盖** ---- 子上下文通常继承父上下文，子层同名设置可能覆盖父层；数组型指令、头部设置和日志配置要单独核对，不能用“看起来像覆盖”的直觉推断行为
 
-**限流(接口防刷的 Nginx 层答案)**:`limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;`(定义 zone:漏桶速率)+ location 里 `limit_req zone=api burst=20 nodelay;`(**burst:突发容量(令牌桶思想);nodelay:超出的直接 429 而不是排队**)——**登录/短信/下单接口必配**;`limit_conn_zone` + `limit_conn`(同 IP 并发连接数限制);`limit_rate`(下载带宽限速)。
-**访问控制**:`allow 10.0.0.0/8; deny all;`(IP 白名单——管理后台/内网接口)、`auth_basic`(HTTP Basic 认证,临时保护)、`secure_link`(带签名 URL——防盗链/临时授权下载)、**CORS(跨域,前后端分离时网关统一处理)**:`add_header Access-Control-Allow-Origin $http_origin`(或 *)等 + **OPTIONS 预检返回 204**(`if ($request_method = OPTIONS) &#123; return 204; &#125;`——见 [网络](/learning-paths/cs-basics/computer-networks) 的 CORS 节)。
-**重写与变量**:`rewrite ^/old/(.*)$ /new/$1 permanent;`(301 迁移)、`return 301/302`(跳转比 rewrite 更推荐);**if 指令慎用(官方明示 if is evil**:性能与语义坑)——**条件分支优先用 `map`**(按变量映射:如按 UA 分流移动端);内置变量库:`$host/$remote_addr/$request_uri/$request_method/$status/$upstream_addr/$upstream_response_time`(日志与限流的地基);`log_format` 自定义访问日志(含 upstream 耗时——排查"慢在 Nginx 还是后端"全靠 `$upstream_response_time`),JSON 格式日志便于采集。
+**include 与模块化** ---- 用 include 拆分全局、站点、上游和安全策略，让变更边界清晰；通配 include 要控制命名和加载顺序，避免临时备份文件也被当成生产配置
 
-## 第九站:性能调优
+**变量与求值时机** ---- 认识 `$host`、`$uri`、`$request_uri`、`$remote_addr`、`$request_id`、`$upstream_status` 等变量；变量值可能在不同阶段变化，重写前后的 URI 不能混用
 
-**Worker 层**:`worker_processes auto;`(=CPU 核)、**`worker_connections 10240;`(单 worker 连接数,配 `ulimit -n` 65535 文件描述符上限——"连接上不去"九成是 fd 不够)**、`worker_rlimit_nofile`。
-**连接与传输**:`keepalive_timeout 65` 与 `keepalive_requests`(长连接,前端→Nginx 与 **Nginx→上游的 keepalive(upstream 里 `keepalive 32;`——否则每次请求都新建上游连接,吞吐差一大截)**)、`sendfile on`(静态文件零拷贝)、`tcp_nopush`/`tcp_nodelay`(与 sendfile/keepalive 配合)。
-**gzip**:`gzip on; gzip_types text/css application/javascript application/json; gzip_min_length 1k; gzip_comp_level 5;`(JSON/JS/CSS 必压——**API 响应体压缩能省 70% 流量;注意别给已压缩格式(图片/视频)重复压**);`open_file_cache`(静态文件句柄缓存,静态站性能关键);`client_max_body_size`(按业务设上传上限)。
-**OS 层**:somaxconn(连接队列)、tcp_tw_reuse、关闭 swap——与 [Linux 路线](/learning-paths/devops/linux) 的系统调优呼应。**监控**:`stub_status`(Active connections 等基础指标)/nginx-prometheus-exporter + Grafana(请求 QPS/状态码分布/上游延迟)、访问日志分析(GoAccess 快速看/ELK 集中)。
+**检查、重载与停止** ---- 修改后先执行配置语法检查，再做 reload；reload 会启动新 worker、让旧 worker 优雅退出，旧连接可能继续存活，不能把它误解为瞬时重启
 
-## 第十站:实战场景与架构定位
+**优雅重载的边界** ---- 长连接、WebSocket、下载和卡住的上游会让旧 worker 很久不退；要监控 worker 数、连接数和退出时间，必要时按预案处理，不要无限堆积旧进程
 
-**六大场景一键回顾**:①静态资源站:`root + expires 30d + gzip + open_file_cache`(前端构建产物/图片,通常再套 CDN);②**前后端分离**:`location / &#123; root 前端 dist; try_files ... /index.html; &#125;` + `location /api/ &#123; proxy_pass 后端; &#125;`——**一个 80/443 端口全包**;③反向代理集群:upstream + proxy_pass + 头传递 + 超时缓冲;④HTTPS 网关:证书 + HSTS + HTTP/2 + 限流;⑤WebSocket/SSE 反代(升级头 + 关缓冲/调超时);⑥接口限流与 IP 白名单。
-**OpenResty(进阶方向)**:Nginx + LuaJIT——**在 Nginx 里写 Lua**(执行阶段:access 鉴权/content 动态响应/log),生态 lua-resty-redis/jwt——**自研"轻量 API 网关"(鉴权/限流/路由/聚合)的经典路线**;**成熟的网关产品**:Kong/APISIX(基于 OpenResty,插件化)、Spring Cloud Gateway(Java 业务网关)、Envoy(云原生)——**架构分层**:流量网关(云 LB/Nginx,公网入口,按域名路径转发)+ 业务网关(应用层,鉴权/路由/限流/聚合,如 Spring Cloud Gateway/Kong)——见 [API 网关](/learning-paths/microservices/api-gateway)。
-**K8s 里的 Nginx**:nginx-ingress-controller 把 Nginx 变成 K8s 的 Ingress(自动按 Ingress 资源配 upstream/HTTPS——见 [Kubernetes](/learning-paths/devops/kubernetes))。**高可用**:Nginx 本身无状态——**HA 靠前置**(Keepalived 虚 IP 主备、云负载均衡、DNS 多 A 记录):两台 Nginx + 一个漂移 IP 是经典主备。
+**日志与 PID** ---- access_log 记录请求事实，error_log 记录处理链路和异常；日志格式要包含请求 ID、上游地址、状态、耗时和字节数，时间统一且敏感字段要脱敏
+
+**配置版本与回滚** ---- 配置变更应可审计、可验证、可回滚，证书与上游名单也纳入同一流程；生产环境不应依赖一个人记得“上次改了哪一行”
+
+**动态配置的取舍** ---- 开源 Nginx 常通过生成配置并 reload 更新后端，商业版、控制面或外部服务可提供更动态的管理能力；动态更新越方便，越要控制权限、并发修改和失败回滚
+
+## 第三站：server、location 与静态资源
+
+第三站学习 Nginx 如何决定“这个请求归谁”。server 像楼栋，location 像房间；路径匹配规则如果背错，最终会出现一间房明明存在，门卫却把客人带去隔壁。
+
+**监听与虚拟主机** ---- 理解 listen 的地址、端口、default_server 与 server_name；同一端口多个域名依靠 Host 和 TLS SNI 选择站点，未知 Host 会落到默认 server
+
+**server_name 匹配** ---- 掌握精确域名、前缀通配和正则域名的优先级与风险；正则匹配可读性和性能都较差，默认站点与兜底拒绝策略要明确
+
+**location 匹配顺序** ---- 精确匹配 `=` 优先，最长普通前缀随后，`^~` 可阻止继续尝试正则，正则 location 再按配置顺序竞争；不要只按文件出现顺序猜普通前缀和正则的结果
+
+**`root` 与 `alias`** ---- root 把 URI 拼到根目录，alias 替换 location 匹配部分；二者在尾斜杠、正则 location 和捕获组上的行为不同，静态 404 首先检查最终文件路径
+
+**`try_files` 与 SPA** ---- try_files 按顺序检查文件或目录，最后可回退到前端入口；回退规则要与 API location、错误页面和缓存策略分开，不能把 API 404 也送去 index.html
+
+**index、autoindex 与 internal** ---- index 定义目录默认文件，autoindex 暴露目录清单，internal 限制只能由 Nginx 内部跳转访问；生产通常关闭目录浏览，并仔细设置隐藏文件与备份文件规则
+
+**静态文件缓存头** ---- expires、Cache-Control、ETag 和 Last-Modified 共同决定浏览器与 CDN 的缓存行为；带内容哈希的资源可以长缓存，HTML、权限相关响应则要避免无意缓存
+
+**rewrite、return 与 error_page** ---- return 适合明确跳转或拒绝，rewrite 适合 URL 变换，error_page 负责错误响应映射；规则越多越要写清终止条件，避免重定向循环与内部跳转迷宫
+
+**URI、安全与路径规范化** ---- 关注编码、重复斜杠、路径穿越、大小写、符号链接和请求体中的文件名；不要把未经审查的 URI 直接拼接到文件系统或上游路径
+
+## 第四站：反向代理与协议转发
+
+第四站让 Nginx 开始替后端接客。它能隐藏拓扑、统一 TLS、补请求头、做缓冲和超时，但不会替应用理解幂等性；一旦把“重试”开错，重复下单就会回来敲门。
+
+**反向代理的链路** ---- proxy_pass 把客户端请求交给上游，Nginx 负责连接建立、请求转发、响应读取和客户端回写；入口延迟要拆成客户端、Nginx、上游连接、上游处理和响应传输几段
+
+**`proxy_pass` 的 URI 语义** ---- proxy_pass 不带 URI 时通常保留原请求路径，带 URI 时可能替换匹配到的 location 部分；尾斜杠差异是路径 404 和重复前缀事故的常见来源
+
+**请求头与真实客户端地址** ---- 明确 Host、X-Real-IP、X-Forwarded-For、X-Forwarded-Proto 与 Forwarded 的约定；只信任来自已知代理的转发头，不能让客户端自己伪造风控所需的真实 IP
+
+**请求 ID 与链路追踪** ---- 在入口生成或透传唯一 request ID，并让 access log、上游请求头和应用日志保持一致；没有统一 ID 的 502，常常只能靠猜时间戳破案
+
+**连接与响应超时** ---- proxy_connect_timeout 控制连上游，proxy_send_timeout 控制向上游发送，proxy_read_timeout 控制等待上游响应；SSE、WebSocket、长轮询和大文件需要不同的超时预算
+
+**缓冲与流式响应** ---- proxy_buffering 适合把普通响应攒住以改善吞吐，SSE、实时输出和部分下载场景可能需要关闭或调整；缓冲关闭后，慢客户端可能直接占住上游资源
+
+**请求体与响应体大小** ---- client_max_body_size、client_body_buffer_size、proxy_request_buffering 和响应缓冲共同影响上传、下载和磁盘临时文件；413、磁盘写满和内存飙升要一起排查
+
+**WebSocket、gRPC 与 SSE** ---- WebSocket 需要正确的 HTTP/1.1 升级头，gRPC 需要匹配的 HTTP/2 与超时，SSE 需要流式刷新和禁用不合适的缓存；协议不同，不能套一个“通用反代模板”
+
+**重试与幂等性** ---- proxy_next_upstream 等机制可以在连接失败或部分状态下换上游，但 POST、支付、库存扣减等请求不能仅因超时就盲目重试；重试策略要由业务幂等键和上游状态共同决定
+
+**代理协议与四层透传** ---- Proxy Protocol 可以传递原始连接信息，stream 代理可用于数据库、TLS 透传等 TCP 服务；启用前要确认上下游都理解协议，否则普通服务会把前缀当成脏数据
+
+## 第五站：负载均衡、健康与故障转移
+
+第五站是后端分流台。Nginx 会把请求分给多台服务器，但它不是全知全能的体检医生；开源版本的被动失败观察和真正的业务健康检查，要分开理解。
+
+**upstream 服务器组** ---- 用 upstream 组织后端地址、权重、备用节点、连接上限和失败参数；上游命名、DNS 解析和配置生成方式要统一，避免同一服务在不同文件里有两套名单
+
+**轮询与加权轮询** ---- 默认轮询适合能力相近的后端，weight 适合机器规格或容量不同的场景；权重是流量分配倾向，不是实时负载测量
+
+**least_conn、ip_hash 与 hash** ---- least_conn 偏向当前连接少的节点，ip_hash 可提供粗糙会话粘性，hash 可按稳定键分流；粘性会降低故障迁移能力，hash 键分布不均会制造热点
+
+**被动健康检查** ---- max_fails 与 fail_timeout 根据真实请求失败暂时摘除上游；它只能在请求发生后感知故障，且“HTTP 200 但业务已坏”不会被它识别
+
+**主动健康检查** ---- 周期探活、状态码、响应体和业务依赖检查通常由 Nginx 商业能力、第三方模块、云 LB 或服务治理系统提供；探活本身也要限流，不能把健康检查变成新的洪水
+
+**backup、down 与 max_conns** ---- backup 用于备用节点，down 用于人工摘流，max_conns 限制单节点并发连接；设置上限后还要考虑排队、超时和客户端重试的连锁反应
+
+**slow_start 与恢复** ---- 节点刚恢复时逐步接流可以给缓存、连接池和 JIT 预热时间；恢复策略要与应用启动探针、数据库连接和缓存命中率配合
+
+**多层负载均衡** ---- 入口 Nginx、云负载均衡、服务注册发现和应用客户端可能同时分流；每层都要定义故障判定、超时、重试和真实 IP，否则故障会被层层放大
+
+**跨机房与会话** ---- 跨可用区分流要考虑延迟、流量费用、数据局部性和故障域；优先让应用无状态，必须粘性会话时说明粘性键、迁移和节点丢失后的用户体验
+
+## 第六站：HTTP 缓存与边缘代理
+
+第六站把 Nginx 变成“记性很好但偶尔需要提醒”的前台。缓存命中时它快得像背过答案，缓存失效时则会突然把所有问题转发给后端，所以键、有效期和回源并发必须严谨。
+
+**缓存区结构** ---- proxy_cache_path 定义磁盘缓存、目录层级、共享内存 keys_zone、大小和非活跃时间；共享内存主要保存元数据，缓存对象本身仍要消耗磁盘和 I/O
+
+**缓存键** ---- proxy_cache_key 决定哪些请求共享响应，通常至少考虑 scheme、Host、URI、查询参数、语言、设备和租户边界；把用户身份忽略在键之外，可能造成严重的数据串线
+
+**状态码与响应头** ---- proxy_cache_valid、Cache-Control、Expires、Set-Cookie、Vary、ETag 和 Last-Modified 一起影响是否缓存与如何验证；动态、私有、带凭证的响应不能套公开页面的缓存策略
+
+**bypass 与 no-cache** ---- bypass 控制是否读取已有缓存，no-cache 控制是否把本次响应写入缓存；登录 Cookie、管理接口、错误响应和个性化内容通常要显式排除
+
+**缓存锁与击穿** ---- proxy_cache_lock 让同一缓存键在回源时尽量只保留一个填充请求，其余请求等待或按策略处理；锁的等待时间也要有限，避免后端故障时排队请求一起堆死
+
+**旧缓存保命** ---- proxy_cache_use_stale 可在上游超时、错误或更新期间返回旧内容；它适合公开且可接受短暂陈旧的数据，不适合余额、权限和库存等强时效结果
+
+**失效、预热与清理** ---- 缓存失效可以按时间、版本化 URL、应用 purge 或文件清理实现；先定义谁能 purge、如何审计以及误删后的恢复，别给一个公网接口“清空全部缓存”的按钮
+
+**缓存命中观测** ---- 记录 MISS、HIT、EXPIRED、STALE、UPDATING 等状态，分开观察命中率、回源率、对象大小、磁盘占用和后端延迟；命中率高但用户仍慢，可能是大对象回写或客户端带宽问题
+
+**Nginx 与 CDN、Redis 的边界** ---- Nginx 适合入口附近的公开响应缓存，CDN 适合更靠近用户的分布式边缘缓存，Redis 适合由业务控制的对象与状态；缓存层越多，失效一致性越难，必须明确权威来源
+
+## 第七站：TLS、HTTP/2 与安全传输
+
+第七站给流量加上防护服。HTTPS 不只是把 listen 改成 443：证书链、SNI、ALPN、协议版本、私钥权限和代理终止位置，少一个都可能让“浏览器打不开”变成一场现场考古。
+
+**TLS 终止位置** ---- 判断 TLS 在 CDN、云 LB、Nginx 还是应用终止；如果上游仍需加密，要区分客户端加密与 Nginx 到上游的 TLS，并验证 Host、SNI 和证书校验
+
+**证书与私钥** ---- 配置完整证书链、正确的 SAN、受限的私钥权限和轮换流程；证书续期后要先做语法与握手验证，再优雅重载，避免在高峰期临时救火
+
+**TLS 版本与密码套件** ---- 只启用组织允许的协议和密码套件，关注兼容的客户端、前向保密、会话复用和安全扫描结果；不要复制多年以前的“万能配置”而不检查当前版本
+
+**SNI 与 ALPN** ---- SNI 帮助同一监听地址选择证书与 server，ALPN 协商 HTTP/1.1、HTTP/2 等协议；多域名证书、默认站点和不支持 SNI 的客户端要有明确兜底
+
+**HTTP/2** ---- 理解多路复用、头部压缩、流优先级与连接级阻塞的影响；HTTP/2 不会自动修复慢上游，连接级并发和请求限额仍要设计
+
+**HTTP/3 与 QUIC** ---- 了解 HTTP/3 依赖 QUIC/UDP、构建和版本支持可能不同，不能把 TCP 代理配置直接当成 HTTP/3 配置；采用前先验证客户端、负载均衡、监控和回退路径
+
+**HSTS 与跳转** ---- 强制 HTTPS 前先确认所有子域名和回滚能力，再逐步设置 HSTS；HTTP 到 HTTPS 的跳转要避免循环，并让上游通过 X-Forwarded-Proto 正确识别原始协议
+
+**双向 TLS 与上游校验** ---- mTLS 可验证客户端或上游身份，proxy_ssl_verify、可信 CA、SNI 和证书名称要配套；“链路加密”不等于“对端身份可信”
+
+## 第八站：限流、访问控制与攻击面
+
+第八站是门卫培训班。优秀的门卫不是见人就关门，而是知道谁在什么时候可以进、一次能带多少行李、遇到异常如何留下证据；限流和安全规则也要尽量做到可解释、可回滚。
+
+**请求速率限制** ---- limit_req 以共享内存记录键并按漏桶等机制控制速率；按 IP、API key、租户或路由设置不同额度，不能只按 NAT 后的公共 IP 把一栋公司的用户当成一个人
+
+**连接数限制** ---- limit_conn 控制同时连接数，适合保护 WebSocket、下载和慢连接场景；速率限制和连接限制解决的是不同问题，二者要按上游资源分别配置
+
+**访问控制** ---- allow/deny、auth_basic、客户端证书和外部身份代理可以控制入口；管理接口、状态接口和 purge 接口应绑定内网、专用身份或 mTLS，不能只靠“路径不公开”
+
+**请求头与方法白名单** ---- 明确允许的方法、Host、Content-Type、Origin、上传路径和转发头；避免把任意客户端头原样传给高权限上游，防止协议混淆和信任边界穿透
+
+**请求走私与规范化** ---- 关注 Content-Length 与 Transfer-Encoding 冲突、HTTP/2 到 HTTP/1.1 转换、重复头和 URI 规范化；Nginx 与上游对边界的解释必须一致，代理链越长越要做端到端测试
+
+**文件与目录暴露** ---- 禁止访问 `.git`、备份文件、配置文件、密钥和临时上传目录；alias、符号链接、内部跳转和错误页都要做路径穿越测试
+
+**WAF 的边界** ---- Nginx 可以做基础过滤、限流和访问控制，但不是完整的业务 WAF；复杂规则、攻击情报、审计和误报处置应由专门的安全层承担
+
+**日志隐私与审计** ---- IP、Cookie、Authorization、查询参数和请求体可能含敏感信息；日志要做最小化、脱敏、访问控制、留存期限和审计，调试日志不能长期常开
+
+## 第九站：性能、监控与容量
+
+第九站来到仪表盘前。性能调优不是把 worker_processes、buffer 和 timeout 全部调到最大，而是先知道瓶颈在 CPU、网络、磁盘、上游还是客户端，然后只动与证据对应的旋钮。
+
+**worker_processes 与 worker_connections** ---- worker 数通常与 CPU 和工作负载相关，连接数上限还受文件描述符与内核限制影响；客户端 keepalive、上游 keepalive、升级连接和缓冲都要纳入容量模型
+
+**keepalive 的两面** ---- 客户端 keepalive 减少握手，上游 keepalive 减少连接建立，但空闲连接会占用 FD、内存和上游连接池；连接复用要结合请求分布与后端最大连接数
+
+**缓冲区与临时文件** ---- proxy_buffers、fastcgi_buffers、client_body_temp_path 等参数决定大响应和大请求如何落内存或磁盘；调大缓冲前先检查对象大小分布和临时目录容量
+
+**压缩与内容协商** ---- gzip、静态预压缩或其他压缩模块可减少网络字节，但会消耗 CPU；图片、已压缩格式和小响应不一定值得再次压缩，要按 MIME、大小和客户端能力筛选
+
+**文件缓存** ---- open_file_cache 可减少静态文件元数据查询，sendfile 可减少复制；部署新版本时要考虑文件替换、缓存失效和 inode 行为，避免“文件已经更新，Nginx 还在发旧内容”
+
+**观测四件套** ---- access log 看请求分布，error log 看处理异常，stub_status 或状态 API 看连接与请求，Prometheus 等指标看趋势；同时记录上游状态、连接时间、响应时间、请求长度和返回长度
+
+**状态码诊断** ---- 499 常提示客户端提前断开，502 常见于上游连接或响应协议问题，503 常见于不可用或限流，504 常见于上游超时，413 通常指请求体超限；状态码只是方向牌，还要对照 error log 和上游日志
+
+**容量估算** ---- 以峰值 RPS、并发连接、请求与响应大小、TLS 握手、缓存命中率、上游连接数和带宽计算容量；压测要包含慢客户端、缓存未命中、后端变慢和节点重载，不要只测理想静态首页
+
+**故障演练** ---- 演练后端单点、后端全挂、DNS 变化、证书即将过期、磁盘满、日志暴涨、reload 卡住、缓存击穿和连接数耗尽；每次都记录发现时间、保护动作、恢复时间和用户影响
+
+## 第十站：架构定位与选型
+
+最后一站要决定 Nginx 在系统里坐哪把椅子。它可以是静态 Web 服务器、反向代理、边缘缓存、入口负载均衡或 TCP 代理，但把所有职责都塞给它，最后只会得到一份谁也不敢改的配置。
+
+**静态 Web 服务器** ---- 前端资源、下载、缓存头和 TLS 是 Nginx 的舒适区；动态页面渲染、复杂鉴权和业务事务交给专门的应用服务
+
+**入口反向代理** ---- 统一域名、TLS、请求 ID、基础安全策略和后端路由，适合把外部协议与内部服务边界隔开；路由规则要和服务发现、发布、回滚保持一致
+
+**API 网关边界** ---- Nginx 能承担一部分路径路由、限流、认证转发和观测，但复杂配额、动态策略、协议转换与开发者门户可能需要专门网关；选型要看控制面和治理需求，而不是功能清单数量
+
+**高可用入口** ---- 单台 Nginx 本身是单点；可用云 LB、Keepalived、DNS、容器编排或多活架构提供故障切换，同时考虑连接状态、证书同步、配置发布和缓存一致性
+
+**与 Envoy、HAProxy、Caddy 的比较** ---- Nginx 强在成熟的 HTTP/静态/代理生态，HAProxy 擅长负载均衡与连接治理，Envoy 更偏动态服务网格数据面，Caddy 更强调简洁和自动 HTTPS；比较时要看协议、控制面、团队能力和运维成本
+
+**不该由 Nginx 解决的问题** ---- 不要把业务状态、分布式锁、订单重试、复杂权限决策、消息可靠投递或数据库连接池治理硬塞进入口层；入口层越薄，故障边界越容易看清
 
 ## 通关标准
 
-能独立做到:不看文档写出"前端静态 + /api 反代 + HTTPS 跳转 + gzip + 静态缓存头"的完整站点配置;说清 location 匹配顺序、root/alias、proxy_pass 尾斜杠、X-Forwarded-For 与真实 IP 的关系;配 upstream 加权轮询 + 超时 + 失败转移并解释为什么 POST 不自动重试;用 limit_req 给登录接口限流、用 proxy_cache 缓存公开接口并靠 X-Cache-Status 验证命中;能读 $upstream_response_time 判断慢在哪层;nginx -t 与 reload 成为肌肉记忆——Nginx 主线通关。
+能独立画出客户端、Nginx、上游和内核资源的连接模型；写出并解释 server/location 匹配、root/alias、try_files 与 proxy_pass 的行为；配置带真实 IP、超时、缓冲、WebSocket 或 SSE 的反向代理；用 upstream 实现分流、摘除、备用和幂等重试；设计公开内容缓存并说明缓存键、失效、击穿和隐私边界；完成 TLS 证书轮换、限流、访问控制和安全头配置；通过日志、状态码、上游指标和连接数定位 502、504、499、413 与缓存异常；按峰值请求、连接、带宽和故障场景做容量估算与演练。做到这些，才算真正掌握 Nginx，而不是只会把服务“代理起来”。
 
-Nginx 教你的不只是配置语法,而是**"流量入口"的架构思维**:谁来终结 TLS、谁缓存、谁限流、谁路由、谁负载均衡——这些"入口职责"在单体时代是 Nginx 的活,在云原生时代演化为 Ingress/Gateway/Service Mesh(见 [云原生路线](/learning-paths/cloud-native/cloud-native-patterns)),但心智一脉相承。先把 Nginx 玩熟(它是理解一切流量层的起点),再看 Envoy/APISIX/K8s Ingress 都会豁然开朗——它们只是"换了壳的 Nginx 问题"。Happy proxying!
+## 下一站去哪
+
+想补网络基础，去看 [计算机网络](/learning-paths/cs-basics/computer-networks)；想把入口接入服务治理，继续走 [微服务架构](/learning-paths/microservices/microservices-patterns) 与 [Kubernetes](/learning-paths/devops/kubernetes)；想深入可观测与告警，继续走可观测性方向。
+
+## 结语
+
+Nginx 的工程价值在于把入口处最容易失控的事情——连接、协议、路由、缓存、限流、证书和故障转移——变成可观察、可验证的规则。真正的高手不是配置文件最长的人，而是能让请求在正常、拥塞、后端变慢和节点切换时都走一条说得清的路。

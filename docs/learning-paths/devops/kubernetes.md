@@ -1,63 +1,205 @@
 # Kubernetes 学习路线
 
-Kubernetes(简称 K8s)是**容器编排的事实标准**:自动部署、滚动更新、自动扩缩、自愈、服务发现——把"一堆容器"变成"一个可编程的数据中心操作系统"。它是云原生(见 [云原生](/learning-paths/cloud-native/cloud-native-patterns))的基石,也是运维与后端高薪技能的分水岭。**先泼冷水**:学习曲线陡(概念多、抽象厚),**单体/小规模应用不需要 K8s**(Docker Compose 就够);它解决的是"大量服务、需要弹性与自愈"的问题。**前置**:扎实的 [Docker](/learning-paths/devops/docker)(镜像/容器/网络/卷)与 Linux 基础;心态上:理解"**声明式 + 控制器循环**"这一个核心,比背 50 个对象名重要。实践:本地 **minikube** 或 **k3s**(一条命令起集群),或云托管(ACK/EKS/GKE)体验。
+Kubernetes 是集群里的那位永远拿着对讲机的调度总管：你告诉它“我想要三个健康的 API 副本”，它就不断观察现实、创建资源、替换故障实例，努力把现实拽回期望状态。它不是一台更大的 Docker，也不是把 YAML 贴上去就自动获得高可用；它是一套 API、控制器、调度器、运行时和网络存储插件组成的分布式系统。
 
-这条线按 **架构与核心思想 → Pod → 工作负载 → 服务与网络 → 存储与配置 → 资源与调度 → 安全 → Helm 与 GitOps → 监控运维与排障** 推进。
+这条路线从控制面和 Pod 的底层关系开始，逐渐走到工作负载、调度、网络、存储、发布、安全、可观测性、可靠性与成本。先懂“谁在做决定”，再学“怎样写对象”，遇到故障时才知道该看 API、控制器、节点、运行时还是应用。
 
-## 第一站:架构与核心思想——声明式 + 控制器
+**推荐顺序** ---- 集群架构与声明式模型 → Pod 与容器运行时 → 工作负载控制器 → 调度与资源 → 服务发现与网络 → 配置与存储 → 发布与回滚 → 安全与策略 → 可观测性与排障 → 可靠性、成本与演进
 
-**集群两大部分**:①**控制平面(大脑,3 个组件+存储)**:`kube-apiserver`(一切操作的唯一入口:认证授权、校验,所有组件都经它——**kubectl 打的就是它**)、`etcd`(集群状态的权威存储,见 [etcd](/learning-paths/middleware/etcd))、`kube-scheduler`(决定新 Pod 放哪个节点)、`kube-controller-manager`(一堆控制器);②**节点(干活)**:`kubelet`(节点代理:按声明启停容器、上报状态、执行探针)、`kube-proxy`(Service 网络规则)、容器运行时(containerd)。
-**核心思想(一切从这里长出来)**:K8s 是**声明式**的——你提交 YAML 描述"**想要的状态**"(desired state:我要 3 个副本、镜像 v2、80 端口);**控制器模式**:控制器通过 **watch(监听 API)+ 调谐(reconcile)循环**不断对比"实际状态"与"期望状态"并修正(少了补、多了缩、版本不对滚动)——**这就是 K8s 的"自愈/自动"本质:没有一个魔法,全是 watch-比较-修正的循环**。
-**环境**:本地 minikube/k3s;生产:云托管(ACK/EKS/GKE——**托管省掉控制平面运维,学习与生产都推荐**)或 kubeadm 自建;**kubectl 基本功**:`get`(查资源)/`describe`(详情+事件——排障第一命令)/`logs`/`exec`/`apply -f`(声明)/`delete`;`kubectl get pod -w`(watch)。
-**命名空间(namespace)**:集群内逻辑隔离(环境/团队/租户),资源名在命名空间内唯一。
+## 第一站：集群架构与声明式控制
 
-## 第二站:Pod——最小调度单元
+第一站先拜访 Kubernetes 的控制面。它像一位很有原则的管家：你提交的是“希望家里有三盆绿植”，不是“请在 10:03 执行第 1、2、3 步”；控制器会持续观察差异，直到现实大致符合愿望。
 
-**Pod = 一个或多个容器的组合**(共享网络(同 localhost)与存储卷)——**调度、伸缩、健康检查的最小单位**,但日常不直接建 Pod,而是通过工作负载(下一站)管。**生命周期**:Pending(调度/拉镜像)→ Running → Succeeded/Failed;**重启策略**:容器崩了 kubelet 按策略重启(默认 Always)。
-**多容器模式**:①**initContainer(初始化容器)**:主容器启动前按序跑完(等数据库就绪/下载依赖/准备权限——"前置条件"的官方姿势);②**sidecar(伴生容器)**:与主容器同生共死(日志采集、流量代理——"加个跟班"扩展能力)。**探针(健康检查三兄弟,生产必配)**:`livenessProbe`(存活:失败则重启容器——救"卡死");`readinessProbe`(就绪:失败则从 Service 摘除——**不发流量给没准备好的 Pod**,滚动更新的关键);`startupProbe`(慢启动保护:给 Java 类应用充足启动时间,避免 liveness 误杀);探测方式 HTTP/TCP/exec + initialDelaySeconds/periodSeconds——**只配 liveness 不配 readiness 是常见事故源**。
-**心智:Pod 是"牲口"**——随时可能被重建(节点挂/被驱逐/更新),别进 Pod 改东西、别把状态存容器里。
+**声明式 API** ---- 以对象描述期望状态、元数据、规格与状态，理解 create、update、patch、delete 与 watch；声明式不等于一次执行，而是允许系统持续修正漂移
 
-## 第三站:工作负载——管 Pod 的控制器
+**API Server** ---- 认识认证、授权、准入、版本转换、对象校验和 watch 通道；几乎所有控制面与客户端都通过 API Server 协作，它是集群的总入口也是审计重点
 
-**①Deployment(无状态应用主力,90% 的日常)**:声明 replicas + 镜像模板;**滚动更新**(默认:新 ReplicaSet 逐步起新 Pod、旧 RS 逐步缩——maxUnavailable/maxSurge 控节奏;**更新的本质 = 新 RS 接管**);**回滚**:`kubectl rollout undo deployment/xxx`(版本化历史,秒级回滚——K8s 给部署的保险);扩缩:`kubectl scale` 或 HPA(见资源章);**用 Deployment 的前提:应用无状态**(数据外置到 DB/对象存储——"牲口"才能随便杀)。
-**②StatefulSet(有状态)**:每个副本有**稳定网络标识**(pod-0、pod-1……DNS 固定)与**独立持久卷**(每个副本自己的 PVC)、有序启停扩缩——**数据库/有状态中间件的 K8s 姿势**(但真上生产,库优先用云托管或 Operator,自管 STS 运维很重)。**③DaemonSet(每节点一个)**:日志采集(Fluent Bit/Filebeat)、监控 Agent、网络插件——"全节点都有的守护进程"用 DaemonSet。
-**④Job/CronJob**:一次性任务(数据迁移/批处理——失败重试 backoffLimit)与定时任务(cron 语法,批处理/K8s 内定时)。
+**etcd** ---- 理解 etcd 保存集群关键状态、依赖一致性与 quorum；知道备份、恢复、磁盘延迟、证书和成员健康对整个集群的影响，etcd 不是普通缓存
 
-## 第四站:服务发现与网络
+**Controller Manager** ---- 控制器不断比较期望与现实并创建、更新或删除资源；Deployment、Job、Node、EndpointSlice 等控制器各有边界，故障时要定位具体控制器
 
-**为什么需要 Service**:Pod IP 会漂移(重建就变)——**Service 提供稳定的虚拟 IP 与 DNS 名**,通过 **selector(标签选择器)** 动态绑定一组 Pod,自动负载均衡。**Service 四类型**:`ClusterIP`(集群内虚拟 IP——默认)、`NodePort`(每节点开端口:测试/临时)、`LoadBalancer`(云负载均衡器:生产公网入口)、Headless(无 ClusterIP:直连 Pod——StatefulSet 用);**集群内 DNS**:`服务名.命名空间.svc`(服务间调用用名字,不写 IP)。
-kube-proxy 实现转发(iptables/IPVS)。**Ingress(七层入口)**:Service 是四层,域名/路径路由 + TLS 终止用 **Ingress**——**注意:Ingress 只是声明,真正干活的是 Ingress Controller(常是 Nginx/Traefik 的 K8s 版,见 [Nginx](/learning-paths/middleware/nginx))**;一条 Ingress 规则:域名 + 路径 → Service。
-**网络模型与 CNI**:每个 Pod 有独立 IP、Pod 间直接互通(无 NAT);实现靠 **CNI 插件**:Flannel(简单 overlay)、**Calico(网络策略强,生产常见)**、Cilium(eBPF 现代派);**NetworkPolicy(集群防火墙)**:默认"全放行",用它按标签限制流量(只允许前端访问数据库 Pod——**多租户/安全必配**)。
+**Scheduler** ---- 调度器根据 Pod 请求、节点资源、亲和性、污点和拓扑约束选择节点；它只负责放置，不负责让应用业务变健康
 
-## 第五站:存储与配置
+**kubelet 与容器运行时** ---- kubelet 在节点上落实 Pod，借助 CRI 调用 containerd、CRI-O 等运行时，并通过 cgroup、namespace 和探针管理容器；节点问题与应用问题要分开看
 
-**存储三层**:`emptyDir`(Pod 内临时——同 Pod 容器共享、Pod 没了就没了);`hostPath`(节点目录——单机测试用,生产别用);**持久化正道:PV + PVC + StorageClass**:`PersistentVolume`(存储本身:云盘/NFS/本地——集群资源)、`PersistentVolumeClaim`(工作负载的"申请单":要多大、什么模式)、`StorageClass`(**动态供给:写 PVC 时云盘自动创建并绑定——生产里你基本只写 PVC 和 StorageClass,PV 自动来**);**数据库/有状态数据必须走 PVC**(Pod 删了数据还在)。
-**配置注入两兄弟**:`ConfigMap`(非敏感配置:环境变量/挂载成文件——**挂载文件方式修改后自动生效(有些应用要重启),环境变量方式要重启 Pod**);`Secret`(敏感:密码/token——**base64 只是编码不是加密**:生产要开 etcd 加密或接外部 Secret 方案;用法同 ConfigMap);**原则:镜像不烧配置,配置走 ConfigMap/Secret——同一镜像多环境复用**。
+**CNI、CSI 与扩展点** ---- CNI 负责网络，CSI 负责存储，Admission Webhook、Operator 和 CRD 扩展 API；Kubernetes 的能力来自组合，不要假设“原生”已经包办所有实现
 
-## 第六站:资源与自动扩缩
+## 第二站：Pod、容器与节点运行时
 
-**requests 与 limits(必配,事故高发区)**:requests(调度依据:保证给这么多——**写多少决定 Pod 被塞到哪**);limits(上限:超 CPU 被节流、超内存 **OOMKilled 重启**);**不设 limits 的 Pod 可能吃光节点内存拖垮邻居**;**建议:生产给关键服务设 requests≈limits(Guaranteed QoS 最稳)**;命名空间级:`LimitRange`(默认值)、`ResourceQuota`(总量配额——多团队共用集群的隔离闸)。
-**HPA(自动扩缩,招牌能力)**:按 CPU/内存/自定义指标自动增减副本——**前提:Pod 配了 requests**(指标才有基数);配 min/max 与目标利用率,**先垂直(调 requests)后水平**是调优常识;节点级扩容靠 Cluster Autoscaler(云上自动加机器)。
-**调度细节(进阶)**:nodeSelector/亲和(把同组 Pod 放同节点,减少跨节点流量)/反亲和(分散到不同节点/可用区——高可用);**污点 taints 与容忍 tolerations**:给特殊节点(GPU/专用)打污点,普通 Pod 不上去,要用的 Pod 声明容忍——**"节点挑 Pod"与"Pod 挑节点"的完整机制**。
+第二站进入 Pod 的小房间。Pod 里的容器共享网络和卷，像合租室友共享门牌与储物间；但它们仍是多个进程，谁负责端口、谁负责退出、谁能写文件，都要提前说清楚。
 
-## 第七站:安全与权限(RBAC)
+**Pod 是调度最小单元** ---- Pod 可以包含一个或多个紧密协作的容器，调度、扩缩与生命周期通常以 Pod 为单位；不要把 Pod 当作长期手工管理的单容器别名
 
-**身份三件套**:`ServiceAccount`(Pod 内进程的身份,默认 default)、`Role/ClusterRole`(权限集合:能对哪些资源做什么)、`RoleBinding/ClusterRoleBinding`(把角色绑给用户/服务账号);**最小权限原则**:给 CI/应用/同事只配需要的——**生产事故一大来源是"什么都能干的 kubeconfig 满天飞"**;`kubectl auth can-i`(验证权限)。**纵深清单**:镜像扫描与签名、**容器非 root + 只读根文件系统 + 资源限制**、NetworkPolicy 默认拒绝、Pod Security Admission(禁特权容器)、Secret 加密、apiserver 审计日志(谁在何时改了什么——合规)。
+**共享网络命名空间** ---- Pod 内容器共享 IP、端口空间和 localhost，端口冲突会直接互相打架；跨 Pod 通信必须走 Service、Pod IP 或其他网络机制
 
-## 第八站:Helm 与 GitOps——部署的艺术
+**共享卷与 sidecar** ---- Pod 内容器可以共享 emptyDir、投影卷等，适合日志代理、代理、初始化和辅助进程；sidecar 会增加资源、故障面与退出协调成本
 
-**Helm(K8s 的包管理器)**:复杂应用 = 一堆 YAML——**Chart 把它们模板化**(模板 + values.yaml 参数:一套 Chart,dev/prod 不同 values);`helm install/upgrade`(版本化+回滚);**生产用法:官方/社区 Chart(安装 Prometheus/数据库/Ingress 全家)一条命令,自己的应用写成 Chart 统一交付**。
-**GitOps(现代交付主流)**:**Git 仓库 = 集群状态的唯一事实源**,Argo CD/Flux 持续 watch 仓库,**仓库变了集群自动同步**(漂移自动纠正)——"**用 Git 管集群,PR 即发布**":可评审、可回滚、可审计;K8s 声明式 + GitOps 是天然一对。**CI/CD 落地**(接 [GitHub Actions](/learning-paths/devops/github-actions)):CI 构建镜像推仓库 → 更新部署清单(git 提交/helm upgrade)→ 集群滚动——**镜像 tag 用 commit sha 可追溯**。
+**容器生命周期** ---- 理解 init container、startup、readiness、liveness、postStart、preStop 和终止宽限期；启动慢与运行后失活不应使用同一种探针
 
-## 第九站:监控、日志与排障
+**镜像拉取与启动** ---- 认识 imagePullPolicy、私有仓库凭据、节点缓存、镜像架构和拉取失败；Pod Pending 可能还没到应用阶段，先看事件与调度状态
 
-**监控**:metrics-server(基础指标)→ **Prometheus(采集)+ Grafana(看板)+ Alertmanager(告警)**——K8s 生态监控事实标准(组件与配置见 [监控](/learning-paths/devops/monitoring));关键告警:Pod 重启频繁、节点 NotReady、PVC 满、HPA 异常。
-**日志**:容器日志走 stdout → 节点上采集(Filebeat/Fluent Bit/Loki+Promtail)→ 集中检索(EFK 或 Loki)——**别进 Pod 翻文件,采集器是正道**。**排障方法论(背下来,遇到问题按层走)**:Pod 起不来 → ①`kubectl get pod`(看状态:Pending=调度问题(资源不够/镜像拉取失败/污点)、CrashLoopBackOff=启动即崩、ImagePullBackOff=镜像问题);②`kubectl describe pod xxx`(看事件 Events——**排障第一信息来源**);③`kubectl logs`(容器日志——CrashLoop 看 Previous 日志 `--previous`);服务不通 → 查 Service selector 是否匹配 Pod 标签、Pod 是否 Ready、端口对不对(`kubectl port-forward` 本地直连调试);节点异常 → `kubectl get nodes` + 节点上 systemctl 看 kubelet。
-**备份(记住:备份的是"声明+数据",不是容器)**:etcd 快照(集群状态)+ **Velero(资源与 PV 的备份/迁移——云上灾难恢复与集群迁移的标准工具)**。**工具**:kubectl、k9s(终端 UI,效率神器)、kubectx/kubens、stern(多 Pod 日志)、Lens。
-**进阶地图**:Operator/CRD(自定义资源+领域控制器:数据库 Operator——把运维流程代码化,见 [K8s Operator 方向]);Service Mesh([Istio](/learning-paths/cloud-native/service-mesh));多集群管理;大规模集群(5000 节点设计、**etcd 是心脏:磁盘慢=全集群慢**)。
+**Pod 重启与退出码** ---- 区分 CrashLoopBackOff、OOMKilled、Evicted、ImagePullBackOff、Completed 与节点驱逐；重启次数是症状，退出原因和最近日志才是线索
+
+**节点与 kubelet** ---- 查看 Node 条件、容量、可分配资源、压力状态、污点、事件和 kubelet 日志；节点 NotReady 时，应用容器日志通常只是旁观者
+
+**Pod 生命周期与终止** ---- 了解 Pending、Running、Succeeded、Failed、Unknown，以及删除时的终止顺序；优雅终止要让应用停止接收新请求、完成必要工作并及时退出
+
+## 第三站：工作负载与控制器
+
+第三站是控制器家族的家庭聚会。Deployment 负责无状态服务，StatefulSet 给有身份的成员排座位，Job 负责把一次性任务做完；把它们都当成 Deployment，控制器会很困惑。
+
+**Deployment 与 ReplicaSet** ---- 通过模板管理无状态 Pod 副本，理解 selector、template、版本历史、滚动更新和暂停；selector 一旦设计错误，可能接管不该接管的 Pod
+
+**StatefulSet** ---- 为有稳定身份、顺序和持久卷的工作负载提供管理；它不是数据库高可用的自动按钮，复制、选主、备份和脑裂仍由应用或数据库系统负责
+
+**DaemonSet** ---- 在符合条件的节点上运行代理、日志、网络和存储组件；节点标签、污点和升级策略会决定是否每台机器都能得到它
+
+**Job 与 CronJob** ---- Job 负责完成次数、并行度、失败重试与 backoff，CronJob 负责定时创建 Job；要防止任务重叠、重复执行、时钟漂移和历史对象无限增长
+
+**控制器与最终一致性** ---- 资源更新可能异步完成，状态字段也可能滞后；设计运维脚本时要等待条件而不是只等待命令返回
+
+**Selector 与标签** ---- 标签用于组织、选择和关联对象，annotation 放非选择型元数据；标签必须稳定、可组合，避免把短期版本字段写成永久身份
+
+**Operator 与 CRD** ---- CRD 扩展 API，Operator 把领域运维知识写成控制器；使用前要理解它管理的状态、备份方式、升级路径和删除行为
+
+## 第四站：调度、资源与集群容量
+
+第四站交给调度器排座位。它不看代码写得多优雅，只看请求了多少资源、节点是否合适、拓扑是否允许；“为什么 Pod 不调度”通常是一道约束题，不是玄学题。
+
+**requests 与 limits** ---- requests 参与调度与资源保障，limits 约束运行时上限；CPU 超限可能被 throttling，内存超限可能触发 OOM，二者不应随手填成同一个拍脑袋数字
+
+**节点容量与可分配量** ---- 区分 capacity、allocatable、系统预留、kubelet 保留、DaemonSet 消耗和实际峰值；集群有空闲 CPU 不代表某个 Pod 的请求能在单个节点上放下
+
+**QoS 类别** ---- 理解 Guaranteed、Burstable、BestEffort 与节点压力下的驱逐优先级；资源声明同时影响性能、可靠性和成本
+
+**污点与容忍** ---- 污点排斥不适合的 Pod，toleration 允许特定 Pod 进入；GPU、专用存储、控制面和故障节点常用该机制，容忍不是无条件“强行调度”
+
+**亲和性与反亲和性** ---- 用节点与 Pod 标签表达偏好或硬约束；硬约束过多会造成 Pending，软偏好更适合容量波动的生产环境
+
+**拓扑分布** ---- 使用 topology spread 跨节点、可用区或机架分散副本，配合故障域标签；副本数增加不代表故障域真的分散
+
+**HPA、VPA 与节点自动扩容** ---- HPA 调整副本，VPA 建议或调整资源，Cluster Autoscaler 增删节点；三者有反馈延迟，指标、请求值与云实例购买策略要协同
+
+**PDB 与驱逐** ---- PodDisruptionBudget 保护主动维护或升级时的可用副本，不会阻止硬件故障、OOM 或应用自崩；PDB 过严可能反过来阻塞节点升级
+
+## 第五站：服务发现、网络与入口
+
+第五站是集群的交通局。Pod IP 像临时车牌，Service 像固定站牌，Ingress 或 Gateway API 像城市入口；如果把临时车牌写进业务配置，发布一轮就会收到网络部门的投诉。
+
+**Pod 网络模型** ---- 理解 Pod 之间通常可直接互通、节点网络由 CNI 实现、NetworkPolicy 可能改变默认放行；不同 CNI 的路由、隧道、加密和 eBPF 实现会影响排障
+
+**Service 类型** ---- ClusterIP 提供集群内虚拟地址，NodePort 暴露节点端口，LoadBalancer 对接云负载均衡，ExternalName 提供 DNS 别名；选择要结合暴露面、健康检查和成本
+
+**EndpointSlice 与 kube-proxy** ---- Service 通过 EndpointSlice 记录后端，kube-proxy 或 eBPF 数据面执行转发；“Service 存在”不代表后端有 ready endpoint
+
+**集群 DNS** ---- CoreDNS 负责服务名解析、搜索域、缓存与上游转发；排查时要分开验证 DNS、TCP 连接、HTTP 协议和业务响应
+
+**Ingress 与 Gateway API** ---- Ingress 适合基础 HTTP 路由，Gateway API 用更清晰的角色与路由资源表达复杂入口；控制器实现、TLS 终止、跨命名空间引用和云负载均衡行为必须具体确认
+
+**NetworkPolicy** ---- 以命名空间、Pod、端口和方向限制流量，理解默认拒绝、DNS 放行、出站依赖和策略叠加；策略发布要有观测和回滚方案
+
+**服务间超时与重试** ---- Kubernetes 只提供连接路径，不会自动为业务设计超时、幂等、熔断和退避；应用、网关或服务网格要明确谁负责这些语义
+
+**网络排障路径** ---- 从 Pod 状态、Service selector、EndpointSlice、DNS、NetworkPolicy、路由、节点和负载均衡逐层定位；不要只反复删除 Pod，希望它这次突然懂事
+
+## 第六站：配置、秘密与持久化存储
+
+第六站由配置管理员和仓库管理员共同值班。ConfigMap 不该存密码，Secret 也不是自动加密保险箱；PVC 绑定成功也不代表数据库已经获得了跨地域灾备。
+
+**ConfigMap 与环境注入** ---- 选择环境变量、命令参数、文件挂载或 API 读取方式，理解更新后的传播延迟与进程是否会重新加载；配置要可审计、可回滚、与代码版本匹配
+
+**Secret 与密钥管理** ---- Kubernetes Secret 默认只是编码对象，集群应配置静态加密、RBAC、外部密钥系统、轮换与审计；避免在镜像、命令行、事件和日志中泄露秘密
+
+**emptyDir 与临时空间** ---- emptyDir 随 Pod 生命周期存在，适合缓存、构建临时文件和 sidecar 共享；节点磁盘或内存压力会影响它，不能冒充持久卷
+
+**PV、PVC 与 StorageClass** ---- PVC 请求容量、访问模式和存储类，PV 表示实际存储资源，StorageClass 支持动态供给；容量、拓扑、回收策略和绑定模式要一起理解
+
+**CSI 与快照** ---- CSI 驱动连接云盘、网络文件系统和本地存储，卷快照可以帮助恢复但不等同于应用一致性备份；验证驱动版本、可用区、权限和恢复速度
+
+**StatefulSet 与数据服务** ---- 稳定网络身份和持久卷有助于运行状态服务，但选主、复制、升级、备份、恢复和故障转移仍需领域方案；平台提供的是地基，不是数据库专家
+
+**卷权限与安全** ---- 关注 fsGroup、文件属主、只读挂载、节点访问范围和敏感卷；权限问题要看容器用户、挂载方式和安全策略的组合
+
+## 第七站：发布、滚动升级与回滚
+
+第七站是发布指挥部。Kubernetes 可以边换轮胎边开车，但前提是新旧版本兼容、探针可信、流量有入口、数据库迁移可逆；否则滚动更新只会让故障也滚动起来。
+
+**滚动更新** ---- 理解 maxSurge、maxUnavailable、更新顺序、就绪条件和版本历史；副本数、启动时间和节点容量共同决定发布速度与风险
+
+**探针与流量切换** ---- startup 保护慢启动，readiness 决定是否接流量，liveness 用于发现长期失活；探针不能依赖会被下游短暂故障拖垮的重型业务路径
+
+**蓝绿与金丝雀** ---- 用不同 Deployment、Service、Ingress/Gateway 或渐进交付控制器实现切流；按错误率、延迟、业务指标和容量观察，不能只看 Pod 变绿
+
+**配置与镜像发布** ---- 将镜像摘要、配置版本、迁移版本和发布批次关联；配置变更也要走评审、审计、灰度和回滚，不要把 ConfigMap 当成临时黑板
+
+**数据库迁移兼容性** ---- 采用扩展、回填、切换、收缩等兼容阶段，确保旧应用和新应用能短暂共存；应用回滚不等于 schema 可以立即回滚
+
+**回滚与失败定位** ---- 使用 rollout history、事件、Pod 日志、探针结果、应用指标和控制器状态确认失败原因；回滚前判断是镜像、配置、资源、网络、权限还是数据问题
+
+**GitOps 与声明式交付** ---- 让 Git 记录期望状态，控制器负责同步与漂移检测；GitOps 不会自动保证变更安全，仍需要策略、审批、环境隔离与紧急修复流程
+
+## 第八站：安全、身份与策略
+
+第八站是集群安全委员会。它们不接受“内网所以安全”这种辩词：身份、权限、镜像、网络、运行时和审计要分层防守，任何一层失守都要限制横向移动。
+
+**认证与 ServiceAccount** ---- 区分人、CI、控制器和工作负载的身份，使用专用 ServiceAccount、短期令牌与工作负载身份；不要让所有 Pod 共用 default 身份
+
+**RBAC** ---- 掌握 Role、ClusterRole、RoleBinding、ClusterRoleBinding、资源与动词的关系；按命名空间和动作最小授权，定期清理不再使用的绑定
+
+**准入与 Pod Security** ---- 认识 Validating/Mutating Admission、Pod Security Standards、策略引擎和字段默认值；安全策略要与例外、审计模式和迁移窗口共同设计
+
+**容器安全上下文** ---- 使用非 root、只读根文件系统、seccomp、capabilities、runAsUser、禁止特权与宿主机路径挂载；每个例外都应有明确理由和到期时间
+
+**网络与服务身份** ---- 用 NetworkPolicy 或服务网格限制东西向流量，区分用户身份与服务身份；TLS 加密不自动等于授权，认证和授权要分开
+
+**供应链安全** ---- 固定镜像来源与摘要，生成 SBOM，扫描依赖，验证签名和构建证明；部署策略应拒绝不符合来源、漏洞或签名要求的制品
+
+**审计与节点安全** ---- 记录 API 请求、提权、准入拒绝、镜像拉取和异常进程；控制面安全与节点内核安全同样重要，集群管理员权限就是高价值资产
+
+## 第九站：指标、日志、追踪与排障
+
+第九站请可观测性值班员把望远镜架起来。Kubernetes 的对象状态、事件、节点指标、应用日志和链路追踪各自只看到一部分天空，真正的排障要把它们拼成一张时间线。
+
+**集群四类信号** ---- 观察指标、日志、事件与追踪；指标告诉你趋势，日志讲细节，事件记录控制器动作，追踪解释一次请求经过了哪些服务
+
+**控制面与节点指标** ---- 关注 API 延迟与错误、etcd 延迟、调度队列、控制器同步、kubelet、容器运行时、CPU、内存、磁盘和网络；资源不足可能先表现为调度慢或驱逐
+
+**工作负载指标** ---- 监控副本期望与实际、重启、Pending 时间、探针失败、队列深度、请求速率、错误率和 P95/P99；副本健康不代表业务健康
+
+**日志与事件** ---- 结合 Pod、容器、节点、控制器、Ingress 和审计日志，按 request ID、Pod UID、发布版本和时间关联；事件通常短暂，要集中采集并设置保留期
+
+**追踪与上下文透传** ---- 为入口、服务调用、队列和数据库操作传递 trace context；代理只能看到网络视角，业务关键路径仍需应用埋点
+
+**排障顺序** ---- 先确认影响范围与最近变更，再沿入口、Service、Endpoint、Pod、节点、控制器、依赖逐层检查；先收集证据再重启，重启会抹掉一部分现场
+
+**调试工具** ---- 熟悉 `kubectl get/describe/logs/events/exec/port-forward`、资源 YAML、运行时日志和网络诊断 Pod；生产环境中的临时调试容器要有权限、时间和清理边界
+
+## 第十站：可靠性、灾备、成本与演进
+
+最后一站讨论集群的长期生活。Kubernetes 很会把故障 Pod 换掉，但不会替你决定数据怎么恢复、容量怎么买、权限怎么收回；它是自动化放大器，好的设计和坏的设计都会被它放大。
+
+**高可用拓扑** ---- 将控制面、节点、副本、存储和入口跨故障域分布，理解 quorum、反亲和、拓扑分布与区域网络的代价；多副本若都在一台节点上只是同一间房里的多张椅子
+
+**故障预算与恢复** ---- 设计 PDB、超时、重试、限流、降级、备份、快照和灾备演练；明确 RPO、RTO、恢复顺序与人工决策点
+
+**集群升级** ---- 升级控制面、节点、CNI、CSI、Ingress、策略组件和 CRD 时检查兼容矩阵、弃用 API、PDB、容量与回滚方案；“kubectl apply 成功”不是升级完成证明
+
+**成本与资源治理** ---- 追踪节点利用率、请求浪费、空闲副本、日志、存储、跨区流量和负载均衡费用；用 requests、HPA、节点池、Spot/抢占实例和命名空间配额建立成本边界
+
+**多租户与隔离** ---- 用命名空间、RBAC、NetworkPolicy、ResourceQuota、LimitRange、节点池和策略隔离团队与环境；强隔离场景要评估多集群或虚拟集群，而不是堆更多标签
+
+**平台工程与自助服务** ---- 把常见工作负载、策略、观测、发布和回滚封装成可审查模板；平台减少重复劳动，但模板仍要允许必要的高级配置与逃生通道
+
+**演进路线** ---- 从单集群到多集群，从手工 YAML 到 Helm/Kustomize/GitOps，从 sidecar 到 ambient 或 eBPF 等新运行模式；每次升级都要以故障、成本、团队能力和可迁移性为证据
 
 ## 通关标准
 
-能独立做到:在 minikube/k3s 上用 Deployment 部署应用并完成滚动更新与回滚;讲清 Pod/Deployment/Service/Ingress 的关系与流量路径(域名→Ingress→Service→Pod);配好 liveness/readiness 探针、requests/limits、ConfigMap/Secret 与 PVC;会用 HPA 做 CPU 扩缩;理解 RBAC 三件套并给应用配最小权限 ServiceAccount;排障走完"describe 事件→logs→分层定位"流程并解决过真实故障;用 Helm 装过一个 Chart、理解 GitOps 同步模型——Kubernetes 主线通关。
+能解释 API Server、etcd、控制器、Scheduler、kubelet、CRI、CNI、CSI 的协作；能部署并排查一个有健康检查、资源请求、滚动升级、Service、配置和持久卷的工作负载；能解释 Pod Pending、CrashLoopBackOff、无 Endpoint、探针失败、OOM 和节点 NotReady 的证据路径；能设计 RBAC、NetworkPolicy、镜像签名与审计边界；能用指标、日志、事件和追踪还原一次发布故障；能说明高可用、备份恢复、容量成本和集群升级的风险。
 
-Kubernetes 教会你的最重要一课是"**声明式基础设施**":不写"怎么做到",只写"要什么",剩下的交给控制器循环——这套思想会重塑你对运维与架构的理解(它也是 GitOps/Operator 的底座)。它的陡峭是值得的:云原生时代,「Deployment 滚动 + Service 发现 + HPA 弹性 + 探针自愈」是应用上生产的通用语言。**学习顺序建议**:先理解 Pod→Deployment→Service 三角,再补存储配置,最后啃调度安全——**别第一天就追 Operator 和 Service Mesh**。下一步:[Prometheus 监控](/learning-paths/devops/monitoring) 给集群装上眼睛,或 [GitOps/Argo CD] 让发布自动化。
+## 下一站去哪
+
+下一站可以进入 GitHub Actions 或 GitLab CI，把镜像构建、扫描、签名和 Kubernetes 发布串成流水线；也可以继续服务网格，学习把东西向流量的安全、灰度和可观测性下沉到平台层。
+
+## 结语
+
+Kubernetes 的学习重点不是背 YAML，而是理解“期望状态如何经过 API、控制器、调度器和节点运行时变成现实”。当你能区分控制面故障、节点故障、网络故障、资源故障和应用故障，YAML 就只是表达意图的语言。平台越自动化，越需要人把边界、证据、成本和恢复路径想清楚。
