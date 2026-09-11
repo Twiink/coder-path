@@ -1,30 +1,251 @@
 # Flutter 学习路线
 
-Flutter(Google 出品)是跨平台方案中**性能最强、UI 一致性最好**的框架:一套代码跑 iOS/Android/Web/桌面——它不是 WebView 套壳、也不是原生组件包装,而是**用自绘引擎(Skia/Impeller)直接在 Canvas 上绘制每个像素**:这就是它"两端 UI 像素级一致 + 动画流畅"的底气。语言是 Dart(简洁现代,约两周上手)。**定位**:想要"一套代码多端 + 极致一致的 UI 体验"的团队;对比 React Native(前端迁移友好),Flutter 更"自成一派"(要学 Dart 与新组件体系,但与原生 UI 无关的心智反而更统一)。
+Flutter 用 Dart 描述 Widget 树，再通过自绘渲染引擎把界面送到 iOS、Android、Web 和桌面。它的长处是 UI 一致、动画可控、开发体验顺滑；它的代价是要学习一套完整心智，并为系统原生能力和桌面交互补上桥梁。
 
-## 为什么选 Flutter
+这条路线从 Dart 与 Widget 出发，进入布局、渲染、状态、导航、数据、插件、性能、测试、发布和多端延伸。它是路线索引，不把 Dart 语法和每个 Flutter 包变成 API 目录。
 
-**①性能**:自绘引擎绕开原生 UI 桥接,复杂动画/高频刷新依然流畅(跨平台里最接近原生);**②一致性与效率**:一套代码、一套 UI(两端无样式差异),热重载(改代码毫秒级生效——**开发体验一流**);**③组件开箱即用**:Material(Android 风)与 Cupertino(iOS 风)组件库齐全,不用从零写 UI;**④多端延伸**:同一套代码可编译 Web 与桌面(Flutter Desktop 见 [桌面端](/learning-paths/desktop/flutter-desktop));**⑤Google 背书**:社区活跃、pub.dev 包生态快速增长。**代价**:要学 Dart;UI 与平台原生观感有差异(自绘 vs 系统组件);深度原生能力要写插件(Platform Channel)。
+**路线定位** ---- 适合追求跨平台 UI 一致、动画体验、移动与桌面延伸，并愿意学习 Dart 与 Flutter 自有体系的人
 
-## 基础篇:Dart 与核心 Widget
+**推荐总顺序** ---- Dart → Widget 与渲染 → 布局与交互 → 状态与导航 → 网络与数据 → 插件与原生 → 性能 → 测试 → 发布与多端
 
-**Dart 语言(见 [Dart] 入门)**:变量与类型(**空安全:类型后加 ? 表可空——现代语言标配**)、函数(箭头/可选参数)、类与对象、集合、**异步(Future/async-await 与 Stream——与 JS/Python 同心智)**、泛型与 Mixin——**两周可上手,不必先精通**。**Flutter 核心心智:"一切皆 Widget"**——UI 就是 Widget 树(Text/Image/Icon/Button 系列);**StatelessWidget(静态)与 StatefulWidget(有状态:setState 触发重建)**——**状态变 → setState → 界面重建**(声明式,与 React/Compose/SwiftUI 同心智,会一个学四个快);**布局 Widget**:Container(装饰与约束)/Row/Column(线性)/Stack(层叠)/ListView/GridView(滚动列表——**长列表用 ListView.builder 虚拟化**);主题(MaterialApp 的 Theme)。
+**先记住一句话** ---- Flutter 不是 WebView，也不是原生控件拼盘；它自己绘制界面，所以一致性很强，也要自己适配平台习惯
 
-## 进阶篇:状态、导航与数据
+**本页怎么用** ---- 把粗体条目当作学习笔记入口，把每站验收作为项目关卡；先用 setState 理解状态，再选 Riverpod 或 Bloc 处理规模
 
-**状态管理(Flutter 的"必选题",生态比 RN 更需要自己选)**:入门用 **setState + 状态提升**,进阶按规模选:**Provider**(官方推荐入门:ChangeNotifier + 依赖注入)、**Riverpod**(Provider 的现代进化,编译期安全,当前主流推荐)、Bloc(事件驱动,大型项目/团队规范严选)、GetX(轻量全家桶:状态+路由+依赖,快速但规范争议)——**先 setState 理解原理,再上 Riverpod 或 Bloc**(选型原则同 [React](/learning-paths/frontend/react) 状态章:别为小应用上重武器)。
-**导航**:Navigator(推入/弹出/传参/返回值;命名路由与 onGenerateRoute 进阶)、go_router(声明式路由,现代推荐);**表单**:Form + TextFormField + 验证器;**网络**:http(简单)/dio(拦截器/超时/上传下载——生产推荐);**本地存储**:shared_preferences(键值)/sqflite(SQLite)/Hive(轻量 NoSQL 本地库);**图片**:Image.network + 缓存(cached_network_image)。
+## 第一站：Dart 语言与异步模型
 
-## 实战篇:功能、性能与发布
+第一站先和 Dart 认识一下。它语法不算吓人，但空安全、Future、Stream、Mixin 和隔离会持续出现在 Flutter 的每个角落。
 
-**系统能力(插件生态)**:image_picker(相机/相册)、geolocator(定位)、permission_handler(权限——**Android 运行时权限与 iOS 权限描述都要处理**)、local_auth(生物识别)、firebase 全家/国内推送;**性能优化**:`const` 构造(编译期常量 Widget 减少重建——**Flutter 性能第一习惯**)、ListView.builder 虚拟化、避免不必要 rebuild(选择性重建)、图片缓存与压缩、**用 DevTools/Profile 看帧耗时(掉帧即卡顿信号)**;**原生插件**:Platform Channel 调原生代码(复杂能力/第三方 SDK)——**"Flutter 做不到的原生补"是边界意识**;**发布**:Android 签名(keystore)与 iOS 证书流程(见 [Android](/learning-paths/mobile/android-native)/[iOS](/learning-paths/mobile/ios-native) 发布章)——Flutter 打包产物与原生一致,上架流程相同;**多端**:Flutter Web 与桌面(见 [Flutter Desktop](/learning-paths/desktop/flutter-desktop))——**同一代码库的边际成本极低**。
+**类型与空安全** ---- 掌握基本类型、可空类型、类型推断、late、强制解包和运行时检查
 
-## 学习路径与进阶
+**集合与泛型** ---- 学习 List、Set、Map、Iterable、泛型、类型约束、不可变数据和复杂度
 
-**路径**:装 Flutter SDK + IDE(VS Code/Android Studio)跑通 Hello → Dart 语言速成 → 核心 Widget 与布局(做出静态页)→ StatefulWidget + setState → 列表 + 导航(页面流转)→ 状态管理(Riverpod)+ 网络(dio 接真实 API)→ 本地存储 → 系统能力(相机/权限)→ 性能打磨 → 打包发布。**进阶**:Riverpod/Bloc 深入、动画(隐式/显式,Flutter 动画是强项)、自定义绘制(CustomPaint)、Platform Channel 插件开发、Flutter Web/桌面实战。
+**函数与闭包** ---- 理解可选参数、命名参数、高阶函数、闭包、捕获和回调生命周期
+
+**类、继承与 Mixin** ---- 掌握抽象类、接口、扩展、Mixin、构造器、工厂和组合
+
+**异常与结果** ---- 区分异常、业务失败、网络错误、取消、重试和用户可见错误
+
+**Future 与 async** ---- 理解异步、并发组合、错误、超时、取消边界和资源释放
+
+**Stream** ---- 了解单订阅、多订阅、广播、转换、背压、订阅取消和状态流
+
+**Isolate** ---- 理解消息传递、计算隔离、不可共享内存、解析和 CPU 密集任务
+
+**包与工具链** ---- 掌握 pub、依赖版本、分析器、格式化、测试、构建和环境
+
+**语言验收** ---- 能用 Dart 表达加载、成功、失败与取消状态，并写出可测试的异步业务逻辑
+
+## 第二站：Flutter Widget、Element 与渲染
+
+第二站理解 Flutter 的发动机。Widget 是配置，Element 负责树中的身份，RenderObject 负责布局与绘制；三者关系没弄清，性能问题会像幽灵一样只在发布包里出现。
+
+**Widget 树** ---- 理解 StatelessWidget、StatefulWidget、BuildContext、子树组合和重建
+
+**Element 身份** ---- 关注 Key、元素复用、状态保留、列表身份和条件分支
+
+**State 生命周期** ---- 掌握 initState、build、didUpdateWidget、dispose 和异步资源管理
+
+**RenderObject** ---- 了解约束、测量、布局、绘制、命中测试和自定义渲染的边界
+
+**渲染引擎** ---- 认识 Skia、Impeller、光栅化、GPU、帧管线和平台表面
+
+**Build 与副作用** ---- 区分构建纯函数、事件、监听、异步初始化和生命周期副作用
+
+**Key 与重建** ---- 处理列表、动画、表单、导航和动态 Widget 的身份稳定
+
+**主题系统** ---- 规划 Material、Cupertino、颜色、字体、暗色、动态主题和设计令牌
+
+**热重载与调试** ---- 理解热重载、热重启、完整重启、断点、日志和状态保留差异
+
+**渲染验收** ---- 能解释一个 Widget 从状态变化到布局、绘制和屏幕显示的路径
+
+## 第三站：布局、输入与跨设备 UI
+
+第三站开始搭界面。Flutter 的布局规则很讲道理，但桌面窗口和折叠屏不会按手机的剧本走，响应式布局要从第一天就留座位。
+
+**约束布局** ---- 掌握约束向下、尺寸向上、位置由父决定、溢出和无限约束
+
+**基础布局** ---- 学习 Row、Column、Stack、Flex、Wrap、Align、Constraints 和自定义布局
+
+**滚动与列表** ---- 处理 ListView、Sliver、网格、分页、懒加载、吸顶、回收和滚动位置
+
+**表单与键盘** ---- 关注 TextField、Focus、输入法、校验、自动填充、密码和重复提交
+
+**触摸与手势** ---- 学习 GestureDetector、手势竞技、拖拽、缩放、滑动、触觉和手势冲突
+
+**动画** ---- 区分隐式、显式、动画控制器、转场、Hero、布局动画和减少动画
+
+**响应式设计** ---- 适配手机、平板、折叠屏、横竖屏、桌面窗口、多栏和断点
+
+**媒体与资源** ---- 处理图片、字体、SVG、视频、音频、缓存、解码、占位和失败
+
+**可访问性** ---- 关注语义、TalkBack、VoiceOver、焦点、对比度、动态字体和辅助操作
+
+**国际化** ---- 规划多语言、复数、日期、数字、时区、RTL 和文本长度膨胀
+
+**UI 验收** ---- 能在小屏、大屏、横屏、动态字号、暗色和低端设备上完成关键旅程
+
+## 第四站：状态、导航与架构
+
+第四站解决 Flutter 应用的状态归属。setState 很适合小范围状态，但把整个应用塞进一个 StatefulWidget，迟早会让它长出第二个项目经理。
+
+**局部状态** ---- 用 setState、状态提升和不可变数据管理组件与页面内状态
+
+**Provider 与 Riverpod** ---- 理解依赖注入、作用域、可观察状态、异步状态、测试替身和编译期约束
+
+**Bloc 与事件驱动** ---- 了解事件、状态、转换、并发、错误和大型团队的规范化边界
+
+**状态分类** ---- 区分 UI、导航、领域、服务端、缓存、持久化和任务状态
+
+**单向数据流** ---- 组织事件、状态、副作用、一次性消息和错误，防止隐式修改
+
+**Navigator 与 go_router** ---- 掌握栈、声明式路由、参数、返回值、嵌套、深链接和登录拦截
+
+**生命周期** ---- 关注 Widget、Route、AppLifecycle、前后台、恢复、销毁和资源释放
+
+**模块化** ---- 拆分 UI、领域、数据、平台、插件和测试，让业务不被某个状态库绑架
+
+**架构取舍** ---- 比较简单分层、MVVM、Clean、Bloc 和响应式架构，按项目复杂度选择
+
+**架构验收** ---- 能在导航恢复、旋转、后台、网络变化后保持状态可解释且可测试
+
+## 第五站：网络、本地数据与离线
+
+第五站把 Flutter 接上数据世界。HTTP 请求只是起点，真正的工程能力在超时、缓存、迁移、同步和用户离线时仍然不失忆。
+
+**网络客户端** ---- 了解 http、Dio、拦截器、Header、序列化、超时、取消、重试和日志
+
+**数据模型** ---- 处理 JSON、日期、枚举、可选字段、错误响应、版本和运行时校验
+
+**认证与令牌** ---- 设计登录、刷新、退出、多设备、第三方登录、安全存储和撤销
+
+**键值与安全存储** ---- 区分 shared preferences、secure storage、系统密钥链和临时数据
+
+**本地数据库** ---- 比较 SQLite、sqflite、Drift、Hive、Isar、Realm 的模型、事务、索引和迁移
+
+**缓存与失效** ---- 处理内存、磁盘、数据库、过期、刷新、脏数据、乐观更新和回滚
+
+**离线优先** ---- 设计草稿、操作队列、同步、冲突、版本、幂等和网络恢复
+
+**文件上传下载** ---- 关注权限、进度、后台、断点、分片、临时文件和磁盘空间
+
+**实时通信** ---- 了解 WebSocket、心跳、重连、顺序、重复、推送和多端同步
+
+**数据验收** ---- 在慢网、断网、恢复、令牌过期、数据库升级和重复提交下维持一致状态
+
+## 第六站：插件、权限与原生桥
+
+第六站开始使用平台能力。插件让 Flutter 能快速接相机和定位，但插件不是许愿池：平台配置、权限、生命周期和版本仍然要自己负责。
+
+**插件体系** ---- 了解 pub.dev、插件平台支持、注册、版本、平台实现、弃用和许可证
+
+**权限流程** ---- 处理相机、相册、定位、通知、蓝牙、麦克风、生物识别的申请、拒绝和降级
+
+**Platform Channels** ---- 理解 MethodChannel、EventChannel、参数、返回、线程、错误和生命周期
+
+**FFI** ---- 了解 Dart 与 C/C++ 库的调用、内存、线程、结构体、平台架构和资源释放
+
+**系统能力** ---- 覆盖推送、分享、地图、支付、文件、后台、Widget、NFC、传感器和桌面托盘
+
+**原生 SDK** ---- 管理 Firebase、厂商推送、支付、地图、媒体、统计和崩溃 SDK
+
+**平台差异** ---- 记录 Android、iOS、Web、Windows、macOS、Linux 的权限、文件、生命周期和分发差异
+
+**安全与隐私** ---- 保护令牌、深链接、原生日志、远程配置、用户文件和第三方 SDK 数据
+
+**插件验收** ---- 至少完成一项真实系统能力，并测试拒绝、不可用、后台、重复回调和版本差异
+
+## 第七站：性能、渲染与稳定性
+
+第七站关注 Flutter 的帧管线。自绘引擎给了控制力，也要求你理解 build、layout、paint、GPU 和内存，而不是只记住“多写 const”。
+
+**帧预算** ---- 理解 VSYNC、UI 线程、光栅线程、GPU、帧耗时和掉帧
+
+**重建范围** ---- 关注 Widget 重建、状态范围、const、Key、选择性监听和大子树
+
+**布局与绘制** ---- 排查深层树、复杂布局、阴影、裁剪、透明、CustomPaint 和过度绘制
+
+**列表与图片** ---- 优化懒加载、分页、图片尺寸、解码、缓存、预取和内存峰值
+
+**动画与手势** ---- 使用合适的控制器、Ticker、动画曲线、手势线程和降级策略
+
+**启动与包体** ---- 分析初始化、首屏、字体、资源、依赖、树摇、代码分割和不同平台产物
+
+**内存与资源** ---- 管理 Stream、Controller、Animation、订阅、图片、数据库、文件和插件对象
+
+**Isolate 与计算** ---- 将解析、压缩、索引和模型推理等 CPU 工作从 UI 线程搬走
+
+**DevTools** ---- 使用 Performance、Memory、CPU、Network、Widget Inspector 和 Timeline
+
+**性能验收** ---- 在真机、低端设备、大列表、图片、后台恢复和长时间运行下对照测量
+
+## 第八站：测试、构建与发布
+
+第八站让 Flutter 应用从模拟器走向商店。Widget 测试很方便，但权限、原生插件、签名、安装和更新必须由真实环境补课。
+
+**Dart 单元测试** ---- 覆盖业务规则、解析、状态、错误、时间、重试和同步
+
+**Widget 测试** ---- 验证布局、状态、点击、输入、滚动、导航、主题和可访问性
+
+**集成与端到端** ---- 覆盖网络、数据库、插件、登录、上传、支付、通知和关键旅程
+
+**设备矩阵** ---- 按系统版本、机型、架构、尺寸、语言、主题、网络和低端设备选择覆盖
+
+**故障测试** ---- 注入断网、权限拒绝、后台、系统回收、数据库升级、磁盘满和更新中断
+
+**构建类型** ---- 区分开发、profile、release、渠道、环境、签名、日志和产物
+
+**Android 发布** ---- 掌握 keystore、AAB、混淆、商店、灰度、数据安全和回滚
+
+**iOS 发布** ---- 掌握证书、描述文件、归档、TestFlight、隐私标签、审核和分阶段发布
+
+**多端发布** ---- 了解 Web、Windows、macOS、Linux 的产物、安装包、签名和更新差异
+
+**发布验收** ---- 完成至少一个平台的签名、安装、内测、监控、更新和失败恢复
+
+## 学习路径与项目主线
+
+**第一阶段：Widget 应用** ---- 用 Dart 与 Flutter 做页面、布局、表单、列表、主题和导航
+
+**第二阶段：数据应用** ---- 加入 Riverpod 或 Bloc、网络、登录、本地数据库、缓存和离线
+
+**第三阶段：系统能力** ---- 接入相机、定位、推送、文件、分享或支付，并记录平台差异
+
+**第四阶段：生产交付** ---- 做性能分析、测试矩阵、构建、签名、商店发布、监控和更新
+
+**多端分支** ---- 进入 [Flutter Desktop](/learning-paths/desktop/flutter-desktop) 适配窗口、键鼠、文件、托盘和桌面发布
+
+**进阶分支** ---- 深入自定义绘制、渲染管线、Platform Channel、FFI、插件开发、Web、桌面和多窗口
 
 ## 通关标准
 
-能独立做到:用 Flutter + Riverpod(或 Bloc)做出带登录、列表详情、导航、本地存储、网络请求的完整 App;熟练用 const 与 ListView.builder 保证列表流畅;在真机跑通权限与相机等系统能力;说清 Flutter 自绘引擎与 RN 的差异及各自适用场景;完成一次 iOS 或 Android 的签名与发布——Flutter 主线通关。
+**语言通关** ---- 能用 Dart 处理空安全、集合、泛型、异常、Future、Stream、Isolate 和资源释放
 
-Flutter 是"**用一致性换效率与体验**"的选择:自绘引擎让它成为跨平台里 UI 最可控、动画最流畅的那个,热重载与组件库让开发体验接近"前端框架的爽";代价是自成体系(Dart + Widget 心智)与原生观感的细微差异。**选型对照一句话**:前端团队、要最快上手 → React Native;要极致 UI 一致与性能、愿意学新栈 → Flutter;**两者都是主流,选一条跑通一个 App,另一条几天就能看懂**(声明式心智全通)。下一步:对照 [React Native](/learning-paths/mobile/react-native),或看 [Flutter Desktop](/learning-paths/desktop/flutter-desktop) 的多端延伸。
+**UI 通关** ---- 能用 Widget、约束、响应式布局、主题、动画、列表和可访问性完成完整界面
+
+**架构通关** ---- 能选择状态方案，建立 UI、领域、数据、缓存和插件边界
+
+**系统通关** ---- 能处理权限、相机或定位、通知、文件、后台和平台差异
+
+**性能通关** ---- 能用 DevTools 定位重建、掉帧、内存、启动、图片或计算问题
+
+**质量通关** ---- 能建立单元、Widget、集成、真机和故障测试
+
+**交付通关** ---- 能完成构建、签名、发布、监控、更新和回滚演练
+
+**Flutter 主线毕业** ---- 能用一套自绘 UI 体系交付多端应用，并在需要原生体验时知道如何搭桥
+
+## 下一站去哪
+
+- **Dart 语言笔记** ---- 先补 Dart 类型、异步、Isolate 和包管理基础，再进入 Flutter Widget
+- **[React Native](/learning-paths/mobile/react-native)** ---- 对照 JS + 原生组件的跨平台取舍
+- **[Android 原生](/learning-paths/mobile/android-native)** / **[iOS 原生](/learning-paths/mobile/ios-native)** ---- 深入平台能力与插件实现
+- **[Flutter Desktop](/learning-paths/desktop/flutter-desktop)** ---- 把移动 Flutter 延伸到桌面
+- **[全栈测试](/learning-paths/fullstack/testing)** / **[部署与监控](/learning-paths/fullstack/deployment)** ---- 补齐交付质量与生产能力
+
+## 结语
+
+Flutter 的魅力是把“跨平台 UI 一致”从口号变成渲染管线；它的学习任务，是理解这条管线，并在平台能力、性能和发布时保持清醒。
+
+先用 Widget、状态和数据做出完整应用，再补插件、性能、测试和商店。**自绘引擎替你统一了像素，却没有替你统一产品判断。**
