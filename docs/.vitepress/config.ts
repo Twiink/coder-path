@@ -84,89 +84,192 @@ export default defineConfig({
             // ── 方向路线：按职业方向划分的核心学习路径 ──
             {
               text: '方向路线',
-              collapsed: false,
+              collapsed: true,
               items: [
                 // 全栈是跨前/后端、数据库与部署的综合路线，紧跟概述作为总览入口
                 {
                   text: '全栈开发',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: '路线总览', link: '/learning-paths/fullstack/overview' },
-                    { text: 'JavaScript 全栈', link: '/learning-paths/fullstack/javascript' },
-                    { text: 'Python 全栈', link: '/learning-paths/fullstack/python' },
-                    { text: 'Java 全栈', link: '/learning-paths/fullstack/java' },
-                    { text: 'Go 全栈', link: '/learning-paths/fullstack/go' },
-                    { text: '前后端协作', link: '/learning-paths/fullstack/collaboration' },
-                    { text: '性能优化', link: '/learning-paths/fullstack/performance' },
-                    { text: '测试', link: '/learning-paths/fullstack/testing' },
-                    { text: '部署与监控', link: '/learning-paths/fullstack/deployment' }
+                    {
+                      text: '技术栈路线',
+                      collapsed: true,
+                      items: [
+                        { text: 'JavaScript 全栈', link: '/learning-paths/fullstack/javascript' },
+                        { text: 'Python 全栈', link: '/learning-paths/fullstack/python' },
+                        { text: 'Java 全栈', link: '/learning-paths/fullstack/java' },
+                        { text: 'Go 全栈', link: '/learning-paths/fullstack/go' }
+                      ]
+                    },
+                    {
+                      text: '工程实践',
+                      collapsed: true,
+                      items: [
+                        { text: '前后端协作', link: '/learning-paths/fullstack/collaboration' },
+                        { text: '性能优化', link: '/learning-paths/fullstack/performance' },
+                        { text: '测试', link: '/learning-paths/fullstack/testing' },
+                        { text: '部署与监控', link: '/learning-paths/fullstack/deployment' }
+                      ]
+                    }
                   ]
                 },
                 {
                   text: '前端开发',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
-                    { text: 'HTML & CSS', link: '/learning-paths/frontend/html-css' },
-                    { text: 'JavaScript', link: '/learning-paths/frontend/javascript' },
-                    { text: 'TypeScript', link: '/learning-paths/frontend/typescript' },
-                    { text: 'Vue.js', link: '/learning-paths/frontend/vue' },
-                    { text: 'React', link: '/learning-paths/frontend/react' },
-                    { text: 'Angular', link: '/learning-paths/frontend/angular' },
-                    { text: 'Svelte', link: '/learning-paths/frontend/svelte' },
-                    { text: 'Next.js', link: '/learning-paths/frontend/nextjs' },
-                    { text: 'Nuxt.js', link: '/learning-paths/frontend/nuxtjs' },
-                    { text: 'Tailwind CSS', link: '/learning-paths/frontend/tailwind' },
-                    { text: 'Vite', link: '/learning-paths/frontend/vite' },
-                    { text: 'Webpack', link: '/learning-paths/frontend/webpack' }
+                    { text: '路线总览', link: '/learning-paths/frontend/overview' },
+                    {
+                      text: 'Web 基础',
+                      collapsed: true,
+                      items: [
+                        { text: 'HTML & CSS', link: '/learning-paths/frontend/html-css' },
+                        { text: 'JavaScript', link: '/learning-paths/frontend/javascript' },
+                        { text: 'TypeScript', link: '/learning-paths/frontend/typescript' }
+                      ]
+                    },
+                    {
+                      text: 'UI 框架',
+                      collapsed: true,
+                      items: [
+                        { text: 'Vue.js', link: '/learning-paths/frontend/vue' },
+                        { text: 'React', link: '/learning-paths/frontend/react' },
+                        { text: 'Angular', link: '/learning-paths/frontend/angular' },
+                        { text: 'Svelte', link: '/learning-paths/frontend/svelte' }
+                      ]
+                    },
+                    {
+                      text: '应用框架',
+                      collapsed: true,
+                      items: [
+                        { text: 'Next.js', link: '/learning-paths/frontend/nextjs' },
+                        { text: 'Nuxt.js', link: '/learning-paths/frontend/nuxtjs' }
+                      ]
+                    },
+                    {
+                      text: '样式与工程化',
+                      collapsed: true,
+                      items: [
+                        { text: 'Tailwind CSS', link: '/learning-paths/frontend/tailwind' },
+                        { text: 'Vite', link: '/learning-paths/frontend/vite' },
+                        { text: 'Webpack', link: '/learning-paths/frontend/webpack' }
+                      ]
+                    }
                   ]
                 },
                 {
                   text: '后端开发',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
-                    { text: 'Node.js', link: '/learning-paths/backend/nodejs' },
-                    { text: 'Nest.js', link: '/learning-paths/backend/nestjs' },
-                    { text: 'Django', link: '/learning-paths/backend/django' },
-                    { text: 'Flask', link: '/learning-paths/backend/flask' },
-                    { text: 'FastAPI', link: '/learning-paths/backend/fastapi' },
-                    { text: 'Spring Boot', link: '/learning-paths/backend/spring-boot' },
-                    { text: 'Go + Gin', link: '/learning-paths/backend/golang' },
-                    { text: 'Laravel', link: '/learning-paths/backend/laravel' },
-                    { text: 'Rust Web', link: '/learning-paths/backend/rust-web' }
+                    { text: '路线总览', link: '/learning-paths/backend/overview' },
+                    {
+                      text: 'JavaScript 生态',
+                      collapsed: true,
+                      items: [
+                        { text: 'Node.js', link: '/learning-paths/backend/nodejs' },
+                        { text: 'Nest.js', link: '/learning-paths/backend/nestjs' }
+                      ]
+                    },
+                    {
+                      text: 'Python 生态',
+                      collapsed: true,
+                      items: [
+                        { text: 'Django', link: '/learning-paths/backend/django' },
+                        { text: 'Flask', link: '/learning-paths/backend/flask' },
+                        { text: 'FastAPI', link: '/learning-paths/backend/fastapi' }
+                      ]
+                    },
+                    {
+                      text: '多语言后端',
+                      collapsed: true,
+                      items: [
+                        { text: 'Spring Boot', link: '/learning-paths/backend/spring-boot' },
+                        { text: 'Go + Gin', link: '/learning-paths/backend/golang' },
+                        { text: 'Laravel', link: '/learning-paths/backend/laravel' },
+                        { text: 'Rust Web', link: '/learning-paths/backend/rust-web' }
+                      ]
+                    }
                   ]
                 },
                 {
                   text: 'AI 开发',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
-                    { text: 'AI Agent 基础', link: '/learning-paths/ai/agent-basics' },
-                    { text: 'AI Agent 开发', link: '/learning-paths/ai/agent-development' },
-                    { text: '自主 Agent', link: '/learning-paths/ai/autonomous-agents' },
-                    { text: 'Prompt Engineering', link: '/learning-paths/ai/prompt-engineering' },
-                    { text: 'LangChain', link: '/learning-paths/ai/langchain' },
-                    { text: 'LlamaIndex', link: '/learning-paths/ai/llamaindex' },
-                    { text: 'RAG 系统', link: '/learning-paths/ai/rag-systems' },
-                    { text: '向量数据库', link: '/learning-paths/ai/vector-databases' },
-                    { text: 'Claude API', link: '/learning-paths/ai/claude-api' },
-                    { text: 'Claude MCP', link: '/learning-paths/ai/claude-mcp' }
+                    { text: '路线总览', link: '/learning-paths/ai/' },
+                    {
+                      text: '基础与大模型',
+                      collapsed: true,
+                      items: [
+                        { text: 'Prompt Engineering', link: '/learning-paths/ai/prompt-engineering' },
+                        { text: 'Claude API', link: '/learning-paths/ai/claude-api' }
+                      ]
+                    },
+                    {
+                      text: 'Agent 系统',
+                      collapsed: true,
+                      items: [
+                        { text: 'AI Agent 基础', link: '/learning-paths/ai/agent-basics' },
+                        { text: 'AI Agent 开发', link: '/learning-paths/ai/agent-development' },
+                        { text: '自主 Agent', link: '/learning-paths/ai/autonomous-agents' }
+                      ]
+                    },
+                    {
+                      text: '知识库与 RAG',
+                      collapsed: true,
+                      items: [
+                        { text: 'RAG 系统', link: '/learning-paths/ai/rag-systems' },
+                        { text: '向量数据库', link: '/learning-paths/ai/vector-databases' }
+                      ]
+                    },
+                    {
+                      text: '框架与协议',
+                      collapsed: true,
+                      items: [
+                        { text: 'LangChain', link: '/learning-paths/ai/langchain' },
+                        { text: 'LlamaIndex', link: '/learning-paths/ai/llamaindex' },
+                        { text: 'Claude MCP', link: '/learning-paths/ai/claude-mcp' }
+                      ]
+                    },
+                    {
+                      text: '生产工程',
+                      collapsed: true,
+                      items: [
+                        { text: 'AI 应用安全', link: '/learning-paths/security/web-security#web-安全学习路线' },
+                        { text: '测试与质量保障', link: '/learning-paths/fullstack/testing#全栈测试学习路线' },
+                        { text: '部署与监控', link: '/learning-paths/fullstack/deployment#全栈部署与监控学习路线' },
+                        { text: 'Docker 化交付', link: '/learning-paths/devops/docker#docker-学习路线' }
+                      ]
+                    }
                   ]
                 },
                 {
                   text: '移动端开发',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: '路线总览', link: '/learning-paths/mobile/overview' },
-                    { text: 'Android 原生', link: '/learning-paths/mobile/android-native' },
-                    { text: 'iOS 原生', link: '/learning-paths/mobile/ios-native' },
-                    { text: 'React Native', link: '/learning-paths/mobile/react-native' },
-                    { text: 'Flutter', link: '/learning-paths/mobile/flutter' },
-                    { text: 'uni-app', link: '/learning-paths/mobile/uniapp' },
-                    { text: '微信小程序', link: '/learning-paths/mobile/wechat-miniprogram' }
+                    {
+                      text: '原生开发',
+                      collapsed: true,
+                      items: [
+                        { text: 'Android 原生', link: '/learning-paths/mobile/android-native' },
+                        { text: 'iOS 原生', link: '/learning-paths/mobile/ios-native' }
+                      ]
+                    },
+                    {
+                      text: '跨平台与多端',
+                      collapsed: true,
+                      items: [
+                        { text: 'React Native', link: '/learning-paths/mobile/react-native' },
+                        { text: 'Flutter', link: '/learning-paths/mobile/flutter' },
+                        { text: 'uni-app', link: '/learning-paths/mobile/uniapp' },
+                        { text: '微信小程序', link: '/learning-paths/mobile/wechat-miniprogram' }
+                      ]
+                    }
                   ]
                 },
                 {
                   text: '桌面端开发',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: '路线总览', link: '/learning-paths/desktop/overview' },
                     { text: 'Electron', link: '/learning-paths/desktop/electron' },
@@ -185,7 +288,7 @@ export default defineConfig({
                 // 计算机科学四大基石：不绑定任何技术栈的内功心法
                 {
                   text: '计算机科学基础',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: '数据结构与算法', link: '/learning-paths/cs-basics/data-structures-algorithms' },
                     { text: '计算机组成原理', link: '/learning-paths/cs-basics/computer-organization' },
@@ -195,17 +298,17 @@ export default defineConfig({
                 },
                 {
                   text: '编程语言',
-                  collapsed: false,
+                  collapsed: true,
                   // JavaScript/TypeScript/Go/Rust 的语言路线由各自技术栈页承载（前端/后端），此处汇总全部语言入口
                   items: [
                     { text: 'Java', link: '/learning-paths/languages/java' },
-                    { text: 'JavaScript', link: '/learning-paths/frontend/javascript' },
-                    { text: 'TypeScript', link: '/learning-paths/frontend/typescript' },
+                    { text: 'JavaScript', link: '/learning-paths/frontend/javascript#javascript-学习路线' },
+                    { text: 'TypeScript', link: '/learning-paths/frontend/typescript#typescript-学习路线' },
                     { text: 'Python', link: '/learning-paths/languages/python' },
-                    { text: 'Go', link: '/learning-paths/backend/golang' },
+                    { text: 'Go', link: '/learning-paths/backend/golang#go-web-开发学习路线' },
                     { text: 'C++', link: '/learning-paths/languages/cpp' },
                     { text: 'C#', link: '/learning-paths/languages/csharp' },
-                    { text: 'Rust', link: '/learning-paths/backend/rust-web' },
+                    { text: 'Rust', link: '/learning-paths/backend/rust-web#rust-web-开发学习路线' },
                     { text: 'PHP', link: '/learning-paths/languages/php' },
                     { text: 'Ruby', link: '/learning-paths/languages/ruby' },
                     { text: 'Swift', link: '/learning-paths/languages/swift' },
@@ -214,7 +317,7 @@ export default defineConfig({
                 },
                 {
                   text: '工具与工作流',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: 'Git 版本控制', link: '/learning-paths/tools/git' },
                     { text: 'VS Code', link: '/learning-paths/tools/vscode' },
@@ -224,7 +327,7 @@ export default defineConfig({
                 },
                 {
                   text: '构建工具',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: 'Maven', link: '/learning-paths/build-tools/maven' },
                     { text: 'Gradle', link: '/learning-paths/build-tools/gradle' },
@@ -233,7 +336,7 @@ export default defineConfig({
                 },
                 {
                   text: '测试框架',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: 'Jest', link: '/learning-paths/testing/jest' },
                     { text: 'Pytest', link: '/learning-paths/testing/pytest' },
@@ -244,7 +347,7 @@ export default defineConfig({
                 },
                 {
                   text: '安全',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: 'Web 安全', link: '/learning-paths/security/web-security' },
                     { text: '认证授权', link: '/learning-paths/security/auth' },
@@ -261,7 +364,7 @@ export default defineConfig({
               items: [
                 {
                   text: '数据库',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: 'MySQL', link: '/learning-paths/database/mysql' },
                     { text: 'PostgreSQL', link: '/learning-paths/database/postgresql' },
@@ -271,7 +374,7 @@ export default defineConfig({
                 },
                 {
                   text: '中间件',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: 'Kafka', link: '/learning-paths/middleware/kafka' },
                     { text: 'RabbitMQ', link: '/learning-paths/middleware/rabbitmq' },
@@ -285,7 +388,7 @@ export default defineConfig({
                 },
                 {
                   text: '微服务架构',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: '微服务设计模式', link: '/learning-paths/microservices/microservices-patterns' },
                     { text: 'API 网关', link: '/learning-paths/microservices/api-gateway' },
@@ -296,7 +399,7 @@ export default defineConfig({
                 },
                 {
                   text: 'DevOps',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: 'Linux 系统管理', link: '/learning-paths/devops/linux' },
                     { text: 'Docker', link: '/learning-paths/devops/docker' },
@@ -308,7 +411,7 @@ export default defineConfig({
                 },
                 {
                   text: '云原生',
-                  collapsed: false,
+                  collapsed: true,
                   items: [
                     { text: '云原生模式', link: '/learning-paths/cloud-native/cloud-native-patterns' },
                     { text: 'Serverless', link: '/learning-paths/cloud-native/serverless' },
